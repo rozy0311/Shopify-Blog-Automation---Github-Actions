@@ -1,0 +1,1673 @@
+1. Nhắc lại bài toán (rút gọn)
+
+Workflow “Shopify blog từ Google Sheet” của bạn yêu cầu:
+
+Đọc queue từ Google Sheet (Sheet1!A:B)
+
+Đọc CONFIG!A:B (có LLM_CONTROL_PROMPT, BLOG_HANDLE, AUTHOR…)
+
+Batch 30 dòng pending (A có URL, B trống)
+
+Gọi OpenAI JSON-mode, validate:
+
+JSON chuẩn
+
+Không chứa năm (NO YEARS)
+
+Gọi Shopify:
+
+GET blog theo handle
+
+POST article, gắn image đầu tiên nếu có
+
+Backfill URL lại vào đúng dòng Google Sheet
+
+Retry 2s → 5s → 10s cho API lỗi
+
+Cron 3 lần/ngày
+
+Guardrails Level-6:
+
+WF_ENABLED=false mặc định (dry-run)
+
+Chỉ publish khi bật
+
+Human tự quyết bật schedule / bật flag
+
+Đó không phải “gửi email chào mừng”, mà là content pipeline có policy.
+
+2. Chấm điểm độ phức tạp (theo 12 flag)
+
+Lấy 12 cờ trong “complexity kit” lúc nãy, check từng cái:
+
+Batch / loop item-level
+
+Batch 30, lỗi 1 item không chặn batch → TRUE
+
+Retry + backoff tuỳ biến
+
+3 lần với 2s / 5s / 10s → TRUE
+
+Validation strict
+
+JSON-only, regex NO YEARS, fail nếu LLM bậy → TRUE
+
+Guardrails (dry-run, kill-switch, approval)
+
+WF_ENABLED=false, dry-run, Level-6 → TRUE
+
+Multi-API ordered
+
+Sheets → LLM → Shopify → Sheets → TRUE
+
+Idempotency / backfill by key
+
+Update đúng dòng theo url_blog_crawl → TRUE
+
+Logging / artifact
+
+Batch summary Attempted/Processed/Failed, log per item → TRUE
+
+Multi-cron / timezone
+
+3 lần/ngày, theo America/Chicago → TRUE
+
+Version control / rollback
+
+Bạn muốn thay đổi an toàn, dễ revert → TRUE (và nên yêu cầu)
+
+Secrets governance
+
+Shopify token, OpenAI key, Google credentials → TRUE
+
+Rules change often
+
+Prompt, quy tắc SEO, logic validate có thể đổi → thực tế là TRUE
+
+Dev/Ops team maintain
+
+Bạn build nó với mindset kỹ sư, không phải “chị content tự kéo” → TRUE
+
+Kết quả cực kỳ dễ đoán:
+
+Score ≈ 11–12 / 12
+→ vùng code-first CI/CD (GitHub Actions + Node/TS)
+→ không phù hợp dùng drag-drop như n8n làm nền chính
+
+3. Chọn nền tảng theo score
+
+Theo bảng ngưỡng:
+
+0–3: drag-drop (n8n/Make) ok
+
+4–7: hybrid (n8n là UI/trigger, logic chính ở code)
+
+8–12: code-first CI/CD (GitHub Actions / Node / Temporal…)
+
+Bài toán của bạn: 11–12 điểm
+⇒ Kết luận chuẩn:
+
+Nền tảng chính nên là:
+
+Repo Node/TypeScript + GitHub Actions để:
+
+Quản lý logic phức tạp
+
+Retry/backoff
+
+Kiểm soát secrets
+
+Log, artifact, PR, rollback
+
+Cron stable
+
+n8n (nếu còn dùng) chỉ nên là lớp UI / trigger:
+
+Ví dụ: nút “Run batch now” → n8n bắn webhook / gọi GitHub API workflow_dispatch
+
+Không gánh logic LLM/Shopify/Sheets nữa
+
+Agent Builder / AgentKit có thể vào giai đoạn 2:
+
+Khi bạn muốn:
+
+Cho AI tự chọn bài để ưu tiên
+
+Giao tiếp qua chat với operator (duyệt/deny từng bài)
+
+Thêm evals, guardrails nâng cao
+
+Nhưng business logic core vẫn nên ở mã nguồn / CI, không chôn hết vào agent chain “đen như ví”.
+
+4. Nếu giải lại bài toán từ đầu
+
+Nếu ngày đầu bạn đưa bài này và dùng đúng prompt “chọn nền tảng theo độ phức tạp”, quy trình sẽ là:
+
+Mô tả requirement như bạn đã làm.
+
+Điền 12 flag → score ~11.
+
+AI / kiến trúc sư bảo thẳng:
+
+“Nền tảng chính: GitHub Actions + Node/TS.
+n8n chỉ dùng nếu bạn cần UI cho non-dev.
+Không nên implement full logic trong n8n.”
+
+Implementation từ đầu:
+
+Repo shopify-blog-automation
+
+src/index.ts, sheets.ts, llm.ts, shopify.ts, batch.ts
+
+.github/workflows/publish.yml
+
+Env/Secrets quản lý ở GitHub Actions
+
+Tùy chọn: thêm autorun.ts nếu muốn chạy local với cron.
+
+Thay vì:
+
+Ngồi debug node Merge, Function, $items(), “Node X hasn’t been executed”, JSON não cá vàng, import/export n8n bị node ?…
+
+Bạn chỉ chỉnh code, commit, run, log rõ ràng.
+
+5. Tóm lại trong 1 câu cho bạn đem về dán lên tường
+
+Với pipeline Shopify blog này, mức độ phức tạp đặt nó thẳng vào vùng “code-first CI/CD”, nên chọn GitHub Actions + Node/TS để làm nền tảng, còn n8n chỉ nên dùng (nếu cần) như một cái remote control, không phải cả cái động cơ.
+
+_____________________________________________________________________
+
+Có thể cho AI quản lý pipeline, nhưng:
+
+KHÔNG được bỏ cái Node/TS + GitHub Actions hiện tại.
+
+AI phải đứng vai “chỉ huy”, không phải “thợ code mới vào”.
+
+Con người vẫn là root authority: AI không tự ý đẩy chế độ publish nếu không được phép.
+
+Dưới đây là cách làm đúng nghĩa “AI quản lý pipeline”, chứ không phải “AI làm thay hết cho mình rồi ngồi cầu nguyện”.
+
+1. Thực tế: bạn đang thiếu cái gì?
+
+Hiện tại:
+
+Bạn đã có (hoặc gần như có) pipeline: Node/TS + GitHub Actions → đọc Sheet, gọi OpenAI, post Shopify, backfill, retry, guardrail.
+
+Bạn chưa có lớp điều phối thông minh:
+
+Ai quyết định chạy review hay publish?
+
+Khi lỗi liên tục, ai dừng, ai báo động?
+
+Khi queue dài, ai ưu tiên cái nào trước?
+
+Khi prompt/config sai, ai chỉnh?
+
+Bạn đang muốn:
+
+“AI đóng vai thằng Ops Lead: giám sát pipeline, quyết định khi nào chạy, khi nào đứng, khi nào escalate lên người.”
+
+Đó là AI Ops Supervisor, không phải “một cái workflow nữa”.
+
+2. Kiến trúc đúng cho “AI quản lý pipeline”
+
+Giữ lại:
+
+Repo Node/TS + GitHub Actions làm execution engine (máy chạy việc).
+
+Thêm một tầng AI Supervisor dùng:
+
+Agent Builder / AgentKit
+
+hoặc 1 service Node dùng OpenAI Tools (function calling) chạy định kỳ.
+
+2.1. Các “tool” mà AI Supervisor được phép dùng
+
+AI không được thích gì làm nấy. Nó chỉ được gọi tool trong sandbox:
+
+get_queue_status()
+
+Read từ Google Sheet:
+
+Số bài pending.
+
+Số bài đã publish.
+
+Lần chạy gần nhất.
+
+get_pipeline_health()
+
+Đọc log / artifact từ GitHub Actions:
+
+Attempted, Processed, Failed của các run gần đây.
+
+Error message chính.
+
+run_workflow(mode)
+
+Gọi GitHub Actions workflow_dispatch với:
+
+mode = "review" hoặc "publish".
+
+Mode publish CHỈ được phép:
+
+Nếu human đã bật flag ALLOW_PUBLISH=true trong config (hoặc env).
+
+Nếu error rate 3 run gần nhất < ngưỡng (ví dụ 20%).
+
+notify_human(channel, message, links)
+
+Gửi message qua Slack/Telegram/Email:
+"Có 25 bài pending, lần chạy trước failed 2/10, cho phép publish không?"
+kèm link đến:
+
+Sheet
+
+Artifact preview
+
+Run log.
+
+update_config_patch(patch)
+
+CHỈ được phép với:
+
+Các param an toàn: batch size, ngưỡng retry, mode chạy.
+
+Không được tự sửa LLM_CONTROL_PROMPT nếu không có approval.
+
+open_incident(summary)
+
+Ghi lỗi vào 1 nơi: Google Sheet “INCIDENTS” hoặc GitHub Issue.
+
+Tất cả những cái này đều dùng được với:
+
+GitHub REST API (trigger workflow, đọc runs).
+
+Google Sheets API.
+
+Slack / Telegram API.
+
+OpenAI làm não để ra quyết định.
+
+3. Hành vi của AI Supervisor (vòng lặp vận hành)
+Mỗi lần tick (ví dụ mỗi 30 phút hoặc khi bạn chat với nó):
+
+Đọc tình trạng:
+
+queue = get_queue_status()
+
+health = get_pipeline_health()
+
+Đánh giá:
+
+Nếu no pending → log: “Không có bài nào để chạy.”
+
+Nếu error rate cao (>=50%) ở 2 run gần nhất:
+
+notify_human("Ops", "Error rate quá cao, tạm dừng publish")
+
+update_config_patch({ WF_ENABLED: false })
+
+open_incident(...)
+
+Kết luận: STOP, không chạy workflow.
+
+Quyết định chạy gì:
+
+Nếu WF_ENABLED=false hoặc ALLOW_PUBLISH=false:
+
+Chỉ được phép gọi: run_workflow("review").
+
+Nếu WF_ENABLED=true và health ổn:
+
+Có thể đề xuất:
+
+"Có 15 pending, lần trước review ổn, cho phép publish batch 10?"
+
+Gửi link preview → chờ reply human.
+
+Sau khi bạn confirm:
+
+Gọi run_workflow("publish").
+
+Sau mỗi run:
+
+Đọc lại artifact SUMMARY: Attempted, Processed, Failed.
+
+Nếu Failed > 0:
+
+notify_human với chi tiết lỗi từng bài.
+
+Nếu mọi thứ OK:
+
+Log nhẹ: "Batch OK, queue còn X, sẽ run lại vào T+N."
+
+Tức là: AI không chỉ “chạy pipeline”, mà giám sát, quyết định kiểu chạy, dừng khi có vấn đề, và ping bạn đúng lúc, chứ không spam publish như điên.
+
+4. Mức độ tự chủ bạn đang đòi
+
+Bạn thực ra đang nói:
+
+“Cho nó lên Level-7: tự đánh giá, tự trigger GA, tự mở review, tự dừng publish khi lỗi.”
+
+Mức này không phải chơi cho vui nữa, mà là:
+
+Phải có policy rõ: nó được phép làm gì, không được làm gì.
+
+Phải có giới hạn:
+
+Không được tự set WF_ENABLED=true.
+
+Không được tự sửa prompt LLM “cho hay hơn”.
+
+Không được tự chỉnh Shopify handle / author.
+
+Nếu bạn không set boundary, “AI tự quản lý pipeline” = “AI tự quản luôn danh tiếng & SEO của bạn”.
+
+5. Kế hoạch thực tế, ưu tiên
+
+Tôi không làm mơ hồ, đây là plan cụ thể:
+
+Bước 0 – Đóng băng pipeline hiện tại
+
+Giữ Node/TS + GitHub Actions như executor duy nhất.
+
+Không thêm hack mới vào n8n.
+
+Đảm bảo 2 mode chạy:
+
+mode=review → sinh preview, không publish.
+
+mode=publish → publish + backfill.
+
+Bước 1 – Gói pipeline thành “tool”
+
+Tạo 1 service hoặc 1 lớp “tool”:
+
+tool.runWorkflow({ mode }) → gọi GitHub Actions workflow_dispatch.
+
+tool.getLastRuns() → list 3 lần chạy gần nhất + trạng thái.
+
+tool.getQueueStats() → đọc Google Sheet đếm pending.
+
+Bước 2 – Xây AI Supervisor
+
+Dùng:
+
+Agent Builder / Node service dùng OpenAI function calling.
+
+Define agent với:
+
+Context: mô tả target, guardrails.
+
+Tools: 6 cái ở mục 2.1.
+
+Prompt system kiểu:
+
+“Mục tiêu: giữ pipeline content Shopify/blog chạy ổn định, an toàn, không publish rác.
+Luôn ưu tiên review trước khi publish.
+Không bao giờ tự bật publish nếu người dùng chưa set ALLOW_PUBLISH=true.
+Nếu lỗi tăng, phải dừng, báo cáo, mở incident.”
+
+Bước 3 – Kênh giao tiếp với bạn
+
+Kết nối Supervisor với:
+
+Slack / Telegram / Web UI Chat.
+
+Nó gửi messages:
+
+“Run review đã xong, 8 bài OK, 2 bài fail vì chứa năm. Xem preview ở đây: …”
+
+“Error rate > 50% ở 2 run liên tiếp. Tạm dừng publish, đợi bạn xem nguyên nhân.”
+
+Bước 4 – Tăng dần mức tự động
+
+Giai đoạn 1: AI chỉ được chạy review, không bao giờ publish.
+
+Giai đoạn 2: AI được phép đề xuất publish, bạn bấm approve (qua chat).
+
+Giai đoạn 3: AI được phép tự chạy publish nếu:
+
+Error rate thấp.
+
+Đã có ít nhất 1 review gần đây OK.
+
+Bạn bật flag ALLOW_AUTOPUBLISH=true.
+
+Nếu bạn nhảy thẳng từ 0 → full autopilot không qua giai đoạn review/approve, thì lỗi là quy trình, không phải AI.
+
+Tóm lại: có nên chuyển sang “AI tự quản lý pipeline”?
+
+Có, nhưng:
+
+Không vứt code hiện tại.
+
+Không giao hết quyền publish cho AI.
+
+Phải coi AI là Ops Lead với quyền hạn giới hạn, không phải ông chủ.
+
+Pipeline “blog Shopify” của bạn đủ phức tạp để:
+
+CI/CD: đã giải xong bằng GitHub Actions + Node.
+
+Supervisor agent: bây giờ mới là giai đoạn đúng để thêm.
+
+Nếu bạn muốn bước tiếp theo là:
+“Thiết kế cụ thể cái Supervisor Agent (schema tools + prompt + flow quyết định) y như spec sản xuất được”, thì ta làm luôn.
+
+_____________________________________________________________________
+
+Được, giờ chơi “Supervisor Agent” nhưng ở level sản xuất, không phải demo slide.
+
+Tôi sẽ thiết kế cho bạn một AI Supervisor đứng trên pipeline GitHub Actions + Node/TS hiện tại, với:
+
+Bộ tools rõ schema (function calling / Agent Builder / AgentKit dùng được ngay)
+
+System prompt chặt chẽ, cài luôn guardrail L6
+
+Flow quyết định: khi nào chỉ review, khi nào publish, khi nào stop & báo động
+
+Các ngưỡng & điều kiện đủ cụ thể để dev implement không phải đoán
+
+1. Bối cảnh & ranh giới (Scope)
+
+Pipeline dưới (executor) đã có:
+
+Workflow GitHub Actions / script Node:
+
+Mode review: sinh preview (HTML/JSON) nhưng không publish Shopify, không backfill.
+
+Mode publish: publish Shopify + backfill Google Sheet.
+
+Repo có logs, summary JSON, artifact review.
+
+Supervisor Agent sẽ:
+
+Được phép:
+
+Gọi workflow review / publish qua GitHub API
+
+Xem queue từ Google Sheet
+
+Xem health từ các run gần nhất
+
+Gửi thông báo cho bạn (Slack/Telegram/Email/Webhook)
+
+Mở incident / issue
+
+Tắt/bật WF_ENABLED theo hướng an toàn hơn (tắt khi lỗi, không tự bật nếu người chưa cho phép)
+
+KHÔNG được phép:
+
+Tự set ALLOW_PUBLISH=true
+
+Tự sửa LLM_CONTROL_PROMPT, Shopify handle, hoặc anything content-critical
+
+Tự chạy publish khi error-rate đang cao hoặc chưa có review gần đây OK
+
+2. Tool schema (chuẩn cho function calling / AgentKit)
+
+Dùng JSON schema kiểu OpenAI tools / Agent Builder “actions”. Tôi đặt tên tool cụ thể, bạn có thể map sang implementation sau.
+
+2.1. get_queue_status
+
+Mục đích: xem hàng chờ trên Google Sheets.
+
+{
+  "name": "get_queue_status",
+  "description": "Fetch current queue status from Google Sheet: how many pending rows, last updated time, sample URLs.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "limit_sample": {
+        "type": "integer",
+        "description": "How many sample pending URLs to return for context (e.g. 5).",
+        "default": 5
+      }
+    },
+    "required": []
+  }
+}
+
+
+Output (expect từ backend):
+
+{
+  "total_pending": 23,
+  "sample_urls": [
+    "https://example.com/post1",
+    "https://example.com/post2"
+  ],
+  "last_backfill_at": "2025-11-07T13:05:12Z"
+}
+
+2.2. get_pipeline_health
+
+Mục đích: xem 3 lần run gần nhất của workflow.
+
+{
+  "name": "get_pipeline_health",
+  "description": "Get recent pipeline runs and error stats from GitHub Actions workflow.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "limit_runs": {
+        "type": "integer",
+        "description": "How many past runs to inspect (1-10). Default 3.",
+        "default": 3
+      }
+    },
+    "required": []
+  }
+}
+
+
+Output (backend):
+
+{
+  "runs": [
+    {
+      "id": 123,
+      "status": "completed",
+      "conclusion": "success",
+      "mode": "review",
+      "summary": { "attempted": 10, "processed": 10, "failed": 0 },
+      "started_at": "2025-11-07T13:05:00Z",
+      "finished_at": "2025-11-07T13:05:40Z"
+    },
+    {
+      "id": 122,
+      "status": "completed",
+      "conclusion": "failure",
+      "mode": "publish",
+      "summary": { "attempted": 8, "processed": 4, "failed": 4 },
+      "started_at": "...",
+      "finished_at": "..."
+    }
+  ]
+}
+
+2.3. dispatch_workflow
+
+Mục đích: chạy GitHub Actions workflow với mode review hoặc publish.
+
+{
+  "name": "dispatch_workflow",
+  "description": "Trigger the content pipeline workflow with a specific mode: review or publish.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "mode": {
+        "type": "string",
+        "enum": ["review", "publish"],
+        "description": "Mode 'review' runs the pipeline without publishing; 'publish' actually posts to Shopify and backfills Sheets."
+      },
+      "reason": {
+        "type": "string",
+        "description": "Short explanation why this run is being triggered.",
+        "minLength": 10
+      }
+    },
+    "required": ["mode", "reason"]
+  }
+}
+
+
+Output (backend):
+
+{
+  "run_id": 124,
+  "mode": "review",
+  "status": "queued",
+  "url": "https://github.com/ORG/REPO/actions/runs/124"
+}
+
+2.4. notify_human
+
+Mục đích: ping bạn để quyết định / cảnh báo.
+
+{
+  "name": "notify_human",
+  "description": "Send a concise notification to human operators with context and links.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "channel": {
+        "type": "string",
+        "description": "Notification channel identifier (e.g. slack:#ops, telegram:@you, email)."
+      },
+      "subject": {
+        "type": "string",
+        "description": "One-line subject."
+      },
+      "message": {
+        "type": "string",
+        "description": "Short message explaining situation and recommendation.",
+        "minLength": 10
+      },
+      "links": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "description": "URLs to logs, artifacts, previews, or dashboards."
+        }
+      },
+      "require_ack": {
+        "type": "boolean",
+        "description": "If true, explicitly ask human to confirm in chat before publish.",
+        "default": false
+      }
+    },
+    "required": ["channel", "subject", "message"]
+  }
+}
+
+2.5. update_config_flags
+
+Mục đích: chỉnh flag vận hành an toàn (chỉ theo whitelist).
+
+{
+  "name": "update_config_flags",
+  "description": "Safely update operational flags like WF_ENABLED or ALLOW_PUBLISH. Never touch prompts or content rules.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "WF_ENABLED": {
+        "type": "boolean",
+        "description": "Enable/disable pipeline executor. Agent can set this to false on persistent failures."
+      },
+      "ALLOW_PUBLISH": {
+        "type": "string",
+        "enum": ["human_disabled", "human_enabled"],
+        "description": "Agent may read but NOT set to 'human_enabled'. Only allowed to set back to 'human_disabled' if needed."
+      }
+    },
+    "required": []
+  }
+}
+
+
+BACKEND RULE:
+
+Nếu agent cố set ALLOW_PUBLISH="human_enabled" → backend reject. Agent chỉ được quyền tắt, không tự bật.
+
+2.6. open_incident
+
+Mục đích: log incident nghiêm trọng.
+
+{
+  "name": "open_incident",
+  "description": "Record an incident when pipeline health is degraded or unsafe to publish.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "severity": {
+        "type": "string",
+        "enum": ["low", "medium", "high", "critical"],
+        "description": "How bad this is."
+      },
+      "summary": {
+        "type": "string",
+        "description": "Summary of the issue.",
+        "minLength": 10
+      },
+      "details": {
+        "type": "string",
+        "description": "Detailed context, including last runs and queue status."
+      }
+    },
+    "required": ["severity", "summary"]
+  }
+}
+
+3. System prompt cho Supervisor Agent
+
+Đây là não của thằng Supervisor. Bạn không được viết nhẹ tay. Phải cứng:
+
+You are the AI Supervisor for the Shopify Blog Content Pipeline.
+
+Your job:
+- Keep the pipeline safe, reliable, and aligned with business rules.
+- Decide when to run the pipeline in REVIEW mode vs PUBLISH mode.
+- Stop or degrade the pipeline when error rates or content quality are bad.
+- Escalate to humans clearly, with context and recommendation.
+
+Hard constraints:
+- Humans are the root authority. You NEVER override an explicit human decision.
+- You MUST treat ALLOW_PUBLISH as a human-owned flag:
+  - You may NEVER set ALLOW_PUBLISH to "human_enabled".
+  - You may ONLY downgrade it to "human_disabled" in case of risk.
+- WF_ENABLED is the execution kill-switch:
+  - You may set WF_ENABLED to false to protect the system.
+  - You may set WF_ENABLED to true ONLY if:
+    - ALLOW_PUBLISH is "human_enabled"
+    - Recent error rate is low, and
+    - You have seen at least one successful REVIEW run in the last N runs.
+
+Risk criteria:
+- If 2 or more of the last 3 runs have failure rate >= 50%, treat the pipeline as UNSTABLE.
+- If LLM-related failures suggest prompt or JSON issues that you cannot fix, STOP PUBLISHING and escalate.
+- If queue has many pending items but pipeline is disabled, notify humans with a clear trade-off: backlog vs risk.
+
+Operating modes:
+- "review" mode:
+  - Allowed at any time.
+  - Runs the pipeline but does NOT publish to Shopify and does NOT backfill Sheets.
+  - Intended to inspect output quality and system behavior without risk.
+- "publish" mode:
+  - Only allowed when ALLOW_PUBLISH="human_enabled" AND health is good.
+  - If conditions are not met, DO NOT request or trigger publish.
+
+Decision policy on each check-in:
+1) First, call get_queue_status and get_pipeline_health.
+2) Compute:
+   - total_pending
+   - recent_failure_rate per run
+   - how many runs in review vs publish
+3) If pipeline is unstable (2 of last 3 runs failed >=50%):
+   - Call update_config_flags with WF_ENABLED=false and ALLOW_PUBLISH="human_disabled" if appropriate.
+   - Call notify_human with severity and a short recommendation.
+   - Call open_incident with severity="high" or "critical".
+   - Do NOT dispatch publish.
+4) If there are pending items AND WF_ENABLED=false:
+   - Suggest running a REVIEW run only.
+   - Optionally call dispatch_workflow(mode="review") with a short reason.
+   - Notify human that backlog is growing but you kept system safe.
+5) If ALLOW_PUBLISH="human_disabled" but health is OK:
+   - You may suggest enabling ALLOW_PUBLISH to humans via notify_human.
+   - DO NOT change ALLOW_PUBLISH yourself.
+6) If ALLOW_PUBLISH="human_enabled", WF_ENABLED=true, and last REVIEW run was successful with low failures:
+   - You may call dispatch_workflow(mode="publish") with a clear reason (e.g., "15 pending, last review run was clean").
+7) After triggering any workflow, report what you did in a concise summary.
+
+Style:
+- Be concise, factual, and operational. No fluff.
+- Always explain WHY you did or did not trigger a run.
+- When in doubt, choose safety over aggression: prefer REVIEW, escalate to humans, or stop the pipeline instead of blindly publishing.
+
+4. Flow quyết định (pseudo-code)
+
+Đây là logic bạn implement ở “tick” hoặc mỗi lần user gọi Supervisor.
+
+on_supervisor_tick():
+  queue = get_queue_status(limit_sample=5)
+  health = get_pipeline_health(limit_runs=3)
+  flags = get_current_config_flags()   # WF_ENABLED, ALLOW_PUBLISH, etc.
+
+  total_pending = queue.total_pending
+  recent_runs = health.runs
+
+  # Derive simple metrics
+  unstable_runs = count(run where run.summary.failed/run.summary.attempted >= 0.5)
+  last_review_run = most_recent(run where run.mode == "review" and run.conclusion == "success")
+  last_publish_run = most_recent(run where run.mode == "publish")
+
+  # 1) UNSTABLE CASE
+  if unstable_runs >= 2:
+      update_config_flags(WF_ENABLED=false, ALLOW_PUBLISH="human_disabled")
+      open_incident(
+        severity="high",
+        summary="Pipeline unstable: high failure rate in last runs",
+        details= summarize(health, queue)
+      )
+      notify_human(
+        channel="slack:#ops",
+        subject="[PIPELINE] Unstable - auto disabled",
+        message="Disabled WF_ENABLED and ALLOW_PUBLISH due to high failure rates. Pending: {total_pending}. Check incident log.",
+        links=[link_to_runs_dashboard, link_to_sheet]
+      )
+      return "UNSTABLE_STOPPED"
+
+  # 2) NO PENDING
+  if total_pending == 0:
+      # nothing to do
+      return "NO_PENDING"
+
+  # 3) WF_DISABLED but there is backlog -> run review only
+  if flags.WF_ENABLED == false:
+      dispatch_workflow(mode="review", reason="Backlog present, running safe REVIEW while WF is disabled")
+      notify_human(
+        channel="slack:#ops",
+        subject="[PIPELINE] Review run started (WF disabled)",
+        message=f"Ran REVIEW with {total_pending} pending items while WF_ENABLED=false. No publish occurred.",
+        links=[link_to_latest_run]
+      )
+      return "REVIEW_ONLY"
+
+  # 4) WF enabled but ALLOW_PUBLISH disabled -> run review, suggest enabling
+  if flags.ALLOW_PUBLISH != "human_enabled":
+      dispatch_workflow(mode="review", reason="Backlog present but ALLOW_PUBLISH is disabled; running REVIEW only")
+      notify_human(
+        channel="slack:#ops",
+        subject="[PIPELINE] Review run (publish locked)",
+        message=f"Ran REVIEW with {total_pending} pending. ALLOW_PUBLISH is disabled; ask human if we can enable it.",
+        links=[link_to_latest_run]
+      )
+      return "REVIEW_WITH_SUGGEST"
+
+  # 5) All flags OK, health good -> publish allowed
+  if flags.ALLOW_PUBLISH == "human_enabled" and flags.WF_ENABLED == true and last_review_run is successful:
+      dispatch_workflow(mode="publish", reason=f"{total_pending} pending, last review run healthy")
+      notify_human(
+        channel="slack:#ops",
+        subject="[PIPELINE] Publish run started",
+        message=f"Triggered PUBLISH with {total_pending} pending items. Last review run was healthy.",
+        links=[link_to_latest_run, link_to_sheet]
+      )
+      return "PUBLISH"
+
+  # Default: fallback to review
+  dispatch_workflow(mode="review", reason="Safe default: run REVIEW due to ambiguous health/flags")
+  return "DEFAULT_REVIEW"
+
+5. Cách triển khai thực tế (stack đề xuất)
+
+Nếu bạn cần một lộ trình thực tế, không mơ:
+
+Executor: giữ nguyên Node/TS + GitHub Actions pipeline hiện có (review/publish).
+
+Supervisor service:
+
+Node/TS service chạy mỗi 30 phút (cron) hoặc qua GitHub Actions “supervisor workflow”.
+
+Nó gọi OpenAI (model cho agent) + implements mấy tool phía backend:
+
+get_queue_status: gọi Google Sheets API
+
+get_pipeline_health: gọi GitHub REST /actions/runs
+
+dispatch_workflow: POST /actions/workflows/{id}/dispatches
+
+notify_human: gọi Slack/Telegram
+
+update_config_flags: edit repo variables / config sheet
+
+open_incident: tạo issue hoặc ghi dòng mới vào Sheet INCIDENTS
+
+UI / Interaction:
+
+Bạn có thể chat với Supervisor Agent (qua web UI / Slack).
+
+Agent có thể nói:
+
+“Tôi vừa chạy review, 2 bài fail vì JSON, 1 vì NO YEARS. Bạn muốn sửa prompt hay tạm dừng publish?”
+
+6. Tóm tắt thẳng
+
+Tools: đã define đủ 6 cái để Supervisor nhìn queue, đo health, chạy GA, báo bạn, và đập phanh khi cần.
+
+Prompt: đã cài cứng rule: không tự bật publish, ưu tiên review, dừng khi lỗi nặng, escalate incident.
+
+Flow: đã có pseudo-code chi tiết, dev chỉ việc triển khai.
+
+Nếu bạn implement đúng spec này, “AI tự quản lý pipeline” không phải trò đùa, mà là:
+
+Con bot đứng ngoài pipeline, canh sức khỏe, quyết review/publish, và kéo phanh khẩn cấp khi mọi thứ bắt đầu thối, trong khi bạn vẫn là người cuối cùng có quyền bật chế độ “bắn đạn thật”.
+_____________________________________________________________________
+
+tôi đưa bạn một script duy nhất tạo nguyên repo “Executor + Supervisor + GitHub Actions” theo đúng spec. Chạy script xong là có đủ file, đủ folder, đủ workflow. Rồi git init → push là xong.
+
+Cách dùng 30 giây
+
+Tạo thư mục trống trên máy bạn, mở Terminal tại đó.
+
+Tạo file bootstrap.sh, dán nội dung bên dưới, rồi chạy:
+
+bash bootstrap.sh
+
+
+Mở thư mục bằng VS Code, điền .env như đã hướng dẫn, commit & push.
+
+bootstrap.sh — tạo full repo (Executor + Supervisor + Actions)
+
+Dán y nguyên, không tự “thêm thắt cho có mùi nghệ sĩ.”
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="shopify-blog-supervisor-suite"
+mkdir -p "$ROOT"
+cd "$ROOT"
+
+# -------------------------
+# Root README
+# -------------------------
+cat > README.md <<'EOF'
+# Shopify Blog Automation • Supervisor Suite (No-n8n)
+
+Pipeline CI/CD (executor) + AI Supervisor (ops brain). Ready for VSCode & GitHub.
+
+## Structure
+- `apps/executor/` — Node/TS pipeline (Google Sheets → OpenAI JSON → Shopify → backfill), with preview & autorun
+- `apps/supervisor/` — AI Supervisor controlling review/publish, health checks, notifications, incidents
+- `.github/workflows/publish.yml` — runs executor (review/publish) on schedule and manual
+- `.github/workflows/supervisor.yml` — runs supervisor every 30m (and manual)
+
+## Quick start (local)
+```bash
+# executor
+cd apps/executor
+npm ci
+cp .env.sample .env
+npx tsc
+WF_ENABLED=false node dist/index.js         # review local (writes out/review/*.html)
+WF_ENABLED=true node dist/index.js          # publish local
+npm run autorun:dry                         # cron-like local review (07:05, 13:05, 20:05 America/Chicago)
+
+# supervisor (optional local run)
+cd ../supervisor
+npm ci
+cp .env.sample .env
+npx tsc
+node dist/index.js                          # one supervisor tick
+
+Push to GitHub
+
+Set Actions → Variables:
+
+SHEETS_ID, SHEETS_RANGE=Sheet1!A:B, CONFIG_RANGE=CONFIG!A:B
+
+SHOPIFY_SHOP, BLOG_HANDLE=agritourism, AUTHOR=The Rike
+
+OPENAI_MODEL=gpt-4o-mini
+
+WF_ENABLED=false
+
+ALLOW_PUBLISH=human_disabled
+
+Set Actions → Secrets:
+
+SHOPIFY_TOKEN, OPENAI_API_KEY, SLACK_WEBHOOK (optional)
+
+Supervisor rules
+
+Never sets ALLOW_PUBLISH=human_enabled
+
+Can set WF_ENABLED=false on risk
+
+Prefers REVIEW; PUBLISH only when flags + health cho phép
+EOF
+
+-------------------------
+Executor app
+-------------------------
+
+mkdir -p apps/executor/src
+
+cat > apps/executor/package.json <<'EOF'
+{
+"name": "shopify-blog-executor",
+"version": "1.0.0",
+"type": "module",
+"scripts": {
+"build": "tsc",
+"start": "node dist/index.js",
+"dry": "WF_ENABLED=false node dist/index.js",
+"publish": "WF_ENABLED=true node dist/index.js",
+"autorun:dry": "WF_ENABLED=false node dist/autorun.js",
+"autorun:publish": "WF_ENABLED=true node dist/autorun.js"
+},
+"dependencies": {
+"dotenv": "^16.4.5",
+"googleapis": "^133.0.0",
+"node-fetch": "^3.3.2",
+"fs-extra": "^11.1.1",
+"slugify": "^1.6.6",
+"node-cron": "^3.0.3"
+},
+"devDependencies": {
+"@types/node": "^20.14.2",
+"typescript": "^5.6.3"
+}
+}
+EOF
+
+cat > apps/executor/tsconfig.json <<'EOF'
+{
+"compilerOptions": {
+"target": "ES2021",
+"module": "ES2020",
+"moduleResolution": "Node",
+"outDir": "dist",
+"rootDir": "src",
+"strict": true,
+"esModuleInterop": true,
+"forceConsistentCasingInFileNames": true,
+"skipLibCheck": true
+},
+"include": ["src"]
+}
+EOF
+
+cat > apps/executor/.env.sample <<'EOF'
+SHEETS_ID=your_google_sheet_id
+SHEETS_RANGE=Sheet1!A:B
+CONFIG_RANGE=CONFIG!A:B
+
+SHOPIFY_SHOP=therikeus
+BLOG_HANDLE=agritourism
+AUTHOR=The Rike
+
+WF_ENABLED=false
+OPENAI_MODEL=gpt-4o-mini
+
+Secrets (local dev only; on GitHub store in Secrets)
+
+SHOPIFY_TOKEN=xxx
+OPENAI_API_KEY=sk-xxx
+EOF
+
+cat > apps/executor/README.md <<'EOF'
+
+Executor (Pipeline)
+
+Reads Google Sheets queue + CONFIG
+
+Calls OpenAI in JSON mode
+
+Validates NO YEARS
+
+(review) writes previews to out/review/*.html
+
+(publish) creates Shopify article and backfills Sheet
+
+Retries 2s/5s/10s; batch 30
+
+Commands
+
+npm run dry — review local
+
+npm run publish — publish local
+
+npm run autorun:dry — cron-like local at 07:05,13:05,20:05 America/Chicago
+EOF
+
+cat > apps/executor/src/sheets.ts <<'EOF'
+import { google } from "googleapis";
+import 'dotenv/config';
+
+const auth = new google.auth.GoogleAuth({
+scopes: ["https://www.googleapis.com/auth/spreadsheets
+"]
+});
+
+export async function readConfig() {
+const sheets = google.sheets({ version: "v4", auth: await auth.getClient() });
+const range = process.env.CONFIG_RANGE || "CONFIG!A:B";
+const { data } = await sheets.spreadsheets.values.get({ spreadsheetId: process.env.SHEETS_ID!, range });
+const rows = data.values || [];
+const kv: Record<string,string> = {};
+for (const [k,v] of rows.slice(1)) if (k) kv[k] = (v ?? "");
+kv.BLOG_HANDLE = kv.BLOG_HANDLE || process.env.BLOG_HANDLE || "agritourism";
+kv.AUTHOR = kv.AUTHOR || process.env.AUTHOR || "The Rike";
+return kv;
+}
+
+export async function readQueue(limit=30) {
+const sheets = google.sheets({ version:"v4", auth: await auth.getClient() });
+const range = process.env.SHEETS_RANGE || "Sheet1!A:B";
+const { data } = await sheets.spreadsheets.values.get({ spreadsheetId: process.env.SHEETS_ID!, range });
+const rows = data.values || [];
+const pending = rows.slice(1)
+.map(r => ({ url_blog_crawl: (r[0]||"").trim(), url_blog_shopify: (r[1]||"").trim() }))
+.filter(x => x.url_blog_crawl && !x.url_blog_shopify)
+.slice(0, limit);
+return pending;
+}
+
+export async function updateBack(url_blog_crawl:string, published_url:string){
+const sheets = google.sheets({ version:"v4", auth: await auth.getClient() });
+const range = process.env.SHEETS_RANGE || "Sheet1!A:B";
+const { data } = await sheets.spreadsheets.values.get({ spreadsheetId: process.env.SHEETS_ID!, range });
+const rows = data.values || [];
+const idx = rows.findIndex(r => (r?.[0]||"").trim() === url_blog_crawl);
+if (idx < 0) throw new Error("Row not found for backfill");
+const targetRange = Sheet1!B${idx+1}:B${idx+1};
+await sheets.spreadsheets.values.update({
+spreadsheetId: process.env.SHEETS_ID!, range: targetRange, valueInputOption: "RAW",
+requestBody: { values: [[published_url]] }
+});
+}
+EOF
+
+cat > apps/executor/src/llm.ts <<'EOF'
+import 'dotenv/config';
+
+export async function callOpenAI(systemPrompt: string, model: string) {
+const res = await fetch("https://api.openai.com/v1/chat/completions
+", {
+method: "POST",
+headers: { "Authorization": Bearer ${process.env.OPENAI_API_KEY}, "Content-Type": "application/json" },
+body: JSON.stringify({
+model, temperature: 0.3, max_tokens: 2200,
+response_format: { type: "json_object" },
+messages: [
+{ role: "system", content: systemPrompt },
+{ role: "user", content: "Return only a single minified JSON object. No markdown, no code fences, no commentary." }
+]
+})
+});
+if (!res.ok) throw new Error(OpenAI HTTP ${res.status});
+const j = await res.json();
+const text = j?.choices?.[0]?.message?.content ?? "";
+return parseJsonRelaxed(text);
+}
+
+export function parseJsonRelaxed(text: string) {
+const strip = (s:string)=>s.replace(/^[\s\S]*?\n?/,'').replace(/$/,'');
+let t = strip(text).replace(/[“”]/g,'"').replace(/[‘’]/g,"'");
+try { return JSON.parse(t); } catch {}
+const i=t.indexOf("{"), k=t.lastIndexOf("}");
+if(i>=0 && k>i) return JSON.parse(t.slice(i,k+1));
+throw new Error("LLM returned non-JSON");
+}
+
+export function validateNoYears(payload:{title:string; seo_title?:string; meta_desc?:string; html:string}) {
+const rx = /\b(19|20)\d{2}\b/;
+const blob = ${payload.title} ${payload.seo_title||""} ${payload.meta_desc||""} ${payload.html};
+if (rx.test(blob)) throw new Error("NO YEARS violation");
+}
+EOF
+
+cat > apps/executor/src/shopify.ts <<'EOF'
+import 'dotenv/config';
+
+export async function getBlogByHandle(handle:string){
+const res = await fetch(https://${process.env.SHOPIFY_SHOP}.myshopify.com/admin/api/2023-10/blogs.json,{
+headers:{ "X-Shopify-Access-Token": process.env.SHOPIFY_TOKEN!, "Content-Type":"application/json" }
+});
+if(!res.ok) throw new Error(Shopify GET blogs ${res.status});
+const j = await res.json();
+const blog = (j.blogs||[]).find((b:any)=> (b.handle||"")===handle);
+if(!blog) throw new Error("Blog handle not found: "+handle);
+return blog;
+}
+
+export async function createArticle(blogId:string, payload:any){
+const res = await fetch(https://${process.env.SHOPIFY_SHOP}.myshopify.com/admin/api/2023-10/blogs/${blogId}/articles.json,{
+method:"POST",
+headers:{ "X-Shopify-Access-Token": process.env.SHOPIFY_TOKEN!, "Content-Type":"application/json" },
+body: JSON.stringify({ article: payload })
+});
+if(!res.ok){ const text = await res.text(); throw new Error(Shopify POST ${res.status}: ${text}); }
+return res.json();
+}
+EOF
+
+cat > apps/executor/src/batch.ts <<'EOF'
+export const wait = (ms:number)=> new Promise(r=>setTimeout(r,ms));
+export async function withRetry<T>(fn:()=>Promise<T>) {
+const waits=[2000,5000,10000];
+let lastErr:any;
+for (let i=0;i<waits.length;i++){
+try { return await fn(); } catch(e){ lastErr=e; if(i<waits.length-1) await wait(waits[i]); }
+}
+throw lastErr;
+}
+EOF
+
+cat > apps/executor/src/preview.ts <<'EOF'
+import fs from "fs-extra";
+import slugify from "slugify";
+
+export async function writePreview(item:{
+url_blog_crawl:string,
+blogHandle:string,
+author:string,
+content:{title:string; seo_title?:string; meta_desc?:string; html:string; images?:Array<{src:string,alt?:string}>}
+}) {
+const dir = "out/review";
+await fs.ensureDir(dir);
+const slug = slugify(item.content.title || "untitled", { lower: true, strict: true }).slice(0,80);
+const base = ${dir}/${slug || "draft"};
+const html = `<!doctype html><meta charset="utf-8">
+
+<title>${item.content.title}</title> <h1>${item.content.title}</h1> <p><strong>SEO Title:</strong> ${item.content.seo_title || ""}</p> <p><strong>Meta Desc:</strong> ${item.content.meta_desc || ""}</p> <hr/> ${item.content.html}`; await fs.writeFile(`${base}.html`, html, "utf8"); await fs.writeJSON(`${base}.json`, item, { spaces: 2 }); return { htmlPath: `${base}.html`, jsonPath: `${base}.json` }; } EOF
+
+cat > apps/executor/src/index.ts <<'EOF'
+import 'dotenv/config';
+import { readConfig, readQueue, updateBack } from "./sheets.js";
+import { callOpenAI, validateNoYears } from "./llm.js";
+import { getBlogByHandle, createArticle } from "./shopify.js";
+import { withRetry } from "./batch.js";
+import { writePreview } from "./preview.js";
+
+(async ()=>{
+const cfg = await readConfig();
+const queue = await readQueue(30);
+const summary = { attempted: queue.length, processed:0, failed:0, errors:[] as any[] };
+
+if (!queue.length) { console.log("No pending items"); process.exit(0); }
+
+const blogHandle = cfg.BLOG_HANDLE || "agritourism";
+const author = cfg.AUTHOR || "The Rike";
+const mode = (process.env.MODE || (process.env.WF_ENABLED === "true" ? "publish" : "review")).toLowerCase();
+const wfEnabled = mode === "publish";
+const blog = wfEnabled ? await withRetry(()=>getBlogByHandle(blogHandle)) : null;
+
+for (const row of queue){
+try{
+const ctrl = (cfg.LLM_CONTROL_PROMPT||"").toString();
+if (ctrl.length < 50 || !ctrl.includes("{{URL_BLOG}}")) throw new Error("Invalid LLM_CONTROL_PROMPT");
+const sys = ctrl.replace(/{{URL_BLOG}}/g, row.url_blog_crawl)
++ "\n\nRules: Return JSON only {title, seo_title, meta_desc, html, images:[{src,alt}]}; HTML Shopify-safe; NO YEARS; up to 4 images.";
+
+  const data = await withRetry(()=>callOpenAI(sys, process.env.OPENAI_MODEL||"gpt-4o-mini"));
+  validateNoYears(data);
+
+  await writePreview({ url_blog_crawl: row.url_blog_crawl, blogHandle, author, content: data });
+
+  if (!wfEnabled) { console.log(`[REVIEW] Preview ready for ${row.url_blog_crawl}`); summary.processed++; continue; }
+
+  const image = Array.isArray(data.images)&&data.images[0]?.src ? { src: data.images[0].src } : null;
+  const created = await withRetry(()=>createArticle(blog!.id, {
+    title: data.title, author, body_html: data.html, tags: [], image
+  }));
+  const handle = created?.article?.handle;
+  const url = `https://${process.env.SHOPIFY_SHOP}.myshopify.com/blogs/${blogHandle}/${handle}`;
+  await withRetry(()=>updateBack(row.url_blog_crawl, url));
+  console.log(`Published: ${url}`);
+  summary.processed++;
+}catch(e:any){
+  summary.failed++; summary.errors.push({ url: row.url_blog_crawl, error: String(e?.message||e) });
+  console.error(`Failed for ${row.url_blog_crawl}:`, e?.message||e);
+}
+
+
+}
+console.log("SUMMARY", JSON.stringify(summary));
+})();
+EOF
+
+cat > apps/executor/src/autorun.ts <<'EOF'
+import 'dotenv/config';
+import cron from 'node-cron';
+import { wait } from './batch.js';
+import './index.js'; // run once on start
+
+const CRON = '5 7,13,20 * * *';
+const TZ = 'America/Chicago';
+console.log([autorun] Scheduling at ${CRON} ${TZ}. MODE=${process.env.MODE|| (process.env.WF_ENABLED==='true'?'publish':'review')});
+
+cron.schedule(CRON, async () => {
+const ts = new Date().toISOString();
+console.log([autorun] tick ${ts});
+await import('./index.js');
+}, { timezone: TZ });
+
+(async ()=>{ while(true) await wait(60000); })();
+EOF
+
+-------------------------
+Supervisor app
+-------------------------
+
+mkdir -p apps/supervisor/src
+
+cat > apps/supervisor/package.json <<'EOF'
+{
+"name": "shopify-blog-supervisor",
+"version": "1.0.0",
+"type": "module",
+"scripts": {
+"build": "tsc",
+"start": "node dist/index.js"
+},
+"dependencies": {
+"dotenv": "^16.4.5",
+"node-fetch": "^3.3.2"
+},
+"devDependencies": {
+"@types/node": "^20.14.2",
+"typescript": "^5.6.3"
+}
+}
+EOF
+
+cat > apps/supervisor/tsconfig.json <<'EOF'
+{
+"compilerOptions": {
+"target": "ES2021",
+"module": "ES2020",
+"moduleResolution": "Node",
+"outDir": "dist",
+"rootDir": "src",
+"strict": true,
+"esModuleInterop": true,
+"forceConsistentCasingInFileNames": true,
+"skipLibCheck": true
+},
+"include": ["src"]
+}
+EOF
+
+cat > apps/supervisor/.env.sample <<'EOF'
+
+Local run; on GitHub Actions GITHUB_TOKEN is provided automatically
+
+GITHUB_TOKEN=
+GITHUB_OWNER=your-org-or-user
+GITHUB_REPO=shopify-blog-supervisor-suite
+SLACK_WEBHOOK=
+EOF
+
+cat > apps/supervisor/README.md <<'EOF'
+
+Supervisor (AI Ops Brain)
+
+Decides when to run REVIEW vs PUBLISH
+
+Reads health; notifies; opens incidents; can disable WF safely
+
+Never enables ALLOW_PUBLISH; humans own that flag
+
+Local one-tick:
+
+npm ci
+cp .env.sample .env
+npx tsc
+node dist/index.js
+
+
+EOF
+
+cat > apps/supervisor/src/tools.ts <<'EOF'
+import 'dotenv/config';
+
+const GH_API = 'https://api.github.com
+';
+
+function ghHeaders(){
+const token = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT || process.env.GH_TOKEN;
+if (!token) throw new Error("Missing GITHUB_TOKEN");
+return { "Authorization": Bearer ${token}, "Accept": "application/vnd.github+json" };
+}
+
+function repoPath(){
+const envRepo = process.env.GITHUB_REPOSITORY; // owner/repo in Actions
+if (envRepo) return envRepo;
+const owner = process.env.GITHUB_OWNER;
+const repo = process.env.GITHUB_REPO;
+if (!owner || !repo) throw new Error("Missing GITHUB_OWNER/GITHUB_REPO");
+return ${owner}/${repo};
+}
+
+export async function getPipelineHealth(limit_runs=3){
+const repo = repoPath();
+const res = await fetch(${GH_API}/repos/${repo}/actions/workflows/publish.yml/runs?per_page=${limit_runs},{
+headers: ghHeaders()
+});
+if(!res.ok) throw new Error(GitHub runs ${res.status});
+const j = await res.json();
+const runs = (j.workflow_runs||[]).map((r:any)=> ({
+id: r.id, status: r.status, conclusion: r.conclusion,
+started_at: r.run_started_at, finished_at: r.updated_at,
+url: r.html_url
+}));
+return { runs };
+}
+
+export async function dispatchWorkflow(mode:'review'|'publish', reason:string){
+const repo = repoPath();
+const body = { ref: 'main', inputs: { mode, reason } };
+const res = await fetch(${GH_API}/repos/${repo}/actions/workflows/publish.yml/dispatches,{
+method:'POST', headers:{...ghHeaders(),"Content-Type":"application/json"}, body: JSON.stringify(body)
+});
+if(!res.ok){ const t=await res.text(); throw new Error(Dispatch failed ${res.status}: ${t}); }
+return { ok:true, mode };
+}
+
+export async function notifyHuman(subject:string, message:string, links:string=[]){
+const hook = process.env.SLACK_WEBHOOK;
+const payload = { text: *${subject}*\\n${message}\\n + links.map(l=>• ${l}).join("\n") };
+if(!hook){ console.log("[notify]", subject, message, links); return { ok:true, local:true }; }
+const res = await fetch(hook,{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+return { ok: res.ok };
+}
+
+export async function openIncident(severity:'low'|'medium'|'high'|'critical', summary:string, details?:string){
+const repo = repoPath();
+const res = await fetch(${GH_API}/repos/${repo}/issues,{
+method:'POST', headers:{...ghHeaders(),"Content-Type":"application/json"},
+body: JSON.stringify({ title: [${severity.toUpperCase()}] ${summary}, body: details||summary, labels:['incident', severity] })
+});
+return { ok: res.ok };
+}
+
+export async function getActionsVariable(name:string){
+const repo = repoPath();
+const res = await fetch(${GH_API}/repos/${repo}/actions/variables/${name}, { headers: ghHeaders() });
+if (res.status === 404) return null;
+if(!res.ok) throw new Error(Get var ${name} ${res.status});
+const j = await res.json();
+return j.value;
+}
+
+export async function setActionsVariable(name:string, value:string){
+const repo = repoPath();
+const put = await fetch(${GH_API}/repos/${repo}/actions/variables/${name}, {
+method:'PATCH', headers:{...ghHeaders(),"Content-Type":"application/json"}, body: JSON.stringify({ name, value })
+});
+if (put.status === 404){
+const post = await fetch(${GH_API}/repos/${repo}/actions/variables, {
+method:'POST', headers:{...ghHeaders(),"Content-Type":"application/json"}, body: JSON.stringify({ name, value })
+});
+return { ok: post.ok };
+}
+return { ok: put.ok };
+}
+EOF
+
+cat > apps/supervisor/src/index.ts <<'EOF'
+import 'dotenv/config';
+import { getPipelineHealth, dispatchWorkflow, notifyHuman, openIncident, getActionsVariable, setActionsVariable } from './tools.js';
+
+(async ()=>{
+const WF_ENABLED = (await getActionsVariable('WF_ENABLED')) || process.env.WF_ENABLED || 'false';
+const ALLOW_PUBLISH = (await getActionsVariable('ALLOW_PUBLISH')) || process.env.ALLOW_PUBLISH || 'human_disabled';
+
+const health = await getPipelineHealth(3);
+const runs = health.runs || [];
+const unstable = runs.filter(r => r.conclusion === 'failure').length >= 2;
+
+if (unstable){
+await setActionsVariable('WF_ENABLED', 'false');
+await setActionsVariable('ALLOW_PUBLISH', 'human_disabled');
+await openIncident('high', 'Pipeline unstable: multiple recent failures', JSON.stringify({ runs }, null, 2));
+await notifyHuman('[PIPELINE] Unstable - disabled', 'Set WF_ENABLED=false and ALLOW_PUBLISH=human_disabled. Investigate before continuing.', []);
+console.log('UNSTABLE_STOPPED'); process.exit(0);
+}
+
+if (WF_ENABLED === 'false'){
+await dispatchWorkflow('review', 'WF disabled; running safe review to produce previews');
+await notifyHuman('[PIPELINE] Review dispatched', 'WF_ENABLED=false so only REVIEW run was dispatched. Check artifacts for previews.', []);
+console.log('REVIEW_ONLY'); process.exit(0);
+}
+
+if (ALLOW_PUBLISH !== 'human_enabled'){
+await dispatchWorkflow('review', 'Publish locked by ALLOW_PUBLISH; running review only');
+await notifyHuman('[PIPELINE] Review dispatched (publish locked)', 'ALLOW_PUBLISH is not enabled by human; review only.', []);
+console.log('REVIEW_WITH_SUGGEST'); process.exit(0);
+}
+
+await dispatchWorkflow('publish', 'Healthy state and ALLOW_PUBLISH=human_enabled');
+await notifyHuman('[PIPELINE] Publish dispatched', 'Triggered publish under healthy conditions.', []);
+console.log('PUBLISH');
+})();
+EOF
+
+-------------------------
+GitHub Actions
+-------------------------
+
+mkdir -p .github/workflows
+
+cat > .github/workflows/publish.yml <<'EOF'
+name: Shopify Blog Automation (Executor)
+
+on:
+workflow_dispatch:
+inputs:
+mode:
+description: "review | publish"
+required: false
+default: "review"
+reason:
+description: "why run"
+required: false
+default: "manual dispatch"
+schedule:
+- cron: '5 13,19,2 * * *' # 07:05, 13:05, 20:05 America/Chicago in UTC
+
+permissions:
+contents: read
+
+jobs:
+run:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+with: { node-version: '20' }
+
+  - name: Executor deps
+    working-directory: apps/executor
+    run: npm ci
+
+  - name: Export vars
+    run: |
+      echo "SHEETS_ID=${{ vars.SHEETS_ID }}" >> $GITHUB_ENV
+      echo "SHEETS_RANGE=${{ vars.SHEETS_RANGE }}" >> $GITHUB_ENV
+      echo "CONFIG_RANGE=${{ vars.CONFIG_RANGE }}" >> $GITHUB_ENV
+      echo "SHOPIFY_SHOP=${{ vars.SHOPIFY_SHOP }}" >> $GITHUB_ENV
+      echo "BLOG_HANDLE=${{ vars.BLOG_HANDLE }}" >> $GITHUB_ENV
+      echo "AUTHOR=${{ vars.AUTHOR }}" >> $GITHUB_ENV
+      echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL }}" >> $GITHUB_ENV
+      echo "WF_ENABLED=${{ vars.WF_ENABLED }}" >> $GITHUB_ENV
+      echo "MODE=${{ inputs.mode || 'review' }}" >> $GITHUB_ENV
+
+  - name: Inject secrets
+    run: |
+      echo "SHOPIFY_TOKEN=${{ secrets.SHOPIFY_TOKEN }}" >> $GITHUB_ENV
+      echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+
+  - name: Build
+    working-directory: apps/executor
+    run: npx tsc
+
+  - name: Run pipeline
+    working-directory: apps/executor
+    run: node dist/index.js
+
+  - name: Upload review artifacts
+    if: always()
+    uses: actions/upload-artifact@v4
+    with:
+      name: review-drafts
+      path: apps/executor/out/review/**
+      if-no-files-found: ignore
+
+
+EOF
+
+cat > .github/workflows/supervisor.yml <<'EOF'
+name: Supervisor
+
+on:
+workflow_dispatch: {}
+schedule:
+- cron: "*/30 * * * *" # every 30 minutes
+
+permissions:
+contents: read
+actions: write
+issues: write
+
+jobs:
+supervise:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+with: { node-version: '20' }
+
+  - name: Supervisor deps
+    working-directory: apps/supervisor
+    run: npm ci
+
+  - name: Export vars
+    run: |
+      echo "GITHUB_REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
+      echo "WF_ENABLED=${{ vars.WF_ENABLED }}" >> $GITHUB_ENV
+      echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}" >> $GITHUB_ENV
+      echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}" >> $GITHUB_ENV
+
+  - name: Build
+    working-directory: apps/supervisor
+    run: npx tsc
+
+  - name: Supervisor tick
+    working-directory: apps/supervisor
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    run: node dist/index.js
+
+
+EOF
+
+echo "Done. Folder: $(pwd)"
+
+
+---
+
+## Sau khi chạy xong
+Trong thư mục `shopify-blog-supervisor-suite/`:
+```bash
+git init
+git add .
+git commit -m "init: supervisor + executor"
+gh repo create <your_org>/<your_repo> --private --source=. --push
+
+
+Rồi vào GitHub → Settings → Actions → Variables & Secrets nhập giá trị như đã ghi ở README.
+Chạy Supervisor bằng workflow_dispatch trước, kiểm tra artifact preview của Executor, thấy sạch thì bật ALLOW_PUBLISH=human_enabled và WF_ENABLED=true
+
+------------------------------
+
+Implementation Plan
+
+Repository Layout & Tooling
+
+Convert repo into a two-app workspace: apps/executor for the content pipeline and apps/supervisor for the AI ops brain.
+Add a root README.md, .gitignore, and workspace-level package.json/tsconfig metadata to document structure, dependencies, and secrets.
+Provide .env.sample files per app plus scoped README instructions.
+Executor (Pipeline)
+
+Build a dedicated package.json with runtime deps (googleapis, node-fetch, fs-extra, slugify, node-cron, dotenv) and dev deps (typescript, @types/node).
+Implement modules:
+sheets.ts: read config (CONFIG!A:B), queue (Sheet1!A:B), backfill URLs, reuse a single GoogleAuth client.
+llm.ts: call OpenAI Chat Completions in JSON mode, parse lenient JSON, enforce NO YEARS.
+shopify.ts: fetch blog by handle and create an article with optional featured image.
+batch.ts: reusable withRetry (2s/5s/10s) + wait.
+preview.ts: write HTML/JSON drafts to out/review with slugified filenames.
+index.ts: orchestrate batch of 30, gate publish on MODE/WF_ENABLED, log summary, and ensure per-item isolation.
+autorun.ts: cron schedule (07:05/13:05/20:05 America/Chicago) for local dry-run/publish loops.
+Supervisor (Ops Brain)
+
+Create TypeScript app with fetch helpers for GitHub REST.
+tools.ts: wrappers for GitHub run inspection, workflow dispatch, Slack notifications, incident creation, and Actions variables management.
+index.ts: implement decision policy:
+detect unstable runs, disable flags, open incidents;
+when disabled but backlog exists, trigger review-only runs;
+require ALLOW_PUBLISH=human_enabled + healthy review before publishing.
+Provide .env.sample/README describing required env (GitHub repo, Slack webhook).
+GitHub Actions
+
+Replace publish.yml with workflow supporting workflow_dispatch inputs (mode, reason), scheduled runs, env variable export, secret injection, TypeScript build, pipeline execution, and artifact upload (out/review/**).
+Add supervisor.yml scheduled every 30m, giving supervisor job Actions/Issues permissions, installing dependencies, exporting vars (including Slack webhook), building, and running supervisor with GITHUB_TOKEN.
+Documentation & Guardrails
+
+Root README summarizing pipeline, supervisor, schedules, required secrets/variables, and review-before-publish workflow.
+Ensure guardrails: default WF_ENABLED=false, ALLOW_PUBLISH=human_disabled, preview artifacts, summary logging, and clear instructions for enabling publish mode.
+If this direction looks good, I’ll start implementing immediately and follow up with the full diff before any commit.

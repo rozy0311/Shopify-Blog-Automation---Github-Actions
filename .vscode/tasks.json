@@ -1,0 +1,10 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "executor:build", "type": "shell", "command": "npm --prefix apps/executor run build" },
+    { "label": "executor:review", "type": "shell", "command": "npm --prefix apps/executor run dry" },
+    { "label": "executor:publish", "type": "shell", "command": "npm --prefix apps/executor run publish" },
+    { "label": "executor:autorun", "type": "shell", "command": "npm --prefix apps/executor run autorun:dry", "runOptions": { "runOn": "folderOpen" } },
+    { "label": "supervisor:tick", "type": "shell", "command": "npm --prefix apps/supervisor run start" }
+  ]
+}

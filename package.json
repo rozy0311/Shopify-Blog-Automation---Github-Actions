@@ -1,0 +1,8 @@
+{
+  "name": "shopify-blog-automation",
+  "private": true,
+  "workspaces": [
+    "apps/executor",
+    "apps/supervisor"
+  ]
+}

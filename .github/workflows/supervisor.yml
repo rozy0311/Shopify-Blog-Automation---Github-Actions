@@ -1,0 +1,54 @@
+name: Shopify Blog Supervisor
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "*/30 * * * *"
+
+concurrency:
+  group: supervisor
+  cancel-in-progress: true
+
+jobs:
+  supervise:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Export configuration
+        run: |
+          {
+            echo "SHEETS_ID=${{ vars.SHEETS_ID }}"
+            echo "SHEETS_RANGE=${{ vars.SHEETS_RANGE }}"
+            echo "CONFIG_RANGE=${{ vars.CONFIG_RANGE }}"
+            echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
+            echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
+          } >> "$GITHUB_ENV"
+      - name: Inject secrets
+        run: |
+          {
+            echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}"
+            echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}"
+            echo "GITHUB_TOKEN=${{ secrets.SUPERVISOR_TOKEN != '' && secrets.SUPERVISOR_TOKEN || secrets.GITHUB_TOKEN }}"
+          } >> "$GITHUB_ENV"
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare Google credentials
+        run: |
+          if [ -n "$GOOGLE_CREDENTIALS" ]; then
+            echo "$GOOGLE_CREDENTIALS" > $RUNNER_TEMP/google-credentials.json
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/google-credentials.json" >> $GITHUB_ENV
+          fi
+      - name: Build supervisor
+        run: npm run --workspace apps/supervisor build
+      - name: Run supervisor
+        env:
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        run: node apps/supervisor/dist/index.js

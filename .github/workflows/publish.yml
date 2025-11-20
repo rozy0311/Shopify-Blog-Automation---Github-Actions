@@ -1,0 +1,84 @@
+name: Shopify Blog Executor
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Execution mode"
+        required: false
+        default: review
+        type: choice
+        options:
+          - review
+          - publish
+      reason:
+        description: "Why are you running this?"
+        required: false
+        default: Manual dispatch
+        type: string
+  schedule:
+    - cron: "5 13,19,2 * * *"   # 07:05, 13:05, 20:05 America/Chicago (UTC times)
+
+concurrency:
+  group: executor
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Export configuration
+        run: |
+          {
+            echo "SHEETS_ID=${{ vars.SHEETS_ID }}"
+            echo "SHEETS_RANGE=${{ vars.SHEETS_RANGE }}"
+            echo "CONFIG_RANGE=${{ vars.CONFIG_RANGE }}"
+            echo "SHOPIFY_SHOP=${{ vars.SHOPIFY_SHOP }}"
+            echo "BLOG_HANDLE=${{ vars.BLOG_HANDLE }}"
+            echo "AUTHOR=${{ vars.AUTHOR }}"
+            echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL }}"
+            echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
+            echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
+            echo "MODE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }}"
+            echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
+          } >> "$GITHUB_ENV"
+      - name: Inject secrets
+        run: |
+          {
+            echo "SHOPIFY_TOKEN=${{ secrets.SHOPIFY_TOKEN }}"
+            echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+            echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}"
+            echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}"
+          } >> "$GITHUB_ENV"
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare Google credentials
+        run: |
+          if [ -n "$GOOGLE_CREDENTIALS" ]; then
+            echo "$GOOGLE_CREDENTIALS" > $RUNNER_TEMP/google-credentials.json
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/google-credentials.json" >> $GITHUB_ENV
+          fi
+      - name: Build executor
+        run: npm run --workspace apps/executor build
+      - name: Run executor (${{ env.MODE }})
+        env:
+          MODE: ${{ env.MODE }}
+          DISPATCH_REASON: ${{ env.DISPATCH_REASON }}
+        run: node apps/executor/dist/index.js
+      - name: Upload previews + summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: executor-artifacts-${{ github.run_id }}
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            apps/executor/out/**
+            out/**

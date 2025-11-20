@@ -1,0 +1,1058 @@
+PROBLEM REFRAME
+Thiết kế và triển khai một pipeline không dùng n8n để đọc hàng đợi bài viết từ Google Sheets, sinh nội dung blog theo “AIO + humanized, NO YEARS”, đăng thẳng lên Shopify blog handle agritourism với author “The Rike”, và cập nhật URL bài viết trở lại Google Sheets. Pipeline phải có retry, quan sát, batch 30 itemlần, lịch chạy 3 lầnngày, kèm guardrails Level-6 mặc định không publish (kill-switch WF_ENABLED=false), có manual trigger để dry-run, pre-checks và early-exit cho thao tác rủi ro.
+
+CONSTRAINTS & RISKS
+
+Thiếu Google Sheet ID, quyền truy cập (service account hoặc OAuth), Shopify Admin API token có scope write_content.
+
+Google Sheets cần tab Sheet1 (Aurl_blog_crawl, Burl_blog_shopify) và tab CONFIG (Akey, Bvalue) chứa tối thiểu LLM_CONTROL_PROMPT (≥50 ký tự, có {{URL_BLOG}}), BLOG_HANDLE (mặc định agritourism), AUTHOR (mặc định The Rike).
+
+Rủi ro model trả non-JSON; nội dung có năm; Shopify blog handle không tồn tại; hết quota API; lỗi mạng.
+
+Chính sách không tự publish khi chưa bật WF_ENABLED; all writes phải qua pre-check.
+
+Đồng bộ giờ lịch GitHub Actions ở UTC; cần map đúng với AmericaChicago.
+
+TARGET STATE (DEFINITION OF DONE)
+
+Cron chạy 3 lầnngày ở UTC tương ứng 0705, 1305, 2005 AmericaChicago.
+
+Mỗi lần chạy lấy tối đa 30 dòng pending (A có URL, B trống), xử lý tuần tự, lỗi item không chặn batch.
+
+Bài hợp lệ được publish vào blog handle agritourism, author “The Rike”; nếu có ảnh thì gán ảnh 1 làm featured.
+
+Sau publish, cột url_blog_shopify điền URL canonical đúng định dạng https{SHOP}.myshopify.comblogs{handle}{article.handle}.
+
+Log tổng kết run gồm AttemptedProcessedFailed lưu artifact và in console.
+
+Guardrails có hiệu lực WF_ENABLED=false ngăn POST Shopify; manual dispatch hỗ trợ dry-run.
+
+SOLUTION BLUEPRINT
+
+DataInput Google Sheets API đọc CONFIG!AB và Sheet1!AB.
+
+LLMLogic OpenAI Chat Completions với response_format=json_object; hệ thống prompt = LLM_CONTROL_PROMPT + rule NO YEARS; validate JSON + regex b(1920)d{2}b; tối đa 4 ảnh URL công khai.
+
+OrchestrationScheduling GitHub Actions (cron + workflow_dispatch); batcher 30; per-item trycatch; retry backoff 2s5s10s cho OpenAIShopifySheets.
+
+External APIs
+
+Google Sheets v4 (readupdate by key).
+
+Shopify Admin REST 2023-10 GET adminapi2023-10blogs.json chọn blog theo handle; POST adminapi2023-10blogs{blog_id}articles.json.
+
+OpenAI Chat Completions.
+
+OutputPersistenceLogging stdout logs; JSON summary artifact; optional GitHub Issue comment cho batch summary.
+
+Human-in-the-loop Level-6 hybrid
+
+WF_ENABLED repo variable mặc định false.
+
+Manual workflow_dispatch để dry-run.
+
+Optional môi trường “production” GitHub Actions yêu cầu approval trước khi run (environment protection).
+
+TOOL DECISION
+
+GitHub Actions + NodeTypeScript CLI đơn giản, auditable, dễ CICD, cron UTC chuẩn; không cần hạ tầng mới.
+
+Google Sheets API + Shopify REST + OpenAI SDKREST ổn định, quyền rõ ràng.
+
+Agent BuilderAgentKit (tùy chọn) có thể dùng sau để thêm UI chat, evals, guardrails; nhưng bước đầu ưu tiên GHA để đạt DONE nhanh, có lịch và logs chuẩn.
+
+EXECUTION PLAN (DO THIS → THEN THIS)
+A) Repo layout
+
+shopify-blog-automation
+  ├─ src
+  │   ├─ index.ts              # entry
+  │   ├─ sheets.ts             # readQueue, readConfig, updateUrl
+  │   ├─ llm.ts                # callOpenAI, validateNoYears, parseJson
+  │   ├─ shopify.ts            # getBlogByHandle, createArticle
+  │   ├─ batch.ts              # batch runner, retries, summary
+  │   └─ util.ts               # logger, backoff, env, prechecks
+  ├─ package.json
+  ├─ tsconfig.json
+  ├─ .githubworkflowspublish.yml
+  ├─ .env.sample
+  └─ README.md
+
+
+B) Env & secrets
+
+SHEETS_ID=...
+SHEETS_RANGE=Sheet1!AB
+CONFIG_RANGE=CONFIG!AB
+SHOPIFY_SHOP=therikeus
+SHOPIFY_TOKEN=   # GitHub Actions secret
+BLOG_HANDLE=agritourism
+AUTHOR=The Rike
+OPENAI_API_KEY=  # GitHub Actions secret
+OPENAI_MODEL=gpt-4o-mini
+WF_ENABLED=false    # repo variable default
+
+
+C) Key code (rút gọn, implement-ready)
+
+llm.ts
+
+export async function callOpenAI(systemPrompt string, model string) {
+  const res = await fetch(httpsapi.openai.comv1chatcompletions, {
+    method POST,
+    headers { Authorization `Bearer ${process.env.OPENAI_API_KEY}`, Content-Type applicationjson },
+    body JSON.stringify({
+      model, temperature 0.3, max_tokens 2200,
+      response_format { type json_object },
+      messages [
+        { role system, content systemPrompt },
+        { role user, content Return only a single minified JSON object. No markdown, no code fences, no commentary. }
+      ]
+    })
+  });
+  const j = await res.json();
+  const text = j.choices.[0].message.content  ;
+  return parseJsonRelaxed(text);
+}
+
+export function parseJsonRelaxed(text string) {
+  const strip = (sstring)=s.replace(^```[sS]n,'').replace(```$,'');
+  let t = strip(text).replace([“”]g,'').replace([‘’]g,');
+  try { return JSON.parse(t); } catch {}
+  const i=t.indexOf({), k=t.lastIndexOf(});
+  if(i=0 && ki) return JSON.parse(t.slice(i,k+1));
+  throw new Error(LLM returned non-JSON);
+}
+
+export function validateNoYears(payload{titlestring; seo_titlestring; meta_descstring; htmlstring}) {
+  const rx = b(1920)d{2}b;
+  const blob = `${payload.title} ${payload.seo_title} ${payload.meta_desc} ${payload.html}`;
+  if (rx.test(blob)) throw new Error(NO YEARS violation);
+}
+
+
+sheets.ts (dùng Google Sheets API v4)
+
+import { google } from googleapis;
+const auth = new google.auth.GoogleAuth({ scopes[httpswww.googleapis.comauthspreadsheets] });
+
+export async function readConfig() {
+  const sheets = google.sheets({ version v4, auth await auth.getClient() });
+  const range = process.env.CONFIG_RANGE  CONFIG!AB;
+  const { data } = await sheets.spreadsheets.values.get({ spreadsheetId process.env.SHEETS_ID!, range });
+  const rows = data.values  [];
+  const kv Recordstring,string = {};
+  for (const [k,v] of rows.slice(1)) if (k) kv[k] = (v  );
+  kv.BLOG_HANDLE = kv.BLOG_HANDLE  process.env.BLOG_HANDLE  agritourism;
+  kv.AUTHOR = kv.AUTHOR  process.env.AUTHOR  The Rike;
+  return kv;
+}
+
+export async function readQueue(limit=30) {
+  const sheets = google.sheets({ versionv4, auth await auth.getClient() });
+  const range = process.env.SHEETS_RANGE  Sheet1!AB;
+  const { data } = await sheets.spreadsheets.values.get({ spreadsheetId process.env.SHEETS_ID!, range });
+  const rows = data.values  [];
+  const pending = rows.slice(1)
+    .map(r = ({ url_blog_crawl (r[0]).trim(), url_blog_shopify (r[1]).trim() }))
+    .filter(x = x.url_blog_crawl && !x.url_blog_shopify)
+    .slice(0, limit);
+  return pending;
+}
+
+export async function updateBack(url_blog_crawlstring, published_urlstring){
+  const sheets = google.sheets({ versionv4, auth await auth.getClient() });
+  const range = process.env.SHEETS_RANGE  Sheet1!AB;
+  const { data } = await sheets.spreadsheets.values.get({ spreadsheetId process.env.SHEETS_ID!, range });
+  const rows = data.values  [];
+   find row index by crawl url
+  const idx = rows.findIndex(r = (r.[0]).trim() === url_blog_crawl);
+  if (idx  0) throw new Error(Row not found for backfill);
+  const targetRange = `Sheet1!B${idx+1}B${idx+1}`;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId process.env.SHEETS_ID!, range targetRange, valueInputOption RAW,
+    requestBody { values [[published_url]] }
+  });
+}
+
+
+shopify.ts
+
+export async function getBlogByHandle(handlestring){
+  const res = await fetch(`https${process.env.SHOPIFY_SHOP}.myshopify.comadminapi2023-10blogs.json`,{
+    headers{ X-Shopify-Access-Token process.env.SHOPIFY_TOKEN!, Content-Typeapplicationjson }
+  });
+  const j = await res.json();
+  const blog = (j.blogs[]).find((bany)= (b.handle)===handle);
+  if(!blog) throw new Error(Blog handle not found +handle);
+  return blog;
+}
+
+export async function createArticle(blogIdstring, payloadany){
+  const res = await fetch(`https${process.env.SHOPIFY_SHOP}.myshopify.comadminapi2023-10blogs${blogId}articles.json`,{
+    methodPOST,
+    headers{ X-Shopify-Access-Token process.env.SHOPIFY_TOKEN!, Content-Typeapplicationjson },
+    body JSON.stringify({ article payload })
+  });
+  if(!res.ok){ throw new Error(`Shopify POST failed ${res.status}`); }
+  return res.json();
+}
+
+
+batch.ts
+
+const wait = (msnumber)= new Promise(r=setTimeout(r,ms));
+export async function withRetryT(fn()=PromiseT) {
+  const waits=[2000,5000,10000];
+  for (let i=0;iwaits.length;i++){
+    try { return await fn(); } catch(e){ if(i===waits.length-1) throw e; await wait(waits[i]); }
+  }
+   unreachable
+}
+
+
+index.ts
+
+import { readConfig, readQueue, updateBack } from .sheets;
+import { callOpenAI, validateNoYears } from .llm;
+import { getBlogByHandle, createArticle } from .shopify;
+import { withRetry } from .batch;
+
+(async ()={
+  const cfg = await readConfig();
+  const queue = await readQueue(30);
+  const summary = { attempted queue.length, processed0, failed0, errors[] as any[] };
+
+  if (!queue.length) { console.log(No pending items); process.exit(0); }
+
+  const blogHandle = cfg.BLOG_HANDLE  agritourism;
+  const author = cfg.AUTHOR  The Rike;
+  const wfEnabled = (process.env.WF_ENABLEDfalse) === true;
+  const blog = wfEnabled  await withRetry(()=getBlogByHandle(blogHandle))  null;
+
+  for (const row of queue){
+    try{
+      const ctrl = (cfg.LLM_CONTROL_PROMPT).toString();
+      if (ctrl.length  50  !ctrl.includes({{URL_BLOG}})) throw new Error(Invalid LLM_CONTROL_PROMPT);
+      const sys = ctrl.replace({{URL_BLOG}}g, row.url_blog_crawl)
+        + nnRules Return JSON only {title, seo_title, meta_desc, html, images[{src,alt}]}; HTML Shopify-safe; NO YEARS; up to 4 images.;
+
+      const data = await withRetry(()=callOpenAI(sys, process.env.OPENAI_MODELgpt-4o-mini));
+      validateNoYears(data);
+
+      if (!wfEnabled) { console.log(`[DRY-RUN] Would publish ${row.url_blog_crawl}`); summary.processed++; continue; }
+
+      const image = Array.isArray(data.images)&&data.images[0].src  { src data.images[0].src }  null;
+      const created = await withRetry(()=createArticle(blog.id, {
+        title data.title, author, body_html data.html, tags [], image
+      }));
+      const handle = created.article.handle;
+      const url = `https${process.env.SHOPIFY_SHOP}.myshopify.comblogs${blogHandle}${handle}`;
+      await withRetry(()=updateBack(row.url_blog_crawl, url));
+      console.log(`Published ${url}`);
+      summary.processed++;
+    }catch(eany){
+      summary.failed++; summary.errors.push({ url row.url_blog_crawl, error String(e.messagee) });
+      console.error(`Failed for ${row.url_blog_crawl}`, e.messagee);
+      continue;
+    }
+  }
+  console.log(SUMMARY, JSON.stringify(summary));
+   write summary artifact if desired
+})();
+
+
+D) GitHub Actions workflow .githubworkflowspublish.yml
+
+name Shopify Blog Automation
+
+on
+  workflow_dispatch {}
+  schedule
+    # AmericaChicago 0705, 1305, 2005 ≈ UTC 1305, 1905, 0205 (CST, UTC-6)
+    - cron '5 13,19,2   '
+
+jobs
+  run
+    runs-on ubuntu-latest
+    environment production   # optional require approval
+    steps
+      - uses actionscheckout@v4
+      - uses actionssetup-node@v4
+        with { node-version '20' }
+      - run npm ci
+      - name Set env
+        run 
+          echo SHEETS_ID=${{ vars.SHEETS_ID }}  $GITHUB_ENV
+          echo SHEETS_RANGE=${{ vars.SHEETS_RANGE }}  $GITHUB_ENV
+          echo CONFIG_RANGE=${{ vars.CONFIG_RANGE }}  $GITHUB_ENV
+          echo SHOPIFY_SHOP=${{ vars.SHOPIFY_SHOP }}  $GITHUB_ENV
+          echo BLOG_HANDLE=${{ vars.BLOG_HANDLE }}  $GITHUB_ENV
+          echo AUTHOR=${{ vars.AUTHOR }}  $GITHUB_ENV
+          echo WF_ENABLED=${{ vars.WF_ENABLED }}  $GITHUB_ENV
+          echo OPENAI_MODEL=${{ vars.OPENAI_MODEL }}  $GITHUB_ENV
+        shell bash
+      - name Inject secrets
+        run 
+          echo SHOPIFY_TOKEN=${{ secrets.SHOPIFY_TOKEN }}  $GITHUB_ENV
+          echo OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}  $GITHUB_ENV
+      - run npm run build --if-present
+      - run node distindex.js
+
+
+HARD FAIL CRITERIA
+
+Bất kỳ lần chạy cron nào có ≥1 item hợp lệ nhưng processed=0 và không có lý do guardrails, trong 2 chu kỳ liên tiếp.
+
+Tỉ lệ lỗi  50% trong 3 lần chạy liên tiếp.
+
+Nội dung được publish chứa năm theo regex b(1920)d{2}b.
+
+Không tạokhông cập nhật URL trở lại Google Sheet cho item đã publish.
+
+Shopify không có bài mới dưới blog handle mục tiêu khi WF_ENABLED=true.
+
+NEXT REQUIRED INPUT
+Cung cấp Google Sheet ID (SHEETS_ID) mà bạn muốn dùng cho hàng đợi và cấu hình (và xác nhận đã share cho service account nếu bạn dùng Google Service Account).
+
+________________________________________
+
+PROBLEM REFRAME
+Bạn muốn bỏ n8n và thay bằng một hệ thống tự động hoàn toàn, điều khiển được từ GitHub Actions và/hoặc VS Code: đọc queue từ Google Sheets, dùng LLM tạo bài blog “AIO + humanized, NO YEARS”, đăng thẳng lên Shopify (blog handle agritourism, author “The Rike”), và ghi URL publish về lại Google Sheets. Hệ thống phải có batch 30, retry/backoff, quan sát, chạy 3 lần/ngày, Dry-run mặc định với kill-switch WF_ENABLED=false, chỉ publish khi bật.
+
+CONSTRAINTS & RISKS
+
+Thiếu đầu vào bắt buộc: SHEETS_ID, quyền Google Sheets (service account hoặc OAuth), SHOPIFY_TOKEN có scope write_content, OPENAI_API_KEY.
+
+Cron GitHub Actions chạy theo UTC, cần map chính xác America/Chicago.
+
+Giới hạn API (LLM/Shopify/Sheets), lỗi mạng, JSON không chuẩn từ LLM, nội dung chứa năm, blog handle không tồn tại.
+
+Bảo mật secrets; không commit khóa.
+
+Quy trình phê duyệt Level-6: mặc định không publish (WF_ENABLED=false); cần manual hoặc environment approval.
+
+TARGET STATE (DEFINITION OF DONE)
+
+Repo có workflow GitHub Actions chạy 13:05, 19:05, 02:05 UTC tương ứng 07:05, 13:05, 20:05 America/Chicago.
+
+Mỗi run xử lý tối đa 30 dòng pending, item-level retry 2s→5s→10s, lỗi 1 item không chặn batch.
+
+Khi WF_ENABLED=true: bài được tạo đúng blog handle agritourism, author “The Rike”, image[0] làm featured nếu có; URL canonical được ghi vào cột url_blog_shopify.
+
+Log tổng kết Attempted/Processed/Failed xuất ra console và lưu artifact.
+
+Dry-run khi WF_ENABLED=false đi qua toàn pipeline trừ POST Shopify/Update Sheets.
+
+SOLUTION BLUEPRINT
+
+Data/input: Google Sheets Sheet1!A:B (A:url_blog_crawl, B:url_blog_shopify); CONFIG!A:B (key|value) gồm LLM_CONTROL_PROMPT (≥50 ký tự, có {{URL_BLOG}}), BLOG_HANDLE, AUTHOR.
+
+LLM/logic: OpenAI Chat Completions response_format=json_object; rule NO YEARS; parser JSON resilient; tối đa 4 ảnh URL công khai.
+
+Orchestration/scheduling: GitHub Actions (cron + workflow_dispatch). VS Code Task/DevContainer để chạy cục bộ cùng logic.
+
+Integrations: Google Sheets API v4, Shopify Admin REST 2023-10, OpenAI.
+
+Output/persistence/logging: update Google Sheets; console log + GitHub artifact JSON summary; tùy chọn mở PR comment/Issue comment.
+
+Human-in-the-loop: kill-switch WF_ENABLED=false; environment protection “production” yêu cầu approval trước khi run; manual dispatch để dry-run.
+
+TOOL DECISION
+
+GitHub Actions + Node/TypeScript CLI: có cron, secrets, logs, artifacts, approvals; không cần hạ tầng mới; reproducible.
+
+VS Code (Tasks + DevContainer): chạy cục bộ y hệ sản xuất; dễ debug.
+
+Google Sheets API + Shopify REST + OpenAI: chuẩn, đơn giản, ít phụ thuộc.
+
+Agent Builder/Agent Kits: dùng sau để thêm UI/guardrails nâng cao; không bắt buộc để đạt DONE nhanh.
+
+EXECUTION PLAN (DO THIS → THEN THIS)
+A) Scaffold repo
+
+mkdir shopify-blog-automation && cd $_
+npm init -y && npm i typescript ts-node node-fetch@3 googleapis dotenv
+npm i -D @types/node
+npx tsc --init
+mkdir -p src .github/workflows
+
+
+B) Source code (đặt file)
+
+src/llm.ts (OpenAI JSON-mode, parser, NO YEARS)
+
+src/sheets.ts (readConfig, readQueue, updateBack via Google Sheets API v4)
+
+src/shopify.ts (getBlogByHandle, createArticle)
+
+src/batch.ts (withRetry 2s/5s/10s)
+
+src/index.ts (precheck prompt, batch 30, dry-run gate, summary).
+(Đoạn mã mẫu đã gửi ở câu trả lời trước; copy nguyên xi là chạy.)
+C) Workflow GitHub Actions .github/workflows/publish.yml
+
+name: Shopify Blog Automation
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '5 13,19,2 * * *'   # 07:05, 13:05, 20:05 America/Chicago
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - name: Export vars
+        run: |
+          echo "SHEETS_ID=${{ vars.SHEETS_ID }}" >> $GITHUB_ENV
+          echo "SHEETS_RANGE=${{ vars.SHEETS_RANGE }}" >> $GITHUB_ENV
+          echo "CONFIG_RANGE=${{ vars.CONFIG_RANGE }}" >> $GITHUB_ENV
+          echo "SHOPIFY_SHOP=${{ vars.SHOPIFY_SHOP }}" >> $GITHUB_ENV
+          echo "BLOG_HANDLE=${{ vars.BLOG_HANDLE }}" >> $GITHUB_ENV
+          echo "AUTHOR=${{ vars.AUTHOR }}" >> $GITHUB_ENV
+          echo "WF_ENABLED=${{ vars.WF_ENABLED }}" >> $GITHUB_ENV
+          echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL }}" >> $GITHUB_ENV
+      - name: Inject secrets
+        run: |
+          echo "SHOPIFY_TOKEN=${{ secrets.SHOPIFY_TOKEN }}" >> $GITHUB_ENV
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+      - run: npx tsc
+      - run: node dist/index.js
+
+
+D) VS Code automation
+
+.vscode/tasks.json
+
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "build", "type": "shell", "command": "npx tsc" },
+    { "label": "run:dry", "type": "shell", "command": "WF_ENABLED=false node dist/index.js" },
+    { "label": "run:publish", "type": "shell", "command": "WF_ENABLED=true node dist/index.js" }
+  ]
+}
+
+
+Devcontainer (tùy chọn) .devcontainer/devcontainer.json
+
+{ "name":"shopify-blog-auto","image":"mcr.microsoft.com/devcontainers/javascript-node:20","postCreateCommand":"npm ci" }
+
+
+E) Thiết lập secrets/vars bằng GitHub CLI
+
+gh repo create yourorg/shopify-blog-automation --private --source=. --push
+gh variable set SHEETS_ID --body "<google_sheet_id>"
+gh variable set SHEETS_RANGE --body "Sheet1!A:B"
+gh variable set CONFIG_RANGE --body "CONFIG!A:B"
+gh variable set SHOPIFY_SHOP --body "therikeus"
+gh variable set BLOG_HANDLE --body "agritourism"
+gh variable set AUTHOR --body "The Rike"
+gh variable set WF_ENABLED --body "false"
+gh variable set OPENAI_MODEL --body "gpt-4o-mini"
+gh secret set SHOPIFY_TOKEN --body "<shopify_admin_token>"
+gh secret set OPENAI_API_KEY --body "<openai_key>"
+
+
+F) Dry-run & activate
+
+# Dry-run thủ công
+gh workflow run "Shopify Blog Automation" --ref main
+gh run watch
+
+# Bật publish
+gh variable set WF_ENABLED --body "true"
+# Approve environment nếu bật protection, hoặc để cron tự chạy theo lịch
+
+
+G) Google Sheets setup
+
+CONFIG tab (A:key, B:value): LLM_CONTROL_PROMPT có {{URL_BLOG}} và câu “Return ONLY a single minified JSON object with keys {title, seo_title, meta_desc, html, images:[{src,alt}]}. No prose, no markdown.” ở cuối; BLOG_HANDLE=agritourism, AUTHOR=The Rike.
+
+Sheet1 tab: url_blog_crawl | url_blog_shopify.
+
+HARD FAIL CRITERIA
+
+Hai lần cron liên tiếp có pending mà processed=0 khi WF_ENABLED=true.
+
+Tỉ lệ failed > 50% trong 3 lần chạy liên tiếp.
+
+Bất kỳ bài publish chứa regex \b(19|20)\d{2}\b.
+
+Không tìm thấy bài trên Shopify hoặc không ghi URL về Google Sheets cho item đã publish.
+
+LLM trả non-JSON quá 3 lần liên tiếp cho cùng một item (sau retry).
+
+NEXT REQUIRED INPUT
+Bạn muốn dùng Google Service Account hay OAuth để truy cập Google Sheets? (chọn 1)
+
+
+Tôi đã đóng gói full giải pháp ngoài n8n để bạn tự động toàn bộ bằng GitHub Actions hoặc chạy ngay trong VS Code.
+
+📦 Repo sẵn sàng chạy
+"D:\active-projects\Auto Blog Shopify NEW Rosie\Shopify Blog Automation - Github Actions\shopify-blog-automation"
+
+Bên trong đã có:
+
+src/ mã nguồn TypeScript: sheets.ts, llm.ts, shopify.ts, batch.ts, index.ts
+
+.github/workflows/publish.yml chạy 3 lần/ngày
+
+.env.sample để chạy cục bộ (đừng commit secrets thật)
+
+.vscode/tasks.json để bấm chạy nhanh trong VS Code
+
+Guardrails L6: WF_ENABLED=false mặc định, dry-run an toàn
+
+Cách dùng nhanh gọn
+
+Giải nén repo, mở VS Code:
+
+npm ci
+cp .env.sample .env   # chỉ cho chạy local
+# điền SHEETS_ID, SHOPIFY_SHOP, ...
+npx tsc
+npm run dry           # chạy dry-run, KHÔNG publish
+
+
+Đẩy lên GitHub và cấu hình tự động:
+
+gh repo create yourorg/shopify-blog-automation --private --source=. --push
+# Variables (Environment → Variables)
+SHEETS_ID=<GoogleSheetID>
+SHEETS_RANGE=Sheet1!A:B
+CONFIG_RANGE=CONFIG!A:B
+SHOPIFY_SHOP=therikeus
+BLOG_HANDLE=agritourism
+AUTHOR=The Rike
+WF_ENABLED=false
+OPENAI_MODEL=gpt-4o-mini
+# Secrets
+SHOPIFY_TOKEN=<admin_api_token_with_write_content>
+OPENAI_API_KEY=<openai_key>
+
+
+Lịch cron trong workflow đã set: 13:05, 19:05, 02:05 UTC tương ứng 07:05, 13:05, 20:05 America/Chicago.
+
+Google Sheet chuẩn
+
+Tab CONFIG (A:key, B:value), phải có:
+
+LLM_CONTROL_PROMPT (≥ 50 ký tự, có {{URL_BLOG}} và kết thúc bằng:
+Return ONLY a single minified JSON object with keys {title, seo_title, meta_desc, html, images:[{src,alt}]}. No prose, no markdown.)
+
+BLOG_HANDLE=agritourism, AUTHOR=The Rike
+
+Tab Sheet1: url_blog_crawl | url_blog_shopify
+
+Tự động toàn bộ mà vẫn có phanh
+
+Khi WF_ENABLED=false: pipeline chạy đủ mọi bước trừ Shopify POST và ghi Google Sheets. Dùng để kiểm tra.
+
+Bật publish:
+
+# trên GitHub (Settings → Variables)
+WF_ENABLED=true
+
+
+hoặc local:
+
+WF_ENABLED=true npm start
+
+Tóm tắt câu hỏi của bạn
+
+“Có cần cung cấp .env cho bạn không?”
+Không. Giữ secrets cho bạn. .env chỉ dùng local. Trên GitHub thì dùng Variables và Secrets như ở trên.
+
+Xong. Bạn có repo chạy thật, cron thật, retry 2s/5s/10s, batch 30, NO YEARS, backfill về Google Sheet, kill-switch L6. Nếu cái gì còn gào thét, quăng log ở step “SUMMARY …” cho tôi, tôi xử tiếp.
+
+Cái file .zip tôi đưa cho bạn không tự động viết blog hay gõ bàn phím thay người đâu. Nó chứa toàn bộ mã nguồn, workflow, và cấu hình để bạn chạy hoặc tự động hóa bằng GitHub Actions hoặc VS Code Task.
+Cụ thể:
+
+Nếu bạn dùng VS Code
+
+Giải nén thư mục shopify-blog-automation/.
+
+Mở nó bằng VS Code.
+
+Chạy:
+
+npm ci
+npx tsc
+cp .env.sample .env
+
+
+Sau đó mở .env để điền:
+
+SHEETS_ID (ID Google Sheet của bạn)
+
+SHOPIFY_SHOP (ví dụ: therikeus)
+
+SHOPIFY_TOKEN (Admin API token)
+
+OPENAI_API_KEY (khóa OpenAI)
+
+Trong VS Code, mở Terminal → Run Task → run:dry
+
+Chế độ này chạy full pipeline, nhưng KHÔNG đăng bài (Dry-run).
+
+Khi đã chắc chắn ổn, chạy Run Task → run:publish
+
+Cái này mới thực sự gọi Shopify API và ghi lại URL vào Sheet.
+
+Nếu bạn muốn tự động 100%
+
+Push repo đó lên GitHub.
+
+Vào Settings → Secrets & Variables, nhập các giá trị .env vào.
+
+GitHub Actions sẽ chạy theo lịch (07:05, 13:05, 20:05 America/Chicago).
+
+Khi WF_ENABLED=true, nó tự động đọc Google Sheet, tạo bài, đăng, ghi URL.
+
+Khi WF_ENABLED=false, nó chỉ chạy giả lập, không đăng gì hết.
+
+Tóm lại:
+
+Bạn gửi repo này cho VS Code, nó không “tự làm” — nó chạy code bạn đã có, theo đúng hướng dẫn và biến môi trường bạn điền.
+
+Nếu bạn muốn tôi nâng cấp thêm để chỉ cần “mở VS Code và tự động làm luôn không cần bấm gì” (ví dụ tự khởi chạy mỗi sáng bằng cron local hoặc agent mode trong VS Code), tôi có thể cấu hình thêm VSCode Agent hoặc node-cron vào project. Bạn có muốn tôi thêm phần đó không?
+
+Tốt, bật chế độ “ngồi uống cà phê để máy làm.” Tôi đã thêm autorun cho local/VS Code rồi.
+
+Tải bản tự chạy (có lịch local)
+"D:\active-projects\Auto Blog Shopify NEW Rosie\Shopify Blog Automation - Github Actions\shopify-blog-automation-autorun"
+
+Bản này thêm:
+
+node-cron và file src/autorun.ts chạy theo lịch 07:05, 13:05, 20:05 America/Chicago.
+
+VS Code tự khởi chạy autorun ở chế độ dry-run ngay khi bạn mở folder.
+
+Dùng trong VS Code (không cần n8n, không cần bấm)
+
+Giải nén ZIP, mở thư mục trong VS Code.
+
+Terminal:
+
+npm ci
+cp .env.sample .env
+# điền SHEETS_ID, SHOPIFY_SHOP, SHOPIFY_TOKEN, OPENAI_API_KEY ...
+npx tsc
+
+
+Đóng và mở lại thư mục. VS Code sẽ tự chạy task autorun:dry theo lịch (WF_ENABLED=false).
+
+Muốn publish thật trên máy bạn:
+
+# cửa sổ khác
+WF_ENABLED=true npm run autorun:publish
+
+
+Quy tắc vẫn giữ: WF_ENABLED=false chỉ dry-run. Chuyển true mới post Shopify và backfill Google Sheet.
+
+Dùng GitHub Actions (tự động trên cloud)
+
+Push repo lên GitHub, nhập Variables/Secrets như tôi đã hướng dẫn ở bản trước.
+
+Cron trên Actions cũng chạy 3 lần/ngày, độc lập với autorun local.
+
+Dùng WF_ENABLED=true ở Variables để bật publish tự động trên cloud.
+
+Lưu ý để nó tự động mà không tự sát
+
+CONFIG!A:B phải có LLM_CONTROL_PROMPT dài ≥ 50 và chứa {{URL_BLOG}}. Kết thúc prompt bằng câu:
+
+Return ONLY a single minified JSON object with keys {title, seo_title, meta_desc, html, images:[{src,alt}]}. No prose, no markdown.
+
+Sheet1!A:B: A = url_blog_crawl, B = url_blog_shopify để trống cho pending.
+
+Nếu dùng Google Service Account, nhớ share Google Sheet cho email service account.
+
+Bạn không cần gửi .env cho tôi. Bạn điền .env local để autorun chạy tại chỗ, còn trên GitHub thì để vào Secrets/Variables. Nếu vẫn muốn mọi thứ “cắm điện là chạy,” tôi có thể thêm cấu hình PM2 hoặc systemd để daemon hóa trên server của bạn.
+
+__________________________________________
+
+chỉ cần chọn 1 file — bản autorun là đủ.
+Cụ thể cho rõ:
+
+File	Mục đích	Khi nào dùng
+🧩 "D:\active-projects\Auto Blog Shopify NEW Rosie\Shopify Blog Automation - Github Actions\shopify-blog-automation"	Bản thủ công — bạn phải chạy task bằng tay (npm run dry hoặc npm run publish).	Khi bạn muốn kiểm soát từng bước, test trước khi cho cron chạy.
+
+⚙️ "D:\active-projects\Auto Blog Shopify NEW Rosie\Shopify Blog Automation - Github Actions\shopify-blog-automation-autorun"	Bản tự động hoàn toàn — đã thêm node-cron + task autorun.ts. Mở VS Code hoặc khởi động Node server là nó tự dry-run 3 lần/ngày (07:05, 13:05, 20:05).	Khi bạn muốn “cắm điện là chạy,” khỏi bấm gì. Đây là bản bạn nên dùng.
+Cách triển khai bản autorun
+
+Giải nén.
+
+Chạy:
+
+npm ci
+npx tsc
+cp .env.sample .env
+
+
+rồi điền vào .env các giá trị:
+
+SHEETS_ID=...
+SHOPIFY_SHOP=...
+SHOPIFY_TOKEN=...
+OPENAI_API_KEY=...
+WF_ENABLED=false
+
+
+Mở thư mục bằng VS Code hoặc chạy:
+
+npm run autorun:dry
+
+
+Nó sẽ tự xử lý các hàng pending nhưng không đăng bài.
+
+Khi bạn thấy ổn, bật WF_ENABLED=true trong .env hoặc môi trường server để bắt đầu publish thật.
+
+👉 Tóm lại:
+
+Giữ bản autorun thôi  "D:\active-projects\Auto Blog Shopify NEW Rosie\Shopify Blog Automation - Github Actions\shopify-blog-automation-autorun", vì nó đã bao gồm mọi thứ của bản thường — thêm cả cron và kill-switch.
+
+_______________________________
+
+Bạn không “kêu VS Code” làm gì cả nếu đã lấy bản autorun.zip. VS Code chỉ là cái IDE để bạn nhìn cho đỡ buồn. Cái chạy việc là Node + cron trong dự án và/hoặc GitHub Actions trên cloud. Đây là 2 đường triển khai, chọn 1 hoặc dùng cả hai.
+
+A) Chạy bản autorun trên máy bạn (không cần VS Code)
+
+Autorun là local daemon chạy 3 lần/ngày theo múi giờ America/Chicago. Làm như robot, không hỏi han.
+
+Giải nén shopify-blog-automation-autorun.zip
+
+Cài và build:
+
+npm ci
+npx tsc
+cp .env.sample .env
+
+
+Mở file .env và điền:
+
+SHEETS_ID=<id Google Sheet>
+SHEETS_RANGE=Sheet1!A:B
+CONFIG_RANGE=CONFIG!A:B
+SHOPIFY_SHOP=therikeus
+BLOG_HANDLE=agritourism
+AUTHOR=The Rike
+OPENAI_MODEL=gpt-4o-mini
+WF_ENABLED=false            # mặc định dry-run
+SHOPIFY_TOKEN=<secret>
+OPENAI_API_KEY=<secret>
+
+
+Chạy chế độ tự động theo lịch (dry-run, không publish):
+
+npm run autorun:dry
+
+
+Nó sẽ:
+
+đọc queue từ Google Sheet
+
+gọi LLM JSON-mode
+
+validate NO YEARS
+
+dừng trước khi POST Shopify vì WF_ENABLED=false
+
+Khi đã kiểm tra ok, bật publish thật:
+
+WF_ENABLED=true npm run autorun:publish
+
+
+Hoặc đổi hẳn trong .env rồi chạy npm run autorun:publish.
+
+Muốn chạy kiểu dịch vụ nền:
+
+Dùng PM2:
+
+npm i -g pm2
+pm2 start dist/autorun.js --name shopify-auto --update-env --env-production
+
+
+Hoặc systemd nếu bạn thích chơi khó bản thân.
+
+Tóm tắt: autorun chạy trên máy bạn theo lịch, không cần VS Code. VS Code chỉ giúp “mở project lên nhìn cho sang.”
+
+B) Chạy GitHub Actions (cloud, không cần máy bạn bật)
+
+Đây là tự động hoá trên cloud của GitHub, có log, approval, rollback đúng chuẩn đời công nghiệp.
+
+Đẩy mã lên GitHub
+Giải nén zip vào thư mục repo rồi:
+
+git init
+git add .
+git commit -m "init: shopify blog automation"
+gh repo create yourorg/shopify-blog-automation --private --source=. --push
+
+
+Khai báo Variables (Settings → Secrets and variables → Actions → Variables):
+
+SHEETS_ID=<GoogleSheetID>
+SHEETS_RANGE=Sheet1!A:B
+CONFIG_RANGE=CONFIG!A:B
+SHOPIFY_SHOP=therikeus
+BLOG_HANDLE=agritourism
+AUTHOR=The Rike
+WF_ENABLED=false           # giữ false để dry-run trên cloud
+OPENAI_MODEL=gpt-4o-mini
+
+
+Khai báo Secrets (Actions → Secrets):
+
+SHOPIFY_TOKEN=<admin_api_token_with_write_content>
+OPENAI_API_KEY=<openai_key>
+
+
+Lịch chạy đã có sẵn trong .github/workflows/publish.yml:
+
+UTC 13:05, 19:05, 02:05 tương ứng 07:05, 13:05, 20:05 America/Chicago.
+
+Test thủ công một phát:
+
+Vào tab Actions → chọn workflow “Shopify Blog Automation” → Run workflow
+hoặc dùng CLI:
+
+gh workflow run "Shopify Blog Automation" --ref main
+gh run watch
+
+
+Nhìn log step cuối sẽ thấy SUMMARY {"attempted":X,"processed":Y,"failed":Z}.
+
+Khi mọi thứ OK, bật publish tự động trên cloud:
+
+Đổi variable:
+
+gh variable set WF_ENABLED --body "true"
+
+
+Hoặc vào UI → Variables → chỉnh WF_ENABLED=true.
+
+Tóm tắt: GitHub Actions chạy trên cloud 3 lần/ngày, không phụ thuộc máy của bạn. Bạn chỉ cần set Variables/Secrets. Không cần VS Code.
+
+Khi nào dùng cái nào
+
+Autorun: bạn muốn chạy local, kiểm soát bằng .env, bật tắt nhanh bằng terminal.
+
+GitHub Actions: bạn muốn tự động hoàn toàn trên cloud, có log, approval, rollback. Khuyến nghị dùng cho vận hành dài hạn.
+
+Mấy lưu ý để khỏi ăn vạ
+
+Sheet CONFIG!A:B phải có LLM_CONTROL_PROMPT dài ≥ 50 ký tự, chứa {{URL_BLOG}}, và kết thúc bằng câu:
+Return ONLY a single minified JSON object with keys {title, seo_title, meta_desc, html, images:[{src,alt}]}. No prose, no markdown.
+
+Sheet Sheet1!A:B: A = url_blog_crawl, B = url_blog_shopify để trống.
+
+WF_ENABLED=false là dry-run. Muốn publish phải set true.
+
+Đừng vứt secrets vào chat. Đặt trong .env local hoặc Secrets của GitHub.
+
+Bạn chọn 1 đường là chạy được. Nếu vẫn muốn “đứng xem máy tự làm mà không động tay,” chọn GitHub Actions. Còn nếu thích “nuôi pet robot” trong máy mình, dùng autorun. Tôi đã dọn sẵn cả hai.
+
+____________________________________________
+Ask:
+bạn cho nó chạy xong tui xem được trực tiếp coi nó có  sai ko đã chứ, phải hiện coi nó làm gì trên chatgpt và  shopify xong đã rồi mới biết có nên tiếp tục ko? thì mới nên chạy schedule chứ ta?
+
+Chatgpt replied:
+
+Bạn muốn xem trước mọi thứ rồi mới cho chạy lịch. Đúng chuẩn người tỉnh. Giải pháp: thêm cổng REVIEW. Pipeline sẽ sinh bài, xuất HTML/JSON xem trực tiếp, thậm chí publish vào “bản nháp/staging,” rồi chỉ khi bạn OK mới bật lịch hoặc chuyển sang publish thật.
+
+Dưới đây là đúng những gì cần dán vào repo autorun mà tôi đưa cho bạn để có “review-first”:
+
+1) Chế độ REVIEW ở local (xem trước ngay trên máy bạn)
+
+Mặc định autorun của tôi đã dry-run, nhưng giờ ta cho nó xuất file preview để bạn mở bằng trình duyệt.
+
+A) Thêm ghi file preview
+
+Trong package.json cài thêm:
+
+npm i fs-extra slugify
+
+
+Tạo file src/preview.ts:
+
+import fs from "fs-extra";
+import slugify from "slugify";
+
+export async function writePreview(item:{
+  url_blog_crawl:string,
+  blogHandle:string,
+  author:string,
+  content:{title:string; seo_title?:string; meta_desc?:string; html:string; images?:Array<{src:string,alt?:string}>}
+}) {
+  const dir = "out/review";
+  await fs.ensureDir(dir);
+  const slug = slugify(item.content.title || "untitled", { lower: true, strict: true }).slice(0,80);
+  const base = `${dir}/${slug || "draft"}`;
+
+  // HTML wrapper cho dễ đọc
+  const html = `<!doctype html><meta charset="utf-8">
+<title>${item.content.title}</title>
+<h1>${item.content.title}</h1>
+<p><strong>SEO Title:</strong> ${item.content.seo_title || ""}</p>
+<p><strong>Meta Desc:</strong> ${item.content.meta_desc || ""}</p>
+<hr/>
+${item.content.html}`;
+
+  await fs.writeFile(`${base}.html`, html, "utf8");
+  await fs.writeJSON(`${base}.json`, item, { spaces: 2 });
+  return { htmlPath: `${base}.html`, jsonPath: `${base}.json` };
+}
+
+
+Sửa src/index.ts để ghi preview khi review:
+
+// thêm ở đầu
+import { writePreview } from "./preview.js";
+
+// ... bên trong for (const row of queue) { try { ... sau khi nhận "data" từ LLM:
+const previewItem = {
+  url_blog_crawl: row.url_blog_crawl,
+  blogHandle,
+  author,
+  content: data
+};
+await writePreview(previewItem);
+
+// nếu WF_ENABLED=false (review) thì chỉ báo đường dẫn file và bỏ qua publish:
+if (!wfEnabled) {
+  console.log(`[REVIEW] Wrote preview files for ${row.url_blog_crawl}`);
+  summary.processed++;
+  continue;
+}
+
+
+Chạy:
+
+npm ci
+npx tsc
+WF_ENABLED=false node dist/index.js
+
+
+Xem các file trong out/review/*.html bằng trình duyệt. Không cần VS Code nếu bạn ghét mở.
+
+2) Chế độ REVIEW trên GitHub Actions (xem trước ngay trên cloud)
+
+Bạn muốn nhìn kết quả trực tiếp từ web giao diện GitHub, trước khi cho chạy lịch. Được.
+
+A) Thêm biến MODE
+
+Trong workflow .github/workflows/publish.yml, ngay trước khi chạy:
+
+      - name: Mode
+        run: echo "MODE=${{ inputs.mode || 'review' }}" >> $GITHUB_ENV
+
+
+Và thêm workflow_dispatch inputs:
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "review | publish"
+        required: false
+        default: "review"
+
+
+Trong src/index.ts, đọc MODE:
+
+const mode = (process.env.MODE || (process.env.WF_ENABLED === "true" ? "publish" : "review")).toLowerCase();
+// dùng 'mode' thay vì chỉ WF_ENABLED:
+const wfEnabled = mode === "publish";
+
+B) Upload artifact để bạn bấm vào xem file HTML/JSON
+
+Thêm hai step cuối của job:
+
+      - name: Build
+        run: npx tsc
+
+      - name: Run pipeline
+        run: node dist/index.js
+
+      - name: Upload review artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-drafts
+          path: out/review/**
+          if-no-files-found: ignore
+
+
+Kết quả: sau khi run, vào tab Actions → run gần nhất → Artifacts → review-drafts, tải HTML/JSON về xem trực tiếp. Không publish gì nếu mode=review hoặc WF_ENABLED=false.
+
+C) (Tùy chọn) Preview URL công khai qua GitHub Pages
+
+Cho bạn mở trực tiếp trên web không cần tải file:
+
+Thêm quyền:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+
+Triển khai khi review:
+
+      - name: Upload Pages artifact
+        if: env.MODE == 'review'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out/review
+
+      - name: Deploy to GitHub Pages
+        if: env.MODE == 'review'
+        uses: actions/deploy-pages@v4
+
+
+Sau run đầu, bật Pages (gh sẽ tự tạo). Mỗi lần review bạn có link xem HTML ngay trên web.
+
+3) “Xem thử trên Shopify” mà không public thật
+
+Nếu muốn xem trực tiếp trong Shopify nhưng chưa muốn công khai:
+
+Cách A: tạo blog handle staging (ví dụ agritourism-staging) và publish vào đó trong mode=review.
+
+Cách B: dùng thuộc tính bản nháp. Với Shopify Admin API Article, bạn có thể tạo article chưa public bằng đặt published_at=null hoặc published:false khi POST. Khi chuẩn bị “go live,” gọi PUT để publish. Nếu bạn muốn, tôi sẽ thêm nhánh mode=staging để POST vào blog staging hoặc để unpublished.
+
+4) Quy trình duyệt đơn giản mà chuẩn
+
+Chạy review:
+
+Local: WF_ENABLED=false node dist/index.js → mở out/review/*.html.
+
+Cloud: Actions → Run workflow → mode=review → mở Artifacts hoặc Pages link.
+
+Đọc nội dung, check: không chứa năm, HTML sạch, tiêu đề ổn.
+
+Khi duyệt xong, publish:
+
+Local: WF_ENABLED=true node dist/index.js
+
+Cloud: Actions → Run workflow → mode=publish hoặc set WF_ENABLED=true rồi để cron chạy.
+
+Sau publish, URL được ghi về Sheet. Logs cuối run in: SUMMARY {"attempted":...}.
+
+
+Kết luận
+
+Bạn xem được trực tiếp trước khi publish ở cả local lẫn cloud:
+
+Local: mở out/review/*.html.
+
+Cloud: Artifacts hoặc GitHub Pages.
+Muốn “nhìn trong Shopify” mà chưa công khai thì dùng staging blog hoặc unpublished draft.
+
+Đừng bật schedule cho đến khi bạn nhìn thấy preview ngon lành. Khi duyệt xong, chuyển mode=publish hoặc WF_ENABLED=true. Không cần đánh cược với số phận.
+
