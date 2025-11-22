@@ -20,9 +20,10 @@ function ghHeaders() {
   };
 }
 
-function detectMode(name?: string | null) {
-  if (!name) return "review";
-  return /publish/i.test(name) ? "publish" : "review";
+function detectMode(name?: string | null, displayTitle?: string | null) {
+  const source = `${displayTitle || ""} ${name || ""}`.toLowerCase();
+  if (source.includes("publish")) return "publish";
+  return "review";
 }
 
 export type RunInfo = {
@@ -46,7 +47,7 @@ export async function getPipelineHealth(limitRuns = 3): Promise<{ runs: RunInfo[
     id: run.id,
     status: run.status,
     conclusion: run.conclusion,
-    mode: detectMode(run.name),
+    mode: detectMode(run.name, run.display_title),
     url: run.html_url,
   }));
   return { runs };
@@ -115,33 +116,46 @@ export async function getActionsVariable(name: string) {
   const res = await fetch(`${GH_API}/repos/${repo}/actions/variables/${name}`, {
     headers: ghHeaders(),
   });
+  if (res.status === 403) {
+    console.warn(`[actions-variable] Missing permission to read ${name}. Falling back to env/defaults.`);
+    return null;
+  }
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`getActionsVariable ${name} ${res.status}`);
   const json = await res.json();
   return json.value as string;
 }
 
-export async function setActionsVariable(name: string, value: string) {
+export async function setActionsVariable(name: string, value: string): Promise<boolean> {
   const repo = repoPath();
   const patch = await fetch(`${GH_API}/repos/${repo}/actions/variables/${name}`, {
     method: "PATCH",
     headers: ghHeaders(),
     body: JSON.stringify({ name, value }),
   });
+  if (patch.status === 403) {
+    console.warn(`[actions-variable] Missing permission to update ${name}. Please adjust GITHUB_TOKEN scopes.`);
+    return false;
+  }
   if (patch.status === 404) {
     const create = await fetch(`${GH_API}/repos/${repo}/actions/variables`, {
       method: "POST",
       headers: ghHeaders(),
       body: JSON.stringify({ name, value }),
     });
+    if (create.status === 403) {
+      console.warn(`[actions-variable] Missing permission to create ${name}. Please adjust GITHUB_TOKEN scopes.`);
+      return false;
+    }
     if (!create.ok) {
       const text = await create.text();
       throw new Error(`setActionsVariable create ${name} ${create.status}: ${text}`);
     }
-    return;
+    return true;
   }
   if (!patch.ok) {
     const text = await patch.text();
     throw new Error(`setActionsVariable patch ${name} ${patch.status}: ${text}`);
   }
+  return true;
 }

@@ -1,9 +1,23 @@
 import { google } from "googleapis";
 import "dotenv/config";
 
-const auth = new google.auth.GoogleAuth({
-  scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
-});
+function buildAuth(scopes: string[]) {
+  const raw =
+    process.env.GOOGLE_SERVICE_ACCOUNT_JSON ||
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON ||
+    process.env.GOOGLE_CREDENTIALS;
+  if (raw) {
+    try {
+      const credentials = JSON.parse(raw);
+      return new google.auth.GoogleAuth({ scopes, credentials });
+    } catch (err) {
+      throw new Error(`Invalid GOOGLE_CREDENTIALS JSON: ${(err as Error).message}`);
+    }
+  }
+  return new google.auth.GoogleAuth({ scopes });
+}
+
+const auth = buildAuth(["https://www.googleapis.com/auth/spreadsheets.readonly"]);
 
 function requireEnv(name: string) {
   const value = process.env[name];
@@ -11,7 +25,7 @@ function requireEnv(name: string) {
   return value;
 }
 
-function getSheetsClient() {
+async function getSheetsClient() {
   return google.sheets({ version: "v4", auth });
 }
 

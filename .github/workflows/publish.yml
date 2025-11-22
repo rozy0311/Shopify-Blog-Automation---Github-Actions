@@ -1,4 +1,5 @@
 name: Shopify Blog Executor
+run-name: Shopify Blog Executor (${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }})
 
 on:
   workflow_dispatch:
@@ -52,18 +53,23 @@ jobs:
       - name: Inject secrets
         run: |
           {
-            echo "SHOPIFY_TOKEN=${{ secrets.SHOPIFY_TOKEN }}"
+            echo "SHOPIFY_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}"
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
-            echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}"
-            echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}"
           } >> "$GITHUB_ENV"
       - name: Install dependencies
         run: npm ci
-      - name: Prepare Google credentials
+      - name: Google creds -> file (for Sheets ADC)
+        shell: bash
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: |
-          if [ -n "$GOOGLE_CREDENTIALS" ]; then
-            echo "$GOOGLE_CREDENTIALS" > $RUNNER_TEMP/google-credentials.json
+          if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > $RUNNER_TEMP/google-credentials.json
             echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/google-credentials.json" >> $GITHUB_ENV
+            echo "GOOGLE_SERVICE_ACCOUNT_JSON=$GOOGLE_SERVICE_ACCOUNT_JSON" >> $GITHUB_ENV
+          else
+            echo "ERROR: Missing secret GOOGLE_SERVICE_ACCOUNT_JSON"
+            exit 1
           fi
       - name: Build executor
         run: npm run --workspace apps/executor build

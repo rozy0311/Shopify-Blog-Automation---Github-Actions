@@ -30,12 +30,15 @@ function unstable(runs: RunInfo[]) {
 }
 
 async function disablePipeline(reason: string, runs: RunInfo[], pending?: number | null) {
-  await setActionsVariable("WF_ENABLED", "false");
-  await setActionsVariable("ALLOW_PUBLISH", "human_disabled");
+  const wfUpdated = await setActionsVariable("WF_ENABLED", "false");
+  const allowUpdated = await setActionsVariable("ALLOW_PUBLISH", "human_disabled");
+  const flagNote = wfUpdated && allowUpdated
+    ? "WF_ENABLED=false, ALLOW_PUBLISH=human_disabled."
+    : "Could not update WF_ENABLED/ALLOW_PUBLISH automatically. Flip them manually.";
   await openIncident("high", reason, JSON.stringify({ runs }, null, 2));
   await notifyHuman({
     subject: "[PIPELINE] Disabled",
-    message: `${reason}. Pending: ${pending ?? "unknown"}. WF_ENABLED=false, ALLOW_PUBLISH=human_disabled.`,
+    message: `${reason}. Pending: ${pending ?? "unknown"}. ${flagNote}`,
     links: runs.map((run) => run.url),
   });
 }

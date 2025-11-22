@@ -1,11 +1,25 @@
 import { google } from "googleapis";
 import "dotenv/config";
 
-const auth = new google.auth.GoogleAuth({
-  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-});
+function buildAuth(scopes: string[]) {
+  const raw =
+    process.env.GOOGLE_SERVICE_ACCOUNT_JSON ||
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON ||
+    process.env.GOOGLE_CREDENTIALS;
+  if (raw) {
+    try {
+      const credentials = JSON.parse(raw);
+      return new google.auth.GoogleAuth({ scopes, credentials });
+    } catch (err) {
+      throw new Error(`Invalid GOOGLE_CREDENTIALS JSON: ${(err as Error).message}`);
+    }
+  }
+  return new google.auth.GoogleAuth({ scopes });
+}
 
-function getSheetsClient() {
+const auth = buildAuth(["https://www.googleapis.com/auth/spreadsheets"]);
+
+async function getSheetsClient() {
   return google.sheets({ version: "v4", auth });
 }
 
@@ -24,7 +38,7 @@ export async function readConfig(): Promise<Record<string, string>> {
     spreadsheetId: requireEnv("SHEETS_ID"),
     range,
   });
-    const rows = (data.values ?? []) as string[][];
+  const rows = (data.values ?? []) as string[][];
   const map: Record<string, string> = {};
   for (const row of rows.slice(1)) {
     const key = (row?.[0] || "").trim();
@@ -49,7 +63,7 @@ export async function readQueue(limit = 30): Promise<QueueRow[]> {
     spreadsheetId: requireEnv("SHEETS_ID"),
     range,
   });
-    const rows = (data.values ?? []) as string[][];
+  const rows = (data.values ?? []) as string[][];
   return rows
     .slice(1)
     .map((row) => ({
@@ -67,7 +81,7 @@ export async function updateBackfill(urlBlogCrawl: string, publishedUrl: string)
     spreadsheetId: requireEnv("SHEETS_ID"),
     range,
   });
-    const rows = (data.values ?? []) as string[][];
+  const rows = (data.values ?? []) as string[][];
   const rowIndex = rows.findIndex((row) => (row?.[0] || "").trim() === urlBlogCrawl);
   if (rowIndex < 0) {
     throw new Error(`Row not found for backfill: ${urlBlogCrawl}`);

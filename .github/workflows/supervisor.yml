@@ -1,9 +1,15 @@
 name: Shopify Blog Supervisor
+run-name: Shopify Blog Supervisor
 
 on:
   workflow_dispatch: {}
   schedule:
     - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+  actions: write
+  issues: write
 
 concurrency:
   group: supervisor
@@ -12,16 +18,11 @@ concurrency:
 jobs:
   supervise:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-      issues: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: npm
       - name: Export configuration
         run: |
           {
@@ -31,24 +32,27 @@ jobs:
             echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
           } >> "$GITHUB_ENV"
-      - name: Inject secrets
-        run: |
-          {
-            echo "GOOGLE_CREDENTIALS=${{ secrets.GOOGLE_CREDENTIALS }}"
-            echo "SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}"
-            echo "GITHUB_TOKEN=${{ secrets.SUPERVISOR_TOKEN != '' && secrets.SUPERVISOR_TOKEN || secrets.GITHUB_TOKEN }}"
-          } >> "$GITHUB_ENV"
-      - name: Install dependencies
+      - name: Supervisor deps
+        working-directory: apps/supervisor
         run: npm ci
-      - name: Prepare Google credentials
-        run: |
-          if [ -n "$GOOGLE_CREDENTIALS" ]; then
-            echo "$GOOGLE_CREDENTIALS" > $RUNNER_TEMP/google-credentials.json
-            echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/google-credentials.json" >> $GITHUB_ENV
-          fi
-      - name: Build supervisor
-        run: npm run --workspace apps/supervisor build
-      - name: Run supervisor
+      - name: Google creds -> file (for Sheets ADC)
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-        run: node apps/supervisor/dist/index.js
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          CONTENT="$GOOGLE_SERVICE_ACCOUNT_JSON"
+          if [ -z "$CONTENT" ]; then
+            echo "ERROR: Missing secret GOOGLE_SERVICE_ACCOUNT_JSON"
+            exit 1
+          fi
+          echo "$CONTENT" > $RUNNER_TEMP/google.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/google.json" >> $GITHUB_ENV
+          echo "GOOGLE_SERVICE_ACCOUNT_JSON=$CONTENT" >> $GITHUB_ENV
+      - name: Build supervisor
+        working-directory: apps/supervisor
+        run: npm run build
+      - name: Run supervisor
+        working-directory: apps/supervisor
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node dist/index.js
