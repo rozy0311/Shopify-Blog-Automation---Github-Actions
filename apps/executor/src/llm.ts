@@ -1,5 +1,7 @@
 import "dotenv/config";
 
+type OpenAIError = Error & { status?: number; retryAfterMs?: number };
+
 type LlmPayload = {
   title: string;
   seo_title?: string;
@@ -34,7 +36,14 @@ export async function callOpenAI(systemPrompt: string, model: string): Promise<L
   });
 
   if (!response.ok) {
-    throw new Error(`OpenAI HTTP ${response.status}`);
+    const message = await extractErrorMessage(response);
+    const error = new Error(message) as OpenAIError;
+    error.status = response.status;
+    const retryAfterMs = computeRetryAfter(response);
+    if (retryAfterMs) {
+      error.retryAfterMs = retryAfterMs;
+    }
+    throw error;
   }
 
   const json = await response.json();
@@ -42,12 +51,65 @@ export async function callOpenAI(systemPrompt: string, model: string): Promise<L
   return parseJsonRelaxed(text) as LlmPayload;
 }
 
+async function extractErrorMessage(response: Response): Promise<string> {
+  const fallback = `OpenAI HTTP ${response.status}`;
+  try {
+    const bodyText = await response.text();
+    if (!bodyText) return fallback;
+    const parsed = JSON.parse(bodyText);
+    return parsed?.error?.message || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function computeRetryAfter(response: Response): number | undefined {
+  if (response.status !== 429) return undefined;
+
+  const retryAfter = response.headers.get("retry-after");
+  const retryAfterMs = parseRetryAfterHeader(retryAfter);
+  if (retryAfterMs) return retryAfterMs;
+
+  const reset = response.headers.get("x-ratelimit-reset-requests");
+  const resetDelay = parseResetHeader(reset);
+  if (resetDelay) return resetDelay;
+
+  return 15000; // default wait 15s when rate limited and no guidance provided
+}
+
+function parseRetryAfterHeader(headerValue: string | null): number | undefined {
+  if (!headerValue) return undefined;
+  const numeric = Number(headerValue);
+  if (Number.isFinite(numeric) && numeric >= 0) {
+    return numeric * 1000;
+  }
+  const dateValue = Date.parse(headerValue);
+  if (!Number.isNaN(dateValue)) {
+    return Math.max(0, dateValue - Date.now());
+  }
+  return undefined;
+}
+
+function parseResetHeader(headerValue: string | null): number | undefined {
+  if (!headerValue) return undefined;
+  const numeric = Number(headerValue);
+  if (!Number.isFinite(numeric) || numeric <= 0) return undefined;
+
+  // Header may either be "seconds until reset" or an epoch timestamp in seconds.
+  if (numeric < 10_000) {
+    return numeric * 1000;
+  }
+
+  const candidate = numeric * 1000 - Date.now();
+  return candidate > 0 ? candidate : undefined;
+}
+
 export function parseJsonRelaxed(input: string) {
   const stripped = input
     .replace(/^```[a-zA-Z]*\n?/, "")
-    .replace(/```$/g, "")
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'");
+    .replaceAll(/```$/g, "")
+    .replaceAll(/[“”]/g, '"')
+    .replaceAll(/[‘’]/g, "'");
 
   try {
     return JSON.parse(stripped);
