@@ -1,0 +1,23 @@
+{
+  "name": "amp",
+  "version": "1.0.0",
+  "description": "AMP CLI for Shopify Blog Automation",
+  "type": "module",
+  "bin": {
+    "amp": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "chalk": "^5.3.0",
+    "ora": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "typescript": "^5.6.3"
+  }
+}
