@@ -1,21 +1,38 @@
 # Shopify Blog Automation
 
-Content pipeline + supervisor to turn Google Sheet queues into Shopify blog posts with Level-6 guardrails. The repo is split into two deployable apps:
+Content pipeline + supervisor to turn Google Sheet queues into Shopify blog posts with Level-6 guardrails. The repo is split into three deployable apps:
 
 | Path | Role |
 | --- | --- |
 | `apps/executor/` | Node/TypeScript pipeline that reads Google Sheets, calls OpenAI (JSON mode), posts to Shopify, backfills the sheet, writes previews/artifacts, and can run via cron (GitHub Actions or local autorun). |
 | `apps/supervisor/` | AI Ops brain that inspects queue health + recent workflow runs, flips safety flags, dispatches review/publish runs, and notifies humans via Slack. |
+| `apps/amp/` | Command-line interface (CLI) that provides easy access to the automation tools. |
 
 ## Quick Start
+
+### Option 1: Install via AMP CLI (Recommended)
+
+```bash
+curl -fsSL https://ampcode.com/install.sh | bash
+amp
+```
+
+The installer will:
+- Clone the repository
+- Install all dependencies
+- Build the AMP CLI
+- Add `amp` command to your PATH
+
+### Option 2: Manual Installation
 
 ```bash
 # Install workspace deps
 npm install --workspaces
 
-# Build executor & supervisor
+# Build all apps
 npm run --workspace apps/executor build
 npm run --workspace apps/supervisor build
+npm run --workspace apps/amp build
 ```
 
 See each app's README for configuration, env vars, and runbooks.
