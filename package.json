@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "apps/executor",
-    "apps/supervisor"
+    "apps/supervisor",
+    "apps/amp"
   ]
 }
