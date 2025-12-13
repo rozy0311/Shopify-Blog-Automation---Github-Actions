@@ -35,6 +35,36 @@ npm run --workspace apps/supervisor build
 npm run --workspace apps/amp build
 ```
 
+## Using the AMP CLI
+
+After installation, the `amp` command provides a convenient interface:
+
+```bash
+# Check status of all components
+amp status
+
+# Build all components
+amp build
+
+# Build specific component
+amp build --workspace executor
+
+# Run executor in review mode (dry-run, no publishing)
+amp run
+
+# Run executor in publish mode
+amp run --mode publish
+
+# Run supervisor
+amp supervise
+
+# Show required environment variables
+amp help-env
+
+# Get help
+amp --help
+```
+
 See each app's README for configuration, env vars, and runbooks.
 
 > 🔐 Google Sheets auth: for local runs, set `GOOGLE_SERVICE_ACCOUNT_JSON` (or `GOOGLE_APPLICATION_CREDENTIALS_JSON`) to the full service-account JSON string. In CI we inject the same secret and also export `GOOGLE_APPLICATION_CREDENTIALS` so Application Default Credentials keep working.
