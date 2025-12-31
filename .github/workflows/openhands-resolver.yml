@@ -1,11 +1,11 @@
-﻿name: Copilot Coding Agent Helper
+﻿name: Auto-Assign Copilot Coding Agent
 # =====================================================
-# Copilot Coding Agent - Dùng GitHub Copilot để implement
+# TỰ ĐỘNG 100% - Không cần làm gì!
 #
 # Cách dùng:
-# 1. Tạo issue với label 'copilot'
-# 2. Hoặc comment '/copilot' trong issue
-# 3. Copilot sẽ tự động implement và tạo PR
+# 1. Tạo issue bất kỳ → Copilot tự động được assign
+# 2. Hoặc comment '/copilot' → Copilot tự assign
+# 3. Copilot sẽ tự implement và tạo PR
 #
 # KHÔNG CẦN API KEY - Dùng Copilot subscription có sẵn!
 # =====================================================
@@ -22,37 +22,65 @@ permissions:
     issues: write
 
 jobs:
-    notify-copilot-ready:
+    auto-assign-copilot:
         if: |
-            (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'copilot')) ||
+            (github.event_name == 'issues') ||
             (github.event_name == 'issue_comment' && contains(github.event.comment.body, '/copilot'))
         runs-on: ubuntu-latest
         steps:
-            - name: Add comment to guide Copilot assignment
+            - name: Auto-assign Copilot to issue
               uses: actions/github-script@v7
               with:
                   script: |
                       const issueNumber = context.issue.number;
 
-                      // Check if Copilot is already assigned
+                      // Get current issue
                       const issue = await github.rest.issues.get({
                         owner: context.repo.owner,
                         repo: context.repo.repo,
                         issue_number: issueNumber
                       });
 
-                      // Add helpful comment
-                      await github.rest.issues.createComment({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: issueNumber,
-                        body: `🤖 **Copilot Coding Agent Ready!**\n\nTo have Copilot implement this issue:\n1. Click **"Assignees"** on the right sidebar\n2. Select **"Copilot"** from the list\n\nOr go to: https://github.com/${context.repo.owner}/${context.repo.repo}/issues/${issueNumber} and assign Copilot.\n\nCopilot will analyze the issue and create a Pull Request automatically.`
-                      });
+                      // Check if already assigned
+                      const assignees = issue.data.assignees.map(a => a.login.toLowerCase());
+                      if (assignees.includes('copilot') || assignees.includes('github-copilot')) {
+                        console.log('Copilot already assigned');
+                        return;
+                      }
 
-                      // Add 'ai-ready' label
-                      await github.rest.issues.addLabels({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: issueNumber,
-                        labels: ['ai-ready']
-                      });
+                      // Auto-assign Copilot
+                      try {
+                        await github.rest.issues.addAssignees({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: issueNumber,
+                          assignees: ['copilot']
+                        });
+                        console.log('Copilot assigned successfully');
+
+                        // Add comment
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: issueNumber,
+                          body: `🤖 **Copilot đã được tự động assign!**\n\nCopilot sẽ:\n1. Phân tích issue này\n2. Viết code\n3. Tạo Pull Request\n\nBạn không cần làm gì cả - chờ PR thôi!`
+                        });
+
+                        // Add label
+                        await github.rest.issues.addLabels({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: issueNumber,
+                          labels: ['copilot-assigned']
+                        });
+                      } catch (error) {
+                        console.log('Could not assign Copilot:', error.message);
+                        
+                        // Fallback comment
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: issueNumber,
+                          body: `🤖 **Copilot Coding Agent**\n\nVui lòng assign Copilot thủ công:\n1. Click **Assignees** bên phải\n2. Chọn **Copilot**\n\nHoặc dùng Copilot Chat: \`@github-copilot /fix #${issueNumber}\``
+                        });
+                      }
