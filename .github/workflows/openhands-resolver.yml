@@ -1,7 +1,7 @@
 ﻿name: Copilot Coding Agent Helper
 # =====================================================
 # Copilot Coding Agent - Dùng GitHub Copilot để implement
-# 
+#
 # Cách dùng:
 # 1. Tạo issue với label 'copilot'
 # 2. Hoặc comment '/copilot' trong issue
@@ -11,48 +11,48 @@
 # =====================================================
 
 on:
-  issues:
-    types: [opened, labeled]
-  issue_comment:
-    types: [created]
+    issues:
+        types: [opened, labeled]
+    issue_comment:
+        types: [created]
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+    contents: write
+    pull-requests: write
+    issues: write
 
 jobs:
-  notify-copilot-ready:
-    if: |
-      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'copilot')) ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '/copilot'))
-    runs-on: ubuntu-latest
-    steps:
-      - name: Add comment to guide Copilot assignment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issueNumber = context.issue.number;
-            
-            // Check if Copilot is already assigned
-            const issue = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber
-            });
-            
-            // Add helpful comment
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: `🤖 **Copilot Coding Agent Ready!**\n\nTo have Copilot implement this issue:\n1. Click **"Assignees"** on the right sidebar\n2. Select **"Copilot"** from the list\n\nOr go to: https://github.com/${context.repo.owner}/${context.repo.repo}/issues/${issueNumber} and assign Copilot.\n\nCopilot will analyze the issue and create a Pull Request automatically.`
-            });
-            
-            // Add 'ai-ready' label
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              labels: ['ai-ready']
-            });
+    notify-copilot-ready:
+        if: |
+            (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'copilot')) ||
+            (github.event_name == 'issue_comment' && contains(github.event.comment.body, '/copilot'))
+        runs-on: ubuntu-latest
+        steps:
+            - name: Add comment to guide Copilot assignment
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const issueNumber = context.issue.number;
+
+                      // Check if Copilot is already assigned
+                      const issue = await github.rest.issues.get({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issueNumber
+                      });
+
+                      // Add helpful comment
+                      await github.rest.issues.createComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issueNumber,
+                        body: `🤖 **Copilot Coding Agent Ready!**\n\nTo have Copilot implement this issue:\n1. Click **"Assignees"** on the right sidebar\n2. Select **"Copilot"** from the list\n\nOr go to: https://github.com/${context.repo.owner}/${context.repo.repo}/issues/${issueNumber} and assign Copilot.\n\nCopilot will analyze the issue and create a Pull Request automatically.`
+                      });
+
+                      // Add 'ai-ready' label
+                      await github.rest.issues.addLabels({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issueNumber,
+                        labels: ['ai-ready']
+                      });
