@@ -1,0 +1,25 @@
+﻿name: OpenHands Issue Resolver
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  resolve-issue:
+    if: |
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'openhands')) ||
+      (github.event_name == 'issue_comment' && (contains(github.event.comment.body, '@openhands') || contains(github.event.comment.body, '/fix')))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: openhands/openhands-resolver@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          llm-api-key: ${{ secrets.LLM_API_KEY }}
+          auto-pr: true
