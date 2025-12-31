@@ -1,0 +1,12 @@
+﻿[core]
+default_model = "claude-sonnet-4-20250514"
+
+[agent]
+enable_auto_lint = true
+enable_auto_test = true
+max_iterations = 50
+
+[github]
+auto_create_pr = true
+branch_prefix = "openhands/"
+draft_pr = false
