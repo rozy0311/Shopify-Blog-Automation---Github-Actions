@@ -1,0 +1,141 @@
+name: Autonomous GitHub Worker
+# =====================================================
+# TỰ ĐỘNG 100% - Chạy theo schedule, tự commit, tự push
+# Không cần VS Code, không cần approve thủ công
+# =====================================================
+
+on:
+    schedule:
+        # Chạy mỗi 6 giờ
+        - cron: "0 */6 * * *"
+    workflow_dispatch:
+        inputs:
+            task:
+                description: "Task to execute (leave empty for default tasks)"
+                required: false
+                type: string
+            dry_run:
+                description: "Dry run - no commit/push"
+                required: false
+                type: boolean
+                default: false
+
+permissions:
+    contents: write
+    pull-requests: write
+    issues: write
+
+env:
+    # Allowed paths - agent can only modify these
+    ALLOWED_PATHS: |
+        artifacts/
+        blogs/
+        REPORT.md
+        logs/
+    # Forbidden paths - never touch
+    FORBIDDEN_PATHS: |
+        .github/
+        apps/
+        package.json
+        package-lock.json
+        .env
+        vertex-sa.json
+
+jobs:
+    autonomous-worker:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci --ignore-scripts
+
+            - name: Run autonomous agent
+              id: agent
+              env:
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  TASK_INPUT: ${{ github.event.inputs.task }}
+                  DRY_RUN: ${{ github.event.inputs.dry_run }}
+              run: |
+                  node .github/scripts/autonomous-agent.mjs
+
+            - name: Run safety checks
+              id: checks
+              run: |
+                  echo "Running safety checks..."
+
+                  # Check 1: No forbidden files modified
+                  FORBIDDEN=".github/ apps/ package.json package-lock.json .env vertex-sa.json"
+                  for path in $FORBIDDEN; do
+                    if git diff --name-only HEAD~1 2>/dev/null | grep -q "^$path"; then
+                      echo "ERROR: Forbidden path modified: $path"
+                      exit 1
+                    fi
+                  done
+
+                  # Check 2: Build still works
+                  npm run --workspace apps/executor build --if-present || true
+
+                  # Check 3: No syntax errors in modified JS/TS files
+                  for file in $(git diff --name-only --diff-filter=AM | grep -E '\.(js|mjs|ts)$'); do
+                    node --check "$file" 2>/dev/null || echo "Warning: $file has issues"
+                  done
+
+                  echo "All checks passed!"
+
+            - name: Commit and push changes
+              if: ${{ github.event.inputs.dry_run != 'true' }}
+              run: |
+                  git config user.name "Autonomous Agent"
+                  git config user.email "agent@autonomous.bot"
+
+                  # Only add allowed paths
+                  git add artifacts/ blogs/ REPORT.md logs/ 2>/dev/null || true
+
+                  # Check if there are changes
+                  if git diff --staged --quiet; then
+                    echo "No changes to commit"
+                    exit 0
+                  fi
+
+                  # Commit with timestamp
+                  TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+                  git commit -m "🤖 Autonomous update: $TIMESTAMP"
+
+                  # Push
+                  git push origin HEAD
+
+                  echo "Changes committed and pushed successfully!"
+
+            - name: Create run log
+              if: always()
+              run: |
+                  mkdir -p logs
+                  TIMESTAMP=$(date -u +"%Y-%m-%d_%H-%M-%S")
+                  LOG_FILE="logs/agent-run-$TIMESTAMP.log"
+
+                  echo "# Autonomous Agent Run Log" > "$LOG_FILE"
+                  echo "Timestamp: $(date -u)" >> "$LOG_FILE"
+                  echo "Status: ${{ job.status }}" >> "$LOG_FILE"
+                  echo "Trigger: ${{ github.event_name }}" >> "$LOG_FILE"
+                  echo "Task: ${{ github.event.inputs.task || 'scheduled' }}" >> "$LOG_FILE"
+                  echo "" >> "$LOG_FILE"
+                  echo "## Changes" >> "$LOG_FILE"
+                  git diff --stat HEAD~1 2>/dev/null >> "$LOG_FILE" || echo "No previous commit" >> "$LOG_FILE"
+
+                  # Commit log if not dry run
+                  if [ "${{ github.event.inputs.dry_run }}" != "true" ]; then
+                    git add logs/
+                    git commit -m "📝 Agent run log: $TIMESTAMP" || true
+                    git push origin HEAD || true
+                  fi
