@@ -21,6 +21,8 @@
     "googleapis": "^133.0.0",
     "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2",
+    "openai": "^4.72.0",
+    "shopify-blog-automation": "file:../..",
     "slugify": "^1.6.6"
   },
   "devDependencies": {
