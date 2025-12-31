@@ -3,8 +3,18 @@ node_modules/
 **/node_modules/
 **/dist/
 **/out/
+
+# 🔐 Secrets - NEVER commit
 .env
 **/.env
+*.env.local
+vertex-sa.json
+*-sa.json
+
+# System
 .DS_Store
 *.log
 *.zip
+
+# VS Code local (optional)
+.vscode/settings.json
