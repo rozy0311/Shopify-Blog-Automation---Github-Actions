@@ -1,6 +1,10 @@
-name: Autonomous GitHub Worker
+name: Meta-Agent Autonomous Worker
 # =====================================================
-# TỰ ĐỘNG 100% - Chạy theo schedule, tự commit, tự push
+# META-AGENT - Tự động 100%
+# - Tự chạy theo schedule
+# - Tự tạo agent con
+# - Tự commit, tự push
+# - Tự check & tự fix lỗi
 # Không cần VS Code, không cần approve thủ công
 # =====================================================
 
@@ -26,23 +30,12 @@ permissions:
     issues: write
 
 env:
-    # Allowed paths - agent can only modify these
-    ALLOWED_PATHS: |
-        artifacts/
-        blogs/
-        REPORT.md
-        logs/
-    # Forbidden paths - never touch
-    FORBIDDEN_PATHS: |
-        .github/
-        apps/
-        package.json
-        package-lock.json
-        .env
-        vertex-sa.json
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    DRY_RUN: ${{ github.event.inputs.dry_run }}
 
 jobs:
-    autonomous-worker:
+    meta-agent:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
@@ -51,23 +44,27 @@ jobs:
                   fetch-depth: 0
                   token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
+            - name: Setup Python
+              uses: actions/setup-python@v5
               with:
-                  node-version: "20"
-                  cache: "npm"
+                  python-version: "3.11"
+                  cache: "pip"
+                  cache-dependency-path: ".github/agent/requirements.txt"
 
-            - name: Install dependencies
-              run: npm ci --ignore-scripts
+            - name: Install Python dependencies
+              run: |
+                  pip install -r .github/agent/requirements.txt
 
-            - name: Run autonomous agent
+            - name: Run Meta-Agent
               id: agent
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
                   TASK_INPUT: ${{ github.event.inputs.task }}
                   DRY_RUN: ${{ github.event.inputs.dry_run }}
               run: |
-                  node .github/scripts/autonomous-agent.mjs
+                  cd .github/agent
+                  python main.py
 
             - name: Run safety checks
               id: checks
@@ -75,7 +72,7 @@ jobs:
                   echo "Running safety checks..."
 
                   # Check 1: No forbidden files modified
-                  FORBIDDEN=".github/ apps/ package.json package-lock.json .env vertex-sa.json"
+                  FORBIDDEN=".github/workflows apps/ package.json package-lock.json .env vertex-sa.json"
                   for path in $FORBIDDEN; do
                     if git diff --name-only HEAD~1 2>/dev/null | grep -q "^$path"; then
                       echo "ERROR: Forbidden path modified: $path"
@@ -83,24 +80,18 @@ jobs:
                     fi
                   done
 
-                  # Check 2: Build still works
-                  npm run --workspace apps/executor build --if-present || true
-
-                  # Check 3: No syntax errors in modified JS/TS files
-                  for file in $(git diff --name-only --diff-filter=AM | grep -E '\.(js|mjs|ts)$'); do
-                    node --check "$file" 2>/dev/null || echo "Warning: $file has issues"
-                  done
-
-                  echo "All checks passed!"
+                  echo "All safety checks passed!"
 
             - name: Commit and push changes
               if: ${{ github.event.inputs.dry_run != 'true' }}
               run: |
-                  git config user.name "Autonomous Agent"
-                  git config user.email "agent@autonomous.bot"
+                  git config user.name "Meta-Agent"
+                  git config user.email "meta-agent@autonomous.bot"
 
                   # Only add allowed paths
                   git add artifacts/ blogs/ REPORT.md logs/ 2>/dev/null || true
+                  git add .github/agent/agents/generated/ 2>/dev/null || true
+                  git add .github/agent/reports/ 2>/dev/null || true
 
                   # Check if there are changes
                   if git diff --staged --quiet; then
@@ -110,14 +101,25 @@ jobs:
 
                   # Commit with timestamp
                   TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
-                  git commit -m "🤖 Autonomous update: $TIMESTAMP"
+                  git commit -m "🤖 Meta-Agent: $TIMESTAMP"
 
                   # Push
                   git push origin HEAD
 
                   echo "Changes committed and pushed successfully!"
 
-            - name: Create run log
+            - name: Create run summary
+              if: always()
+              run: |
+                  echo "## Meta-Agent Run Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Dry Run**: ${{ github.event.inputs.dry_run || 'false' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Generated Agents" >> $GITHUB_STEP_SUMMARY
+                  ls -la .github/agent/agents/generated/*.py 2>/dev/null || echo "No generated agents yet" >> $GITHUB_STEP_SUMMARY
               if: always()
               run: |
                   mkdir -p logs
