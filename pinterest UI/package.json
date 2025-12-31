@@ -1,0 +1,15 @@
+{
+  "name": "pinterest-ui-automation",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Pinterest bulk pin content generator and scraper",
+  "scripts": {
+    "scrape": "node scrape_board_analytics.mjs",
+    "generate": "node generate_content_bulk.mjs",
+    "html": "node regenerate_html.mjs"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "playwright": "^1.57.0"
+  }
+}
