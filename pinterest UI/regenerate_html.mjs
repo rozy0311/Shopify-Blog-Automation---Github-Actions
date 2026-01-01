@@ -293,4 +293,4 @@ const html = generateHtml(pins);
 fs.writeFileSync(OUTPUT_FILE, html);
 
 const count = pins.filter(p => p.content?.pin_title).length;
-console.log(\`✅ Generated \${OUTPUT_FILE} with \${count} pins\`);
+console.log(`✅ Generated ${OUTPUT_FILE} with ${count} pins`);
