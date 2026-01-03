@@ -1,0 +1,35 @@
+{
+  "topic": "How to Make Homemade Vinegar from Fruit Scraps",
+  "style": {
+    "camera": "50mm lens, f/2.8, ISO 200, 1/125s",
+    "lighting": "natural window light, soft shadows",
+    "quality": "photorealistic, ultra-detailed, high resolution"
+  },
+  "negative_prompt": "people, hands, faces, logos, text, labels, watermarks, brand marks, cartoon, illustration, painting, drawing, CGI, 3D render, blurry, low resolution",
+  "main_image": {
+    "filename": "main.jpg",
+    "prompt": "",
+    "alt": "",
+    "section": "hero"
+  },
+  "inline_images": [
+    {
+      "filename": "inline_1.jpg",
+      "prompt": "",
+      "alt": "",
+      "insert_after_section_id": "prep"
+    },
+    {
+      "filename": "inline_2.jpg",
+      "prompt": "",
+      "alt": "",
+      "insert_after_section_id": "process"
+    },
+    {
+      "filename": "inline_3.jpg",
+      "prompt": "",
+      "alt": "",
+      "insert_after_section_id": "troubleshooting"
+    }
+  ]
+}

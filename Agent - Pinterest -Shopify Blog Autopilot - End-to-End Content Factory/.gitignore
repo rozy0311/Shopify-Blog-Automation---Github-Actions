@@ -1,0 +1,10 @@
+# Browser profile (contains login cookies and sensitive data)
+shopify_stealth_profile/
+.shopify_auth_state.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Sensitive config (uncomment if you want to exclude)
+# SHOPIFY_PUBLISH_CONFIG.json
