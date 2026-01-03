@@ -1,0 +1,429 @@
+{
+  "published": {},
+  "failed": {
+    "226f15b2c018c26b7b753677f4fed2864ed1bfa18ae562cce2848202b6d8d78c": {
+      "topic": "How to Make Homemade Vinegar from Fruit Scraps",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:35.656851"
+    },
+    "9f5443af6e3cd666747c2f38177bd1466e1f9a8a1514e94377d58a77a0e40012": {
+      "topic": "DIY Vanilla Extract at Home with Simple Ingredients",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:35.751159"
+    },
+    "192d825a20f90d87c7041bc24b88c284efa1988f3ad8b6fe087dee94382794d9": {
+      "topic": "Herb-Infused Oils for Cooking and Skincare",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:35.850746"
+    },
+    "db75174cc75c17ebaedaca526819536091495303f1aecedc3435bf9046609b7f": {
+      "topic": "Homemade Taco Seasoning Blend Without Preservatives",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:35.950680"
+    },
+    "90a3d08c76d971f56ae80d236c65707173a64f9dc3ca4921671454cee72aec92": {
+      "topic": "Easy Granola Recipe with Oats and Natural Sweeteners",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.058162"
+    },
+    "56aafffa72dd710db17fd63623601cb8f2a373aec5e9542391deb1b025704258": {
+      "topic": "How to Make Nut Butter at Home",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.153158"
+    },
+    "57295ce58d20538f0890e3cfb5212a9d1a5819ef27f1cf5f6bafb67d4557d718": {
+      "topic": "Quick Pickles vs Fermented Pickles What's the Difference",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.258983"
+    },
+    "fec4bf2badf5e9ee73c6dce0fabf79aca2a58411d0231bc5f33cae8a45a8e05c": {
+      "topic": "Herbal Simple Syrups for Drinks and Desserts",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.358729"
+    },
+    "9c27506cbf369761698e831f914f66872c0b1b031ff9dccfb9a421ec83ab79a9": {
+      "topic": "Ginger Paste Meal Prep for Easy Weeknight Cooking",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.459068"
+    },
+    "3b66c3212f62d7029a4ec2540e32a9e7a8849a550c4215522599bb38f6351239": {
+      "topic": "How to Make Oat Milk That Doesn't Separate",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.559028"
+    },
+    "3f4ee0c56fa5d4b9e612df9232f4742700aeb509b30f3534fe329de308920a11": {
+      "topic": "Building Your Herbal Tea Collection from Scratch",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.657463"
+    },
+    "ccfecfbcb80ad5210820bf60688a887920d86d801b8bca69d2c741a47f165324": {
+      "topic": "Calming Herbal Tea Blends for Better Sleep",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.748881"
+    },
+    "3a5e20f88c6e40816afbd7dbcf044790d4f13e59a9c12d53af969d92c61db071": {
+      "topic": "How to Dry Herbs from Your Garden",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.846279"
+    },
+    "a45aa1708de7b817aff95160b29ae4f7d7a72af8d8bbd8ac2f38303d1946de05": {
+      "topic": "Herbal Infusions vs Decoctions When to Use Each",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:36.945528"
+    },
+    "01beb913cb573419d08749cdd2c869e94c6e129a60e56205c419debad7f85b37": {
+      "topic": "Making Herbal Honey Infusions for Winter",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.038003"
+    },
+    "2c1b5d1df67639129688de030dbb2070e059ba680a4d8e652c17bd67690ae51f": {
+      "topic": "How to Store Dried Herbs Properly",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.133507"
+    },
+    "b2e1135459d6b373558f1d9a380f8bdcefac05df7081947cb6b8aaf35d9889b0": {
+      "topic": "Rosemary Infused Oil for Hair and Cooking",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.227687"
+    },
+    "4dbdb1242f4147b03c92feee7a511e6483e65f87c952ddedcd43310eb4d19617": {
+      "topic": "Lavender Uses Beyond Just Aromatherapy",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.325027"
+    },
+    "94392d81d5e6f191700d32b67cb0aa0e468eb9ad3d571ef237cd26a6d581fd82": {
+      "topic": "Chamomile Harvest and Drying Guide",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.423629"
+    },
+    "097fe89749b4105c7691f770b58e4ee9288e4526e47b36a85c6021cb700a4bfd": {
+      "topic": "Mint Varieties for Tea and Cooking",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.514409"
+    },
+    "52d41e2ce4dc33f482f2b1bbafa9e5d66d5eed220f3120d4fc2227293ebd371c": {
+      "topic": "All-Purpose Citrus Vinegar Cleaner Recipe",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.607269"
+    },
+    "233a65b368381528f75b74ea1198e0f38fbc2d93a5143c4c7598db044796746b": {
+      "topic": "Natural Glass Cleaner Without Streaks",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.702164"
+    },
+    "e5f91bfb1d62f32a6f14531fc5f3e19060e4d8ac68ee30181a672c10caa45ab1": {
+      "topic": "Baking Soda Scrub for Kitchen Sinks",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.798278"
+    },
+    "0add8e5a884e20c3fedd9ecaa1190114b63e9d99a0f78a1bbb539d17da9c0edd": {
+      "topic": "Castile Soap Dilution Ratios for Every Use",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.892342"
+    },
+    "80977d70f001a01b0e9ce3f68f80a0565c4ea9b28cb6381c47c0a2d93c3818a7": {
+      "topic": "Natural Laundry Booster Without Harsh Chemicals",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:37.987077"
+    },
+    "ccb1aa0942c63b1a8ad6058c9b0f085841a8f6115d8f88c5039ef27fc8d6bb24": {
+      "topic": "DIY Fabric Refresher Spray Recipe",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.082451"
+    },
+    "ec0384fe0519d9483ec85b97d9f7033c4a8634fe06baee143dbf215e41694df9": {
+      "topic": "Baking Soda Deodorizer Sachets for Closets",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.174915"
+    },
+    "ae7f472109a22aa07e01959e10a35ddfcab6f1c4d793316c1fbeff78e460bef8": {
+      "topic": "How to Make Beeswax Food Wraps at Home",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.273663"
+    },
+    "fbeabe4fd1054962091a691a8da233069e7ee80c1a8c832c90b5171344ba1fd9": {
+      "topic": "Natural Produce Wash Simple and Effective",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.371320"
+    },
+    "a34d0f2c124c3c0288c2e45f99462bcc44d6c381064445ae69ca9644ef3d79be": {
+      "topic": "Cleaning with Lemon Juice What Works and What Doesn't",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.491911"
+    },
+    "dc972c50313dc9dccb8b5145b1db9f90e71fdeec7d23dd73d7b414cfb334b6a0": {
+      "topic": "Sourdough Starter for Beginners",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.588673"
+    },
+    "71e73a5fc4bece4e35bdc81c84287130b9a093ac6beb043ab75ce0b88d7b2982": {
+      "topic": "Kombucha First Batch Guide and Safety Tips",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.687049"
+    },
+    "da5285e7d0a9d4ebc6ae2b3e06687212c49f9783d885fa9708aa4b4ee74ebbf1": {
+      "topic": "Water Kefir vs Milk Kefir Comparison",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.778621"
+    },
+    "f7a6dd49fadb7cc4d3742921cf62332fadd8377ad816e3b917da21e0a640ae3f": {
+      "topic": "Fermenting Vegetables at Home Basics",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.872892"
+    },
+    "70e7f17ee73b91191571acb305e2a1183b6f441d56b6bdb52fb0a5efaa4040c7": {
+      "topic": "How to Tell if Fermentation Has Gone Wrong",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:38.970546"
+    },
+    "c7fa2887568ef3c726feafc3ceef878f1ceeeb600fd085b9d8d70cefc97c468e": {
+      "topic": "Fruit Vinegar Shrubs for Summer Drinks",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.062666"
+    },
+    "88f0bfecaa7aa896ce11d17036c186d6e433db592dcf813f8c38d918dd95d5a4": {
+      "topic": "Lacto-Fermented Hot Sauce Recipe",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.161174"
+    },
+    "4b23b8a26a2ebeb0709236b7e5efec0cfc6f5d3ae56c871fac1c3ef289a68b44": {
+      "topic": "Fermenting Garlic in Honey",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.253461"
+    },
+    "b3c69992291391cc5919390df56edea4b204f190588450a56c824a5326e1a29f": {
+      "topic": "Preserved Lemons How to Make and Use",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.345534"
+    },
+    "900acf494d1782f2b0d1d3fd137bfe3061417257a900084cc78301fa706246e7": {
+      "topic": "Quick Jam Without Added Pectin",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.437130"
+    },
+    "1da31b62578c4546ae3625f1f85e6ceca52ceeee18362a642035894d26ec8b20": {
+      "topic": "Simple Lip Balm Recipe with Beeswax",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.534774"
+    },
+    "eaff63a597c355094a79500b81fdac332b77bc3c0218c585900a91c2e4d588f9": {
+      "topic": "Sugar Scrub for Body Gentle Exfoliation",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.626126"
+    },
+    "078ea93baa09b9acff57ebd5a8c676ee7230ba2858583133386a71e49d7cba62": {
+      "topic": "Oat Bath Soak for Sensitive Skin",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.719419"
+    },
+    "1ce760b97279aad4fdc9fb064ee4dc636a9463cabe7bfa963a13aab58e08423a": {
+      "topic": "Dry Shampoo Powder for Dark and Light Hair",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.807827"
+    },
+    "59e52b366e09b18912ecf9b867ac1b8d58b5dd1b12f0f6f13d880f5aa4598d83": {
+      "topic": "Herbal Hair Rinse with Rosemary",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.901186"
+    },
+    "6001f3ea1c13145d20d90dc5865fc8a1d76213b737ad0ebc9ea986f374e1ff21": {
+      "topic": "Facial Steam with Dried Herbs",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:39.997794"
+    },
+    "351c1d8758da33f1f95b1f20fd713c0bc2336fbb90bc7ceab0c2a1734f797746": {
+      "topic": "Whipped Body Butter Recipe",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.087798"
+    },
+    "9904fc981cef2108089fd1985a607f884f521caa41d3687c6a2dfe303f883ced": {
+      "topic": "Natural Deodorant That Actually Works",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.178254"
+    },
+    "126d7287c9ac97ec77ab3a3361d31fa4427ddd27ce98e16462b92c02eada370f": {
+      "topic": "Calendula Salve for Minor Skin Irritation",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.265787"
+    },
+    "d0f7e56cdcf866f4cd39cbd0e1e3a4faef11d364add210af3e133990fb6972c1": {
+      "topic": "Bath Bombs Without Citric Acid",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.355592"
+    },
+    "9b3fe8eaef39ed5029252150b6246f0c22c3b4034e260a0fcae142a69a005ebb": {
+      "topic": "Backyard Composting for Beginners",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.453969"
+    },
+    "652c0e22c6d8ebbc5bd9d8a41fbd007cd57dac772a087fd81b1c2605a1be12c4": {
+      "topic": "Banana Peel Fertilizer Does It Really Work",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.546226"
+    },
+    "f9aa77e8f2377851960584c0b0a0c3b8e5ca69d9e9560357c47a9ed4cd5c5b2f": {
+      "topic": "Eggshell Calcium for Tomato Plants",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.637789"
+    },
+    "08bed007a1f994d1660feb69625144661ae92556ec6c317464ebab92d966f15c": {
+      "topic": "Natural Pest Deterrent Sachets with Herbs",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.728437"
+    },
+    "2b29878e39a47751724fd8053654407c34885f8dc2ef707594f4a35bf94d481f": {
+      "topic": "DIY Seed Starting Mix Recipe",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.820170"
+    },
+    "e0b84175edbb46242a298bf375ac2a3808570fa889afce9b67cc620a6e5f6b88": {
+      "topic": "Companion Planting Guide for Beginners",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:40.915843"
+    },
+    "0ed613b5c4cf591225a8c7145a129c9ad8faa83504bb31fedd851f19bbf82b86": {
+      "topic": "Saving Seeds from Your Garden Vegetables",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.005669"
+    },
+    "9bb63a7b36f057e4d09acf80046c1fe150e6816198884b8ddb561f0c3ab0ca72": {
+      "topic": "Building a Simple Cold Frame",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.122261"
+    },
+    "dc25dd8e57949024a40e13006d9b1da7bc1769324c1e49308a44a35fc1846d2b": {
+      "topic": "Rainwater Collection Basics",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.227647"
+    },
+    "1c3051dc2246b6b456aeb4492a8f87272cab6194fc7891e6809551b0050698e1": {
+      "topic": "No-Dig Garden Bed Setup",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.318479"
+    },
+    "5c689d115660fcf21fe6de7e6fe2b73c2cdc5f86e81ec928f32f6643b4877347": {
+      "topic": "Spring Cleaning Checklist Natural Products Only",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.407859"
+    },
+    "9adb56f517423d62bd488a078c3f8f287c3a89e07b777eefa7285dce50af32e0": {
+      "topic": "Summer Herb Garden Planning",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.504282"
+    },
+    "f14fe787533494c055e81d08d2d0b5d2300122cd58fcdd8319dfd9bd2e1647aa": {
+      "topic": "Fall Harvest Preservation Ideas",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.605845"
+    },
+    "4b139f39ee1095ec7ec610af2d3b146582198158bcb8a948958d0b8031224a59": {
+      "topic": "Winter Wellness Pantry Staples",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.695764"
+    },
+    "64c66c994976a95f0c9ae34d8facb4ef033aab235a05137e2565dde85fbc950d": {
+      "topic": "Homemade Holiday Gift Ideas from the Kitchen",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.789195"
+    },
+    "255c02b9605400fe90f791412a136224fd69c826b5438964970a56fcdaa2481d": {
+      "topic": "Natural Room Spray for Holiday Scents",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.880561"
+    },
+    "339ea2b31dd3c3bcae096ef1e6779bc485a4bcae0373d8aac6615fe664396503": {
+      "topic": "DIY Candles with Essential Oils",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:41.971783"
+    },
+    "b4905b5f74db10429f98fde629709902aaf2b40e62a592ea2b41d22e097fc1b0": {
+      "topic": "Herbal Fire Starters for Fireplace",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:42.063684"
+    },
+    "2ceb8a895857e58480c2cba3166eafd4ed053a6a34a37e46bcf048f7dcddb51f": {
+      "topic": "Simmer Pot Recipes for Every Season",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:42.154096"
+    },
+    "d0deebd699ab2f82ab23ee2c54c283eef54319a2421a5814d1de83ac3a2c1fdf": {
+      "topic": "Natural Wreath Making with Dried Herbs",
+      "count": 1,
+      "last_error": "Traceback (most recent call last):\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 444, in <module>\n    main()\n    ~~~~^^\n  File \"D:\\active-projects\\Auto Blog Shopify NEW Rosie\\Shopify Blog Automation - Github Actions\\scripts\\run_one_topic.py\", line 351, in main\n    print(\"\\n\\U0001f4c4 Created template files in content/\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\theri\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode character '\\U0001f4c4' in position 2: character maps to <undefined>\n",
+      "last_attempt": "2026-01-02T17:47:42.251621"
+    }
+  },
+  "last_index": 70,
+  "last_run": "2026-01-02T17:47:42.251826",
+  "daily_count": 0,
+  "daily_reset_date": "2026-01-02"
+}

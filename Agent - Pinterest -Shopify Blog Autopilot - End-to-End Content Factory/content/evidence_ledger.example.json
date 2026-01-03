@@ -1,0 +1,119 @@
+{
+  "topic": "How to Make Homemade Vinegar from Fruit Scraps",
+  "created_at": "2026-01-02T10:00:00.000Z",
+  "sources": [
+    {
+      "url": "https://nchfp.uga.edu/how/can_06/vinegar.html",
+      "org": "National Center for Home Food Preservation",
+      "domain_score": 5,
+      "fetched": true,
+      "key_facts": [
+        "Vinegar must have minimum 4% acidity for canning safety",
+        "Homemade vinegar acidity varies widely",
+        "Commercial vinegar preferred for canning applications"
+      ]
+    },
+    {
+      "url": "https://extension.psu.edu/home-fermentation",
+      "org": "Penn State Extension",
+      "domain_score": 5,
+      "fetched": true,
+      "key_facts": [
+        "Two-stage fermentation: sugar to alcohol, alcohol to acetic acid",
+        "Temperature range 60-80°F optimal for fermentation",
+        "Wild yeasts present on fruit skins initiate fermentation"
+      ]
+    },
+    {
+      "url": "https://www.fda.gov/food/chemical-contaminants-food/acetic-acid-vinegar",
+      "org": "FDA",
+      "domain_score": 5,
+      "fetched": true,
+      "key_facts": [
+        "Commercial vinegar standardized to 4-8% acidity",
+        "Acetic acid is primary component giving sour taste"
+      ]
+    },
+    {
+      "url": "https://extension.missouri.edu/publications/gh1452",
+      "org": "University of Missouri Extension",
+      "domain_score": 5,
+      "fetched": true,
+      "key_facts": [
+        "Vinegar production ancient method over 5000 years",
+        "Mother of vinegar contains acetobacter bacteria",
+        "pH testing recommended before use in preservation"
+      ]
+    },
+    {
+      "url": "https://www.wildfermentation.com/",
+      "org": "Wild Fermentation - Sandor Katz",
+      "domain_score": 4,
+      "fetched": true,
+      "key_facts": [
+        "Wild fermentation uses naturally occurring microorganisms",
+        "Organic fruits preferred to avoid pesticide inhibition"
+      ]
+    }
+  ],
+  "stats": [
+    {
+      "id": "STAT_1",
+      "stat": "Final vinegar should reach pH 2-3",
+      "source_url": "https://extension.psu.edu/home-fermentation",
+      "context": "For proper acidity and safety"
+    },
+    {
+      "id": "STAT_2",
+      "stat": "Vinegar production practiced for over 5,000 years",
+      "source_url": "https://extension.missouri.edu/publications/gh1452",
+      "context": "Historical context of fermentation"
+    },
+    {
+      "id": "STAT_3",
+      "stat": "Safe canning requires at least 5% acidity (approximately pH 2.4)",
+      "source_url": "https://nchfp.uga.edu/how/can_06/vinegar.html",
+      "context": "FDA/USDA food safety guidelines"
+    }
+  ],
+  "quotes": [
+    {
+      "id": "QUOTE_1",
+      "quote": "The key to successful fruit scrap vinegar is patience and consistent temperature. Rushing the process leads to off-flavors that no amount of aging will fix.",
+      "speaker": "Dr. Kirsten Shockey",
+      "title": "Fermentation Educator, Author",
+      "source_url": "https://www.wildfermentation.com/",
+      "verified": true
+    },
+    {
+      "id": "QUOTE_2",
+      "quote": "Use organic fruit scraps when possible. Pesticide residues can inhibit the wild yeasts and bacteria essential for natural fermentation.",
+      "speaker": "Sandor Katz",
+      "title": "Fermentation Expert, Author of Wild Fermentation",
+      "source_url": "https://www.wildfermentation.com/",
+      "verified": true
+    }
+  ],
+  "facts": [
+    {
+      "category": "temperature",
+      "fact": "Optimal fermentation temperature: 60-80°F (15-27°C)",
+      "source": "Penn State Extension"
+    },
+    {
+      "category": "ratio",
+      "fact": "1 cup fruit scraps : 2 cups water : 2 tbsp sugar",
+      "source": "Multiple extension sources"
+    },
+    {
+      "category": "time",
+      "fact": "2-4 weeks alcohol stage, 2-4 weeks vinegar stage",
+      "source": "Missouri Extension"
+    },
+    {
+      "category": "safety",
+      "fact": "pH must be below 3 for proper acidity",
+      "source": "FDA"
+    }
+  ]
+}

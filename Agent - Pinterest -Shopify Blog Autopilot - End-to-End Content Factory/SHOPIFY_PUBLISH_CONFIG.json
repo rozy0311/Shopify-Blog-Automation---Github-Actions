@@ -1,0 +1,87 @@
+{
+  "shop": {
+    "domain": "YOUR_SHOP.myshopify.com",
+    "api_version": "2025-10",
+    "access_token": "YOUR_SHOPIFY_ADMIN_ACCESS_TOKEN"
+  },
+  "defaults": {
+    "blog_handle": "sustainable-living",
+    "author_name": "The Rike",
+    "publish_mode": "draft"
+  },
+  "categories": {
+    "natural-living": ["zero waste", "simple living", "low-tox", "plastic-free", "sustainable"],
+    "herbs": ["herb garden", "herbal tea", "tincture", "salve", "infused oil", "apothecary"],
+    "kitchen-how-to": ["fermentation", "vinegar", "sourdough", "dehydration", "preserve"],
+    "home": ["natural cleaning", "pantry staples", "homestead", "frugal"],
+    "seasonal": ["spring", "winter", "fall", "summer", "holiday"],
+    "diy-products": ["homemade", "store-bought alternative", "make at home"]
+  },
+  "seo": {
+    "seo_title_max_chars": 60,
+    "meta_desc_max_chars": 155
+  },
+  "content": {
+    "word_budget_min": 1800,
+    "word_budget_max": 2200,
+    "min_citations": 5,
+    "min_quotes": 2,
+    "min_stats": 3,
+    "strict_no_years": true
+  },
+  "images": {
+    "mode": "generate",
+    "slots": 4,
+    "min_width": 1600,
+    "max_file_size_mb": 5,
+    "style": {
+      "camera": "50mm lens, f/2.8, ISO 200, 1/125s",
+      "lighting": "natural window light, soft shadows",
+      "quality": "photorealistic, ultra-detailed, high resolution",
+      "banned": ["people", "hands", "faces", "logos", "text", "labels", "watermarks", "brand marks"]
+    }
+  },
+  "batch": {
+    "size": 20,
+    "pause_minutes": 20,
+    "max_retries": 3,
+    "max_daily_posts": 100
+  },
+  "sources": {
+    "allowlist_domains": [
+      ".gov",
+      ".edu",
+      "extension.org",
+      "pubmed.ncbi.nlm.nih.gov",
+      "sciencedirect.com",
+      "nature.com",
+      "springer.com",
+      "wiley.com"
+    ],
+    "denylist_domains": [
+      "buzzfeed.com",
+      "wikihow.com",
+      "ehow.com",
+      "hubpages.com"
+    ],
+    "min_score_4_sources": 3
+  },
+  "metafields": {
+    "schema_namespace": "seo",
+    "schema_key": "schema_jsonld",
+    "fingerprint_namespace": "qa",
+    "fingerprint_key": "fingerprint",
+    "evidence_namespace": "qa",
+    "evidence_key": "evidence_digest"
+  },
+  "shopify_fields_required": [
+    "title",
+    "blog_handle",
+    "author_name",
+    "body_html",
+    "seo_title",
+    "meta_desc",
+    "tags",
+    "schema_jsonld"
+  ]
+}
