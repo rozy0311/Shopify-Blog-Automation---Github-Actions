@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-01-02T19:04:11.408075",
+  "topic": "How to Make Homemade Vinegar from Fruit Scraps",
+  "required_count": 5,
+  "approved_count": 5,
+  "rejected_count": 7,
+  "approved_images": [
+    {
+      "url": "https://images.pexels.com/photos/35438433/pexels-photo-35438433.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "8pCarlos Morocho",
+      "alt_text": "homemade - A variety of fruit-flavored vinegar bottles displayed on a woven mat, featuring mango, apple, and more.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.8,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
+    },
+    {
+      "url": "https://images.pexels.com/photos/35438433/pexels-photo-35438433.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "8pCarlos Morocho",
+      "alt_text": "homemade - A variety of fruit-flavored vinegar bottles displayed on a woven mat, featuring mango, apple, and more.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.8,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
+    },
+    {
+      "url": "https://images.pexels.com/photos/35438433/pexels-photo-35438433.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "8pCarlos Morocho",
+      "alt_text": "homemade - A variety of fruit-flavored vinegar bottles displayed on a woven mat, featuring mango, apple, and more.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.8,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
+    },
+    {
+      "url": "https://images.pexels.com/photos/18726971/pexels-photo-18726971.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "Roman Biernacki",
+      "alt_text": "A variety of homemade preserves and pickles stored on a rustic wooden pantry shelf.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.6,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
+    },
+    {
+      "url": "https://images.pexels.com/photos/5471920/pexels-photo-5471920.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "olia danilevich",
+      "alt_text": "A cozy still life with homemade apple cider in a glass jar surrounded by pumpkins on a wooden table.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.6,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
+    }
+  ],
+  "style_guide": {
+    "style": "rustic",
+    "mood": "bright, natural lighting, clean background",
+    "avoid": [
+      "text overlays",
+      "watermarks",
+      "logos",
+      "faces",
+      "cluttered backgrounds"
+    ]
+  },
+  "review_pass": true
+}

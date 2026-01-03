@@ -1,0 +1,150 @@
+# AGENT MEMORY - Yêu cầu & Tiêu chuẩn Blog
+# Agent sẽ đọc file này để nhớ mọi yêu cầu của bạn
+# Cập nhật: 2026-01-02
+
+## ==========================================
+## SHOPIFY CONFIG
+## ==========================================
+shopify:
+  shop: "the-rike-inc.myshopify.com"
+  token: "os.environ.get("SHOPIFY_ACCESS_TOKEN", "")"
+  blog_id: "108441862462"
+  api_version: "2025-01"
+
+## ==========================================
+## PEXELS API (cho images)
+## ==========================================
+pexels:
+  api_key: "os.environ.get("PEXELS_API_KEY", "")"
+
+## ==========================================
+## TIÊU CHUẨN BÀI VIẾT (từ META-PROMPT)
+## ==========================================
+article_standards:
+
+  # 1. TITLE STANDARDS
+  title:
+    format: "Primary Keyword: How to X" # hoặc "Primary Keyword: Benefit/Result"
+    rules:
+      - "Primary keyword phải nằm trong 10 ký tự đầu hoặc 1/3 title"
+      - "Phải có dấu ':' để tách keyword và payoff"
+      - "Clear payoff (thời gian/chi phí/kết quả)"
+      - "KHÔNG bắt đầu bằng số (1., 2., etc.)"
+      - "KHÔNG chứa năm (2024, 2025, etc.)"
+    examples:
+      - "Beeswax Wraps: How to Make Eco-Friendly Food Wraps at Home"
+      - "Composting in Small Spaces: Zero-Waste Methods for Apartments"
+      - "Indoor Herb Garden: Grow Fresh Herbs Year-Round (No Yard Needed)"
+
+  # 2. HIDDEN LINKS STANDARDS
+  hidden_links:
+    min_count: 2  # Tối thiểu 2 hidden links
+    recommended: 4-6  # Khuyến nghị 4-6 links
+    format: '<a href="URL" target="_blank" rel="noopener">Source Name</a>'
+    rules:
+      - "URL phải được ẩn trong href, KHÔNG hiển thị raw URL trong text"
+      - "Text hiển thị là tên nguồn (ví dụ: USDA, Mordor Intelligence)"
+      - "Link phải có target='_blank' và rel='noopener'"
+      - "Sources phải credible: .gov, .edu, industry reports, research"
+    bad_example: "theo https://usda.gov/report thì..."
+    good_example: 'theo <a href="https://usda.gov/report" target="_blank" rel="noopener">USDA</a> thì...'
+
+  # 3. CONTENT STRUCTURE
+  structure:
+    min_h2_count: 2  # Tối thiểu 2 H2 headings
+    min_word_count: 500  # Tối thiểu 500 từ
+    required_elements:
+      - "H2 headings để chia sections"
+      - "Lists (ul/ol) cho actionable steps"
+      - "Practical how-to instructions"
+      - "Real statistics/data với sources"
+
+  # 4. IMAGE STANDARDS
+  image:
+    required: true
+    source: "pexels"  # Dùng Pexels API
+    quality: "large2x"  # High quality
+    alt_text: true  # Phải có alt text
+
+## ==========================================
+## TARGET TOPICS (Topics 21-33)
+## ==========================================
+target_topics:
+  - keyword: "Beeswax Wraps"
+    pexels_query: "beeswax wrap eco friendly"
+
+  - keyword: "Composting"
+    pexels_query: "compost food scraps kitchen"
+
+  - keyword: "Indoor Herb"
+    pexels_query: "herbs indoor kitchen garden"
+
+  - keyword: "Natural Fabric Dye"
+    pexels_query: "natural dye fabric textile"
+
+  - keyword: "Preserved Lemon"
+    pexels_query: "preserved lemons jar moroccan"
+
+  - keyword: "Fruit Leather"
+    pexels_query: "fruit snacks dried healthy"
+
+  - keyword: "Seed Saving"
+    pexels_query: "seeds saving garden harvest"
+
+  - keyword: "Homemade Yogurt"
+    pexels_query: "homemade yogurt fermented milk"
+
+  - keyword: "Upcycled Glass Jar"
+    pexels_query: "glass jars upcycle storage"
+
+  - keyword: "Natural Air Freshener"
+    pexels_query: "natural air freshener essential oils"
+
+  - keyword: "Fermenting Vegetable"
+    pexels_query: "fermented vegetables kimchi sauerkraut"
+
+  - keyword: "Herbal Salve"
+    pexels_query: "herbal salve balm natural remedies"
+
+  - keyword: "Microgreens"
+    pexels_query: "microgreens growing indoor fresh"
+
+## ==========================================
+## AGENT TASKS (Việc cần làm tự động)
+## ==========================================
+agent_tasks:
+
+  1_audit:
+    description: "Kiểm tra tất cả bài theo tiêu chuẩn"
+    checks:
+      - "Title có đúng format keyword-first không"
+      - "Có đủ hidden links (min 2) không"
+      - "Có đủ H2 headings không"
+      - "Có image không"
+      - "Word count đủ không"
+    output: "Danh sách bài PASS và FAIL"
+
+  2_fix_titles:
+    description: "Sửa title không đạt chuẩn"
+    action: "Update title theo format: Keyword: Payoff"
+
+  3_fix_links:
+    description: "Thêm hidden links cho bài thiếu"
+    action: "Web search → Tìm sources → Thêm links vào content"
+
+  4_fix_images:
+    description: "Thêm image cho bài thiếu"
+    action: "Pexels API → Tìm ảnh phù hợp → Upload"
+
+  5_republish:
+    description: "Republish bài với nội dung mới có hidden links"
+    action: "Research → Write content → Update via API"
+
+## ==========================================
+## AUDIT LOG (Lịch sử chạy)
+## ==========================================
+audit_log:
+  - date: "2026-01-02"
+    action: "Initial audit"
+    result: "6 pass, 20 fail"
+    issues: "Thiếu hidden links"

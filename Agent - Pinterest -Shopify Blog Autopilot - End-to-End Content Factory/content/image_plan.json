@@ -1,35 +1,199 @@
 {
   "topic": "How to Make Homemade Vinegar from Fruit Scraps",
-  "style": {
-    "camera": "50mm lens, f/2.8, ISO 200, 1/125s",
-    "lighting": "natural window light, soft shadows",
-    "quality": "photorealistic, ultra-detailed, high resolution"
+  "sections": [
+    "Essential Conditions for Successful Fruit Scrap Vinegar",
+    "Temperature Requirements",
+    "Oxygen Access",
+    "Water Quality",
+    "Step-by-Step Process for Fruit Scrap Vinegar",
+    "Phase 1: Initial Fermentation (Days 1-10)"
+  ],
+  "search_keywords": [
+    "homemade",
+    "vinegar",
+    "fruit",
+    "scraps"
+  ],
+  "style_guide": {
+    "style": "rustic",
+    "mood": "bright, natural lighting, clean background",
+    "avoid": [
+      "text overlays",
+      "watermarks",
+      "logos",
+      "faces",
+      "cluttered backgrounds"
+    ]
   },
-  "negative_prompt": "people, hands, faces, logos, text, labels, watermarks, brand marks, cartoon, illustration, painting, drawing, CGI, 3D render, blurry, low resolution",
-  "main_image": {
-    "filename": "main.jpg",
-    "prompt": "",
-    "alt": "",
-    "section": "hero"
-  },
-  "inline_images": [
+  "required_count": 5,
+  "candidates": [
     {
-      "filename": "inline_1.jpg",
-      "prompt": "",
-      "alt": "",
-      "insert_after_section_id": "prep"
+      "url": "https://images.pexels.com/photos/35438433/pexels-photo-35438433.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "8pCarlos Morocho",
+      "alt_text": "homemade - A variety of fruit-flavored vinegar bottles displayed on a woven mat, featuring mango, apple, and more.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.8,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
     },
     {
-      "filename": "inline_2.jpg",
-      "prompt": "",
-      "alt": "",
-      "insert_after_section_id": "process"
+      "url": "https://images.pexels.com/photos/35438433/pexels-photo-35438433.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "8pCarlos Morocho",
+      "alt_text": "homemade - A variety of fruit-flavored vinegar bottles displayed on a woven mat, featuring mango, apple, and more.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.8,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
     },
     {
-      "filename": "inline_3.jpg",
-      "prompt": "",
-      "alt": "",
-      "insert_after_section_id": "troubleshooting"
+      "url": "https://images.pexels.com/photos/35438433/pexels-photo-35438433.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "8pCarlos Morocho",
+      "alt_text": "homemade - A variety of fruit-flavored vinegar bottles displayed on a woven mat, featuring mango, apple, and more.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.8,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
+    },
+    {
+      "url": "https://images.pexels.com/photos/18726971/pexels-photo-18726971.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "Roman Biernacki",
+      "alt_text": "A variety of homemade preserves and pickles stored on a rustic wooden pantry shelf.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.6,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
+    },
+    {
+      "url": "https://images.pexels.com/photos/5471920/pexels-photo-5471920.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "olia danilevich",
+      "alt_text": "A cozy still life with homemade apple cider in a glass jar surrounded by pumpkins on a wooden table.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.6,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": true,
+      "rejection_reason": null
+    },
+    {
+      "url": "https://images.pexels.com/photos/10060231/pexels-photo-10060231.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "Ron Lach",
+      "alt_text": "homemade - Hands arrange lemon slices in a bowl on a checkered tablecloth with bottles nearby.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.3,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": false,
+      "rejection_reason": "Low relevance (score: 0.30)"
+    },
+    {
+      "url": "https://images.pexels.com/photos/3851119/pexels-photo-3851119.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "ready made",
+      "alt_text": "homemade - A delectable chocolate cake with raspberries in a cozy kitchen setting, perfect for dessert lovers.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.3,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": false,
+      "rejection_reason": "Low relevance (score: 0.30)"
+    },
+    {
+      "url": "https://images.pexels.com/photos/10060231/pexels-photo-10060231.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "Ron Lach",
+      "alt_text": "homemade - Hands arrange lemon slices in a bowl on a checkered tablecloth with bottles nearby.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.3,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": false,
+      "rejection_reason": "Low relevance (score: 0.30)"
+    },
+    {
+      "url": "https://images.pexels.com/photos/3851119/pexels-photo-3851119.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "ready made",
+      "alt_text": "homemade - A delectable chocolate cake with raspberries in a cozy kitchen setting, perfect for dessert lovers.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.3,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": false,
+      "rejection_reason": "Low relevance (score: 0.30)"
+    },
+    {
+      "url": "https://images.pexels.com/photos/10060231/pexels-photo-10060231.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "Ron Lach",
+      "alt_text": "homemade - Hands arrange lemon slices in a bowl on a checkered tablecloth with bottles nearby.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.3,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": false,
+      "rejection_reason": "Low relevance (score: 0.30)"
+    },
+    {
+      "url": "https://images.pexels.com/photos/3851119/pexels-photo-3851119.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "ready made",
+      "alt_text": "homemade - A delectable chocolate cake with raspberries in a cozy kitchen setting, perfect for dessert lovers.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.3,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": false,
+      "rejection_reason": "Low relevance (score: 0.30)"
+    },
+    {
+      "url": "https://images.pexels.com/photos/1234079/pexels-photo-1234079.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
+      "source": "pexels",
+      "photographer": "Susanne Jutzeler, suju-foto",
+      "alt_text": "homemade - Enjoy top-down view of citrus and strawberry drinks with ice in jars on wooden table.",
+      "width": 940,
+      "height": 627,
+      "relevance_score": 0.3,
+      "quality_score": 0.7,
+      "has_watermark": false,
+      "has_text_overlay": false,
+      "approved": false,
+      "rejection_reason": "Low relevance (score: 0.30)"
     }
   ]
 }
