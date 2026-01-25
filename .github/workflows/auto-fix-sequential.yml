@@ -1,60 +1,83 @@
 name: Auto Fix Sequential (1 article)
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 */6 * * *"
+    workflow_dispatch:
+    schedule:
+        - cron: "0 */6 * * *"
 
 concurrency:
-  group: auto-fix-sequential
-  cancel-in-progress: false
+    group: auto-fix-sequential
+    cancel-in-progress: false
 
 jobs:
-  auto-fix-one:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    env:
-      SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
-      SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-      SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
-      SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
-      POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    auto-fix-one:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        env:
+            SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+            SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+            SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+            SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+            POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install requests beautifulsoup4 python-dotenv
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  python -m pip install requests beautifulsoup4 python-dotenv
 
-      - name: Scan issues (published)
-        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-        run: |
-          python scan_issues_now.py
+            - name: Scan issues (published)
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python scan_issues_now.py
 
-      - name: Init anti-drift queue
-        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-        run: |
-          python ai_orchestrator.py queue-init
+            - name: Rotate queue to avoid repeat
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
 
-      - name: Fix one article from queue
-        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-        run: |
-          python ai_orchestrator.py queue-step
+                  path = Path('articles_to_fix.json')
+                  if not path.exists():
+                      raise SystemExit('articles_to_fix.json not found')
 
-      - name: Upload fix artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: auto-fix-sequential
-          path: |
-            Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_queue.json
-            Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_run_log.csv
-            Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/orchestrator_progress.json
-          if-no-files-found: warn
+                  items = json.loads(path.read_text(encoding='utf-8'))
+                  if not items:
+                      raise SystemExit('No items to fix')
+
+                  run_number = int(os.environ.get('GITHUB_RUN_NUMBER', '0'))
+                  offset = run_number % len(items)
+                  rotated = items[offset:] + items[:offset]
+                  path.write_text(json.dumps(rotated, ensure_ascii=False, indent=2), encoding='utf-8')
+                  print(f'Rotated queue by offset {offset} (run {run_number})')
+                  PY
+
+            - name: Init anti-drift queue
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python ai_orchestrator.py queue-init
+
+            - name: Fix one article from queue
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python ai_orchestrator.py queue-step
+
+            - name: Upload fix artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: auto-fix-sequential
+                  path: |
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_queue.json
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_run_log.csv
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/orchestrator_progress.json
+                  if-no-files-found: warn
