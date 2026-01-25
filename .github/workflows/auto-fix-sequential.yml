@@ -67,10 +67,10 @@ jobs:
               run: |
                   python ai_orchestrator.py queue-init
 
-                        - name: Fix up to 50 articles sequentially (fresh session per blog)
-                            working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-                            run: |
-                                    python ai_orchestrator.py queue-run 50 --delay=30
+            - name: Fix up to 50 articles sequentially (fresh session per blog)
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python ai_orchestrator.py queue-run 50 --delay=30
 
             - name: Upload fix artifacts
               uses: actions/upload-artifact@v4
