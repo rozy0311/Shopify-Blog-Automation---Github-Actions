@@ -20,7 +20,7 @@ on:
       max_items:
         description: "Batch size"
         required: false
-        default: "30"
+        default: "50"
         type: string
       reason:
         description: "Why are you running this?"
@@ -71,7 +71,7 @@ jobs:
       - name: Export batch window
         run: |
           echo "START_AT=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.start_at != '' && github.event.inputs.start_at || vars.START_AT || '1' }}" >> "$GITHUB_ENV"
-          echo "MAX_ITEMS=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.max_items != '' && github.event.inputs.max_items || vars.MAX_ITEMS || '30' }}" >> "$GITHUB_ENV"
+          echo "MAX_ITEMS=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.max_items != '' && github.event.inputs.max_items || vars.MAX_ITEMS || '50' }}" >> "$GITHUB_ENV"
       - name: Inject secrets
         run: |
           {
@@ -94,7 +94,7 @@ jobs:
           fi
       - name: Build executor
         run: npm run --workspace apps/executor build
-      - name: Run executor (${{ env.MODE }}) - fresh session per blog
+      - name: Run executor (${{ env.MODE }}) - fresh session per blog (single item)
         env:
           MODE: ${{ env.MODE }}
           DISPATCH_REASON: ${{ env.DISPATCH_REASON }}
