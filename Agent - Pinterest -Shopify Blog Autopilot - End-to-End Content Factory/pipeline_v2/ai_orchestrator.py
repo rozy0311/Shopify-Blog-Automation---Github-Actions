@@ -64,6 +64,7 @@ ANTI_DRIFT_QUEUE_FILE = PIPELINE_DIR / "anti_drift_queue.json"
 ANTI_DRIFT_RUN_LOG_FILE = PIPELINE_DIR / "anti_drift_run_log.csv"
 ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
 ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
+ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done_blacklist.json"
 
 # Anti-drift retry/backoff
 MAX_QUEUE_RETRIES = 3
@@ -194,6 +195,27 @@ def _ensure_run_log_header():
         )
 
 
+def _load_done_blacklist() -> set[str]:
+    if not ANTI_DRIFT_DONE_FILE.exists():
+        return set()
+    try:
+        payload = json.loads(ANTI_DRIFT_DONE_FILE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return set()
+    ids = payload.get("done_ids", []) if isinstance(payload, dict) else payload
+    return {str(x) for x in ids}
+
+
+def _save_done_blacklist(done_ids: set[str]) -> None:
+    payload = {
+        "updated_at": datetime.now().isoformat(),
+        "done_ids": sorted(done_ids),
+    }
+    ANTI_DRIFT_DONE_FILE.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
 class AntiDriftQueue:
     def __init__(self, payload: dict):
         self.payload = payload
@@ -218,11 +240,15 @@ class AntiDriftQueue:
             return 0
         with open(articles_file, "r", encoding="utf-8") as f:
             items = json.load(f)
+        done_ids = _load_done_blacklist()
         queue_items = []
         for item in items:
+            article_id = str(item.get("id"))
+            if article_id in done_ids:
+                continue
             queue_items.append(
                 {
-                    "id": str(item.get("id")),
+                    "id": article_id,
                     "title": item.get("title", ""),
                     "status": "pending",
                     "attempts": 0,
@@ -288,6 +314,9 @@ class AntiDriftQueue:
     def mark_failed(self, article_id: str, error: str):
         self._update_status(article_id, "failed", last_error=error)
 
+    def mark_manual_review(self, article_id: str, error: str):
+        self._update_status(article_id, "manual_review", last_error=error)
+
     def mark_retry(self, article_id: str, error: str, retry_at: datetime):
         self._update_status(
             article_id,
@@ -327,6 +356,7 @@ class AntiDriftQueue:
             "retrying": 0,
             "done": 0,
             "failed": 0,
+            "manual_review": 0,
         }
         for item in self.payload.get("items", []):
             status = item.get("status", "pending")
@@ -1158,6 +1188,7 @@ class AIOrchestrator:
         print(f"Retrying: {summary['retrying']}")
         print(f"Done: {summary['done']}")
         print(f"Failed: {summary['failed']}")
+        print(f"Manual Review: {summary['manual_review']}")
 
     def _next_retry_at(self, failures: int) -> datetime:
         delay = min(
@@ -1223,6 +1254,9 @@ class AIOrchestrator:
         if gate_pass:
             queue.mark_done(article_id)
             queue.save()
+            done_ids = _load_done_blacklist()
+            done_ids.add(str(article_id))
+            _save_done_blacklist(done_ids)
             self._append_run_log(
                 article_id,
                 audit.get("title", ""),
@@ -1242,8 +1276,11 @@ class AIOrchestrator:
                 f"⏳ Gate FAIL ({gate_score}/10) - retry scheduled at {retry_at.isoformat()}: {error_msg}"
             )
         else:
-            queue.mark_failed(article_id, error_msg)
-            print(f"❌ Gate FAIL ({gate_score}/10): {error_msg}")
+            queue.mark_manual_review(article_id, error_msg)
+            done_ids = _load_done_blacklist()
+            done_ids.add(str(article_id))
+            _save_done_blacklist(done_ids)
+            print(f"🟡 Manual review queued ({gate_score}/10): {error_msg}")
         queue.save()
         self._append_run_log(
             article_id,
