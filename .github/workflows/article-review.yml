@@ -1,0 +1,86 @@
+name: Article Pre-Publish Review
+
+on:
+    workflow_dispatch:
+        inputs:
+            article_id:
+                description: "Single Shopify article ID to review"
+                required: true
+                type: string
+
+permissions:
+    contents: read
+
+jobs:
+    review:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
+
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                                    python -m pip install requests PyYAML
+
+            - name: Run pre-publish review (initial)
+              env:
+                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+              run: |
+                  set -o pipefail
+                  python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output.txt
+                  echo "review_status=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+              id: review_initial
+              continue-on-error: true
+
+            - name: Auto-fix on review failure
+              if: ${{ steps.review_initial.outputs.review_status != '0' }}
+              env:
+                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+              run: |
+                  python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/regenerate_single.py" "${{ inputs.article_id }}" --apply
+
+            - name: Run pre-publish review (after fix)
+              env:
+                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+              run: |
+                  set -o pipefail
+                  python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-fix.txt
+                  echo "review_status_after=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+              id: review_after
+              continue-on-error: true
+
+            - name: Upload review output
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: pre-publish-review-${{ inputs.article_id }}
+                  path: |
+                      review-output.txt
+                      review-output-after-fix.txt
+                  retention-days: 7
+
+            - name: Review summary
+              if: always()
+              run: |
+                  echo "## Pre-Publish Review" >> $GITHUB_STEP_SUMMARY
+                  echo "- Article ID: ${{ inputs.article_id }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- Timestamp: $(date -u)" >> $GITHUB_STEP_SUMMARY
+                  echo "- Initial Review Status: ${{ steps.review_initial.outputs.review_status || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- After Fix Review Status: ${{ steps.review_after.outputs.review_status_after || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Output (tail)" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  tail -n 200 review-output-after-fix.txt >> $GITHUB_STEP_SUMMARY || tail -n 200 review-output.txt >> $GITHUB_STEP_SUMMARY
+
+            - name: Guardrail check
+              if: always()
+              env:
+                  EXTRA_ALLOWED_PATHS: review-output.txt,review-output-after-fix.txt
+              run: |
+                  python scripts/check_allowed_changes.py
