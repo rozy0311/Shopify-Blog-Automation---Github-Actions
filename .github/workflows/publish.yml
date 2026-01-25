@@ -28,7 +28,7 @@ on:
         default: Manual dispatch
         type: string
   schedule:
-    - cron: "5 13,19,2 * * *"   # 07:05, 13:05, 20:05 America/Chicago (UTC times)
+    - cron: "5 13,19,2 * * *" # 07:05, 13:05, 20:05 America/Chicago (UTC times)
 
 concurrency:
   group: executor
@@ -45,6 +45,14 @@ jobs:
         with:
           node-version: "20"
           cache: npm
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install guardrail dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install PyYAML
       - name: Export configuration
         run: |
           {
@@ -86,11 +94,22 @@ jobs:
           fi
       - name: Build executor
         run: npm run --workspace apps/executor build
-      - name: Run executor (${{ env.MODE }})
+      - name: Run executor (${{ env.MODE }}) - fresh session per blog
         env:
           MODE: ${{ env.MODE }}
           DISPATCH_REASON: ${{ env.DISPATCH_REASON }}
-        run: node apps/executor/dist/index.js
+        run: |
+          set -euo pipefail
+          total=${MAX_ITEMS:-1}
+          start=${START_AT:-1}
+          i=0
+          while [ $i -lt $total ]; do
+            export START_AT=$((start + i))
+            export MAX_ITEMS=1
+            echo "Running executor item $((i+1))/$total (START_AT=$START_AT, MAX_ITEMS=$MAX_ITEMS)"
+            node apps/executor/dist/index.js
+            i=$((i+1))
+          done
       - name: Upload previews + summary
         if: always()
         uses: actions/upload-artifact@v4
@@ -101,3 +120,10 @@ jobs:
           path: |
             apps/executor/out/**
             out/**
+
+      - name: Guardrail check
+        if: always()
+        env:
+          EXTRA_ALLOWED_PATHS: apps/executor/out/,out/
+        run: |
+          python scripts/check_allowed_changes.py
