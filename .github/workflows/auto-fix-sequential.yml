@@ -1,4 +1,4 @@
-name: Auto Fix Sequential (50 articles)
+name: Auto Fix Sequential (1 article)
 
 on:
     workflow_dispatch:
@@ -20,6 +20,8 @@ jobs:
             SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
             SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
             POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+            VISION_REVIEW: "1"
+            VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -32,14 +34,60 @@ jobs:
             - name: Install dependencies
               run: |
                   python -m pip install --upgrade pip
-                  python -m pip install requests beautifulsoup4 python-dotenv
+                  python -m pip install requests beautifulsoup4 python-dotenv PyYAML
+
+            - name: Verify vision review enabled
+              run: |
+                  if [ -z "${VISION_API_KEY:-}" ]; then
+                      echo "Missing VISION_API_KEY secret; vision review is required."
+                      exit 1
+                  fi
+
+            - name: Check if queue needs refresh
+              id: queue_check
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
+
+                  output_path = os.environ.get('GITHUB_OUTPUT')
+
+                  queue_path = Path('anti_drift_queue.json')
+                  if not queue_path.exists():
+                      if output_path:
+                          with open(output_path, 'a', encoding='utf-8') as f:
+                              f.write('needs_refresh=true\n')
+                      raise SystemExit(0)
+
+                  try:
+                      data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  except json.JSONDecodeError:
+                      if output_path:
+                          with open(output_path, 'a', encoding='utf-8') as f:
+                              f.write('needs_refresh=true\n')
+                      raise SystemExit(0)
+
+                  items = data.get('items', [])
+                  pending_like = [
+                      i for i in items
+                      if i.get('status') in {'pending', 'failed', 'retrying', 'manual_review'}
+                  ]
+                  needs_refresh = 'false' if pending_like else 'true'
+                  if output_path:
+                      with open(output_path, 'a', encoding='utf-8') as f:
+                          f.write(f'needs_refresh={needs_refresh}\n')
+                  PY
 
             - name: Scan issues (published)
+              if: steps.queue_check.outputs.needs_refresh == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   python scan_issues_now.py
 
             - name: Rotate queue to avoid repeat
+              if: steps.queue_check.outputs.needs_refresh == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   python - <<'PY'
@@ -63,14 +111,96 @@ jobs:
                   PY
 
             - name: Init anti-drift queue
+              if: steps.queue_check.outputs.needs_refresh == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   python ai_orchestrator.py queue-init
 
-            - name: Fix up to 50 articles sequentially (fresh session per blog)
+            - name: Select next article (failed first)
+              id: pick_article
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                  python ai_orchestrator.py queue-run 50 --delay=30
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
+
+                  queue_path = Path('anti_drift_queue.json')
+                  if not queue_path.exists():
+                      raise SystemExit('anti_drift_queue.json not found')
+
+                  data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  items = data.get('items', [])
+                  priority = ['failed', 'manual_review', 'retrying', 'pending']
+                  chosen = None
+                  for status in priority:
+                      for item in items:
+                          if item.get('status') == status:
+                              chosen = item
+                              break
+                      if chosen:
+                          break
+
+                  output = os.environ.get('GITHUB_OUTPUT')
+                  if not chosen:
+                      if output:
+                          with open(output, 'a', encoding='utf-8') as f:
+                              f.write('article_id=\n')
+                      print('No eligible items in queue')
+                      raise SystemExit(0)
+
+                  article_id = chosen.get('id')
+                  if output:
+                      with open(output, 'a', encoding='utf-8') as f:
+                          f.write(f'article_id={article_id}\n')
+                  print(f'Selected {article_id} ({chosen.get("status")})')
+                  PY
+
+            - name: Auto-fix selected article (single ID)
+              if: steps.pick_article.outputs.article_id != ''
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python ai_orchestrator.py fix-ids "${{ steps.pick_article.outputs.article_id }}"
+
+            - name: Pre-publish review (after fix)
+              if: steps.pick_article.outputs.article_id != ''
+              id: review_after_fix
+              env:
+                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+              run: |
+                  set -o pipefail
+                  python "../scripts/pre_publish_review.py" "${{ steps.pick_article.outputs.article_id }}" | tee review-output.txt
+                  echo "review_status=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+              continue-on-error: true
+
+            - name: Force rebuild on review failure
+              if: steps.review_after_fix.outputs.review_status != '0' && steps.pick_article.outputs.article_id != ''
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python ai_orchestrator.py force-rebuild-ids "${{ steps.pick_article.outputs.article_id }}"
+
+            - name: Pre-publish review (after rebuild)
+              if: steps.review_after_fix.outputs.review_status != '0' && steps.pick_article.outputs.article_id != ''
+              id: review_after_rebuild
+              env:
+                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+              run: |
+                  set -o pipefail
+                  python "../scripts/pre_publish_review.py" "${{ steps.pick_article.outputs.article_id }}" | tee review-output-after-rebuild.txt
+                  echo "review_status_after=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+              continue-on-error: true
+
+            - name: Fail if review still not passing
+              if: steps.review_after_rebuild.outputs.review_status_after != '' && steps.review_after_rebuild.outputs.review_status_after != '0'
+              run: |
+                  echo "Pre-publish review failed after rebuild. Blocking publish."
+                  exit 1
 
             - name: Upload fix artifacts
               uses: actions/upload-artifact@v4
@@ -81,4 +211,6 @@ jobs:
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_run_log.csv
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/orchestrator_progress.json
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_done_blacklist.json
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output.txt
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output-after-rebuild.txt
                   if-no-files-found: warn

@@ -14,6 +14,14 @@ permissions:
 jobs:
     review:
         runs-on: ubuntu-latest
+        env:
+            SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+            SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+            SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+            SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+            POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+            VISION_REVIEW: "1"
+            VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -30,7 +38,12 @@ jobs:
 
             - name: Run pre-publish review (initial)
               env:
+                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
                   SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+                  VISION_REVIEW: "1"
+                  VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
               run: |
                   set -o pipefail
                   python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output.txt
@@ -40,20 +53,52 @@ jobs:
 
             - name: Auto-fix on review failure
               if: ${{ steps.review_initial.outputs.review_status != '0' }}
-              env:
-                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                  python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/regenerate_single.py" "${{ inputs.article_id }}" --apply
+                  python ai_orchestrator.py fix-ids "${{ inputs.article_id }}"
 
             - name: Run pre-publish review (after fix)
               env:
+                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
                   SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+                  VISION_REVIEW: "1"
+                  VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
               run: |
                   set -o pipefail
                   python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-fix.txt
                   echo "review_status_after=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
               id: review_after
               continue-on-error: true
+
+            - name: Force rebuild on review failure
+              if: ${{ steps.review_after.outputs.review_status_after != '0' }}
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python ai_orchestrator.py force-rebuild-ids "${{ inputs.article_id }}"
+
+            - name: Run pre-publish review (after rebuild)
+              if: ${{ steps.review_after.outputs.review_status_after != '0' }}
+              env:
+                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+                  VISION_REVIEW: "1"
+                  VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+              run: |
+                  set -o pipefail
+                  python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-rebuild.txt
+                  echo "review_status_after_rebuild=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+              id: review_after_rebuild
+              continue-on-error: true
+
+            - name: Fail if review still not passing
+              if: ${{ steps.review_after_rebuild.outputs.review_status_after_rebuild != '' && steps.review_after_rebuild.outputs.review_status_after_rebuild != '0' }}
+              run: |
+                  echo "Pre-publish review failed after rebuild. Blocking publish."
+                  exit 1
 
             - name: Upload review output
               if: always()
@@ -63,6 +108,7 @@ jobs:
                   path: |
                       review-output.txt
                       review-output-after-fix.txt
+                      review-output-after-rebuild.txt
                   retention-days: 7
 
             - name: Review summary
@@ -73,14 +119,15 @@ jobs:
                   echo "- Timestamp: $(date -u)" >> $GITHUB_STEP_SUMMARY
                   echo "- Initial Review Status: ${{ steps.review_initial.outputs.review_status || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
                   echo "- After Fix Review Status: ${{ steps.review_after.outputs.review_status_after || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- After Rebuild Review Status: ${{ steps.review_after_rebuild.outputs.review_status_after_rebuild || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
                   echo "### Output (tail)" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
-                  tail -n 200 review-output-after-fix.txt >> $GITHUB_STEP_SUMMARY || tail -n 200 review-output.txt >> $GITHUB_STEP_SUMMARY
+                  tail -n 200 review-output-after-rebuild.txt >> $GITHUB_STEP_SUMMARY || tail -n 200 review-output-after-fix.txt >> $GITHUB_STEP_SUMMARY || tail -n 200 review-output.txt >> $GITHUB_STEP_SUMMARY
 
             - name: Guardrail check
               if: always()
               env:
-                  EXTRA_ALLOWED_PATHS: review-output.txt,review-output-after-fix.txt
+                  EXTRA_ALLOWED_PATHS: review-output.txt,review-output-after-fix.txt,review-output-after-rebuild.txt
               run: |
                   python scripts/check_allowed_changes.py
