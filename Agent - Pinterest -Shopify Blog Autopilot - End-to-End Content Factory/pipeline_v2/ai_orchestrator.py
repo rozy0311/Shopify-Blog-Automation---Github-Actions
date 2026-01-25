@@ -730,6 +730,43 @@ class AIOrchestrator:
         cleaned = cleaned.strip()
         return cleaned if cleaned else "this topic"
 
+    def _extract_topic_terms(self, title: str) -> list[str]:
+        stopwords = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "for",
+            "to",
+            "of",
+            "in",
+            "on",
+            "with",
+            "without",
+            "how",
+            "make",
+            "making",
+            "diy",
+            "guide",
+            "tips",
+            "easy",
+            "best",
+            "recipe",
+            "ideas",
+            "home",
+            "natural",
+            "safe",
+        }
+        words = re.findall(r"[A-Za-z]+", title.lower())
+        terms: list[str] = []
+        for word in words:
+            if word in stopwords:
+                continue
+            if word not in terms:
+                terms.append(word)
+        return terms[:6]
+
     def _build_sources_section(self, topic: str) -> str:
         sources = [
             (
@@ -838,24 +875,23 @@ class AIOrchestrator:
         if current_words >= target:
             return body_html
 
+        terms = self._extract_topic_terms(topic)
+        focus_phrase = ", ".join(terms[:3]) if terms else topic
+
         pad_section = "<h2>Additional Practical Notes</h2>"
         pad_paragraph = (
-            f"<p>In practice, {topic} improves when you document each attempt. "
-            "Write down the materials you used, the order of steps, and the timing. "
-            "This record makes it easier to repeat good outcomes and identify where a change caused a problem. "
-            "Small adjustments, made one at a time, lead to reliable improvements.</p>"
+            f"<p>For {topic}, keep the focus on {focus_phrase}. "
+            "Document the exact materials, amounts, and timing so you can repeat what works. "
+            "If the result is inconsistent, adjust only one variable and re-test.</p>"
         )
         pad_paragraph_2 = (
-            f"<p>Another useful habit for {topic} is to define a simple pass/fail check. "
-            "Pick one or two indicators that show success, such as texture, appearance, or function. "
-            "If the result misses the target, focus on the most likely variable and adjust it next time. "
-            "This keeps your process steady and prevents random changes.</p>"
+            f"<p>A simple checklist helps with {topic}: confirm the surface or item type, "
+            "match the method to that use case, and verify the finish before moving on. "
+            "This prevents drifting into steps that don’t fit the goal.</p>"
         )
         pad_paragraph_3 = (
-            f"<p>When working on {topic}, prioritize safety and cleanliness. "
-            "Keep tools and containers clean, and store finished items properly. "
-            "Labeling dates and contents helps you track what was done and when. "
-            "Clear labeling also supports troubleshooting if something looks off later.</p>"
+            f"<p>When {topic} involves mixtures or solutions, label containers and note ratios. "
+            "Store in a cool, safe place and keep a small test area to verify results before full use.</p>"
         )
 
         if pad_section not in body_html:
@@ -870,15 +906,18 @@ class AIOrchestrator:
 
     def _build_article_body(self, title: str) -> str:
         topic = self._normalize_topic(title)
+        terms = self._extract_topic_terms(title)
+        focus_phrase = ", ".join(terms[:3]) if terms else topic
+        focus_terms = ", ".join(terms) if terms else topic
 
         key_points = "\n".join(
             [
-                f"<li>Focus on clean, safe materials that match {topic}.</li>",
-                "<li>Prepare a simple workspace before you begin.</li>",
-                "<li>Follow a clear sequence to avoid rework.</li>",
-                "<li>Use consistent measurements and timing.</li>",
-                "<li>Document what works so you can repeat it.</li>",
-                "<li>Check results and refine your next attempt.</li>",
+                f"<li>Match materials to {focus_phrase} and the surface or item being treated.</li>",
+                f"<li>Set a small test area for {topic} before full use.</li>",
+                f"<li>Use measured amounts and consistent timing for {topic}.</li>",
+                f"<li>Keep the process focused on {focus_terms} to avoid off-topic steps.</li>",
+                "<li>Ventilate and protect sensitive materials if needed.</li>",
+                "<li>Record ratios and results so you can repeat them.</li>",
             ]
         )
 
@@ -896,7 +935,7 @@ class AIOrchestrator:
         body = f"""
 <article>
 <h2>Direct Answer</h2>
-<p>{topic} can be completed successfully when you use suitable materials, a clear sequence, and a simple quality check. Start with a small batch, follow a repeatable workflow, and adjust one variable at a time to improve results.</p>
+    <p>{topic} works best when you keep the process specific to {focus_phrase}, use measured ratios, and test a small area first. Start small, verify the finish or effect, then scale up once the result matches the goal.</p>
 
 <h2>Key Conditions at a Glance</h2>
 <ul>
@@ -904,44 +943,44 @@ class AIOrchestrator:
 </ul>
 
 <h2>Understanding {topic}</h2>
-<p>{topic} works best when you understand the purpose of each step and why timing and material choice matter. A clean setup and reliable inputs reduce errors and make it easier to repeat results.</p>
-<p>Before you begin, clarify your goal, gather materials, and decide how you will judge success. A short checklist helps you stay focused on the essential steps.</p>
-<p>Consider the environment where you will work. Temperature, airflow, and storage can affect outcomes. If you need consistency, try to keep these conditions stable from one attempt to the next.</p>
-<p>Finally, treat the process as a repeatable system. Each step should have a clear purpose and a measurable outcome, even if the outcome is a simple visual check.</p>
+<p>{topic} is most reliable when the steps match the materials and surface you’re treating. That means selecting the right container, applying the method evenly, and checking the result before repeating.</p>
+<p>Identify the main variables for {topic} (ratio, contact time, and surface type). Keeping those consistent makes the outcome repeatable.</p>
+<p>Work in a stable environment and avoid mixing steps from unrelated tasks. If a step doesn’t directly support {focus_phrase}, skip it.</p>
+<p>Use a short checklist so each pass of {topic} is measured and comparable.</p>
 
 <h2>Complete Step-by-Step Guide</h2>
 <h3>Preparation</h3>
-<p>Start by clearing your workspace and collecting tools that are appropriate for {topic}. Label containers, measure inputs, and prepare any safety items you may need.</p>
-<p>Set a simple timer or schedule for the key steps so you can stay consistent across attempts.</p>
-<p>If materials vary in quality, sort them first. Consistent input quality keeps your results stable and reduces the need to correct mistakes later.</p>
+<p>Set up a clean workspace and gather containers, measuring tools, and cloths or applicators that fit {topic}. Label any bottles or jars so ratios are not confused later.</p>
+<p>Choose a small test surface or a single item first. This keeps {topic} controlled before you scale it to a full batch or larger area.</p>
+<p>Measure the base ingredients and note the ratio so you can repeat the same {topic} mix.</p>
 
 <h3>Main Process</h3>
-<p>Follow a straightforward sequence that keeps your materials organized and your workspace clean. Work in small stages so you can correct problems early without losing the whole batch.</p>
-<p>Monitor progress as you go, and keep short notes on timing and outcomes.</p>
-<p>When you reach a decision point, pause and check your indicators. A brief check here prevents bigger corrections later in the process.</p>
+<p>Apply the mixture or method evenly, using light passes instead of flooding the surface. This helps {topic} work consistently and reduces streaks or residue.</p>
+<p>Allow the recommended contact time, then wipe or rinse as needed. Track the timing for {topic} so you can adjust if the result is too strong or too weak.</p>
+<p>Check the finish or effect immediately. If it’s not right, adjust one variable at a time (ratio, time, or technique) and re-test.</p>
 
 <h3>Finishing</h3>
-<p>Complete the final step by checking texture, appearance, or function. If anything looks off, note the change you will make next time.</p>
-<p>Store your results carefully and label them with dates for easy tracking.</p>
-<p>After finishing, review your notes and compare the outcome with your goal. This short review makes your next attempt faster and more reliable.</p>
+<p>Buff or rinse the surface to remove any remaining film. For {topic}, a final clean pass often makes the difference.</p>
+<p>Store the remaining mixture in a labeled container and note the ratio used.</p>
+<p>Record what worked and what didn’t so the next {topic} run is faster and more consistent.</p>
 
 <h2>Types and Varieties</h2>
-<p>There are multiple approaches to {topic}. The best choice depends on time, available tools, and desired results. Start with the simplest method, then try variants once you can reproduce a good baseline.</p>
+<p>{topic} can vary based on surface type, container size, and application method. Choose the option that matches your use case.</p>
 <ul>
-  <li>Basic method: minimal materials and steps.</li>
-  <li>Standard method: balanced effort and outcome.</li>
-  <li>Advanced method: extra steps for refined results.</li>
+    <li>Light-duty use: small batch, gentle application, quick wipe or rinse.</li>
+    <li>Standard use: balanced ratio, even coverage, controlled contact time.</li>
+    <li>Detail work: smaller tools for edges, corners, and tight areas.</li>
 </ul>
-<p>When selecting a method, weigh time, cost, and the reliability of results. A method that produces consistent outcomes is often better than one that promises speed but creates rework.</p>
+<p>For {topic}, the best method is the one that delivers a clean finish without extra residue or rework.</p>
 
 <h2>Troubleshooting Common Issues</h2>
-<p>If results fall short, check the preparation step first. Inconsistent measurements and rushed steps are the most common causes of failure.</p>
+<p>If {topic} looks streaky, spotty, or leaves residue, the ratio or contact time likely needs adjustment.</p>
 <ul>
-  <li>Issue: uneven results → Fix: slow down and measure consistently.</li>
-  <li>Issue: weak outcomes → Fix: adjust timing and material quality.</li>
-  <li>Issue: messy process → Fix: simplify the workflow into smaller steps.</li>
+    <li>Issue: streaks or haze → Fix: reduce mixture strength and buff with a clean cloth.</li>
+    <li>Issue: residue remains → Fix: add a clean rinse or wipe step.</li>
+    <li>Issue: weak results → Fix: increase contact time slightly and re-test.</li>
 </ul>
-<p>When troubleshooting, change only one variable at a time. This makes it clear which adjustment actually improves the outcome.</p>
+<p>Adjust one variable at a time so you can see what actually improves {topic}.</p>
 
 <h2>Pro Tips from Experts</h2>
 {pro_tips}
@@ -949,9 +988,9 @@ class AIOrchestrator:
 {self._build_faqs(topic)}
 
 <h2>Advanced Techniques</h2>
-<p>Once the basic method is reliable, refine one variable at a time. This makes it easier to identify what improves the outcome without introducing confusion.</p>
-<p>Track small changes in timing, materials, and environment, then keep the combination that performs best.</p>
-<p>Advanced work often benefits from a checklist and a strict sequence. A stable routine lets you identify real improvements rather than accidental changes.</p>
+<p>Once {topic} is reliable, test small changes in ratio or application method while keeping everything else the same.</p>
+<p>Track each change in a short log so you can identify the best-performing version of {topic}.</p>
+<p>For recurring tasks, pre-label containers and tools so each session starts with the same setup.</p>
 
 {self._build_comparison_table(topic)}
 
@@ -1268,7 +1307,32 @@ class AIOrchestrator:
             print(f"✅ Gate PASS ({gate_score}/10) - Marked DONE")
             return
 
-        error_msg = "; ".join(audit.get("issues", [])[:3]) or "GATE_FAIL"
+        # Attempt auto-fix before retry/manual review
+        fix_result = self._auto_fix_article(article_id)
+        if fix_result.get("status") == "done":
+            fixed_audit = fix_result.get("audit", {})
+            fixed_gate = fixed_audit.get("deterministic_gate", {})
+            queue.mark_done(article_id)
+            queue.save()
+            done_ids = _load_done_blacklist()
+            done_ids.add(str(article_id))
+            _save_done_blacklist(done_ids)
+            self._append_run_log(
+                article_id,
+                fixed_audit.get("title", ""),
+                "done",
+                fixed_gate.get("score", 0),
+                True,
+                "auto_fix",
+            )
+            print("✅ Auto-fix PASS - Marked DONE")
+            return
+
+        error_msg = fix_result.get("error") or "; ".join(
+            (fix_result.get("audit", {}) or {}).get("issues", [])[:3]
+        )
+        if not error_msg:
+            error_msg = "; ".join(audit.get("issues", [])[:3]) or "GATE_FAIL"
         if use_backoff and failures < MAX_QUEUE_RETRIES:
             retry_at = self._next_retry_at(failures + 1)
             queue.mark_retry(article_id, error_msg, retry_at)
@@ -1368,6 +1432,105 @@ class AIOrchestrator:
                 )
                 print(f"❌ FIX FAIL ({gate_score}/10): {error_msg}")
 
+    def fix_manual_review_batch(self, limit: int = 20):
+        """Auto-fix manual review items sequentially."""
+        queue = AntiDriftQueue.load()
+        review_items = [
+            i
+            for i in queue.payload.get("items", [])
+            if i.get("status") == "manual_review"
+        ]
+        if not review_items:
+            print("✅ No manual review items to fix")
+            return
+
+        batch = review_items[:limit]
+        print(f"\n🔧 Fixing {len(batch)} manual review articles...")
+
+        for idx, item in enumerate(batch, 1):
+            article_id = item.get("id")
+            title = item.get("title", "")
+            print(f"\n[{idx}/{len(batch)}] Fixing {article_id} - {title}")
+
+            result = self._auto_fix_article(article_id)
+            if result.get("status") == "done":
+                queue.mark_done(article_id)
+                queue.save()
+                audit = result.get("audit", {})
+                gate = audit.get("deterministic_gate", {})
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "done",
+                    gate.get("score", 0),
+                    True,
+                    "manual_review_fix",
+                )
+                print("✅ Manual review fix PASS")
+            else:
+                audit = result.get("audit", {})
+                gate = audit.get("deterministic_gate", {}) if audit else {}
+                error_msg = result.get("error") or "; ".join(
+                    audit.get("issues", [])[:3]
+                )
+                queue.mark_manual_review(article_id, error_msg)
+                queue.save()
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "failed",
+                    gate.get("score", 0),
+                    False,
+                    error_msg or "manual_review_fix_failed",
+                )
+                print(f"❌ Manual review fix FAIL: {error_msg}")
+
+    def fix_article_ids(self, article_ids: list[str]):
+        """Auto-fix a specific list of article IDs sequentially."""
+        if not article_ids:
+            print("❌ No article IDs provided")
+            return
+
+        queue = AntiDriftQueue.load() if ANTI_DRIFT_QUEUE_FILE.exists() else None
+        print(f"\n🔧 Fixing {len(article_ids)} articles by ID...")
+
+        for idx, article_id in enumerate(article_ids, 1):
+            print(f"\n[{idx}/{len(article_ids)}] Fixing {article_id}...")
+            result = self._auto_fix_article(article_id)
+            if result.get("status") == "done":
+                if queue:
+                    queue.mark_done(article_id)
+                    queue.save()
+                audit = result.get("audit", {})
+                gate = audit.get("deterministic_gate", {})
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "done",
+                    gate.get("score", 0),
+                    True,
+                    "manual_review_fix",
+                )
+                print("✅ Auto-fix PASS")
+            else:
+                audit = result.get("audit", {})
+                gate = audit.get("deterministic_gate", {}) if audit else {}
+                error_msg = result.get("error") or "; ".join(
+                    audit.get("issues", [])[:3]
+                )
+                if queue:
+                    queue.mark_manual_review(article_id, error_msg)
+                    queue.save()
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "failed",
+                    gate.get("score", 0),
+                    False,
+                    error_msg or "manual_review_fix_failed",
+                )
+                print(f"❌ Auto-fix FAIL: {error_msg}")
+
     def _run_fix_images(self, article_id: str):
         """Run fix_images_properly.py for a single article."""
         script_path = PIPELINE_DIR / "fix_images_properly.py"
@@ -1431,6 +1594,8 @@ class AIOrchestrator:
                 "Generic phrases",
                 "Off-topic content",
                 "Word count",
+                "Raw URLs",
+                "Low sources",
             ]
         )
 
@@ -1460,6 +1625,78 @@ class AIOrchestrator:
         if gate.get("pass", False):
             return {"status": "done", "audit": re_audit}
         return {"status": "failed", "audit": re_audit, "error": "GATE_FAIL"}
+
+    def _force_rebuild_article(self, article_id: str) -> dict:
+        """Force rebuild body/meta, then fix images and re-audit."""
+        article = self.api.get_article(article_id)
+        if not article:
+            return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
+
+        title = article.get("title", "")
+        body_html = self._build_article_body(title)
+        meta_description = self._build_meta_description(title)
+        update_payload = {"body_html": body_html, "summary_html": meta_description}
+        updated = self.api.update_article(article_id, update_payload)
+        if not updated:
+            return {"status": "failed", "error": "UPDATE_FAILED"}
+
+        self._run_fix_images(article_id)
+
+        updated_article = self.api.get_article(article_id)
+        if not updated_article:
+            return {"status": "failed", "error": "REFETCH_FAILED"}
+
+        re_audit = self.quality_gate.full_audit(updated_article)
+        gate = re_audit.get("deterministic_gate", {})
+        if gate.get("pass", False):
+            return {"status": "done", "audit": re_audit}
+        return {"status": "failed", "audit": re_audit, "error": "GATE_FAIL"}
+
+    def force_rebuild_article_ids(self, article_ids: list[str]):
+        """Force rebuild a list of article IDs sequentially."""
+        if not article_ids:
+            print("❌ No article IDs provided")
+            return
+
+        queue = AntiDriftQueue.load() if ANTI_DRIFT_QUEUE_FILE.exists() else None
+        print(f"\n🔧 Force rebuilding {len(article_ids)} articles...")
+
+        for idx, article_id in enumerate(article_ids, 1):
+            print(f"\n[{idx}/{len(article_ids)}] Rebuilding {article_id}...")
+            result = self._force_rebuild_article(article_id)
+            if result.get("status") == "done":
+                if queue:
+                    queue.mark_done(article_id)
+                    queue.save()
+                audit = result.get("audit", {})
+                gate = audit.get("deterministic_gate", {})
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "done",
+                    gate.get("score", 0),
+                    True,
+                    "force_rebuild",
+                )
+                print("✅ Force rebuild PASS")
+            else:
+                audit = result.get("audit", {})
+                gate = audit.get("deterministic_gate", {}) if audit else {}
+                error_msg = result.get("error") or "; ".join(
+                    audit.get("issues", [])[:3]
+                )
+                if queue:
+                    queue.mark_manual_review(article_id, error_msg)
+                    queue.save()
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "failed",
+                    gate.get("score", 0),
+                    False,
+                    error_msg or "force_rebuild_failed",
+                )
+                print(f"❌ Force rebuild FAIL: {error_msg}")
 
     def fix_failed_from_log(self, limit: int = 30):
         """Auto-fix failed articles from run log (latest entries)."""
@@ -1576,6 +1813,9 @@ def main():
         )
         print("  python ai_orchestrator.py queue-status")
         print("  python ai_orchestrator.py fix-failed [limit]")
+        print("  python ai_orchestrator.py fix-manual-review [limit]")
+        print("  python ai_orchestrator.py fix-ids <id1> <id2> ...")
+        print("  python ai_orchestrator.py force-rebuild-ids <id1> <id2> ...")
         print("  python ai_orchestrator.py status")
         return
 
@@ -1645,6 +1885,24 @@ def main():
     elif command == "fix-failed":
         limit = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else 30
         orchestrator.fix_failed_from_log(limit=limit)
+
+    elif command == "fix-manual-review":
+        limit = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else 20
+        orchestrator.fix_manual_review_batch(limit=limit)
+
+    elif command == "fix-ids":
+        article_ids = [arg for arg in sys.argv[2:] if arg.strip()]
+        if not article_ids:
+            print("Error: Provide one or more article IDs")
+            return
+        orchestrator.fix_article_ids(article_ids)
+
+    elif command == "force-rebuild-ids":
+        article_ids = [arg for arg in sys.argv[2:] if arg.strip()]
+        if not article_ids:
+            print("Error: Provide one or more article IDs")
+            return
+        orchestrator.force_rebuild_article_ids(article_ids)
 
     else:
         print(f"Unknown command: {command}")
