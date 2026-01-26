@@ -157,6 +157,10 @@ jobs:
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   set -euo pipefail
+                  if [ ! -f "anti_drift_queue.json" ]; then
+                      echo "No queue found; skipping fix loop."
+                      exit 0
+                  fi
                   max=${FIX_MAX_ITEMS:-50}
                   for i in $(seq 1 "$max"); do
                       article_id=$(python - <<'PY'
