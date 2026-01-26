@@ -114,7 +114,7 @@ jobs:
                   PY
 
             - name: Rotate queue to avoid repeat
-                            if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
+              if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   if [ ! -s "articles_to_fix.json" ]; then
@@ -144,7 +144,7 @@ jobs:
                   PY
 
             - name: Init anti-drift queue
-                            if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
+              if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   if [ ! -s "articles_to_fix.json" ]; then
