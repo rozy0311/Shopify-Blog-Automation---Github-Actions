@@ -156,6 +156,9 @@ PY
                       echo "Processing $article_id ($i/$max)"
                       python ai_orchestrator.py fix-ids "$article_id"
 
+                      python "../scripts/build_meta_fix_queue.py" "$article_id"
+                      python "../scripts/run_meta_fix_queue.py"
+
                       set +e
                       python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
                       review_status=${PIPESTATUS[0]}
