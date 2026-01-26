@@ -4,6 +4,31 @@ import json
 import re
 from bs4 import BeautifulSoup
 
+GENERIC_PHRASES = [
+    "this comprehensive guide provides",
+    "this comprehensive guide covers",
+    "whether you are a beginner",
+    "whether you're a beginner",
+    "natural materials vary throughout",
+    "professional practitioners recommend",
+    "achieving consistent results requires attention",
+    "once you've perfected small batches",
+    "once you have perfected small batches",
+    "scaling up becomes appealing",
+    "making larger batches requires",
+    "heat distribution",
+    "doubling recipes",
+    "this practical guide",
+    "this guide covers practical",
+    "perfect for anyone looking to improve",
+    "join thousands who have already mastered",
+    "measuring cups",
+    "dry ingredients",
+    "wet ingredients",
+    "shelf life 2-4 weeks",
+    "shelf life 3-6 months",
+]
+
 SHOP = os.environ.get("SHOPIFY_SHOP", "the-rike-inc.myshopify.com")
 TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get("SHOPIFY_TOKEN")
 BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID", "108441862462")  # Sustainable Living
@@ -38,8 +63,12 @@ if response.status_code == 200:
         text = soup.get_text(" ", strip=True)
         word_count = len(re.findall(r"\w+", text))
         h2_count = len(soup.find_all("h2"))
-        links = [a for a in soup.find_all("a", href=True) if a["href"].startswith("http")]
-        hidden_links = [a for a in links if "http" not in a.get_text(" ", strip=True).lower()]
+        links = [
+            a for a in soup.find_all("a", href=True) if a["href"].startswith("http")
+        ]
+        hidden_links = [
+            a for a in links if "http" not in a.get_text(" ", strip=True).lower()
+        ]
         hidden_link_count = len(hidden_links)
         source_links = [a for a in hidden_links if "—" in a.get_text(" ", strip=True)]
         source_link_count = len(source_links)
@@ -48,6 +77,8 @@ if response.status_code == 200:
             or "Image Pollinations" in body
             or "rate limit" in body.lower()
         )
+        body_lower = body.lower()
+        generic_found = [p for p in GENERIC_PHRASES if p in body_lower]
 
         issues = []
         if not has_meta:
@@ -66,6 +97,8 @@ if response.status_code == 200:
             issues.append(f"LOW_HIDDEN_LINKS:{hidden_link_count}")
         if source_link_count < 5:
             issues.append(f"LOW_SOURCE_LINKS:{source_link_count}")
+        if generic_found:
+            issues.append(f"GENERIC:{len(generic_found)}")
 
         if issues:
             all_issues.append({"id": art_id, "title": title, "issues": issues})
