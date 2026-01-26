@@ -137,9 +137,14 @@ def ensure_heading_ids(html: str) -> str:
 
         new_id = normalize_id(heading_id)
         attrs = (" " + attrs.strip()) if attrs.strip() else ""
-        return f"<h{level}{attrs} id=\"{new_id}\">{inner}</h{level}>"
+        return f'<h{level}{attrs} id="{new_id}">{inner}</h{level}>'
 
-    return re.sub(r"<h([23])([^>]*)>(.*?)</h\1>", fix_heading, html, flags=re.DOTALL | re.IGNORECASE)
+    return re.sub(
+        r"<h([23])([^>]*)>(.*?)</h\1>",
+        fix_heading,
+        html,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
 
 
 def ensure_direct_answer(html: str, title: str) -> str:
@@ -173,9 +178,21 @@ def ensure_key_terms_section(html: str, title: str) -> str:
         return html
 
     words = [w for w in re.split(r"\W+", title) if len(w) > 3]
-    terms = list(dict.fromkeys(words))[:6] or ["Technique", "Tools", "Safety", "Process", "Materials", "Results"]
-    items = "\n".join([f"<li><strong>{t}</strong>: Key concept related to this topic.</li>" for t in terms])
-    section = f"<h2 id=\"key-terms\">Key Terms</h2>\n<ul>\n{items}\n</ul>"
+    terms = list(dict.fromkeys(words))[:6] or [
+        "Technique",
+        "Tools",
+        "Safety",
+        "Process",
+        "Materials",
+        "Results",
+    ]
+    items = "\n".join(
+        [
+            f"<li><strong>{t}</strong>: Key concept related to this topic.</li>"
+            for t in terms
+        ]
+    )
+    section = f'<h2 id="key-terms">Key Terms</h2>\n<ul>\n{items}\n</ul>'
     return html + "\n" + section
 
 
@@ -184,14 +201,24 @@ def ensure_external_link_rels(html: str) -> str:
         tag = match.group(0)
         if "rel=" in tag.lower():
             if "nofollow" not in tag.lower():
-                tag = re.sub(r"rel=([\"'])([^\"']*)([\"'])", lambda m: f"rel={m.group(1)}{m.group(2)} nofollow noopener{m.group(3)}", tag, flags=re.IGNORECASE)
+                tag = re.sub(
+                    r"rel=([\"'])([^\"']*)([\"'])",
+                    lambda m: f"rel={m.group(1)}{m.group(2)} nofollow noopener{m.group(3)}",
+                    tag,
+                    flags=re.IGNORECASE,
+                )
         else:
             tag = tag.replace("<a ", '<a rel="nofollow noopener" ', 1)
         if "target=" not in tag.lower():
             tag = tag.replace("<a ", '<a target="_blank" ', 1)
         return tag
 
-    return re.sub(r"<a\s+[^>]*href=[\"']https?://[^\"']+[\"'][^>]*>", add_rels, html, flags=re.IGNORECASE)
+    return re.sub(
+        r"<a\s+[^>]*href=[\"']https?://[^\"']+[\"'][^>]*>",
+        add_rels,
+        html,
+        flags=re.IGNORECASE,
+    )
 
 
 def ensure_sources_section(html: str) -> tuple[str, bool]:
@@ -359,22 +386,17 @@ def process_one() -> dict[str, Any] | None:
     return None
 
 
-def main() -> None:
+def main() -> int:
     load_env(ENV_PATHS)
-    try:
-        from pipeline_v2.ai_image_generator_v2 import update_article_with_ai_images_v2
-    except Exception:
-        update_article_with_ai_images_v2 = None
-
     result = process_one()
-    if result:
-        print(f"Processed: {result['article_id']} -> {result['status']}")
-    else:
-        print("No pending items")
-
-    if update_article_with_ai_images_v2:
-        _ = update_article_with_ai_images_v2  # avoid unused warning
+    if not result:
+        print("No pending items in meta_fix_queue.json")
+        return 0
+    print(f"Processed {result.get('article_id')} -> {result.get('status')}")
+    if result.get("status") in {"failed", "needs_sources"}:
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
