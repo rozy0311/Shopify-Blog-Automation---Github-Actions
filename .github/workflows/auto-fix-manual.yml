@@ -100,7 +100,8 @@ jobs:
 
                   items = json.loads(path.read_text(encoding='utf-8'))
                   if not items:
-                      raise SystemExit('No items to fix')
+                      print('No items to fix')
+                      raise SystemExit(0)
 
                   run_number = int(os.environ.get('GITHUB_RUN_NUMBER', '0'))
                   offset = run_number % len(items)
