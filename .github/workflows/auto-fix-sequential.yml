@@ -85,7 +85,7 @@ jobs:
               if: steps.queue_check.outputs.needs_refresh == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                  python scan_issues_now.py
+                                    SCAN_LIMIT=50 python scan_issues_now.py
 
             - name: Rotate queue to avoid repeat
               if: steps.queue_check.outputs.needs_refresh == 'true'
@@ -117,65 +117,60 @@ jobs:
               run: |
                   python ai_orchestrator.py queue-init
 
-                        - name: Fix up to 50 articles sequentially (no batch)
-                            working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-                            env:
-                                    SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
-                                    SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-                                    SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
-                                    SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
-                            run: |
-                                    set -euo pipefail
-                                    max=${FIX_MAX_ITEMS:-50}
-                                    for i in $(seq 1 "$max"); do
-                                        article_id=$(python - <<'PY'
-                                    import json
-                                    from pathlib import Path
+            - name: Fix up to 50 articles sequentially (no batch)
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  set -euo pipefail
+                  max=${FIX_MAX_ITEMS:-50}
+                  for i in $(seq 1 "$max"); do
+                      article_id=$(python - <<'PY'
+import json
+from pathlib import Path
 
-                                    queue_path = Path('anti_drift_queue.json')
-                                    if not queue_path.exists():
-                                            raise SystemExit('')
+queue_path = Path('anti_drift_queue.json')
+if not queue_path.exists():
+    raise SystemExit('')
 
-                                    data = json.loads(queue_path.read_text(encoding='utf-8'))
-                                    items = data.get('items', [])
-                                    priority = ['failed', 'manual_review', 'retrying', 'pending']
-                                    chosen = None
-                                    for status in priority:
-                                            for item in items:
-                                                    if item.get('status') == status:
-                                                            chosen = item
-                                                            break
-                                            if chosen:
-                                                    break
+data = json.loads(queue_path.read_text(encoding='utf-8'))
+items = data.get('items', [])
+priority = ['failed', 'manual_review', 'retrying', 'pending']
+chosen = None
+for status in priority:
+    for item in items:
+        if item.get('status') == status:
+            chosen = item
+            break
+    if chosen:
+        break
 
-                                    print(chosen.get('id') if chosen else '')
-                                    PY
-                                        )
+print(chosen.get('id') if chosen else '')
+PY
+                      )
 
-                                        if [ -z "$article_id" ]; then
-                                            echo "No eligible items in queue."
-                                            break
-                                        fi
+                      if [ -z "$article_id" ]; then
+                          echo "No eligible items in queue."
+                          break
+                      fi
 
-                                        echo "Processing $article_id ($i/$max)"
-                                        python ai_orchestrator.py fix-ids "$article_id"
+                      echo "Processing $article_id ($i/$max)"
+                      python ai_orchestrator.py fix-ids "$article_id"
 
-                                        set +e
-                                        python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
-                                        review_status=${PIPESTATUS[0]}
-                                        set -e
+                      set +e
+                      python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
+                      review_status=${PIPESTATUS[0]}
+                      set -e
 
-                                        if [ "$review_status" != "0" ]; then
-                                            python ai_orchestrator.py force-rebuild-ids "$article_id"
-                                            set +e
-                                            python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
-                                            review_status_after=${PIPESTATUS[0]}
-                                            set -e
-                                            if [ "$review_status_after" != "0" ]; then
-                                                echo "Pre-publish review failed after rebuild for $article_id. Skipping."
-                                            fi
-                                        fi
-                                    done
+                      if [ "$review_status" != "0" ]; then
+                          python ai_orchestrator.py force-rebuild-ids "$article_id"
+                          set +e
+                          python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
+                          review_status_after=${PIPESTATUS[0]}
+                          set -e
+                          if [ "$review_status_after" != "0" ]; then
+                              echo "Pre-publish review failed after rebuild for $article_id. Skipping."
+                          fi
+                      fi
+                  done
 
             - name: Upload fix artifacts
               uses: actions/upload-artifact@v4

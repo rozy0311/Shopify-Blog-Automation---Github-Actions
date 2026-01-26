@@ -6,6 +6,7 @@ SHOP = os.environ.get("SHOPIFY_SHOP", "the-rike-inc.myshopify.com")
 TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get("SHOPIFY_TOKEN")
 BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID", "108441862462")  # Sustainable Living
 API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
+SCAN_LIMIT = int(os.environ.get("SCAN_LIMIT", "0") or 0)
 
 if not TOKEN:
     raise SystemExit("Missing SHOPIFY_ACCESS_TOKEN")
@@ -54,6 +55,10 @@ if response.status_code == 200:
     print("\n--- ARTICLES NEEDING FIX ---")
     for i, item in enumerate(all_issues[:30]):
         print(f'{i+1}. ID:{item["id"]} | {item["title"]} | {item["issues"]}')
+
+    if SCAN_LIMIT > 0:
+        all_issues = all_issues[:SCAN_LIMIT]
+        print(f"\nScan limit enabled: keeping first {SCAN_LIMIT} items")
 
     # Save to file for processing
     with open("articles_to_fix.json", "w") as f:
