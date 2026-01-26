@@ -6,14 +6,47 @@ Run this BEFORE publishing any article to ensure META-PROMPT compliance.
 This script must pass ALL checks before any content goes live.
 """
 
-import requests
+import json
+import os
 import re
 import sys
+from pathlib import Path
 
-SHOP = "the-rike-inc.myshopify.com"
-TOKEN = "os.environ.get("SHOPIFY_ACCESS_TOKEN", "")"
-BLOG_ID = "108441862462"
-API_VERSION = "2025-01"
+import requests
+
+ROOT_DIR = Path(__file__).parent.parent
+CONFIG_PATH = ROOT_DIR / "SHOPIFY_PUBLISH_CONFIG.json"
+
+
+def load_config() -> dict:
+    if CONFIG_PATH.exists():
+        return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    return {}
+
+
+config = load_config()
+shop_config = config.get("shop", {})
+
+SHOP = os.environ.get(
+    "SHOPIFY_STORE_DOMAIN",
+    os.environ.get("SHOPIFY_SHOP", shop_config.get("domain", "")),
+)
+TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get(
+    "SHOPIFY_TOKEN", shop_config.get("access_token", "")
+)
+BLOG_ID = os.environ.get(
+    "SHOPIFY_BLOG_ID",
+    os.environ.get("BLOG_ID", shop_config.get("blog_id", "")),
+)
+API_VERSION = os.environ.get(
+    "SHOPIFY_API_VERSION", shop_config.get("api_version", "2025-01")
+)
+
+if not SHOP or not TOKEN or not BLOG_ID:
+    raise SystemExit(
+        "Missing Shopify config. Set SHOPIFY_STORE_DOMAIN, SHOPIFY_ACCESS_TOKEN, and SHOPIFY_BLOG_ID."
+    )
+
 HEADERS = {"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}
 
 # META-PROMPT REQUIREMENTS
@@ -81,6 +114,26 @@ META_PROMPT_CHECKS = {
 # Regex patterns
 YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
 KEBAB_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def validate_image_url(url: str, timeout: int = 10) -> tuple:
+    """
+    Validate that an image URL is accessible.
+    Returns (is_valid, status_code_or_error)
+    """
+    if not url:
+        return False, "NO_URL"
+    try:
+        # Use GET request (Pexels and most CDNs work with GET)
+        resp = requests.get(url, timeout=timeout, stream=True)
+        resp.close()  # Don't download entire image
+        return resp.status_code == 200, resp.status_code
+    except requests.Timeout:
+        return False, "TIMEOUT"
+    except requests.ConnectionError:
+        return False, "CONNECTION_ERROR"
+    except Exception as e:
+        return False, str(e)[:30]
 
 
 def review_article(article_id):
@@ -151,6 +204,8 @@ def review_article(article_id):
 
     # 2. Main image check
     main_image = article.get("image")
+    all_image_urls = []  # Collect all image URLs for validation
+
     if REQUIREMENTS["main_image_required"]:
         if not main_image:
             errors.append("❌ MAIN IMAGE: Missing featured/thumbnail image")
@@ -163,6 +218,8 @@ def review_article(article_id):
             main_src = main_image.get("src", "")
             if not main_src:
                 errors.append("❌ MAIN IMAGE SRC: No image URL")
+            else:
+                all_image_urls.append(("MAIN", main_src))
 
     # 3. Inline images check
     img_tags = re.findall(r"<img[^>]+>", body, re.IGNORECASE)
@@ -182,6 +239,24 @@ def review_article(article_id):
         src_match = re.search(r'src=["\']([^"\']+)["\']', tag)
         if not src_match:
             errors.append(f"❌ INLINE IMAGE {i} SRC: Missing src URL")
+        else:
+            all_image_urls.append((f"INLINE_{i}", src_match.group(1)))
+
+    # 3.5. IMAGE URL VALIDATION - Check all image URLs are accessible
+    broken_images = []
+    for img_name, img_url in all_image_urls:
+        is_valid, status = validate_image_url(img_url)
+        if not is_valid:
+            broken_images.append((img_name, status, img_url[:60]))
+
+    if broken_images:
+        for img_name, status, url_preview in broken_images:
+            errors.append(
+                f"❌ BROKEN IMAGE ({img_name}): HTTP {status} - {url_preview}..."
+            )
+        errors.append(
+            f"❌ IMAGE VALIDATION: {len(broken_images)}/{len(all_image_urls)} images not accessible"
+        )
 
     # 4. Figure tags check (proper image formatting)
     figure_count = body.count("<figure")
@@ -203,6 +278,20 @@ def review_article(article_id):
         errors.append(
             f"❌ TABLES: {table_count} < {REQUIREMENTS['min_tables']} required"
         )
+
+    # 6b. Check tables are mobile responsive
+    if table_count > 0:
+        # Check if tables are wrapped in responsive container
+        responsive_tables = (
+            body.count('class="table-responsive"')
+            + body.count("overflow-x: auto")
+            + body.count("overflow-x:auto")
+        )
+        if responsive_tables < table_count:
+            warnings.append(
+                f"⚠️ TABLES NOT MOBILE RESPONSIVE: {table_count} tables but only {responsive_tables} wrapped in responsive container. "
+                'Wrap tables in <div style="overflow-x: auto;"> for mobile compatibility.'
+            )
 
     # ========== SEO CHECKS ==========
     # 7. Title length check
@@ -376,13 +465,14 @@ def review_article(article_id):
 
     # 18. Sources section check - ≥5 citations with proper links
     if META_PROMPT_CHECKS["require_sources_section"]:
+        # Try finding by id containing "sources"
         sources_section = re.search(
-            r'<h2[^>]*id=["\']sources["\'][^>]*>', body, re.IGNORECASE
+            r'<h2[^>]*id=["\'][^"\']*sources[^"\']*["\'][^>]*>', body, re.IGNORECASE
         )
         if not sources_section:
-            # Try finding by text
+            # Try finding by text (including HTML entities)
             sources_section = re.search(
-                r"<h2[^>]*>.*(?:Sources|Further Reading|References).*</h2>",
+                r"<h2[^>]*>.*(?:Sources|Further Reading|References|&amp;).*</h2>",
                 body,
                 re.IGNORECASE,
             )
@@ -419,8 +509,9 @@ def review_article(article_id):
         )
         valid_quotes = 0
         for bq in blockquotes:
-            # Check for pattern: "Quote" — Name, Title, Org  OR  — Name, Title
-            if re.search(r"[—–-]\s*[A-Z][a-z]+\s+[A-Z]", bq):  # Has name pattern
+            # Check for pattern: "Quote" — Name, Title, Org  OR  <cite>— Dr. Name
+            # Pattern matches: "— Dr. Name", "— Name Title", "— First Last"
+            if re.search(r"[—–-]\s*(?:Dr\.?\s+)?[A-Z][a-z]+", bq):  # Has name pattern
                 valid_quotes += 1
 
         if valid_quotes < META_PROMPT_CHECKS["min_expert_quotes"]:
@@ -522,10 +613,20 @@ def review_article(article_id):
     # Extract additional field values for display
     meta_desc = article.get("meta_description", "")
     summary_html = article.get("summary_html", "")
+    # Fallback: use summary_html stripped of tags if meta_description is empty
+    if not meta_desc and summary_html:
+        meta_desc = re.sub(r"<[^>]+>", "", summary_html).strip()
     author = article.get("author", "")
     tags = article.get("tags", "")
     handle = article.get("handle", "")
     published_at = article.get("published_at", "")
+
+    # Count responsive tables
+    responsive_tables = (
+        body.count('class="table-responsive"')
+        + body.count("overflow-x: auto")
+        + body.count("overflow-x:auto")
+    )
 
     return {
         "article_id": article_id,
@@ -538,6 +639,7 @@ def review_article(article_id):
         "figures": figure_count,
         "blockquotes": blockquote_count,
         "tables": table_count,
+        "responsive_tables": responsive_tables,
         "errors": errors,
         "warnings": warnings,
         # Additional fields
@@ -583,7 +685,14 @@ def print_review(result):
     print(f"  Inline Images: {result['inline_images']} (need 3+)")
     print(f"  Figures: {result['figures']} (need 3+)")
     print(f"  Blockquotes: {result['blockquotes']} (need 2+)")
-    print(f"  Tables: {result['tables']} (need 1+)")
+    tables_status = "✅" if result["tables"] >= 1 else "❌"
+    responsive_status = (
+        "✅" if result.get("responsive_tables", 0) >= result["tables"] else "⚠️"
+    )
+    print(f"  Tables: {tables_status} {result['tables']} (need 1+)")
+    print(
+        f"  Mobile Responsive Tables: {responsive_status} {result.get('responsive_tables', 0)}/{result['tables']}"
+    )
 
     print(f"\nSEO METRICS:")
     title_len_status = "✅" if 30 <= result["title_length"] <= 60 else "⚠️"
