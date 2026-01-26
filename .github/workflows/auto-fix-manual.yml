@@ -1,0 +1,183 @@
+name: Auto Fix Manual Trigger
+
+on:
+    workflow_dispatch: {}
+
+concurrency:
+    group: auto-fix-manual
+    cancel-in-progress: false
+
+jobs:
+    auto-fix-one:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        env:
+            SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+            SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+            SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+            SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+            POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+            VISION_REVIEW: "1"
+            VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+            FIX_MAX_ITEMS: "50"
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
+
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  python -m pip install requests beautifulsoup4 python-dotenv PyYAML
+
+            - name: Verify vision review enabled
+              run: |
+                  if [ -z "${VISION_API_KEY:-}" ]; then
+                      echo "Missing VISION_API_KEY secret; vision review is required."
+                      exit 1
+                  fi
+
+            - name: Check if queue needs refresh
+              id: queue_check
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
+
+                  output_path = os.environ.get('GITHUB_OUTPUT')
+
+                  queue_path = Path('anti_drift_queue.json')
+                  if not queue_path.exists():
+                      if output_path:
+                          with open(output_path, 'a', encoding='utf-8') as f:
+                              f.write('needs_refresh=true\n')
+                      raise SystemExit(0)
+
+                  try:
+                      data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  except json.JSONDecodeError:
+                      if output_path:
+                          with open(output_path, 'a', encoding='utf-8') as f:
+                              f.write('needs_refresh=true\n')
+                      raise SystemExit(0)
+
+                  items = data.get('items', [])
+                  pending_like = [
+                      i for i in items
+                      if i.get('status') in {'pending', 'failed', 'retrying', 'manual_review'}
+                  ]
+                  needs_refresh = 'false' if pending_like else 'true'
+                  if output_path:
+                      with open(output_path, 'a', encoding='utf-8') as f:
+                          f.write(f'needs_refresh={needs_refresh}\n')
+                  PY
+
+            - name: Scan issues (published)
+              if: steps.queue_check.outputs.needs_refresh == 'true'
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  SCAN_LIMIT=50 python scan_issues_now.py
+
+            - name: Rotate queue to avoid repeat
+              if: steps.queue_check.outputs.needs_refresh == 'true'
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
+
+                  path = Path('articles_to_fix.json')
+                  if not path.exists():
+                      raise SystemExit('articles_to_fix.json not found')
+
+                  items = json.loads(path.read_text(encoding='utf-8'))
+                  if not items:
+                      raise SystemExit('No items to fix')
+
+                  run_number = int(os.environ.get('GITHUB_RUN_NUMBER', '0'))
+                  offset = run_number % len(items)
+                  rotated = items[offset:] + items[:offset]
+                  path.write_text(json.dumps(rotated, ensure_ascii=False, indent=2), encoding='utf-8')
+                  print(f'Rotated queue by offset {offset} (run {run_number})')
+                  PY
+
+            - name: Init anti-drift queue
+              if: steps.queue_check.outputs.needs_refresh == 'true'
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python ai_orchestrator.py queue-init
+
+            - name: Fix up to 50 articles sequentially (no batch)
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  set -euo pipefail
+                  max=${FIX_MAX_ITEMS:-50}
+                  for i in $(seq 1 "$max"); do
+                      article_id=$(python - <<'PY'
+                  import json
+                  from pathlib import Path
+
+                  queue_path = Path('anti_drift_queue.json')
+                  if not queue_path.exists():
+                      raise SystemExit('')
+
+                  data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  items = data.get('items', [])
+                  priority = ['failed', 'manual_review', 'retrying', 'pending']
+                  chosen = None
+                  for status in priority:
+                      for item in items:
+                          if item.get('status') == status:
+                              chosen = item
+                              break
+                      if chosen:
+                          break
+
+                  print(chosen.get('id') if chosen else '')
+                  PY
+                      )
+
+                      if [ -z "$article_id" ]; then
+                          echo "No eligible items in queue."
+                          break
+                      fi
+
+                      echo "Processing $article_id ($i/$max)"
+                      python ai_orchestrator.py fix-ids "$article_id"
+
+                      set +e
+                      python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
+                      review_status=${PIPESTATUS[0]}
+                      set -e
+
+                      if [ "$review_status" != "0" ]; then
+                          python ai_orchestrator.py force-rebuild-ids "$article_id"
+                          set +e
+                          python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
+                          review_status_after=${PIPESTATUS[0]}
+                          set -e
+                          if [ "$review_status_after" != "0" ]; then
+                              echo "Pre-publish review failed after rebuild for $article_id. Skipping."
+                          fi
+                      fi
+                  done
+
+            - name: Upload fix artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: auto-fix-manual
+                  path: |
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_queue.json
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_run_log.csv
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/orchestrator_progress.json
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_done_blacklist.json
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output*.txt
+                  if-no-files-found: warn
