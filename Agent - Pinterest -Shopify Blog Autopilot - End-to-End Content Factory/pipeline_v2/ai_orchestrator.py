@@ -51,6 +51,13 @@ BACKOFF_BASE_SECONDS = 120
 BACKOFF_MAX_SECONDS = 600
 BACKOFF_JITTER_SECONDS = 30
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
+PIPELINE_DIR = Path(__file__).parent
+ROOT_DIR = PIPELINE_DIR.parent.parent
+ANTI_DRIFT_QUEUE_FILE = ROOT_DIR / "anti_drift_queue.json"
+ANTI_DRIFT_RUN_LOG_FILE = ROOT_DIR / "anti_drift_run_log.csv"
+ANTI_DRIFT_DONE_FILE = ROOT_DIR / "anti_drift_done.json"
+ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
+ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 
 
 # ============================================================================
