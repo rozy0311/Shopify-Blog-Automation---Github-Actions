@@ -1,4 +1,5 @@
 name: Auto Fix Sequential (1 article)
+# noop: re-register workflow dispatch
 
 on:
     workflow_dispatch:
