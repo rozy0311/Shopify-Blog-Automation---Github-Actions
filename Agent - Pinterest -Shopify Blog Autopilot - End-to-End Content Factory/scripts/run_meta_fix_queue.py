@@ -20,6 +20,8 @@ from typing import Any
 
 import requests
 
+KEBAB_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
 ROOT_DIR = Path(__file__).parent.parent
 CONTENT_DIR = ROOT_DIR / "content"
 QUEUE_PATH = CONTENT_DIR / "meta_fix_queue.json"
