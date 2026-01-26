@@ -2,7 +2,7 @@ name: Auto Fix Sequential (1 article)
 # noop: re-register workflow dispatch
 
 on:
-    workflow_dispatch:
+    workflow_dispatch: {}
     schedule:
         - cron: "0 */6 * * *"
 
