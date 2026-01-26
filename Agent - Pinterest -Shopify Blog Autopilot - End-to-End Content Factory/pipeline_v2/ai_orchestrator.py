@@ -47,27 +47,38 @@ env_paths = [
 for env_path in env_paths:
     if env_path.exists():
         load_dotenv(env_path)
-        break
-load_dotenv()
-
-# Config - Force correct Shopify domain
-SHOP = "the-rike-inc.myshopify.com"  # Hardcoded to avoid .env issues
-TOKEN = os.environ.get("SHOPIFY_TOKEN") or os.environ.get("SHOPIFY_ACCESS_TOKEN")
-BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID", "108441862462")
-HEADERS = {"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}
-
-# Paths
-PIPELINE_DIR = Path(__file__).parent
-SCRIPTS_DIR = PIPELINE_DIR.parent / "scripts"
-PROGRESS_FILE = PIPELINE_DIR / "orchestrator_progress.json"
-ANTI_DRIFT_QUEUE_FILE = PIPELINE_DIR / "anti_drift_queue.json"
-ANTI_DRIFT_RUN_LOG_FILE = PIPELINE_DIR / "anti_drift_run_log.csv"
-ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
-ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
-ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done_blacklist.json"
-
-# Anti-drift retry/backoff
-MAX_QUEUE_RETRIES = 3
+        sources = [
+            (
+                "https://www.nih.gov",
+                f"NIH — Evidence-based health references related to {topic}",
+            ),
+            (
+                "https://www.cdc.gov",
+                f"CDC — Safety guidance and exposure considerations for {topic}",
+            ),
+            (
+                "https://www.epa.gov",
+                f"EPA — Environmental and usage guidance connected to {topic}",
+            ),
+            (
+                "https://extension.psu.edu",
+                f"Extension — Practical how-to resources relevant to {topic}",
+            ),
+            (
+                "https://www.fao.org",
+                f"FAO — Reference material that can inform best practices for {topic}",
+            ),
+            (
+                "https://nchfp.uga.edu",
+                f"NCHFP — Preservation and handling references when applicable to {topic}",
+            ),
+        ]
+        items = "\n".join(
+            [
+                f'<li><a href="{url}" target="_blank" rel="nofollow noopener">{text}</a></li>'
+                for url, text in sources
+            ]
+        )
 BACKOFF_BASE_SECONDS = 120
 BACKOFF_MAX_SECONDS = 600
 BACKOFF_JITTER_SECONDS = 30
@@ -801,9 +812,9 @@ class AIOrchestrator:
 """
 
     def _build_comparison_table(self, topic: str) -> str:
-        return f"""
+                return f"""
 <div style="overflow-x:auto;">
-<table style="width:100%; border-collapse:collapse; line-height:1.6;">
+<table style="width:100%; border-collapse:collapse; line-height:1.6; table-layout:auto; word-wrap:break-word;">
   <thead>
     <tr style="background:#2d5a27; color:#fff;">
       <th style="padding:10px 12px; text-align:left;">Option</th>
@@ -935,7 +946,7 @@ class AIOrchestrator:
         body = f"""
 <article>
 <h2>Direct Answer</h2>
-    <p>{topic} works best when you keep the process specific to {focus_phrase}, use measured ratios, and test a small area first. Start small, verify the finish or effect, then scale up once the result matches the goal.</p>
+    <p>{topic} works best when you keep the steps specific to {focus_phrase}, measure ratios carefully, and test a small area before scaling. Use consistent timing, note the surface or material details, and repeat the same sequence until the result is stable. If anything looks off, adjust one variable at a time so you can trace the cause and lock in a reliable routine.</p>
 
 <h2>Key Conditions at a Glance</h2>
 <ul>
