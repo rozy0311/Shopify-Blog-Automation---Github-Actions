@@ -120,6 +120,10 @@ jobs:
                             if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
+                  if [ ! -s "articles_to_fix.json" ]; then
+                      echo "No items to fix; skipping rotate."
+                      exit 0
+                  fi
                   python - <<'PY'
                   import json
                   import os
@@ -146,25 +150,10 @@ jobs:
                             if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                  python - <<'PY'
-                  import json
-                  from pathlib import Path
-
-                  path = Path('articles_to_fix.json')
-                  if not path.exists():
-                      print('articles_to_fix.json not found; skip queue init')
-                      raise SystemExit(0)
-
-                  try:
-                      items = json.loads(path.read_text(encoding='utf-8'))
-                  except json.JSONDecodeError:
-                      print('articles_to_fix.json invalid; skip queue init')
-                      raise SystemExit(0)
-
-                  if not items:
-                      print('No items to fix; skip queue init')
-                      raise SystemExit(0)
-                  PY
+                  if [ ! -s "articles_to_fix.json" ]; then
+                      echo "No items to fix; skipping queue init."
+                      exit 0
+                  fi
                   python ai_orchestrator.py queue-init
 
             - name: Fix up to 50 articles sequentially (no batch)
