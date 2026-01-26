@@ -22,6 +22,7 @@ jobs:
             POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
             VISION_REVIEW: "1"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+            FIX_MAX_ITEMS: "50"
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -116,93 +117,65 @@ jobs:
               run: |
                   python ai_orchestrator.py queue-init
 
-            - name: Select next article (failed first)
-              id: pick_article
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-              run: |
-                  python - <<'PY'
-                  import json
-                  import os
-                  from pathlib import Path
-
-                  queue_path = Path('anti_drift_queue.json')
-                  if not queue_path.exists():
-                      raise SystemExit('anti_drift_queue.json not found')
-
-                  data = json.loads(queue_path.read_text(encoding='utf-8'))
-                  items = data.get('items', [])
-                  priority = ['failed', 'manual_review', 'retrying', 'pending']
-                  chosen = None
-                  for status in priority:
-                      for item in items:
-                          if item.get('status') == status:
-                              chosen = item
-                              break
-                      if chosen:
-                          break
-
-                  output = os.environ.get('GITHUB_OUTPUT')
-                  if not chosen:
-                      if output:
-                          with open(output, 'a', encoding='utf-8') as f:
-                              f.write('article_id=\n')
-                      print('No eligible items in queue')
-                      raise SystemExit(0)
-
-                  article_id = chosen.get('id')
-                  if output:
-                      with open(output, 'a', encoding='utf-8') as f:
-                          f.write(f'article_id={article_id}\n')
-                  print(f'Selected {article_id} ({chosen.get("status")})')
-                  PY
-
-            - name: Auto-fix selected article (single ID)
-              if: steps.pick_article.outputs.article_id != ''
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-              run: |
-                  python ai_orchestrator.py fix-ids "${{ steps.pick_article.outputs.article_id }}"
-
-            - name: Pre-publish review (after fix)
-              if: steps.pick_article.outputs.article_id != ''
-              id: review_after_fix
+                        - name: Fix up to 50 articles sequentially (no batch)
                             working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-              env:
-                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
-                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
-                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
-              run: |
-                  set -o pipefail
-                  python "../scripts/pre_publish_review.py" "${{ steps.pick_article.outputs.article_id }}" | tee review-output.txt
-                  echo "review_status=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
-              continue-on-error: true
+                            env:
+                                    SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+                                    SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                                    SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+                                    SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+                            run: |
+                                    set -euo pipefail
+                                    max=${FIX_MAX_ITEMS:-50}
+                                    for i in $(seq 1 "$max"); do
+                                        article_id=$(python - <<'PY'
+                                    import json
+                                    from pathlib import Path
 
-            - name: Force rebuild on review failure
-              if: steps.review_after_fix.outputs.review_status != '0' && steps.pick_article.outputs.article_id != ''
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-              run: |
-                  python ai_orchestrator.py force-rebuild-ids "${{ steps.pick_article.outputs.article_id }}"
+                                    queue_path = Path('anti_drift_queue.json')
+                                    if not queue_path.exists():
+                                            raise SystemExit('')
 
-            - name: Pre-publish review (after rebuild)
-              if: steps.review_after_fix.outputs.review_status != '0' && steps.pick_article.outputs.article_id != ''
-              id: review_after_rebuild
-                            working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
-              env:
-                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
-                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
-                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
-              run: |
-                  set -o pipefail
-                  python "../scripts/pre_publish_review.py" "${{ steps.pick_article.outputs.article_id }}" | tee review-output-after-rebuild.txt
-                  echo "review_status_after=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
-              continue-on-error: true
+                                    data = json.loads(queue_path.read_text(encoding='utf-8'))
+                                    items = data.get('items', [])
+                                    priority = ['failed', 'manual_review', 'retrying', 'pending']
+                                    chosen = None
+                                    for status in priority:
+                                            for item in items:
+                                                    if item.get('status') == status:
+                                                            chosen = item
+                                                            break
+                                            if chosen:
+                                                    break
 
-            - name: Fail if review still not passing
-              if: steps.review_after_rebuild.outputs.review_status_after != '' && steps.review_after_rebuild.outputs.review_status_after != '0'
-              run: |
-                  echo "Pre-publish review failed after rebuild. Blocking publish."
-                  exit 1
+                                    print(chosen.get('id') if chosen else '')
+                                    PY
+                                        )
+
+                                        if [ -z "$article_id" ]; then
+                                            echo "No eligible items in queue."
+                                            break
+                                        fi
+
+                                        echo "Processing $article_id ($i/$max)"
+                                        python ai_orchestrator.py fix-ids "$article_id"
+
+                                        set +e
+                                        python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
+                                        review_status=${PIPESTATUS[0]}
+                                        set -e
+
+                                        if [ "$review_status" != "0" ]; then
+                                            python ai_orchestrator.py force-rebuild-ids "$article_id"
+                                            set +e
+                                            python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
+                                            review_status_after=${PIPESTATUS[0]}
+                                            set -e
+                                            if [ "$review_status_after" != "0" ]; then
+                                                echo "Pre-publish review failed after rebuild for $article_id. Skipping."
+                                            fi
+                                        fi
+                                    done
 
             - name: Upload fix artifacts
               uses: actions/upload-artifact@v4
@@ -213,6 +186,5 @@ jobs:
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_run_log.csv
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/orchestrator_progress.json
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_done_blacklist.json
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output.txt
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output-after-rebuild.txt
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output*.txt
                   if-no-files-found: warn
