@@ -47,41 +47,10 @@ env_paths = [
 for env_path in env_paths:
     if env_path.exists():
         load_dotenv(env_path)
-        sources = [
-            (
-                "https://www.nih.gov",
-                f"NIH — Evidence-based health references related to {topic}",
-            ),
-            (
-                "https://www.cdc.gov",
-                f"CDC — Safety guidance and exposure considerations for {topic}",
-            ),
-            (
-                "https://www.epa.gov",
-                f"EPA — Environmental and usage guidance connected to {topic}",
-            ),
-            (
-                "https://extension.psu.edu",
-                f"Extension — Practical how-to resources relevant to {topic}",
-            ),
-            (
-                "https://www.fao.org",
-                f"FAO — Reference material that can inform best practices for {topic}",
-            ),
-            (
-                "https://nchfp.uga.edu",
-                f"NCHFP — Preservation and handling references when applicable to {topic}",
-            ),
-        ]
-        items = "\n".join(
-            [
-                f'<li><a href="{url}" target="_blank" rel="nofollow noopener">{text}</a></li>'
-                for url, text in sources
-            ]
-        )
 BACKOFF_BASE_SECONDS = 120
 BACKOFF_MAX_SECONDS = 600
 BACKOFF_JITTER_SECONDS = 30
+PROGRESS_FILE = Path(__file__).parent / "progress.json"
 
 
 # ============================================================================
@@ -812,7 +781,7 @@ class AIOrchestrator:
 """
 
     def _build_comparison_table(self, topic: str) -> str:
-                return f"""
+        return f"""
 <div style="overflow-x:auto;">
 <table style="width:100%; border-collapse:collapse; line-height:1.6; table-layout:auto; word-wrap:break-word;">
   <thead>
