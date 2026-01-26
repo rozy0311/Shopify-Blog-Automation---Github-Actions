@@ -65,15 +65,33 @@ def main() -> int:
         "created_at": now,
         "updated_at": now,
         "missing": [
-            {"severity": "CRITICAL", "category": "Citations", "message": "Missing citations"},
-            {"severity": "CRITICAL", "category": "Statistics", "message": "Missing statistics"},
-            {"severity": "CRITICAL", "category": "Expert Quotes", "message": "Missing expert quotes"},
-            {"severity": "CRITICAL", "category": "Word Count", "message": "Below target word count"},
+            {
+                "severity": "CRITICAL",
+                "category": "Citations",
+                "message": "Missing citations",
+            },
+            {
+                "severity": "CRITICAL",
+                "category": "Statistics",
+                "message": "Missing statistics",
+            },
+            {
+                "severity": "CRITICAL",
+                "category": "Expert Quotes",
+                "message": "Missing expert quotes",
+            },
+            {
+                "severity": "CRITICAL",
+                "category": "Word Count",
+                "message": "Below target word count",
+            },
         ],
     }
 
     CONTENT_DIR.mkdir(parents=True, exist_ok=True)
-    QUEUE_PATH.write_text(json.dumps([item], ensure_ascii=False, indent=2), encoding="utf-8")
+    QUEUE_PATH.write_text(
+        json.dumps([item], ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(f"Meta fix queue created for article {article_id}.")
     return 0
 
