@@ -86,10 +86,38 @@ jobs:
               if: steps.queue_check.outputs.needs_refresh == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                                    SCAN_LIMIT=50 python scan_issues_now.py
+                  SCAN_LIMIT=50 python scan_issues_now.py
+
+            - name: Ensure articles_to_fix.json exists
+              if: steps.queue_check.outputs.needs_refresh == 'true'
+              id: fix_list
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
+
+                  path = Path('articles_to_fix.json')
+                  if not path.exists():
+                      path.write_text('[]', encoding='utf-8')
+
+                  try:
+                      items = json.loads(path.read_text(encoding='utf-8'))
+                  except json.JSONDecodeError:
+                      items = []
+                      path.write_text('[]', encoding='utf-8')
+
+                  has_items = 'true' if items else 'false'
+                  output_path = os.environ.get('GITHUB_OUTPUT')
+                  if output_path:
+                      with open(output_path, 'a', encoding='utf-8') as f:
+                          f.write(f'has_items={has_items}\n')
+                  print(f'articles_to_fix count: {len(items)}')
+                  PY
 
             - name: Rotate queue to avoid repeat
-              if: steps.queue_check.outputs.needs_refresh == 'true'
+                            if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   python - <<'PY'
@@ -114,7 +142,7 @@ jobs:
                   PY
 
             - name: Init anti-drift queue
-              if: steps.queue_check.outputs.needs_refresh == 'true'
+                            if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   python ai_orchestrator.py queue-init
