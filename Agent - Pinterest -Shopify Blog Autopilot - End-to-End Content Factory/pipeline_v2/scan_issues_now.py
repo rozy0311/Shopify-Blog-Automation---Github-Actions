@@ -1,6 +1,8 @@
 import os
 import requests
 import json
+import re
+from bs4 import BeautifulSoup
 
 SHOP = os.environ.get("SHOPIFY_SHOP", "the-rike-inc.myshopify.com")
 TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get("SHOPIFY_TOKEN")
@@ -32,6 +34,15 @@ if response.status_code == 200:
         has_image = bool(art.get("image"))
         body = art.get("body_html", "") or ""
         img_count = body.count("<img")
+        soup = BeautifulSoup(body, "html.parser")
+        text = soup.get_text(" ", strip=True)
+        word_count = len(re.findall(r"\w+", text))
+        h2_count = len(soup.find_all("h2"))
+        links = [a for a in soup.find_all("a", href=True) if a["href"].startswith("http")]
+        hidden_links = [a for a in links if "http" not in a.get_text(" ", strip=True).lower()]
+        hidden_link_count = len(hidden_links)
+        source_links = [a for a in hidden_links if "—" in a.get_text(" ", strip=True)]
+        source_link_count = len(source_links)
         has_broken = (
             "Cdn Shopify" in body
             or "Image Pollinations" in body
@@ -47,6 +58,14 @@ if response.status_code == 200:
             issues.append(f"LOW_IMGS:{img_count}")
         if has_broken:
             issues.append("BROKEN_TEXT")
+        if h2_count < 11:
+            issues.append(f"LOW_H2:{h2_count}")
+        if word_count < 1800 or word_count > 2500:
+            issues.append(f"WORD_COUNT:{word_count}")
+        if hidden_link_count < 2:
+            issues.append(f"LOW_HIDDEN_LINKS:{hidden_link_count}")
+        if source_link_count < 5:
+            issues.append(f"LOW_SOURCE_LINKS:{source_link_count}")
 
         if issues:
             all_issues.append({"id": art_id, "title": title, "issues": issues})
