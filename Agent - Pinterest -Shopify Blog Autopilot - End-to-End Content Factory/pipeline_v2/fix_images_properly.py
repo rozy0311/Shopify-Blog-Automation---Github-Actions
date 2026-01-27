@@ -20,10 +20,14 @@ import re
 import json
 import time
 import os
+import random
 from urllib.parse import quote
 
 # Shopify Config
-SHOP = os.environ.get("SHOPIFY_SHOP", "the-rike-inc.myshopify.com")
+SHOP = (os.environ.get("SHOPIFY_SHOP", "the-rike-inc.myshopify.com") or "").strip()
+if "." not in SHOP or "myshopify.com" not in SHOP:
+    print("⚠️ Invalid SHOPIFY_SHOP; falling back to the-rike-inc.myshopify.com")
+    SHOP = "the-rike-inc.myshopify.com"
 BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID", "108441862462")
 TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get("SHOPIFY_TOKEN")
 API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
@@ -37,7 +41,7 @@ MATCHED_DATA_FILE = "../scripts/matched_drafts_pinterest.json"
 # Quality settings for Pollinations
 QUALITY = "professional photography, high resolution, 8K, detailed, sharp focus, beautiful lighting"
 
-# Optional vision review (disable by default)
+# Optional vision review (auto-enable when key is present)
 VISION_REVIEW = os.environ.get("VISION_REVIEW", "").lower() in {
     "1",
     "true",
@@ -48,8 +52,12 @@ VISION_API_BASE = os.environ.get(
 )
 VISION_MODEL_ID = os.environ.get("VISION_MODEL_ID", "openai/gpt-4o-mini")
 VISION_API_KEY = os.environ.get("VISION_API_KEY", "")
-VISION_TIMEOUT = 20
-VISION_MAX_ATTEMPTS = 4
+if VISION_API_KEY and not VISION_REVIEW:
+    VISION_REVIEW = True
+VISION_TIMEOUT = int(os.environ.get("VISION_TIMEOUT", "30"))
+VISION_MAX_ATTEMPTS = int(os.environ.get("VISION_MAX_ATTEMPTS", "6"))
+VISION_RETRY_SLEEP = float(os.environ.get("VISION_RETRY_SLEEP", "6"))
+VISION_BACKOFF_FACTOR = float(os.environ.get("VISION_BACKOFF_FACTOR", "1.8"))
 
 
 def load_matched_data():
@@ -166,8 +174,8 @@ def vision_review_image(image_url: str):
 
 
 def is_vision_safe(result) -> bool:
-    if not result:
-        return True
+    if result is None:
+        return False
     if result.get("has_hands") or result.get("has_people"):
         return False
     if result.get("safe") is False:
@@ -181,18 +189,36 @@ def generate_valid_pollinations_image(
     height: int,
     seed_base: int,
     max_attempts: int = VISION_MAX_ATTEMPTS,
+    used_urls: set | None = None,
 ):
+    used_urls = used_urls or set()
     for attempt in range(max_attempts):
         seed = seed_base + attempt
         poll_url = get_pollinations_url(prompt, width, height, seed=seed)
+        if poll_url in used_urls:
+            continue
         vision_result = vision_review_image(poll_url)
-        if vision_result and not is_vision_safe(vision_result):
+        if VISION_REVIEW and not is_vision_safe(vision_result):
             print(f"    ⚠️ Vision reject: {vision_result}")
+            sleep_s = VISION_RETRY_SLEEP * (VISION_BACKOFF_FACTOR**attempt)
+            time.sleep(min(sleep_s, 30))
             continue
         img_bytes = download_image(poll_url)
         if img_bytes:
+            used_urls.add(poll_url)
             return img_bytes, poll_url, vision_result
+        sleep_s = VISION_RETRY_SLEEP * (VISION_BACKOFF_FACTOR**attempt)
+        time.sleep(min(sleep_s, 30))
     return None, None, None
+
+
+def _extract_existing_image_urls(body_html: str) -> set:
+    urls = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', body_html or "")
+    return {url.strip() for url in urls if url}
+
+
+def _seed_base(article_id: int) -> int:
+    return int(time.time()) % 100000 + int(article_id) % 1000 + random.randint(1, 999)
 
 
 def upload_to_shopify_cdn(image_bytes: bytes, filename: str) -> str:
@@ -394,8 +420,9 @@ def generate_topic_specific_prompts(title: str) -> dict:
         },
         "inline1": {
             "prompt": (
-                f"Close-up detailed view of {main_subject} materials and setup, professional photography, "
-                f"soft natural lighting, 4k, no text, no watermark, {QUALITY}, {safety_suffix}"
+                f"Materials and ingredients for {main_subject}, overhead flat lay, clean background, "
+                f"professional photography, soft natural lighting, 4k, no text, no watermark, "
+                f"{QUALITY}, {safety_suffix}"
             ),
             "alt": f"Materials for {main_subject}",
         },
@@ -571,6 +598,7 @@ def fix_article_images(
     article = response.json()["article"]
     title = article["title"]
     body_html = article["body_html"]
+    existing_urls = _extract_existing_image_urls(body_html)
 
     print(f"\n{'='*60}")
     print(f"📝 {title}")
@@ -589,6 +617,13 @@ def fix_article_images(
     print(f"   Inline1: {prompts['inline1']['alt']}")
     print(f"   Inline2: {prompts['inline2']['alt']}")
     print(f"   Inline3: {prompts['inline3']['alt']}")
+
+    if not VISION_REVIEW:
+        print("\n❌ VISION_REVIEW=1 is required to publish images.")
+        return False
+    if not VISION_API_KEY:
+        print("\n❌ VISION_API_KEY is required for vision review.")
+        return False
 
     if dry_run:
         print("\n🔍 DRY RUN - No changes made")
@@ -614,7 +649,10 @@ def fix_article_images(
     print("\n🖼️ Generating topic-specific AI images...")
 
     cdn_urls = []
+    used_poll_urls = set(existing_urls)
+    used_cdn_urls = set(existing_urls)
     featured_b64 = None
+    seed_base = _seed_base(article_id)
 
     # Featured image
     print("\n  [1/4] Featured image:")
@@ -622,7 +660,8 @@ def fix_article_images(
         prompts["featured"]["prompt"],
         1200,
         800,
-        seed_base=article_id % 1000,
+        seed_base=seed_base,
+        used_urls=used_poll_urls,
     )
     if featured_bytes:
         import base64
@@ -632,19 +671,38 @@ def fix_article_images(
     # Inline images
     for i, key in enumerate(["inline1", "inline2", "inline3"], 1):
         print(f"\n  [{i+1}/4] {prompts[key]['alt']}:")
-        img_bytes, _, _ = generate_valid_pollinations_image(
-            prompts[key]["prompt"],
-            1000,
-            667,
-            seed_base=article_id % 1000 + i,
-        )
-
-        if img_bytes:
-            cdn_url = upload_to_shopify_cdn(
-                img_bytes, f"article_{article_id}_{key}.jpg"
+        img_bytes = None
+        cdn_url = None
+        for attempt in range(VISION_MAX_ATTEMPTS):
+            img_bytes, _, _ = generate_valid_pollinations_image(
+                prompts[key]["prompt"],
+                1000,
+                667,
+                seed_base=seed_base + (i * 100) + attempt,
+                used_urls=used_poll_urls,
             )
-            if cdn_url:
-                cdn_urls.append((cdn_url, prompts[key]["alt"]))
+            if not img_bytes:
+                continue
+            cdn_url = upload_to_shopify_cdn(
+                img_bytes, f"article_{article_id}_{key}_{attempt}.jpg"
+            )
+            if not cdn_url:
+                continue
+            if cdn_url in used_cdn_urls:
+                print("    ⚠️ Duplicate CDN URL detected, regenerating...")
+                sleep_s = VISION_RETRY_SLEEP * (VISION_BACKOFF_FACTOR**attempt)
+                time.sleep(min(sleep_s, 30))
+                continue
+            used_cdn_urls.add(cdn_url)
+            cdn_urls.append((cdn_url, prompts[key]["alt"]))
+            break
+
+    if featured_b64 is None or len(cdn_urls) < 3:
+        print(
+            f"\n❌ Image generation incomplete: featured={bool(featured_b64)} inline={len(cdn_urls)}/3"
+        )
+        print("   Skipping update to avoid bad images.")
+        return False
 
     # Step 3: Add Pinterest image if available
     if pinterest_image_url:
@@ -671,14 +729,20 @@ def fix_article_images(
         )
 
     # AI images distributed throughout
-    if total_paras >= 9:
-        ai_positions = [3, total_paras // 2, total_paras - 3]
-    elif total_paras >= 6:
-        ai_positions = [2, 4, total_paras - 2]
-    else:
-        ai_positions = (
-            [1, 2, 3] if total_paras >= 4 else list(range(min(3, total_paras)))
-        )
+    def _even_positions(total: int, n: int) -> list[int]:
+        if total <= 0:
+            return []
+        positions = []
+        for idx in range(n):
+            pos = int(((idx + 1) * total) / (n + 1))
+            pos = max(0, min(total - 1, pos))
+            positions.append(pos)
+        # ensure unique and sorted
+        return sorted(set(positions), reverse=False)
+
+    ai_positions = _even_positions(total_paras, len(cdn_urls))
+    if len(ai_positions) < len(cdn_urls):
+        ai_positions = list(range(min(len(cdn_urls), total_paras)))
 
     for i, (cdn_url, alt) in enumerate(cdn_urls):
         if i < len(ai_positions):

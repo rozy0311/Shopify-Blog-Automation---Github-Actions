@@ -24,6 +24,10 @@ jobs:
             VISION_REVIEW: "1"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             FIX_MAX_ITEMS: "50"
+            PASS_RATE_ENFORCE: "1"
+            MIN_PASS_RATE: "0.95"
+            PASS_RATE_WINDOW: "20"
+            PASS_RATE_MIN_SAMPLES: "10"
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -161,6 +165,10 @@ jobs:
               run: |
                   set -euo pipefail
                   if [ ! -f "anti_drift_queue.json" ]; then
+                      echo "Queue missing; re-initializing."
+                      python ai_orchestrator.py queue-init || true
+                  fi
+                  if [ ! -f "anti_drift_queue.json" ]; then
                       echo "No queue found; skipping fix loop."
                       exit 0
                   fi
@@ -213,6 +221,7 @@ PY
                           review_status_after=${PIPESTATUS[0]}
                           set -e
                           if [ "$review_status_after" != "0" ]; then
+                              python ai_orchestrator.py queue-review "$article_id" fail "PRE_PUBLISH_REVIEW_FAIL"
                               echo "Pre-publish review failed after rebuild for $article_id. Skipping."
                           fi
                       fi
