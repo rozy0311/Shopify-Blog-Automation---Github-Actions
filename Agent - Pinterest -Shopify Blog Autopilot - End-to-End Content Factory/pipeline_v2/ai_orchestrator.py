@@ -71,6 +71,7 @@ ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done_blacklist.json"
 ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
 ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 PRE_PUBLISH_REVIEW_SCRIPT = AGENT_DIR / "scripts" / "pre_publish_review.py"
+BACKUP_DIR = PIPELINE_DIR / "backups_auto_fix"
 
 
 # ============================================================================
@@ -790,6 +791,43 @@ class AIOrchestrator:
             self.progress["consecutive_fail_count"] = 1
         self._save_progress()
 
+    def _backup_article(self, article: dict) -> Path | None:
+        article_id = str(article.get("id")) if article else ""
+        if not article_id:
+            return None
+        BACKUP_DIR.mkdir(exist_ok=True)
+        backup_file = BACKUP_DIR / f"{article_id}_backup.json"
+        with open(backup_file, "w", encoding="utf-8") as f:
+            json.dump(article, f, indent=2, ensure_ascii=False)
+        return backup_file
+
+    def _restore_backup(self, article_id: str) -> bool:
+        backup_file = BACKUP_DIR / f"{article_id}_backup.json"
+        if not backup_file.exists():
+            return False
+        try:
+            backup_data = json.loads(backup_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return False
+
+        url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
+        payload = {
+            "article": {
+                "id": int(article_id),
+                "title": backup_data.get("title"),
+                "body_html": backup_data.get("body_html"),
+                "summary_html": backup_data.get("summary_html"),
+                "tags": backup_data.get("tags"),
+                "author": backup_data.get("author"),
+                "handle": backup_data.get("handle"),
+            }
+        }
+        if backup_data.get("image"):
+            payload["article"]["image"] = backup_data["image"]
+
+        resp = requests.put(url, headers=HEADERS, json=payload)
+        return resp.status_code == 200
+
     def _run_pre_publish_review(self, article_id: str) -> tuple[bool, str]:
         """Run pre_publish_review.py and return (passed, error_msg)."""
         if not PRE_PUBLISH_REVIEW_SCRIPT.exists():
@@ -1441,6 +1479,7 @@ class AIOrchestrator:
                 return
 
             review_fail_type = self._classify_fail_type(review_error)
+            self._restore_backup(article_id)
             if use_backoff and failures < MAX_QUEUE_RETRIES:
                 retry_at = self._next_retry_at(failures + 1)
                 queue.mark_retry(article_id, review_error, retry_at, fail_type=review_fail_type)
@@ -1494,6 +1533,7 @@ class AIOrchestrator:
                 return
 
             review_fail_type = self._classify_fail_type(review_error)
+            self._restore_backup(article_id)
             if use_backoff and failures < MAX_QUEUE_RETRIES:
                 retry_at = self._next_retry_at(failures + 1)
                 queue.mark_retry(article_id, review_error, retry_at, fail_type=review_fail_type)
@@ -1715,6 +1755,7 @@ class AIOrchestrator:
                     )
                     print("✅ Auto-fix PASS + Review PASS")
                 else:
+                    self._restore_backup(article_id)
                     if queue:
                         queue.mark_manual_review(article_id, review_error)
                         queue.save()
@@ -1803,6 +1844,7 @@ class AIOrchestrator:
         if not article:
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
+        self._backup_article(article)
         audit = self.quality_gate.full_audit(article)
         issues_text = "; ".join(audit.get("issues", []))
 
@@ -1851,6 +1893,7 @@ class AIOrchestrator:
         if not article:
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
+        self._backup_article(article)
         title = article.get("title", "")
         body_html = self._build_article_body(title)
         meta_description = self._build_meta_description(title)
@@ -1901,6 +1944,7 @@ class AIOrchestrator:
                     )
                     print("✅ Force rebuild PASS + Review PASS")
                 else:
+                    self._restore_backup(article_id)
                     if queue:
                         queue.mark_manual_review(article_id, review_error)
                         queue.save()
