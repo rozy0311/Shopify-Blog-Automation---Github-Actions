@@ -50,14 +50,18 @@ for env_path in env_paths:
 BACKOFF_BASE_SECONDS = 120
 BACKOFF_MAX_SECONDS = 600
 BACKOFF_JITTER_SECONDS = 30
+MAX_QUEUE_RETRIES = int(os.environ.get("MAX_QUEUE_RETRIES", "2"))
+MAX_CONSECUTIVE_FAILS = int(os.environ.get("MAX_CONSEC_FAILS", "3"))
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
 PIPELINE_DIR = Path(__file__).parent
 ROOT_DIR = PIPELINE_DIR.parent.parent
-ANTI_DRIFT_QUEUE_FILE = ROOT_DIR / "anti_drift_queue.json"
-ANTI_DRIFT_RUN_LOG_FILE = ROOT_DIR / "anti_drift_run_log.csv"
-ANTI_DRIFT_DONE_FILE = ROOT_DIR / "anti_drift_done.json"
+AGENT_DIR = PIPELINE_DIR.parent
+ANTI_DRIFT_QUEUE_FILE = PIPELINE_DIR / "anti_drift_queue.json"
+ANTI_DRIFT_RUN_LOG_FILE = PIPELINE_DIR / "anti_drift_run_log.csv"
+ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done_blacklist.json"
 ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
 ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
+PRE_PUBLISH_REVIEW_SCRIPT = AGENT_DIR / "scripts" / "pre_publish_review.py"
 
 
 # ============================================================================
@@ -163,34 +167,59 @@ def _file_sha256(path: Path) -> str:
 
 
 def _ensure_run_log_header():
+    header = [
+        "timestamp",
+        "article_id",
+        "title",
+        "status",
+        "fail_type",
+        "attempts",
+        "failures",
+        "gate_score",
+        "gate_pass",
+        "issues",
+        "spec_hash",
+        "goldens_hash",
+    ]
     if ANTI_DRIFT_RUN_LOG_FILE.exists():
+        with open(ANTI_DRIFT_RUN_LOG_FILE, "r", encoding="utf-8") as f:
+            first_line = f.readline().strip()
+        if first_line == ",".join(header):
+            return
+        rows = []
+        with open(ANTI_DRIFT_RUN_LOG_FILE, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            existing = list(reader)
+        if existing and existing[0]:
+            rows = existing[1:]
+        with open(ANTI_DRIFT_RUN_LOG_FILE, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            for row in rows:
+                padded = row + [""] * (len(header) - len(row))
+                writer.writerow(padded[: len(header)])
         return
     with open(ANTI_DRIFT_RUN_LOG_FILE, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(
-            [
-                "timestamp",
-                "article_id",
-                "title",
-                "status",
-                "gate_score",
-                "gate_pass",
-                "issues",
-                "spec_hash",
-                "goldens_hash",
-            ]
-        )
+        writer.writerow(header)
 
 
 def _load_done_blacklist() -> set[str]:
-    if not ANTI_DRIFT_DONE_FILE.exists():
-        return set()
-    try:
-        payload = json.loads(ANTI_DRIFT_DONE_FILE.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return set()
-    ids = payload.get("done_ids", []) if isinstance(payload, dict) else payload
-    return {str(x) for x in ids}
+    candidates = [
+        ANTI_DRIFT_DONE_FILE,
+        ROOT_DIR / "anti_drift_done.json",
+        ROOT_DIR / "anti_drift_done_blacklist.json",
+    ]
+    for path in candidates:
+        if not path.exists():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        ids = payload.get("done_ids", []) if isinstance(payload, dict) else payload
+        return {str(x) for x in ids}
+    return set()
 
 
 def _save_done_blacklist(done_ids: set[str]) -> None:
@@ -304,13 +333,16 @@ class AntiDriftQueue:
     def mark_manual_review(self, article_id: str, error: str):
         self._update_status(article_id, "manual_review", last_error=error)
 
-    def mark_retry(self, article_id: str, error: str, retry_at: datetime):
+    def mark_retry(
+        self, article_id: str, error: str, retry_at: datetime, fail_type: str | None = None
+    ):
         self._update_status(
             article_id,
             "retrying",
             last_error=error,
             retry_at=retry_at.isoformat(),
             increment_failures=True,
+            fail_type=fail_type,
         )
 
     def _update_status(
@@ -321,6 +353,7 @@ class AntiDriftQueue:
         shopify_url: str | None = None,
         retry_at: str | None = None,
         increment_failures: bool = False,
+        fail_type: str | None = None,
     ):
         for item in self.payload.get("items", []):
             if str(item.get("id")) == str(article_id):
@@ -328,6 +361,8 @@ class AntiDriftQueue:
                 item["attempts"] = int(item.get("attempts", 0)) + 1
                 if increment_failures:
                     item["failures"] = int(item.get("failures", 0)) + 1
+                if fail_type:
+                    item["fail_type"] = fail_type
                 item["last_error"] = last_error
                 if retry_at:
                     item["retry_at"] = retry_at
@@ -704,6 +739,8 @@ class AIOrchestrator:
             "failed": [],
             "fixed": [],
             "pending": [],
+            "consecutive_fail_type": None,
+            "consecutive_fail_count": 0,
         }
 
     def _save_progress(self):
@@ -711,6 +748,87 @@ class AIOrchestrator:
         self.progress["last_run"] = datetime.now().isoformat()
         with open(PROGRESS_FILE, "w", encoding="utf-8") as f:
             json.dump(self.progress, f, indent=2, ensure_ascii=False)
+
+    def _classify_fail_type(self, error_text: str) -> str:
+        text = (error_text or "").lower()
+        if "duplicate image" in text or "duplicate images" in text:
+            return "DUP_EXACT"
+        if "pre_publish_review" in text or "pre-publish" in text:
+            return "PRE_PUBLISH_REVIEW_FAIL"
+        if "raw urls" in text or "sources" in text:
+            return "VALIDATION_FAIL"
+        if "word count" in text or "missing sections" in text:
+            return "VALIDATION_FAIL"
+        if "generic phrases" in text or "off-topic" in text:
+            return "DRIFT"
+        if "image" in text or "asset" in text:
+            return "ASSET_MISSING"
+        if "update_failed" in text or "fetch" in text or "not_found" in text:
+            return "API_FAIL"
+        if "hallucination" in text:
+            return "HALLUCINATION"
+        return "UNKNOWN"
+
+    def _record_fail_streak(self, fail_type: str) -> None:
+        if not fail_type:
+            return
+        if self.progress.get("consecutive_fail_type") == fail_type:
+            self.progress["consecutive_fail_count"] = int(
+                self.progress.get("consecutive_fail_count", 0)
+            ) + 1
+        else:
+            self.progress["consecutive_fail_type"] = fail_type
+            self.progress["consecutive_fail_count"] = 1
+        self._save_progress()
+
+    def _run_pre_publish_review(self, article_id: str) -> tuple[bool, str]:
+        """Run pre_publish_review.py and return (passed, error_msg)."""
+        if not PRE_PUBLISH_REVIEW_SCRIPT.exists():
+            return False, "PRE_PUBLISH_REVIEW_SCRIPT_MISSING"
+
+        output_path = PIPELINE_DIR / f"review-output-{article_id}.txt"
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                result = subprocess.run(
+                    [sys.executable, str(PRE_PUBLISH_REVIEW_SCRIPT), str(article_id)],
+                    stdout=f,
+                    stderr=subprocess.STDOUT,
+                    env=os.environ.copy(),
+                    check=False,
+                )
+        except Exception as exc:
+            return False, f"PRE_PUBLISH_REVIEW_ERROR: {exc}"
+
+        if result.returncode == 0:
+            return True, ""
+        return False, "PRE_PUBLISH_REVIEW_FAIL"
+
+    def _recent_pass_rate_ok(self) -> bool:
+        """Optional guardrail: stop if recent pass rate < threshold."""
+        enforce = os.environ.get("PASS_RATE_ENFORCE", "").lower() in {"1", "true", "yes"}
+        if not enforce:
+            return True
+
+        if not ANTI_DRIFT_RUN_LOG_FILE.exists():
+            return True
+
+        min_rate = float(os.environ.get("MIN_PASS_RATE", "0.95"))
+        window = int(os.environ.get("PASS_RATE_WINDOW", "20"))
+        min_samples = int(os.environ.get("PASS_RATE_MIN_SAMPLES", "10"))
+
+        with open(ANTI_DRIFT_RUN_LOG_FILE, "r", encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+
+        if len(rows) < min_samples:
+            return True
+
+        recent = rows[-window:] if window > 0 else rows
+        if not recent:
+            return True
+
+        passed = sum(1 for r in recent if str(r.get("gate_pass", "")).lower() in {"true", "1"})
+        rate = passed / max(len(recent), 1)
+        return rate >= min_rate
 
     def _normalize_topic(self, title: str) -> str:
         cleaned = re.sub(r"\s+", " ", re.sub(r"[^A-Za-z0-9\s\-]", " ", title))
@@ -1016,6 +1134,7 @@ class AIOrchestrator:
                     "--article-id",
                     str(article_id),
                 ],
+                env={**os.environ, "VISION_REVIEW": "1"},
                 check=False,
             )
 
@@ -1226,6 +1345,8 @@ class AIOrchestrator:
 
     def run_queue_once(self):
         """Process exactly one article from the anti-drift queue."""
+        if not self._recent_pass_rate_ok():
+            raise SystemExit(3)
         queue = AntiDriftQueue.load()
         item = queue.next_pending()
         if not item:
@@ -1236,6 +1357,8 @@ class AIOrchestrator:
 
     def run_queue_once_with_backoff(self):
         """Process exactly one eligible item with retry/backoff support."""
+        if not self._recent_pass_rate_ok():
+            raise SystemExit(3)
         queue = AntiDriftQueue.load()
         item = queue.next_eligible()
         if not item:
@@ -1261,15 +1384,21 @@ class AIOrchestrator:
         article = self.api.get_article(article_id)
         if not article:
             error = "ARTICLE_NOT_FOUND"
+            fail_type = self._classify_fail_type(error)
             if use_backoff and failures < MAX_QUEUE_RETRIES:
                 retry_at = self._next_retry_at(failures + 1)
-                queue.mark_retry(article_id, error, retry_at)
+                queue.mark_retry(article_id, error, retry_at, fail_type=fail_type)
                 print(f"⏳ {error} - retry scheduled at {retry_at.isoformat()}")
             else:
                 queue.mark_failed(article_id, error)
                 print(f"❌ {error}")
             queue.save()
-            self._append_run_log(article_id, title, "failed", 0, False, error)
+            self._append_run_log(
+                article_id, title, "failed", 0, False, error, fail_type=fail_type
+            )
+            self._record_fail_streak(fail_type)
+            if self.progress.get("consecutive_fail_count", 0) >= MAX_CONSECUTIVE_FAILS:
+                raise SystemExit(2)
             return
 
         audit = self.quality_gate.full_audit(article)
@@ -1278,20 +1407,58 @@ class AIOrchestrator:
         gate_pass = gate.get("pass", False)
 
         if gate_pass:
-            queue.mark_done(article_id)
+            review_pass, review_error = self._run_pre_publish_review(article_id)
+            if review_pass:
+                queue.mark_done(article_id)
+                queue.save()
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "done",
+                    gate_score,
+                    True,
+                    "; ".join(audit.get("issues", [])[:3]),
+                    fail_type="",
+                    attempts=item.get("attempts"),
+                    failures=item.get("failures"),
+                )
+                print(f"✅ Gate PASS ({gate_score}/10) + Review PASS - Marked DONE")
+                self.progress["consecutive_fail_type"] = None
+                self.progress["consecutive_fail_count"] = 0
+                self._save_progress()
+                return
+
+            review_fail_type = self._classify_fail_type(review_error)
+            if use_backoff and failures < MAX_QUEUE_RETRIES:
+                retry_at = self._next_retry_at(failures + 1)
+                queue.mark_retry(article_id, review_error, retry_at, fail_type=review_fail_type)
+                print(
+                    f"⏳ Review FAIL - retry scheduled at {retry_at.isoformat()}: {review_error}"
+                )
+            else:
+                queue.mark_manual_review(article_id, review_error)
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                print(f"🟡 Review FAIL - manual review queued: {review_error}")
             queue.save()
-            done_ids = _load_done_blacklist()
-            done_ids.add(str(article_id))
-            _save_done_blacklist(done_ids)
             self._append_run_log(
                 article_id,
                 audit.get("title", ""),
-                "done",
+                "failed",
                 gate_score,
-                True,
-                "; ".join(audit.get("issues", [])[:3]),
+                False,
+                review_error,
+                fail_type=review_fail_type,
+                attempts=item.get("attempts"),
+                failures=item.get("failures"),
             )
-            print(f"✅ Gate PASS ({gate_score}/10) - Marked DONE")
+            self._record_fail_streak(review_fail_type)
+            if self.progress.get("consecutive_fail_count", 0) >= MAX_CONSECUTIVE_FAILS:
+                raise SystemExit(2)
             return
 
         # Attempt auto-fix before retry/manual review
@@ -1299,20 +1466,50 @@ class AIOrchestrator:
         if fix_result.get("status") == "done":
             fixed_audit = fix_result.get("audit", {})
             fixed_gate = fixed_audit.get("deterministic_gate", {})
-            queue.mark_done(article_id)
+            review_pass, review_error = self._run_pre_publish_review(article_id)
+            if review_pass:
+                queue.mark_done(article_id)
+                queue.save()
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                self._append_run_log(
+                    article_id,
+                    fixed_audit.get("title", ""),
+                    "done",
+                    fixed_gate.get("score", 0),
+                    True,
+                    "auto_fix",
+                )
+                print("✅ Auto-fix PASS + Review PASS - Marked DONE")
+                return
+
+            review_fail_type = self._classify_fail_type(review_error)
+            if use_backoff and failures < MAX_QUEUE_RETRIES:
+                retry_at = self._next_retry_at(failures + 1)
+                queue.mark_retry(article_id, review_error, retry_at, fail_type=review_fail_type)
+                print(
+                    f"⏳ Review FAIL - retry scheduled at {retry_at.isoformat()}: {review_error}"
+                )
+            else:
+                queue.mark_manual_review(article_id, review_error)
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                print(f"🟡 Review FAIL - manual review queued: {review_error}")
             queue.save()
-            done_ids = _load_done_blacklist()
-            done_ids.add(str(article_id))
-            _save_done_blacklist(done_ids)
             self._append_run_log(
                 article_id,
                 fixed_audit.get("title", ""),
-                "done",
+                "failed",
                 fixed_gate.get("score", 0),
-                True,
-                "auto_fix",
+                False,
+                review_error,
+                fail_type=review_fail_type,
             )
-            print("✅ Auto-fix PASS - Marked DONE")
+            self._record_fail_streak(review_fail_type)
+            if self.progress.get("consecutive_fail_count", 0) >= MAX_CONSECUTIVE_FAILS:
+                raise SystemExit(2)
             return
 
         error_msg = fix_result.get("error") or "; ".join(
@@ -1320,9 +1517,10 @@ class AIOrchestrator:
         )
         if not error_msg:
             error_msg = "; ".join(audit.get("issues", [])[:3]) or "GATE_FAIL"
+        fail_type = self._classify_fail_type(error_msg)
         if use_backoff and failures < MAX_QUEUE_RETRIES:
             retry_at = self._next_retry_at(failures + 1)
-            queue.mark_retry(article_id, error_msg, retry_at)
+            queue.mark_retry(article_id, error_msg, retry_at, fail_type=fail_type)
             print(
                 f"⏳ Gate FAIL ({gate_score}/10) - retry scheduled at {retry_at.isoformat()}: {error_msg}"
             )
@@ -1340,7 +1538,13 @@ class AIOrchestrator:
             gate_score,
             False,
             error_msg,
+            fail_type=fail_type,
+            attempts=item.get("attempts"),
+            failures=item.get("failures"),
         )
+        self._record_fail_streak(fail_type)
+        if self.progress.get("consecutive_fail_count", 0) >= MAX_CONSECUTIVE_FAILS:
+            raise SystemExit(2)
 
     def fix_failed_batch(self, limit: int = 15):
         """Attempt fixes for failed items, then re-audit."""
@@ -1485,20 +1689,38 @@ class AIOrchestrator:
             print(f"\n[{idx}/{len(article_ids)}] Fixing {article_id}...")
             result = self._auto_fix_article(article_id)
             if result.get("status") == "done":
-                if queue:
-                    queue.mark_done(article_id)
-                    queue.save()
-                audit = result.get("audit", {})
-                gate = audit.get("deterministic_gate", {})
-                self._append_run_log(
-                    article_id,
-                    audit.get("title", ""),
-                    "done",
-                    gate.get("score", 0),
-                    True,
-                    "manual_review_fix",
-                )
-                print("✅ Auto-fix PASS")
+                review_pass, review_error = self._run_pre_publish_review(article_id)
+                if review_pass:
+                    if queue:
+                        queue.mark_done(article_id)
+                        queue.save()
+                    audit = result.get("audit", {})
+                    gate = audit.get("deterministic_gate", {})
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "done",
+                        gate.get("score", 0),
+                        True,
+                        "manual_review_fix",
+                    )
+                    print("✅ Auto-fix PASS + Review PASS")
+                else:
+                    if queue:
+                        queue.mark_manual_review(article_id, review_error)
+                        queue.save()
+                    audit = result.get("audit", {})
+                    gate = audit.get("deterministic_gate", {}) if audit else {}
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "failed",
+                        gate.get("score", 0),
+                        False,
+                        review_error,
+                        fail_type=self._classify_fail_type(review_error),
+                    )
+                    print(f"🟡 Review FAIL: {review_error}")
             else:
                 audit = result.get("audit", {})
                 gate = audit.get("deterministic_gate", {}) if audit else {}
@@ -1529,6 +1751,7 @@ class AIOrchestrator:
         try:
             subprocess.run(
                 [sys.executable, str(script_path), "--article-id", str(article_id)],
+                env={**os.environ, "VISION_REVIEW": "1"},
                 check=False,
             )
         except Exception as e:
@@ -1652,20 +1875,38 @@ class AIOrchestrator:
             print(f"\n[{idx}/{len(article_ids)}] Rebuilding {article_id}...")
             result = self._force_rebuild_article(article_id)
             if result.get("status") == "done":
-                if queue:
-                    queue.mark_done(article_id)
-                    queue.save()
-                audit = result.get("audit", {})
-                gate = audit.get("deterministic_gate", {})
-                self._append_run_log(
-                    article_id,
-                    audit.get("title", ""),
-                    "done",
-                    gate.get("score", 0),
-                    True,
-                    "force_rebuild",
-                )
-                print("✅ Force rebuild PASS")
+                review_pass, review_error = self._run_pre_publish_review(article_id)
+                if review_pass:
+                    if queue:
+                        queue.mark_done(article_id)
+                        queue.save()
+                    audit = result.get("audit", {})
+                    gate = audit.get("deterministic_gate", {})
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "done",
+                        gate.get("score", 0),
+                        True,
+                        "force_rebuild",
+                    )
+                    print("✅ Force rebuild PASS + Review PASS")
+                else:
+                    if queue:
+                        queue.mark_manual_review(article_id, review_error)
+                        queue.save()
+                    audit = result.get("audit", {})
+                    gate = audit.get("deterministic_gate", {}) if audit else {}
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "failed",
+                        gate.get("score", 0),
+                        False,
+                        review_error,
+                        fail_type=self._classify_fail_type(review_error),
+                    )
+                    print(f"🟡 Review FAIL: {review_error}")
             else:
                 audit = result.get("audit", {})
                 gate = audit.get("deterministic_gate", {}) if audit else {}
@@ -1757,6 +1998,9 @@ class AIOrchestrator:
         gate_score: int,
         gate_pass: bool,
         issues: str,
+        fail_type: str = "",
+        attempts: int | None = None,
+        failures: int | None = None,
     ):
         _ensure_run_log_header()
         with open(ANTI_DRIFT_RUN_LOG_FILE, "a", newline="", encoding="utf-8") as f:
@@ -1767,6 +2011,9 @@ class AIOrchestrator:
                     article_id,
                     title,
                     status,
+                    fail_type,
+                    attempts if attempts is not None else "",
+                    failures if failures is not None else "",
                     gate_score,
                     gate_pass,
                     issues,
@@ -1868,6 +2115,36 @@ def main():
 
     elif command == "queue-status":
         orchestrator.queue_status()
+    elif command == "queue-review":
+        if len(sys.argv) < 4:
+            print("Usage: python ai_orchestrator.py queue-review <article_id> <pass|fail> [error]")
+            return
+        article_id = sys.argv[2]
+        passed = sys.argv[3].lower() == "pass"
+        error_msg = " ".join(sys.argv[4:]).strip() if len(sys.argv) > 4 else ""
+        queue = AntiDriftQueue.load()
+        fail_type = orchestrator._classify_fail_type(
+            error_msg or "PRE_PUBLISH_REVIEW_FAIL"
+        )
+        if passed:
+            queue.mark_done(article_id)
+        else:
+            queue.mark_manual_review(article_id, error_msg or "PRE_PUBLISH_REVIEW_FAIL")
+            done_ids = _load_done_blacklist()
+            done_ids.add(str(article_id))
+            _save_done_blacklist(done_ids)
+            orchestrator._record_fail_streak(fail_type)
+        queue.save()
+        orchestrator._append_run_log(
+            article_id,
+            "",
+            "done" if passed else "manual_review",
+            0,
+            passed,
+            error_msg or ("review_failed" if not passed else ""),
+            fail_type=fail_type if not passed else "",
+        )
+
 
     elif command == "fix-failed":
         limit = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else 30
