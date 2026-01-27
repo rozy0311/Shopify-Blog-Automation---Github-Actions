@@ -111,6 +111,30 @@ META_PROMPT_CHECKS = {
     "require_sources_section": True,  # Sources & Further Reading section
 }
 
+# Generic phrases to block
+GENERIC_PHRASES = [
+    "this comprehensive guide provides",
+    "this comprehensive guide covers",
+    "this practical guide",
+    "whether you are a beginner",
+    "whether you're a beginner",
+    "professional practitioners recommend",
+    "achieving consistent results requires",
+    "once you've perfected small batches",
+    "scaling up becomes appealing",
+    "making larger batches requires",
+    "heat distribution",
+    "doubling recipes",
+    "measuring cups",
+    "dry ingredients",
+    "wet ingredients",
+    "shelf life 2-4 weeks",
+    "shelf life 3-6 months",
+]
+
+ALLOWED_IMAGE_SOURCES = ["cdn.shopify.com", "i.pinimg.com"]
+DISALLOWED_IMAGE_SOURCES = ["pollinations.ai", "pexels.com"]
+
 # Regex patterns
 YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
 KEBAB_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -202,6 +226,14 @@ def review_article(article_id):
             f"⚠️ WORDS: {word_count} > {REQUIREMENTS['max_words']} (slightly over)"
         )
 
+    # 1b. Generic content check
+    text_lower = re.sub(r"<[^>]+>", " ", body).lower()
+    found_generic = [phrase for phrase in GENERIC_PHRASES if phrase in text_lower]
+    if found_generic:
+        errors.append(
+            f"❌ GENERIC CONTENT: {', '.join(found_generic[:3])}"
+        )
+
     # 2. Main image check
     main_image = article.get("image")
     all_image_urls = []  # Collect all image URLs for validation
@@ -248,6 +280,11 @@ def review_article(article_id):
         is_valid, status = validate_image_url(img_url)
         if not is_valid:
             broken_images.append((img_name, status, img_url[:60]))
+
+        if any(src in img_url for src in DISALLOWED_IMAGE_SOURCES):
+            errors.append(f"❌ DISALLOWED IMAGE SOURCE: {img_name} uses {img_url[:60]}...")
+        if not any(src in img_url for src in ALLOWED_IMAGE_SOURCES):
+            errors.append(f"❌ IMAGE SOURCE NOT ALLOWED: {img_name} uses {img_url[:60]}...")
 
     if broken_images:
         for img_name, status, url_preview in broken_images:
@@ -348,8 +385,8 @@ def review_article(article_id):
         img_srcs = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', body, re.IGNORECASE)
         unique_srcs = set(img_srcs)
         if len(img_srcs) != len(unique_srcs):
-            warnings.append(
-                f"⚠️ DUPLICATE IMAGES: {len(img_srcs) - len(unique_srcs)} duplicate image(s) found"
+            errors.append(
+                f"❌ DUPLICATE IMAGES: {len(img_srcs) - len(unique_srcs)} duplicate image(s) found"
             )
 
     # 13. Heading hierarchy check (H2 should come before H3)
