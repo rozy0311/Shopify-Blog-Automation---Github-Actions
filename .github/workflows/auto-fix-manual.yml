@@ -36,7 +36,7 @@ jobs:
             GCP_PROJECT: ${{ vars.GCP_PROJECT || '' }}
             GCP_LOCATION: ${{ vars.GCP_LOCATION || 'us-central1' }}
             GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'imagen-4.0-fast-generate-001' }}
-            GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcp-sa.json
+            GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-sa.json
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             FIX_MAX_ITEMS: "1"
