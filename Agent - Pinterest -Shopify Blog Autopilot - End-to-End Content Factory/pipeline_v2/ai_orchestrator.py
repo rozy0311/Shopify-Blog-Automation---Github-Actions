@@ -46,7 +46,8 @@ env_paths = [
 ]
 for env_path in env_paths:
     if env_path.exists():
-        load_dotenv(env_path)
+        # Allow closer .env files to override higher-level defaults.
+        load_dotenv(env_path, override=True)
 SHOP = (
     os.environ.get("SHOPIFY_SHOP")
     or os.environ.get("SHOPIFY_STORE_DOMAIN")
@@ -123,6 +124,19 @@ GENERIC_PHRASES = [
     "this comprehensive guide covers",
     "whether you are a beginner",
     "whether you're a beginner",
+    "this guide explains",
+    "you will learn what works",
+    "the focus is on",
+    "by the end, you will know",
+    "taking your understanding to the next level",
+    "advanced considerations and expert insights",
+    "quality over quantity",
+    "building community connections",
+    "continuous learning mindset",
+    "environmental responsibility",
+    "documentation and reflection",
+    "no one succeeds in isolation",
+    "in today's fast-paced world",
     "natural materials vary throughout",
     "professional practitioners recommend",
     "achieving consistent results requires attention",
@@ -141,6 +155,16 @@ GENERIC_PHRASES = [
     "wet ingredients",
     "shelf life 2-4 weeks",
     "shelf life 3-6 months",
+]
+
+GENERIC_SECTION_HEADINGS = [
+    "advanced considerations and expert insights",
+    "timing and seasonal factors",
+    "quality over quantity",
+    "building community connections",
+    "continuous learning mindset",
+    "environmental responsibility",
+    "documentation and reflection",
 ]
 
 # Template contamination keywords
@@ -174,6 +198,35 @@ def _file_sha256(path: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
+
+
+def _remove_generic_sections(body_html: str) -> str:
+    """Remove known generic/off-topic sections and phrases."""
+    if not body_html:
+        return body_html
+    soup = BeautifulSoup(body_html, "html.parser")
+    headings = soup.find_all(re.compile(r"^h[2-6]$", re.IGNORECASE))
+    for heading in headings:
+        text = heading.get_text(" ", strip=True).lower()
+        if any(h in text for h in GENERIC_SECTION_HEADINGS):
+            # Remove heading and content until the next heading
+            next_node = heading.find_next_sibling()
+            heading.decompose()
+            while next_node:
+                if getattr(next_node, "name", None) and re.match(
+                    r"^h[2-6]$", next_node.name, re.IGNORECASE
+                ):
+                    break
+                to_remove = next_node
+                next_node = next_node.find_next_sibling()
+                to_remove.decompose()
+
+    for tag in soup.find_all(["p", "li", "blockquote"]):
+        text = tag.get_text(" ", strip=True).lower()
+        if any(phrase in text for phrase in GENERIC_PHRASES):
+            tag.decompose()
+
+    return str(soup)
 
 
 def _ensure_run_log_header():
@@ -771,6 +824,8 @@ class AIOrchestrator:
             return "VALIDATION_FAIL"
         if "generic phrases" in text or "off-topic" in text:
             return "DRIFT"
+        if "evidence" in text or "no-fetch" in text:
+            return "EVIDENCE_REQUIRED"
         if "image" in text or "asset" in text:
             return "ASSET_MISSING"
         if "update_failed" in text or "fetch" in text or "not_found" in text:
@@ -943,7 +998,10 @@ class AIOrchestrator:
             ),
         ]
         items = "\n".join(
-            [f'<li><a href="{url}">{text}</a></li>' for url, text in sources]
+            [
+                f'<li><a href="{url}" rel="nofollow noopener" target="_blank">{text}</a></li>'
+                for url, text in sources
+            ]
         )
         return f"""
 <h2>Sources & Further Reading</h2>
@@ -1860,14 +1918,30 @@ class AIOrchestrator:
             ]
         )
 
+        if "Generic phrases" in issues_text or "Off-topic content" in issues_text:
+            cleaned = _remove_generic_sections(article.get("body_html", ""))
+            if cleaned and cleaned != article.get("body_html"):
+                updated = self.api.update_article(
+                    article_id, {"id": int(article_id), "body_html": cleaned}
+                )
+                if updated:
+                    article = self.api.get_article(article_id) or article
+                    audit = self.quality_gate.full_audit(article)
+                    issues_text = "; ".join(audit.get("issues", []))
+                    needs_rebuild = any(
+                        key in issues_text
+                        for key in [
+                            "Missing sections",
+                            "Generic phrases",
+                            "Off-topic content",
+                            "Word count",
+                            "Raw URLs",
+                            "Low sources",
+                        ]
+                    )
+
         if needs_rebuild:
-            title = article.get("title", "")
-            body_html = self._build_article_body(title)
-            meta_description = self._build_meta_description(title)
-            update_payload = {"body_html": body_html, "summary_html": meta_description}
-            updated = self.api.update_article(article_id, update_payload)
-            if not updated:
-                return {"status": "failed", "error": "UPDATE_FAILED"}
+            return {"status": "failed", "error": "EVIDENCE_REBUILD_REQUIRED"}
 
         if "Low images" in issues_text or "Duplicate images" in issues_text:
             self._run_fix_images(article_id)
@@ -1893,26 +1967,7 @@ class AIOrchestrator:
         if not article:
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
-        self._backup_article(article)
-        title = article.get("title", "")
-        body_html = self._build_article_body(title)
-        meta_description = self._build_meta_description(title)
-        update_payload = {"body_html": body_html, "summary_html": meta_description}
-        updated = self.api.update_article(article_id, update_payload)
-        if not updated:
-            return {"status": "failed", "error": "UPDATE_FAILED"}
-
-        self._run_fix_images(article_id)
-
-        updated_article = self.api.get_article(article_id)
-        if not updated_article:
-            return {"status": "failed", "error": "REFETCH_FAILED"}
-
-        re_audit = self.quality_gate.full_audit(updated_article)
-        gate = re_audit.get("deterministic_gate", {})
-        if gate.get("pass", False):
-            return {"status": "done", "audit": re_audit}
-        return {"status": "failed", "audit": re_audit, "error": "GATE_FAIL"}
+        return {"status": "failed", "error": "EVIDENCE_REBUILD_REQUIRED"}
 
     def force_rebuild_article_ids(self, article_ids: list[str]):
         """Force rebuild a list of article IDs sequentially."""
