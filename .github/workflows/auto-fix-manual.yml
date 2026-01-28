@@ -30,8 +30,8 @@ jobs:
             VISION_API_BASE: ${{ vars.VISION_API_BASE || 'https://models.github.ai/inference' }}
             VISION_MODEL_ID: ${{ vars.VISION_MODEL_ID || 'openai/gpt-4o-mini' }}
             VISION_TIMEOUT: "30"
-            VISION_MAX_ATTEMPTS: "4"
-            VISION_RETRY_SLEEP: "10"
+            VISION_MAX_ATTEMPTS: "2"
+            VISION_RETRY_SLEEP: "5"
             VISION_BACKOFF_FACTOR: "1.8"
             FIX_MAX_ITEMS: "1"
             PASS_RATE_ENFORCE: "1"
