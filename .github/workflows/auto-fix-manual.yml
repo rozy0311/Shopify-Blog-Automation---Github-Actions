@@ -33,7 +33,7 @@ jobs:
             VISION_MAX_ATTEMPTS: ${{ vars.VISION_MAX_ATTEMPTS || '6' }}
             VISION_RETRY_SLEEP: ${{ vars.VISION_RETRY_SLEEP || '6' }}
             VISION_BACKOFF_FACTOR: ${{ vars.VISION_BACKOFF_FACTOR || '1.8' }}
-            FIX_MAX_ITEMS: "50"
+            FIX_MAX_ITEMS: "5"
             PASS_RATE_ENFORCE: "1"
             MIN_PASS_RATE: "0.95"
             PASS_RATE_WINDOW: "20"
