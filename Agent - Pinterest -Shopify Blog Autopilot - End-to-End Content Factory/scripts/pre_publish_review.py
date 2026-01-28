@@ -109,6 +109,7 @@ META_PROMPT_CHECKS = {
     "require_direct_answer": True,  # Opening paragraph 50-70 words
     "require_key_terms": True,  # Key Terms section required
     "require_sources_section": True,  # Sources & Further Reading section
+    "require_evidence_ledger": True,  # Evidence ledger required
 }
 
 # Generic phrases to block
@@ -134,6 +135,9 @@ GENERIC_PHRASES = [
 
 ALLOWED_IMAGE_SOURCES = ["cdn.shopify.com", "i.pinimg.com"]
 DISALLOWED_IMAGE_SOURCES = ["pollinations.ai", "pexels.com"]
+RAW_URL_PATTERN = re.compile(
+    r">\s*https?://[^<]+<|>\s*\S+\.(com|org|edu|gov)[^<]*<", re.IGNORECASE
+)
 
 # Regex patterns
 YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
@@ -200,17 +204,17 @@ def review_article(article_id):
             if (not value or not value.strip()) and (
                 not summary or not summary.strip()
             ):
-                warnings.append(
-                    f"⚠️ EMPTY FIELD: '{field}' or 'summary_html' recommended for SEO"
+                errors.append(
+                    f"❌ META DESCRIPTION: missing meta_description and summary_html"
                 )
                 empty_fields.append(field)
             elif value and len(value) > 160:
-                warnings.append(
-                    f"⚠️ META DESCRIPTION: {len(value)} chars > 160 recommended max"
+                errors.append(
+                    f"❌ META DESCRIPTION: {len(value)} chars > 160 max"
                 )
             elif value and len(value) < 50:
-                warnings.append(
-                    f"⚠️ META DESCRIPTION: {len(value)} chars < 50 recommended min"
+                errors.append(
+                    f"❌ META DESCRIPTION: {len(value)} chars < 50 min"
                 )
         else:
             if not value or (isinstance(value, str) and not value.strip()):
@@ -233,6 +237,10 @@ def review_article(article_id):
         errors.append(
             f"❌ GENERIC CONTENT: {', '.join(found_generic[:3])}"
         )
+
+    # 1c. Raw URL visibility check (no raw URLs visible in text)
+    if RAW_URL_PATTERN.search(body or ""):
+        errors.append("❌ RAW URL VISIBLE: URLs must be hidden in href text")
 
     # 2. Main image check
     main_image = article.get("image")
@@ -367,8 +375,8 @@ def review_article(article_id):
         )
     )
     if internal_links < SEO_REQUIREMENTS["min_internal_links"]:
-        warnings.append(
-            f"⚠️ INTERNAL LINKS: {internal_links} < {SEO_REQUIREMENTS['min_internal_links']} (add links to other blog posts)"
+        errors.append(
+            f"❌ INTERNAL LINKS: {internal_links} < {SEO_REQUIREMENTS['min_internal_links']} (add links to other blog posts)"
         )
 
     # ========== QUALITY CHECKS ==========
@@ -384,10 +392,10 @@ def review_article(article_id):
     if QUALITY_CHECKS["check_duplicate_images"]:
         img_srcs = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', body, re.IGNORECASE)
         unique_srcs = set(img_srcs)
-        if len(img_srcs) != len(unique_srcs):
-            errors.append(
-                f"❌ DUPLICATE IMAGES: {len(img_srcs) - len(unique_srcs)} duplicate image(s) found"
-            )
+    if len(img_srcs) != len(unique_srcs):
+        errors.append(
+            f"❌ DUPLICATE IMAGES: {len(img_srcs) - len(unique_srcs)} duplicate image(s) found"
+        )
 
     # 13. Heading hierarchy check (H2 should come before H3)
     if QUALITY_CHECKS["check_heading_hierarchy"]:
@@ -496,8 +504,8 @@ def review_article(article_id):
         if year_in_title:
             errors.append(f"❌ NO YEARS: Found year '{year_in_title.group()}' in title")
         if year_in_body:
-            warnings.append(
-                f"⚠️ NO YEARS: Found year(s) in body content (check if necessary)"
+            errors.append(
+                f"❌ NO YEARS: Found year(s) in body content"
             )
 
     # 18. Sources section check - ≥5 citations with proper links
@@ -552,8 +560,8 @@ def review_article(article_id):
                 valid_quotes += 1
 
         if valid_quotes < META_PROMPT_CHECKS["min_expert_quotes"]:
-            warnings.append(
-                f"⚠️ EXPERT QUOTES: {valid_quotes} < {META_PROMPT_CHECKS['min_expert_quotes']} quotes with real name/title/org"
+            errors.append(
+                f"❌ EXPERT QUOTES: {valid_quotes} < {META_PROMPT_CHECKS['min_expert_quotes']} quotes with real name/title/org"
             )
 
     # 20. Stats check - ≥3 quantified stats
@@ -569,8 +577,8 @@ def review_article(article_id):
             stats_found += len(re.findall(pattern, body, re.IGNORECASE))
 
         if stats_found < META_PROMPT_CHECKS["min_stats"]:
-            warnings.append(
-                f"⚠️ STATS: {stats_found} < {META_PROMPT_CHECKS['min_stats']} quantified stats found"
+            errors.append(
+                f"❌ STATS: {stats_found} < {META_PROMPT_CHECKS['min_stats']} quantified stats found"
             )
 
     # 21. Kebab-case IDs on H2/H3 check
@@ -585,12 +593,12 @@ def review_article(article_id):
         invalid_ids = [h for h in headings_with_id if not KEBAB_PATTERN.match(h)]
 
         if headings_without_id > 0:
-            warnings.append(
-                f"⚠️ HEADING IDS: {headings_without_id} H2/H3 tags missing id attribute"
+            errors.append(
+                f"❌ HEADING IDS: {headings_without_id} H2/H3 tags missing id attribute"
             )
         if invalid_ids:
-            warnings.append(
-                f"⚠️ HEADING IDS: Non-kebab-case ids found: {', '.join(invalid_ids[:3])}"
+            errors.append(
+                f"❌ HEADING IDS: Non-kebab-case ids found: {', '.join(invalid_ids[:3])}"
             )
 
     # 22. Links rel="nofollow noopener" check
@@ -606,8 +614,8 @@ def review_article(article_id):
                 links_without_rel += 1
 
         if links_without_rel > 0:
-            warnings.append(
-                f"⚠️ LINK REL: {links_without_rel} external links missing rel='nofollow noopener'"
+            errors.append(
+                f"❌ LINK REL: {links_without_rel} external links missing rel='nofollow noopener'"
             )
 
     # 23. No schema in body check
@@ -624,12 +632,12 @@ def review_article(article_id):
             intro_text = re.sub(r"<[^>]+>", "", first_p.group(1))
             intro_words = len(intro_text.split())
             if intro_words < 50:
-                warnings.append(
-                    f"⚠️ DIRECT ANSWER: Opening paragraph only {intro_words} words (need 50-70)"
+                errors.append(
+                    f"❌ DIRECT ANSWER: Opening paragraph only {intro_words} words (need 50-70)"
                 )
-            elif intro_words > 100:
-                warnings.append(
-                    f"⚠️ DIRECT ANSWER: Opening paragraph {intro_words} words (too long, aim for 50-70)"
+            elif intro_words > 70:
+                errors.append(
+                    f"❌ DIRECT ANSWER: Opening paragraph {intro_words} words (need 50-70)"
                 )
 
     # 25. Key Terms section check
@@ -642,7 +650,44 @@ def review_article(article_id):
                 r'id=["\']key-terms["\']', body, re.IGNORECASE
             )
         if not key_terms_section:
-            warnings.append("⚠️ KEY TERMS: Missing Key Terms section")
+            errors.append("❌ KEY TERMS: Missing Key Terms section")
+
+    # 26. Evidence ledger check (fetch/websearch proof)
+    if META_PROMPT_CHECKS.get("require_evidence_ledger"):
+        evidence_paths = [
+            ROOT_DIR / f"evidence_ledger_{article_id}.json",
+            ROOT_DIR / "pipeline_v2" / f"evidence_ledger_{article_id}.json",
+        ]
+        evidence_path = next((p for p in evidence_paths if p.exists()), None)
+        if not evidence_path:
+            errors.append("❌ EVIDENCE LEDGER: Missing evidence_ledger_<article_id>.json")
+        else:
+            try:
+                evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                evidence = {}
+            sources = evidence.get("sources", []) if isinstance(evidence, dict) else []
+            stats = evidence.get("stats", []) if isinstance(evidence, dict) else []
+            quotes = evidence.get("quotes", []) if isinstance(evidence, dict) else []
+            if len(sources) < META_PROMPT_CHECKS["min_sources_links"]:
+                errors.append(
+                    f"❌ EVIDENCE SOURCES: {len(sources)} < {META_PROMPT_CHECKS['min_sources_links']}"
+                )
+            if len(stats) < META_PROMPT_CHECKS["min_stats"]:
+                errors.append(
+                    f"❌ EVIDENCE STATS: {len(stats)} < {META_PROMPT_CHECKS['min_stats']}"
+                )
+            if len(quotes) < META_PROMPT_CHECKS["min_expert_quotes"]:
+                errors.append(
+                    f"❌ EVIDENCE QUOTES: {len(quotes)} < {META_PROMPT_CHECKS['min_expert_quotes']}"
+                )
+            if sources:
+                missing_url = [s for s in sources if not s.get("url")]
+                missing_date = [s for s in sources if not s.get("date_accessed")]
+                if missing_url:
+                    errors.append("❌ EVIDENCE SOURCES: Missing url in evidence ledger")
+                if missing_date:
+                    errors.append("❌ EVIDENCE SOURCES: Missing date_accessed in evidence ledger")
 
     # Summary
     passed = len(errors) == 0
