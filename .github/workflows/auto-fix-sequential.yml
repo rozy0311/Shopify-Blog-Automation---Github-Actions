@@ -29,13 +29,19 @@ jobs:
             VISION_REVIEW: "1"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-            VISION_PROVIDER: ${{ vars.VISION_PROVIDER }}
+            VISION_PROVIDER: ${{ vars.VISION_PROVIDER || '' }}
             VISION_API_BASE: ${{ vars.VISION_API_BASE || 'https://models.github.ai/inference' }}
             VISION_MODEL_ID: ${{ vars.VISION_MODEL_ID || 'openai/gpt-4o-mini' }}
             VISION_TIMEOUT: ${{ vars.VISION_TIMEOUT || '30' }}
             VISION_MAX_ATTEMPTS: ${{ vars.VISION_MAX_ATTEMPTS || '6' }}
             VISION_RETRY_SLEEP: ${{ vars.VISION_RETRY_SLEEP || '6' }}
             VISION_BACKOFF_FACTOR: ${{ vars.VISION_BACKOFF_FACTOR || '1.8' }}
+            GCP_PROJECT: ${{ vars.GCP_PROJECT || '' }}
+            GCP_LOCATION: ${{ vars.GCP_LOCATION || 'us-central1' }}
+            GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'imagen-4.0-fast-generate-001' }}
+            GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcp-sa.json
+            GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+            USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             FIX_MAX_ITEMS: "50"
             PASS_RATE_ENFORCE: "1"
             MIN_PASS_RATE: "0.95"
@@ -53,7 +59,22 @@ jobs:
             - name: Install dependencies
               run: |
                   python -m pip install --upgrade pip
-                  python -m pip install requests beautifulsoup4 python-dotenv PyYAML
+                  python -m pip install requests beautifulsoup4 python-dotenv PyYAML google-auth
+
+            - name: Write GCP service account
+              run: |
+                  python - <<'PY'
+                  import os
+                  from pathlib import Path
+                  data = os.environ.get("GCP_SA_JSON", "").strip()
+                  if not data:
+                      raise SystemExit(0)
+                  path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+                  if not path:
+                      raise SystemExit("GOOGLE_APPLICATION_CREDENTIALS is not set")
+                  Path(path).write_text(data, encoding="utf-8")
+                  print(f"Wrote service account to {path}")
+                  PY
 
             - name: Verify vision review enabled
               run: |
