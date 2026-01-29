@@ -8,13 +8,15 @@ on:
                 required: false
                 default: "250"
     schedule:
-        - cron: "0 2 * * *"
+        - cron: "0 */6 * * *"
 
 jobs:
     audit:
         runs-on: ubuntu-latest
         permissions:
             contents: read
+        env:
+            POLLINATIONS_NEGATIVE: "text, watermark, logo, signature"
         steps:
             - name: Checkout
               uses: actions/checkout@v4
