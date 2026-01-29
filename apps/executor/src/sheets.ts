@@ -18,6 +18,7 @@ function buildAuth(scopes: string[]) {
 }
 
 const auth = buildAuth(["https://www.googleapis.com/auth/spreadsheets"]);
+const sheetsTimeoutMs = Number(process.env.SHEETS_TIMEOUT_MS || "20000");
 
 async function getSheetsClient() {
   return google.sheets({ version: "v4", auth });
@@ -37,6 +38,7 @@ export async function readConfig(): Promise<Record<string, string>> {
   const { data } = await sheets.spreadsheets.values.get({
     spreadsheetId: requireEnv("SHEETS_ID"),
     range,
+    timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
   });
   const rows = (data.values ?? []) as string[][];
   const map: Record<string, string> = {};
@@ -62,6 +64,7 @@ export async function readQueue(limit = 30): Promise<QueueRow[]> {
   const { data } = await sheets.spreadsheets.values.get({
     spreadsheetId: requireEnv("SHEETS_ID"),
     range,
+    timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
   });
   const rows = (data.values ?? []) as string[][];
   return rows
@@ -80,6 +83,7 @@ export async function updateBackfill(urlBlogCrawl: string, publishedUrl: string)
   const { data } = await sheets.spreadsheets.values.get({
     spreadsheetId: requireEnv("SHEETS_ID"),
     range,
+    timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
   });
   const rows = (data.values ?? []) as string[][];
   const rowIndex = rows.findIndex((row) => (row?.[0] || "").trim() === urlBlogCrawl);
@@ -93,5 +97,6 @@ export async function updateBackfill(urlBlogCrawl: string, publishedUrl: string)
     range: targetRange,
     valueInputOption: "RAW",
     requestBody: { values: [[publishedUrl]] },
+    timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
   });
 }
