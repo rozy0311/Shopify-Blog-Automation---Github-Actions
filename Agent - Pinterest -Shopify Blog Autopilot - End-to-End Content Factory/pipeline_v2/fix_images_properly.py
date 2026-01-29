@@ -62,8 +62,16 @@ LEXICA_FALLBACK_ONLY = os.environ.get("LEXICA_FALLBACK_ONLY", "1").lower() in {
     "true",
     "yes",
 }
-GCP_PROJECT = os.environ.get("GCP_PROJECT", "").strip()
-GCP_LOCATION = os.environ.get("GCP_LOCATION", "us-central1").strip()
+def _normalize_gcp_value(value: str) -> str:
+    if not value:
+        return ""
+    cleaned = value.strip()
+    cleaned = re.split(r"[\s(]", cleaned, maxsplit=1)[0]
+    return cleaned.strip()
+
+
+GCP_PROJECT = _normalize_gcp_value(os.environ.get("GCP_PROJECT", ""))
+GCP_LOCATION = _normalize_gcp_value(os.environ.get("GCP_LOCATION", "us-central1"))
 GEMINI_IMAGE_MODEL = os.environ.get(
     "GEMINI_IMAGE_MODEL", "imagen-4.0-fast-generate-001"
 ).strip()
