@@ -1,9 +1,11 @@
 import "./tracing.js";
 import fs from "fs-extra";
+import path from "path";
+import { spawnSync } from "child_process";
 import "dotenv/config";
 import { readConfig, readQueue, updateBackfill } from "./sheets.js";
 import { callOpenAI, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
-import { publishArticle } from "./shopify.js";
+import { createDraftArticle, publishExistingArticle } from "./shopify.js";
 import { withRetry } from "./batch.js";
 import { writePreview } from "./preview.js";
 
@@ -38,6 +40,18 @@ async function writeSummary(summary: Summary) {
   await fs.ensureDir("out");
   await fs.writeJSON("out/summary.json", summary, { spaces: 2 });
   console.log("SUMMARY", JSON.stringify(summary));
+}
+
+function runPrePublishReview(articleId: string) {
+  const script = path.join(
+    "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory",
+    "scripts",
+    "pre_publish_review.py",
+  );
+  const result = spawnSync("python", [script, articleId], { stdio: "inherit" });
+  if (result.status !== 0) {
+    throw new Error(`Pre-publish review failed for ${articleId}`);
+  }
 }
 
 async function main() {
@@ -117,8 +131,14 @@ async function processQueue(
         continue;
       }
 
-      const article = await publishArticle(context.blogHandle, context.author, data);
-      const handle = article?.article?.handle;
+      const draft = await createDraftArticle(context.blogHandle, context.author, data);
+      const articleId = String(draft?.article?.id || "");
+      if (!articleId) throw new Error("Shopify response missing article id");
+
+      runPrePublishReview(articleId);
+
+      const published = await publishExistingArticle(articleId);
+      const handle = published?.article?.handle || draft?.article?.handle;
       if (!handle) throw new Error("Shopify response missing article handle");
       const shop = process.env.SHOPIFY_SHOP;
       if (!shop) throw new Error("Missing SHOPIFY_SHOP env var");
