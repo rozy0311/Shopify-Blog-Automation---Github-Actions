@@ -144,7 +144,11 @@ async function processQueue(
       if (!shop) throw new Error("Missing SHOPIFY_SHOP env var");
       const url = `https://${shop}.myshopify.com/blogs/${context.blogHandle}/${handle}`;
 
-      await withRetry(() => updateBackfill(row.url_blog_crawl, url));
+      if (process.env.SHEETS_ENABLED === "true" && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        await withRetry(() => updateBackfill(row.url_blog_crawl, url));
+      } else {
+        console.warn("Skipping Sheets backfill (SHEETS_ENABLED=false or missing credentials).");
+      }
       console.log(`Published: ${url}`);
       summary.processed += 1;
     } catch (error) {
