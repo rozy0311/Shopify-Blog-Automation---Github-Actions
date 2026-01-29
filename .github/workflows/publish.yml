@@ -20,7 +20,7 @@ on:
       max_items:
         description: "Batch size"
         required: false
-        default: "50"
+        default: "1"
         type: string
       reason:
         description: "Why are you running this?"
@@ -28,7 +28,7 @@ on:
         default: Manual dispatch
         type: string
   schedule:
-    - cron: "5 13,19,2 * * *" # 07:05, 13:05, 20:05 America/Chicago (UTC times)
+    - cron: "*/10 * * * *" # every 10 minutes (UTC)
 
 concurrency:
   group: executor
@@ -71,7 +71,7 @@ jobs:
       - name: Export batch window
         run: |
           echo "START_AT=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.start_at != '' && github.event.inputs.start_at || vars.START_AT || '1' }}" >> "$GITHUB_ENV"
-          echo "MAX_ITEMS=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.max_items != '' && github.event.inputs.max_items || vars.MAX_ITEMS || '50' }}" >> "$GITHUB_ENV"
+          echo "MAX_ITEMS=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.max_items != '' && github.event.inputs.max_items || vars.MAX_ITEMS || '1' }}" >> "$GITHUB_ENV"
       - name: Inject secrets
         run: |
           {
