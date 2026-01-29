@@ -20,6 +20,7 @@ jobs:
             SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
             SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
             POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+            POLLINATIONS_NEGATIVE: "text, watermark, logo, signature"
             VISION_REVIEW: "1"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
         steps:
@@ -34,7 +35,7 @@ jobs:
             - name: Install dependencies
               run: |
                   python -m pip install --upgrade pip
-                                    python -m pip install requests PyYAML
+          python -m pip install requests PyYAML pillow
 
             - name: Run pre-publish review (initial)
               env:

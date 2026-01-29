@@ -14,6 +14,11 @@ import io
 from pathlib import Path
 
 import requests
+try:
+    from PIL import Image, ImageStat  # type: ignore
+except Exception:
+    Image = None
+    ImageStat = None
 
 # Fix encoding for Windows console output
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -135,6 +140,28 @@ GENERIC_PHRASES = [
     "wet ingredients",
     "shelf life 2-4 weeks",
     "shelf life 3-6 months",
+    "in conclusion",
+    "in summary",
+    "overall,",
+    "this article",
+    "this blog post",
+    "as we have seen",
+    "keep in mind",
+    "with the right approach",
+    "it's important to remember",
+    "it is important to remember",
+    "on the other hand",
+    "at the end of the day",
+]
+
+GENERIC_SECTION_HEADINGS = [
+    "advanced considerations and expert insights",
+    "timing and seasonal factors",
+    "quality over quantity",
+    "building community connections",
+    "continuous learning mindset",
+    "environmental responsibility",
+    "documentation and reflection",
 ]
 
 ALLOWED_IMAGE_SOURCES = ["cdn.shopify.com", "i.pinimg.com"]
@@ -165,6 +192,26 @@ def validate_image_url(url: str, timeout: int = 10) -> tuple:
         return False, "CONNECTION_ERROR"
     except Exception as e:
         return False, str(e)[:30]
+
+
+def _is_blank_image(image_bytes: bytes) -> bool:
+    """
+    Best-effort blank/near-blank detection.
+    Uses Pillow when available; otherwise returns False.
+    """
+    if Image is None or ImageStat is None:
+        return False
+    try:
+        img = Image.open(io.BytesIO(image_bytes))
+        img = img.convert("L").resize((64, 64))
+        stat = ImageStat.Stat(img)
+        mean = stat.mean[0]
+        var = stat.var[0]
+        if (mean >= 245 or mean <= 10) and var < 15:
+            return True
+    except Exception:
+        return False
+    return False
 
 
 def review_article(article_id):
@@ -240,6 +287,17 @@ def review_article(article_id):
         errors.append(
             f"❌ GENERIC CONTENT: {', '.join(found_generic[:3])}"
         )
+    if GENERIC_SECTION_HEADINGS:
+        heading_hits = []
+        for heading in GENERIC_SECTION_HEADINGS:
+            if re.search(
+                rf"<h[2-3][^>]*>\s*{re.escape(heading)}\s*</h[2-3]>",
+                body,
+                re.IGNORECASE,
+            ):
+                heading_hits.append(heading)
+        if heading_hits:
+            errors.append(f"❌ GENERIC HEADINGS: {', '.join(heading_hits[:3])}")
 
     # 2. Main image check
     main_image = article.get("image")
@@ -283,10 +341,22 @@ def review_article(article_id):
 
     # 3.5. IMAGE URL VALIDATION - Check all image URLs are accessible
     broken_images = []
+    blank_images = []
     for img_name, img_url in all_image_urls:
         is_valid, status = validate_image_url(img_url)
         if not is_valid:
             broken_images.append((img_name, status, img_url[:60]))
+        else:
+            try:
+                resp = requests.get(img_url, timeout=10)
+                if resp.status_code == 200:
+                    content = resp.content
+                    if len(content) < 8192:
+                        blank_images.append((img_name, "TOO_SMALL", img_url[:60]))
+                    elif _is_blank_image(content):
+                        blank_images.append((img_name, "BLANK", img_url[:60]))
+            except Exception:
+                pass
 
         if any(src in img_url for src in DISALLOWED_IMAGE_SOURCES):
             errors.append(f"❌ DISALLOWED IMAGE SOURCE: {img_name} uses {img_url[:60]}...")
@@ -300,6 +370,14 @@ def review_article(article_id):
             )
         errors.append(
             f"❌ IMAGE VALIDATION: {len(broken_images)}/{len(all_image_urls)} images not accessible"
+        )
+    if blank_images:
+        for img_name, status, url_preview in blank_images:
+            errors.append(
+                f"❌ BLANK IMAGE ({img_name}): {status} - {url_preview}..."
+            )
+        errors.append(
+            f"❌ BLANK IMAGES: {len(blank_images)}/{len(all_image_urls)} appear blank or too small"
         )
 
     # 4. Figure tags check (proper image formatting)
