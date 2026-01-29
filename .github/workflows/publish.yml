@@ -65,6 +65,7 @@ jobs:
             echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL }}"
             echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
+            echo "POLLINATIONS_NEGATIVE=text, watermark, logo, signature"
             echo "MODE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }}"
             echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
           } >> "$GITHUB_ENV"
@@ -88,9 +89,10 @@ jobs:
           if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
             echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > $RUNNER_TEMP/google-credentials.json
             echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/google-credentials.json" >> $GITHUB_ENV
+            echo "SHEETS_ENABLED=true" >> $GITHUB_ENV
           else
-            echo "ERROR: Missing secret GOOGLE_SERVICE_ACCOUNT_JSON"
-            exit 1
+            echo "WARNING: Missing secret GOOGLE_SERVICE_ACCOUNT_JSON; Sheets updates disabled."
+            echo "SHEETS_ENABLED=false" >> $GITHUB_ENV
           fi
       - name: Build executor
         run: npm run --workspace apps/executor build
