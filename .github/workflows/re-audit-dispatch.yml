@@ -7,8 +7,6 @@ on:
                 description: "Max articles to audit"
                 required: false
                 default: "250"
-    schedule:
-        - cron: "0 */6 * * *"
 
 jobs:
     audit:
