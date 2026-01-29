@@ -207,6 +207,8 @@ jobs:
                       exit 0
                   fi
                   max=${FIX_MAX_ITEMS:-50}
+                  processed_file=".processed_ids"
+                  : > "$processed_file"
                   for i in $(seq 1 "$max"); do
                       article_id=$(python - <<'PY'
 import json
@@ -218,7 +220,7 @@ if not queue_path.exists():
 
 data = json.loads(queue_path.read_text(encoding='utf-8'))
 items = data.get('items', [])
-priority = ['failed', 'manual_review', 'retrying', 'pending']
+priority = ['pending', 'retrying', 'failed', 'manual_review']
 chosen = None
 for status in priority:
     for item in items:
@@ -237,7 +239,24 @@ PY
                           break
                       fi
 
+                      if grep -Fxq "$article_id" "$processed_file"; then
+                          echo "Already processed $article_id in this run; skipping."
+                          python - <<PY
+import json
+from pathlib import Path
+article_id = "$article_id"
+queue_path = Path('anti_drift_queue.json')
+data = json.loads(queue_path.read_text(encoding='utf-8'))
+for item in data.get('items', []):
+    if str(item.get('id')) == str(article_id):
+        item['status'] = 'skipped'
+        item['error'] = 'DUP_IN_RUN'
+queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+PY
+                          continue
+                      fi
                       echo "Processing $article_id ($i/$max)"
+                      echo "$article_id" >> "$processed_file"
                       python ai_orchestrator.py fix-ids "$article_id"
 
                       python "../scripts/build_meta_fix_queue.py" "$article_id"
