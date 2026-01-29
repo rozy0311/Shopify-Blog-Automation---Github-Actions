@@ -35,11 +35,15 @@ function requireEnv(name: string): string {
 export async function readConfig(): Promise<Record<string, string>> {
   const sheets = await getSheetsClient();
   const range = process.env.CONFIG_RANGE || "CONFIG!A:B";
-  const { data } = await sheets.spreadsheets.values.get({
-    spreadsheetId: requireEnv("SHEETS_ID"),
-    range,
-    timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
-  });
+  const { data } = await sheets.spreadsheets.values.get(
+    {
+      spreadsheetId: requireEnv("SHEETS_ID"),
+      range,
+    },
+    {
+      timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
+    },
+  );
   const rows = (data.values ?? []) as string[][];
   const map: Record<string, string> = {};
   for (const row of rows.slice(1)) {
@@ -61,11 +65,15 @@ export type QueueRow = {
 export async function readQueue(limit = 30): Promise<QueueRow[]> {
   const sheets = await getSheetsClient();
   const range = process.env.SHEETS_RANGE || "Sheet1!A:B";
-  const { data } = await sheets.spreadsheets.values.get({
-    spreadsheetId: requireEnv("SHEETS_ID"),
-    range,
-    timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
-  });
+  const { data } = await sheets.spreadsheets.values.get(
+    {
+      spreadsheetId: requireEnv("SHEETS_ID"),
+      range,
+    },
+    {
+      timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
+    },
+  );
   const rows = (data.values ?? []) as string[][];
   return rows
     .slice(1)
@@ -80,11 +88,15 @@ export async function readQueue(limit = 30): Promise<QueueRow[]> {
 export async function updateBackfill(urlBlogCrawl: string, publishedUrl: string) {
   const sheets = await getSheetsClient();
   const range = process.env.SHEETS_RANGE || "Sheet1!A:B";
-  const { data } = await sheets.spreadsheets.values.get({
-    spreadsheetId: requireEnv("SHEETS_ID"),
-    range,
-    timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
-  });
+  const { data } = await sheets.spreadsheets.values.get(
+    {
+      spreadsheetId: requireEnv("SHEETS_ID"),
+      range,
+    },
+    {
+      timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
+    },
+  );
   const rows = (data.values ?? []) as string[][];
   const rowIndex = rows.findIndex((row) => (row?.[0] || "").trim() === urlBlogCrawl);
   if (rowIndex < 0) {
@@ -92,11 +104,15 @@ export async function updateBackfill(urlBlogCrawl: string, publishedUrl: string)
   }
   const sheetName = range.split("!")[0] || "Sheet1";
   const targetRange = `${sheetName}!B${rowIndex + 1}:B${rowIndex + 1}`;
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: requireEnv("SHEETS_ID"),
-    range: targetRange,
-    valueInputOption: "RAW",
-    requestBody: { values: [[publishedUrl]] },
-    timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
-  });
+  await sheets.spreadsheets.values.update(
+    {
+      spreadsheetId: requireEnv("SHEETS_ID"),
+      range: targetRange,
+      valueInputOption: "RAW",
+      requestBody: { values: [[publishedUrl]] },
+    },
+    {
+      timeout: Number.isFinite(sheetsTimeoutMs) && sheetsTimeoutMs > 0 ? sheetsTimeoutMs : 20000,
+    },
+  );
 }
