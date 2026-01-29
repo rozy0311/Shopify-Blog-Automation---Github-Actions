@@ -48,7 +48,16 @@ function runPrePublishReview(articleId: string) {
     "scripts",
     "pre_publish_review.py",
   );
-  const result = spawnSync("python", [script, articleId], { stdio: "inherit" });
+  const timeoutMs = Number(process.env.PRE_PUBLISH_TIMEOUT_MS || "300000");
+  const result = spawnSync("python", [script, articleId], {
+    stdio: "inherit",
+    timeout: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 300000,
+    killSignal: "SIGKILL",
+  });
+  if (result.error) {
+    const message = result.error.message || "Pre-publish review failed";
+    throw new Error(message);
+  }
   if (result.status !== 0) {
     throw new Error(`Pre-publish review failed for ${articleId}`);
   }
@@ -131,11 +140,15 @@ async function processQueue(
         continue;
       }
 
+      console.log(`[EXECUTOR] Creating draft for ${row.url_blog_crawl}`);
       const draft = await createDraftArticle(context.blogHandle, context.author, data);
       const articleId = String(draft?.article?.id || "");
       if (!articleId) throw new Error("Shopify response missing article id");
 
+      console.log(`[EXECUTOR] Draft created: ${articleId}`);
+      console.log(`[EXECUTOR] Pre-publish review: ${articleId}`);
       runPrePublishReview(articleId);
+      console.log(`[EXECUTOR] Pre-publish review passed: ${articleId}`);
 
       const published = await publishExistingArticle(articleId);
       const handle = published?.article?.handle || draft?.article?.handle;
