@@ -211,27 +211,27 @@ jobs:
                   : > "$processed_file"
                   for i in $(seq 1 "$max"); do
                       article_id=$(python - <<'PY'
-import json
-from pathlib import Path
+                  import json
+                  from pathlib import Path
 
-queue_path = Path('anti_drift_queue.json')
-if not queue_path.exists():
-    raise SystemExit('')
+                  queue_path = Path('anti_drift_queue.json')
+                  if not queue_path.exists():
+                      raise SystemExit('')
 
-data = json.loads(queue_path.read_text(encoding='utf-8'))
-items = data.get('items', [])
-priority = ['pending', 'retrying', 'failed', 'manual_review']
-chosen = None
-for status in priority:
-    for item in items:
-        if item.get('status') == status:
-            chosen = item
-            break
-    if chosen:
-        break
+                  data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  items = data.get('items', [])
+                  priority = ['pending', 'retrying', 'failed', 'manual_review']
+                  chosen = None
+                  for status in priority:
+                      for item in items:
+                          if item.get('status') == status:
+                              chosen = item
+                              break
+                      if chosen:
+                          break
 
-print(chosen.get('id') if chosen else '')
-PY
+                  print(chosen.get('id') if chosen else '')
+                  PY
                       )
 
                       if [ -z "$article_id" ]; then
@@ -242,17 +242,17 @@ PY
                       if grep -Fxq "$article_id" "$processed_file"; then
                           echo "Already processed $article_id in this run; skipping."
                           python - <<PY
-import json
-from pathlib import Path
-article_id = "$article_id"
-queue_path = Path('anti_drift_queue.json')
-data = json.loads(queue_path.read_text(encoding='utf-8'))
-for item in data.get('items', []):
-    if str(item.get('id')) == str(article_id):
-        item['status'] = 'skipped'
-        item['error'] = 'DUP_IN_RUN'
-queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
-PY
+                  import json
+                  from pathlib import Path
+                  article_id = "$article_id"
+                  queue_path = Path('anti_drift_queue.json')
+                  data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  for item in data.get('items', []):
+                      if str(item.get('id')) == str(article_id):
+                          item['status'] = 'skipped'
+                          item['error'] = 'DUP_IN_RUN'
+                  queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+                  PY
                           continue
                       fi
                       echo "Processing $article_id ($i/$max)"
