@@ -59,7 +59,7 @@ jobs:
             - name: Install dependencies
               run: |
                   python -m pip install --upgrade pip
-                  python -m pip install requests beautifulsoup4 python-dotenv PyYAML google-auth
+                  python -m pip install requests beautifulsoup4 python-dotenv PyYAML google-auth pillow
 
             - name: Write GCP service account
               run: |
