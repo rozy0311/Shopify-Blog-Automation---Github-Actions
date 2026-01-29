@@ -64,8 +64,20 @@ function runPrePublishReview(articleId: string) {
 }
 
 async function main() {
+  const watchdogMs = Number(process.env.EXECUTOR_TIMEOUT_MS || "360000");
+  const watchdog = setTimeout(() => {
+    console.error("[EXECUTOR] Timeout exceeded, exiting.");
+    process.exit(1);
+  }, Number.isFinite(watchdogMs) && watchdogMs > 0 ? watchdogMs : 360000);
+
+  console.log("[EXECUTOR] Loading config...");
   const config = await readConfig();
+  console.log("[EXECUTOR] Config loaded.");
+
+  console.log("[EXECUTOR] Loading queue...");
   const queue = await readQueue(parseBatchSize());
+  console.log(`[EXECUTOR] Queue items: ${queue.length}`);
+
   const summary: Summary = { attempted: queue.length, processed: 0, failed: 0, errors: [] };
 
   if (!queue.length) {
@@ -78,6 +90,7 @@ async function main() {
   const precomputed = await maybeGenerateBatch(context, queue);
   await processQueue(queue, context, summary, precomputed);
   await writeSummary(summary);
+  clearTimeout(watchdog);
 }
 
 function parseBatchSize() {

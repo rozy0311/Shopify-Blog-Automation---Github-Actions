@@ -70,6 +70,7 @@ jobs:
             echo "OPENAI_TIMEOUT_MS=${{ vars.OPENAI_TIMEOUT_MS || '120000' }}"
             echo "SHOPIFY_TIMEOUT_MS=${{ vars.SHOPIFY_TIMEOUT_MS || '60000' }}"
             echo "SHEETS_TIMEOUT_MS=${{ vars.SHEETS_TIMEOUT_MS || '20000' }}"
+            echo "EXECUTOR_TIMEOUT_MS=${{ vars.EXECUTOR_TIMEOUT_MS || '360000' }}"
             echo "MODE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }}"
             echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
           } >> "$GITHUB_ENV"
