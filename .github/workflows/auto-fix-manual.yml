@@ -39,7 +39,7 @@ jobs:
             GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-sa.json
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
-            FIX_MAX_ITEMS: "50"
+            FIX_MAX_ITEMS: "1"
             PASS_RATE_ENFORCE: "1"
             MIN_PASS_RATE: "0.95"
             PASS_RATE_WINDOW: "20"
