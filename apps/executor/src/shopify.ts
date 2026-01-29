@@ -6,13 +6,30 @@ export async function getBlogByHandle(handle: string) {
   if (!shop) throw new Error("Missing SHOPIFY_SHOP");
   const token = process.env.SHOPIFY_TOKEN;
   if (!token) throw new Error("Missing SHOPIFY_TOKEN");
+  const timeoutMs = Number(process.env.SHOPIFY_TIMEOUT_MS || "60000");
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 60000,
+  );
 
-  const response = await fetch(`https://${shop}.myshopify.com/admin/api/2023-10/blogs.json`, {
-    headers: {
-      "X-Shopify-Access-Token": token,
-      "Content-Type": "application/json",
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`https://${shop}.myshopify.com/admin/api/2023-10/blogs.json`, {
+      headers: {
+        "X-Shopify-Access-Token": token,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Shopify GET blogs timed out");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!response.ok) {
     throw new Error(`Shopify GET blogs ${response.status}`);
   }
@@ -26,18 +43,35 @@ export async function createArticle(blogId: string, payload: any) {
   const shop = process.env.SHOPIFY_SHOP;
   const token = process.env.SHOPIFY_TOKEN;
   if (!shop || !token) throw new Error("Missing Shopify env vars");
-
-  const response = await fetch(
-    `https://${shop}.myshopify.com/admin/api/2023-10/blogs/${blogId}/articles.json`,
-    {
-      method: "POST",
-      headers: {
-        "X-Shopify-Access-Token": token,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ article: payload }),
-    },
+  const timeoutMs = Number(process.env.SHOPIFY_TIMEOUT_MS || "60000");
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 60000,
   );
+
+  let response: Response;
+  try {
+    response = await fetch(
+      `https://${shop}.myshopify.com/admin/api/2023-10/blogs/${blogId}/articles.json`,
+      {
+        method: "POST",
+        headers: {
+          "X-Shopify-Access-Token": token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ article: payload }),
+        signal: controller.signal,
+      },
+    );
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Shopify POST article timed out");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const text = await response.text();
@@ -50,18 +84,35 @@ export async function updateArticle(articleId: string, payload: any) {
   const shop = process.env.SHOPIFY_SHOP;
   const token = process.env.SHOPIFY_TOKEN;
   if (!shop || !token) throw new Error("Missing Shopify env vars");
-
-  const response = await fetch(
-    `https://${shop}.myshopify.com/admin/api/2023-10/articles/${articleId}.json`,
-    {
-      method: "PUT",
-      headers: {
-        "X-Shopify-Access-Token": token,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ article: payload }),
-    },
+  const timeoutMs = Number(process.env.SHOPIFY_TIMEOUT_MS || "60000");
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 60000,
   );
+
+  let response: Response;
+  try {
+    response = await fetch(
+      `https://${shop}.myshopify.com/admin/api/2023-10/articles/${articleId}.json`,
+      {
+        method: "PUT",
+        headers: {
+          "X-Shopify-Access-Token": token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ article: payload }),
+        signal: controller.signal,
+      },
+    );
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Shopify PUT article timed out");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const text = await response.text();
