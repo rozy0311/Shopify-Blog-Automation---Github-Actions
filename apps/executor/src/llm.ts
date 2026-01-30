@@ -191,7 +191,7 @@ function resolveProviderOrder(): Provider[] {
 
 function resolveModelForProvider(provider: Provider, fallbackModel: string): string {
   if (provider === "github_models") {
-    const explicit = process.env.GITHUB_MODELS_MODEL;
+    const explicit = process.env.GH_MODELS_MODEL || process.env.GITHUB_MODELS_MODEL;
     if (explicit) return explicit;
     return fallbackModel.includes("/") ? fallbackModel : `openai/${fallbackModel}`;
   }
@@ -236,7 +236,9 @@ async function callOpenAICompatible(
 
   const baseUrl =
     provider === "github_models"
-      ? process.env.GITHUB_MODELS_API_BASE || "https://models.github.ai/inference"
+      ? process.env.GH_MODELS_API_BASE ||
+        process.env.GITHUB_MODELS_API_BASE ||
+        "https://models.github.ai/inference"
       : "https://api.openai.com/v1";
 
   let response: Response;
