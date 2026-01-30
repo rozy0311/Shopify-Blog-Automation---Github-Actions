@@ -247,7 +247,16 @@ function shouldFallback(provider: Provider, error: Error): boolean {
   const status = (error as OpenAIError).status;
   if (message.includes("missing")) return true;
   if (status && [401, 403, 429].includes(status)) return true;
-  if (message.includes("quota") || message.includes("rate limit") || message.includes("insufficient")) return true;
+  if (
+    message.includes("quota") ||
+    message.includes("rate limit") ||
+    message.includes("insufficient") ||
+    message.includes("budget limit") ||
+    message.includes("budget") ||
+    message.includes("exceeded")
+  ) {
+    return true;
+  }
   return provider !== "openai" && message.includes("timed out");
 }
 
