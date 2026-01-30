@@ -13,6 +13,8 @@ concurrency:
 jobs:
     heartbeat-check:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
         outputs:
             skip: ${{ steps.heartbeat.outputs.skip }}
         steps:
