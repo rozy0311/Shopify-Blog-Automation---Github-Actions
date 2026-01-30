@@ -23,21 +23,31 @@ jobs:
               id: heartbeat
               env:
                   LOCAL_HEARTBEAT_MAX_AGE_MINUTES: ${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}
+                  LOCAL_HEARTBEAT_URL: ${{ vars.LOCAL_HEARTBEAT_URL || 'https://raw.githubusercontent.com/rozy0311/Shopify-Blog-Automation---Github-Actions/feat/l6-reconcile-main/local_heartbeat.json' }}
               run: |
                   python - <<'PY'
                   import json
                   import os
                   import time
                   from pathlib import Path
+                  from urllib.request import urlopen
 
                   output = os.environ.get("GITHUB_OUTPUT")
                   max_age = int(os.environ.get("LOCAL_HEARTBEAT_MAX_AGE_MINUTES", "15"))
+                  url = os.environ.get("LOCAL_HEARTBEAT_URL", "").strip()
                   path = Path(
                       "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/"
                       "local cursor shopify blogs automation/fix-guardrail/local_heartbeat.json"
                   )
                   skip = "false"
-                  if path.exists():
+                  data = {}
+                  if url:
+                      try:
+                          with urlopen(url, timeout=10) as resp:
+                              data = json.loads(resp.read().decode("utf-8"))
+                      except Exception:
+                          data = {}
+                  if not data and path.exists():
                       try:
                           data = json.loads(path.read_text(encoding="utf-8"))
                       except Exception:
