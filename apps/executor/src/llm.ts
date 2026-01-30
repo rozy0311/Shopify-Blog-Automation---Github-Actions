@@ -28,6 +28,8 @@ export type BatchGenerationResult = {
 };
 
 const JSON_ONLY_MESSAGE = "Return only a single minified JSON object. No markdown, no code fences, no commentary.";
+const STRICT_JSON_MESSAGE =
+  "Return ONLY a valid minified JSON object. Use double quotes, no trailing commas, no extra text.";
 const TERMINAL_BATCH_STATUSES = new Set(["completed", "failed", "expired", "canceled"]);
 let cachedOpenAIClient: OpenAI | null = null;
 
@@ -42,10 +44,21 @@ export async function callLLM(
   for (const provider of providers) {
     try {
       const resolvedModel = resolveModelForProvider(provider, model);
-      if (provider === "gemini") {
-        return await callGemini(systemPrompt, userPrompt, resolvedModel);
+      const attempt = async (prompt: string) => {
+        if (provider === "gemini") {
+          return await callGemini(systemPrompt, prompt, resolvedModel);
+        }
+        return await callOpenAICompatible(provider, systemPrompt, prompt, resolvedModel);
+      };
+
+      try {
+        return await attempt(userPrompt);
+      } catch (error) {
+        if (isNonJsonError(error)) {
+          return await attempt(STRICT_JSON_MESSAGE);
+        }
+        throw error;
       }
-      return await callOpenAICompatible(provider, systemPrompt, userPrompt, resolvedModel);
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       lastError = err;
@@ -154,6 +167,11 @@ function parseBatchOutput(rawText: string): BatchGenerationResult {
     }
   }
   return result;
+}
+
+function isNonJsonError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  return message.includes("non-json") || message.includes("json");
 }
 
 function resolveProviderOrder(): Provider[] {
@@ -411,13 +429,31 @@ export function parseJsonRelaxed(input: string) {
   try {
     return JSON.parse(stripped);
   } catch {
-    const start = stripped.indexOf("{");
-    const end = stripped.lastIndexOf("}");
-    if (start >= 0 && end > start) {
-      return JSON.parse(stripped.slice(start, end + 1));
+    const normalized = normalizeJsonLike(stripped);
+    try {
+      return JSON.parse(normalized);
+    } catch {
+      const start = stripped.indexOf("{");
+      const end = stripped.lastIndexOf("}");
+      if (start >= 0 && end > start) {
+        const slice = stripped.slice(start, end + 1);
+        return JSON.parse(normalizeJsonLike(slice));
+      }
     }
   }
   throw new Error("LLM returned non-JSON");
+}
+
+function normalizeJsonLike(value: string): string {
+  let text = value.trim();
+  if (!text) return text;
+  text = text.replace(/,\s*([}\]])/g, "$1");
+  const hasDouble = /"/.test(text);
+  const hasSingle = /'/.test(text);
+  if (!hasDouble && hasSingle) {
+    text = text.replace(/'/g, '"');
+  }
+  return text;
 }
 
 export function validateNoYears(payload: LlmPayload) {
