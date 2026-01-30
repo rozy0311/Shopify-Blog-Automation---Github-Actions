@@ -20,91 +20,28 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  ref: ${{ vars.LOCAL_HEARTBEAT_REF || 'feat/l6-reconcile-main' }}
 
             - name: Check local heartbeat
               id: heartbeat
               env:
                   LOCAL_HEARTBEAT_MAX_AGE_MINUTES: ${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}
-                  LOCAL_HEARTBEAT_URL: ${{ vars.LOCAL_HEARTBEAT_URL || 'https://raw.githubusercontent.com/rozy0311/Shopify-Blog-Automation---Github-Actions/feat/l6-reconcile-main/local_heartbeat.json' }}
-                  LOCAL_HEARTBEAT_REPO: ${{ vars.LOCAL_HEARTBEAT_REPO || github.repository }}
-                  LOCAL_HEARTBEAT_REF: ${{ vars.LOCAL_HEARTBEAT_REF || 'feat/l6-reconcile-main' }}
                   LOCAL_HEARTBEAT_PATH: ${{ vars.LOCAL_HEARTBEAT_PATH || 'local_heartbeat.json' }}
-                  GITHUB_TOKEN: ${{ github.token }}
               run: |
                   python - <<'PY'
                   import json
                   import os
                   import time
                   from pathlib import Path
-                  from urllib.request import urlopen
-                  import base64
-                  import urllib.request
-                  import subprocess
 
                   output = os.environ.get("GITHUB_OUTPUT")
                   max_age = int(os.environ.get("LOCAL_HEARTBEAT_MAX_AGE_MINUTES", "15"))
-                  url = os.environ.get("LOCAL_HEARTBEAT_URL", "").strip()
-                  repo = os.environ.get("LOCAL_HEARTBEAT_REPO", "").strip()
-                  ref = os.environ.get("LOCAL_HEARTBEAT_REF", "").strip()
                   hb_path = os.environ.get("LOCAL_HEARTBEAT_PATH", "local_heartbeat.json").strip()
-                  token = os.environ.get("GITHUB_TOKEN", "").strip()
-                  path = Path(
-                      "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/"
-                      "local cursor shopify blogs automation/fix-guardrail/local_heartbeat.json"
-                  )
+                  path = Path(hb_path)
                   skip = "false"
                   data = {}
-                  if url:
-                      try:
-                          req = urllib.request.Request(
-                              url,
-                              headers={
-                                  "Authorization": f"Bearer {token}",
-                                  "Accept": "application/vnd.github.raw",
-                                  "User-Agent": "heartbeat-check",
-                              },
-                          )
-                          with urllib.request.urlopen(req, timeout=10) as resp:
-                              data = json.loads(resp.read().decode("utf-8"))
-                      except Exception as exc:
-                          data = {}
-                          print(f"Heartbeat url fetch failed: {exc!r}")
-                  if not data and repo and ref and token:
-                      try:
-                          api_url = f"https://api.github.com/repos/{repo}/contents/{hb_path}?ref={ref}"
-                          req = urllib.request.Request(
-                              api_url,
-                              headers={
-                                  "Authorization": f"Bearer {token}",
-                                  "Accept": "application/vnd.github+json",
-                                  "User-Agent": "heartbeat-check",
-                              },
-                          )
-                          with urllib.request.urlopen(req, timeout=10) as resp:
-                              payload = json.loads(resp.read().decode("utf-8"))
-                          content = payload.get("content", "")
-                          if content:
-                              raw = base64.b64decode(content).decode("utf-8")
-                              data = json.loads(raw)
-                      except Exception as exc:
-                          data = {}
-                          print(f"Heartbeat api fetch failed: {exc!r}")
-                  if not data and ref:
-                      try:
-                          fetch_ref = ref if ref.startswith("refs/") else f"refs/heads/{ref}"
-                          target_ref = "refs/remotes/origin/local-heartbeat"
-                          subprocess.run(
-                              ["git", "fetch", "origin", f"{fetch_ref}:{target_ref}"],
-                              check=True,
-                          )
-                          raw = subprocess.check_output(
-                              ["git", "show", f"{target_ref}:{hb_path}"]
-                          )
-                          data = json.loads(raw.decode("utf-8"))
-                      except Exception as exc:
-                          data = {}
-                          print(f"Heartbeat fetch failed: {exc!r}")
-                  if not data and path.exists():
+                  if path.exists():
                       try:
                           data = json.loads(path.read_text(encoding="utf-8"))
                       except Exception:
