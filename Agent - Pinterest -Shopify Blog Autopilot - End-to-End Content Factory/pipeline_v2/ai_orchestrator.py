@@ -46,7 +46,24 @@ env_paths = [
 ]
 for env_path in env_paths:
     if env_path.exists():
+<<<<<<< HEAD
         load_dotenv(env_path)
+=======
+        # Allow closer .env files to override higher-level defaults.
+        load_dotenv(env_path, override=True)
+shop_env = (os.environ.get("SHOPIFY_SHOP") or "").strip()
+store_env = (os.environ.get("SHOPIFY_STORE_DOMAIN") or "").strip()
+if store_env and "." in store_env:
+    SHOP = store_env
+else:
+    SHOP = shop_env or store_env
+    if SHOP and "." not in SHOP:
+        SHOP = f"{SHOP}.myshopify.com"
+BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID") or os.environ.get("BLOG_ID") or ""
+TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get("SHOPIFY_TOKEN") or ""
+API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
+HEADERS = {"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}
+>>>>>>> c938507 (Tighten generic and topic drift checks)
 BACKOFF_BASE_SECONDS = 120
 BACKOFF_MAX_SECONDS = 600
 BACKOFF_JITTER_SECONDS = 30
@@ -129,6 +146,19 @@ GENERIC_PHRASES = [
     "shelf life 3-6 months",
 ]
 
+GENERIC_SECTION_HEADINGS = [
+    "advanced considerations and expert insights",
+    "timing and seasonal factors",
+    "quality over quantity",
+    "building community connections",
+    "continuous learning mindset",
+    "environmental responsibility",
+    "documentation and reflection",
+    "practical tips",
+    "maintenance and care",
+    "research highlights",
+    "expert insights",
+]
 # Template contamination keywords
 CONTAMINATION_RULES = {
     "cordage": [
