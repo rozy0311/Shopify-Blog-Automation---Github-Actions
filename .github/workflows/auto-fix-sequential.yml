@@ -11,7 +11,55 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
+    heartbeat-check:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        outputs:
+            skip: ${{ steps.heartbeat.outputs.skip }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ vars.LOCAL_HEARTBEAT_REF || 'feat/l6-reconcile-main' }}
+
+            - name: Check local heartbeat
+              id: heartbeat
+              env:
+                  LOCAL_HEARTBEAT_MAX_AGE_MINUTES: ${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}
+                  LOCAL_HEARTBEAT_PATH: ${{ vars.LOCAL_HEARTBEAT_PATH || 'local_heartbeat.json' }}
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  import time
+                  from pathlib import Path
+
+                  output = os.environ.get("GITHUB_OUTPUT")
+                  max_age = int(os.environ.get("LOCAL_HEARTBEAT_MAX_AGE_MINUTES", "15"))
+                  hb_path = os.environ.get("LOCAL_HEARTBEAT_PATH", "local_heartbeat.json").strip()
+                  path = Path(hb_path)
+                  skip = "false"
+                  data = {}
+                  if path.exists():
+                      try:
+                          data = json.loads(path.read_text(encoding="utf-8"))
+                      except Exception:
+                          data = {}
+                      ts = data.get("timestamp")
+                      if isinstance(ts, (int, float)):
+                          age = time.time() - float(ts)
+                          if 0 <= age <= max_age * 60:
+                              skip = "true"
+                  if output:
+                      with open(output, "a", encoding="utf-8") as f:
+                          f.write(f"skip={skip}\n")
+                  print(f"Heartbeat skip={skip}")
+                  PY
+
     auto-fix-one:
+        needs: heartbeat-check
+        if: needs.heartbeat-check.outputs.skip != 'true'
         runs-on: ubuntu-latest
         permissions:
             contents: read
