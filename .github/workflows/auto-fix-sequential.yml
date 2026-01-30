@@ -23,7 +23,7 @@ jobs:
               id: heartbeat
               env:
                   LOCAL_HEARTBEAT_MAX_AGE_MINUTES: ${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}
-                  LOCAL_HEARTBEAT_URL: ${{ vars.LOCAL_HEARTBEAT_URL || '' }}
+                  LOCAL_HEARTBEAT_URL: ${{ vars.LOCAL_HEARTBEAT_URL || 'https://raw.githubusercontent.com/rozy0311/Shopify-Blog-Automation---Github-Actions/feat/l6-reconcile-main/local_heartbeat.json' }}
                   LOCAL_HEARTBEAT_REPO: ${{ vars.LOCAL_HEARTBEAT_REPO || github.repository }}
                   LOCAL_HEARTBEAT_REF: ${{ vars.LOCAL_HEARTBEAT_REF || 'feat/l6-reconcile-main' }}
                   LOCAL_HEARTBEAT_PATH: ${{ vars.LOCAL_HEARTBEAT_PATH || 'local_heartbeat.json' }}
