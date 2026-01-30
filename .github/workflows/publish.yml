@@ -70,6 +70,9 @@ jobs:
             echo "CONFIG_FILE=${{ vars.CONFIG_FILE }}"
             echo "QUEUE_FILE=${{ vars.QUEUE_FILE }}"
             echo "QUEUE_URL=${{ vars.QUEUE_URL }}"
+            echo "LOCAL_HEARTBEAT_FILE=${{ vars.LOCAL_HEARTBEAT_FILE || 'local_heartbeat.json' }}"
+            echo "LOCAL_HEARTBEAT_URL=${{ vars.LOCAL_HEARTBEAT_URL }}"
+            echo "LOCAL_HEARTBEAT_MAX_AGE_MINUTES=${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}"
             echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
             echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
@@ -106,7 +109,57 @@ jobs:
           fi
       - name: Build executor
         run: npm run --workspace apps/executor build
+      - name: Check local heartbeat
+        run: |
+          set -euo pipefail
+          max_age_min="${LOCAL_HEARTBEAT_MAX_AGE_MINUTES:-15}"
+          heartbeat_ts=""
+          if [ -n "${LOCAL_HEARTBEAT_URL:-}" ]; then
+            echo "Checking heartbeat URL: $LOCAL_HEARTBEAT_URL"
+            heartbeat_ts=$(python - <<'PY'
+import json, os, sys, urllib.request
+url = os.environ.get("LOCAL_HEARTBEAT_URL", "")
+try:
+    with urllib.request.urlopen(url, timeout=10) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    ts = str(data.get("timestamp", "")).strip()
+    print(ts)
+except Exception as exc:
+    print("", end="")
+PY
+            )
+          elif [ -f "${LOCAL_HEARTBEAT_FILE:-local_heartbeat.json}" ]; then
+            echo "Checking heartbeat file: ${LOCAL_HEARTBEAT_FILE:-local_heartbeat.json}"
+            heartbeat_ts=$(python - <<'PY'
+import json, os, sys
+path = os.environ.get("LOCAL_HEARTBEAT_FILE", "local_heartbeat.json")
+try:
+    with open(path, "r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    ts = str(data.get("timestamp", "")).strip()
+    print(ts)
+except Exception:
+    print("", end="")
+PY
+            )
+          fi
+
+          active="false"
+          if [ -n "$heartbeat_ts" ]; then
+            now=$(date +%s)
+            age=$((now - heartbeat_ts))
+            max_age_sec=$((max_age_min * 60))
+            if [ "$age" -ge 0 ] && [ "$age" -le "$max_age_sec" ]; then
+              active="true"
+            fi
+            echo "Heartbeat age: ${age}s (max ${max_age_sec}s)"
+          fi
+          echo "LOCAL_HEARTBEAT_ACTIVE=$active" >> "$GITHUB_ENV"
+          if [ "$active" = "true" ]; then
+            echo "Local runner active; skipping executor run."
+          fi
       - name: Run executor (${{ env.MODE }}) - fresh session per blog (single item)
+        if: env.LOCAL_HEARTBEAT_ACTIVE != 'true'
         env:
           MODE: ${{ env.MODE }}
           DISPATCH_REASON: ${{ env.DISPATCH_REASON }}
