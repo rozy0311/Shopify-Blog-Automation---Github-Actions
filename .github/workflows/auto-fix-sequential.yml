@@ -11,7 +11,51 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
+    heartbeat-check:
+        runs-on: ubuntu-latest
+        outputs:
+            skip: ${{ steps.heartbeat.outputs.skip }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Check local heartbeat
+              id: heartbeat
+              env:
+                  LOCAL_HEARTBEAT_MAX_AGE_MINUTES: ${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  import time
+                  from pathlib import Path
+
+                  output = os.environ.get("GITHUB_OUTPUT")
+                  max_age = int(os.environ.get("LOCAL_HEARTBEAT_MAX_AGE_MINUTES", "15"))
+                  path = Path(
+                      "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/"
+                      "local cursor shopify blogs automation/fix-guardrail/local_heartbeat.json"
+                  )
+                  skip = "false"
+                  if path.exists():
+                      try:
+                          data = json.loads(path.read_text(encoding="utf-8"))
+                      except Exception:
+                          data = {}
+                      ts = data.get("timestamp")
+                      if isinstance(ts, (int, float)):
+                          age = time.time() - float(ts)
+                          if 0 <= age <= max_age * 60:
+                              skip = "true"
+                  if output:
+                      with open(output, "a", encoding="utf-8") as f:
+                          f.write(f"skip={skip}\n")
+                  print(f"Heartbeat skip={skip}")
+                  PY
+
     auto-fix-one:
+        needs: heartbeat-check
+        if: needs.heartbeat-check.outputs.skip != 'true'
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -29,9 +73,10 @@ jobs:
             VISION_REVIEW: "1"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-            VISION_PROVIDER: ${{ vars.VISION_PROVIDER || '' }}
-            VISION_API_BASE: ${{ vars.VISION_API_BASE || 'https://models.github.ai/inference' }}
-            VISION_MODEL_ID: ${{ vars.VISION_MODEL_ID || 'openai/gpt-4o-mini' }}
+            GEMINI_MODEL: gemini-2.0-flash
+            LLM_PROVIDER_ORDER: gemini
+            DISABLE_OPENAI: "true"
+            VISION_PROVIDER: gemini
             VISION_TIMEOUT: ${{ vars.VISION_TIMEOUT || '30' }}
             VISION_MAX_ATTEMPTS: ${{ vars.VISION_MAX_ATTEMPTS || '6' }}
             VISION_RETRY_SLEEP: ${{ vars.VISION_RETRY_SLEEP || '6' }}
@@ -124,7 +169,7 @@ jobs:
               if: steps.queue_check.outputs.needs_refresh == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                  SCAN_LIMIT=50 python scan_issues_now.py
+                  SCAN_LIMIT=200 python scan_issues_now.py
 
             - name: Ensure articles_to_fix.json exists
               if: steps.queue_check.outputs.needs_refresh == 'true'
@@ -211,27 +256,27 @@ jobs:
                   : > "$processed_file"
                   for i in $(seq 1 "$max"); do
                       article_id=$(python - <<'PY'
-import json
-from pathlib import Path
+                  import json
+                  from pathlib import Path
 
-queue_path = Path('anti_drift_queue.json')
-if not queue_path.exists():
-    raise SystemExit('')
+                  queue_path = Path('anti_drift_queue.json')
+                  if not queue_path.exists():
+                      raise SystemExit('')
 
-data = json.loads(queue_path.read_text(encoding='utf-8'))
-items = data.get('items', [])
-priority = ['pending', 'retrying', 'failed', 'manual_review']
-chosen = None
-for status in priority:
-    for item in items:
-        if item.get('status') == status:
-            chosen = item
-            break
-    if chosen:
-        break
+                  data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  items = data.get('items', [])
+                  priority = ['pending', 'retrying', 'failed', 'manual_review']
+                  chosen = None
+                  for status in priority:
+                      for item in items:
+                          if item.get('status') == status:
+                              chosen = item
+                              break
+                      if chosen:
+                          break
 
-print(chosen.get('id') if chosen else '')
-PY
+                  print(chosen.get('id') if chosen else '')
+                  PY
                       )
 
                       if [ -z "$article_id" ]; then
@@ -242,17 +287,17 @@ PY
                       if grep -Fxq "$article_id" "$processed_file"; then
                           echo "Already processed $article_id in this run; skipping."
                           python - <<PY
-import json
-from pathlib import Path
-article_id = "$article_id"
-queue_path = Path('anti_drift_queue.json')
-data = json.loads(queue_path.read_text(encoding='utf-8'))
-for item in data.get('items', []):
-    if str(item.get('id')) == str(article_id):
-        item['status'] = 'skipped'
-        item['error'] = 'DUP_IN_RUN'
-queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
-PY
+                  import json
+                  from pathlib import Path
+                  article_id = "$article_id"
+                  queue_path = Path('anti_drift_queue.json')
+                  data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  for item in data.get('items', []):
+                      if str(item.get('id')) == str(article_id):
+                          item['status'] = 'skipped'
+                          item['error'] = 'DUP_IN_RUN'
+                  queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+                  PY
                           continue
                       fi
                       echo "Processing $article_id ($i/$max)"
