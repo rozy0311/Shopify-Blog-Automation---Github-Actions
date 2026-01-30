@@ -85,6 +85,7 @@ jobs:
           {
             echo "SHOPIFY_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}"
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+            echo "GH_MODELS_API_KEY=${{ secrets.GH_MODELS_API_KEY || secrets.GITHUB_TOKEN }}"
             echo "GITHUB_MODELS_API_KEY=${{ secrets.GITHUB_MODELS_API_KEY || secrets.GITHUB_TOKEN }}"
             echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
           } >> "$GITHUB_ENV"
