@@ -357,6 +357,7 @@ async function callGemini(systemPrompt: string, userPrompt: string, model: strin
         generationConfig: {
           temperature: 0.3,
           maxOutputTokens: 2200,
+          response_mime_type: "application/json",
         },
       }),
       signal: controller.signal,
@@ -455,6 +456,10 @@ export function parseJsonRelaxed(input: string) {
         const slice = stripped.slice(start, end + 1);
         return JSON.parse(normalizeJsonLike(slice));
       }
+      const extracted = extractJsonSubstring(stripped);
+      if (extracted) {
+        return JSON.parse(normalizeJsonLike(extracted));
+      }
     }
   }
   throw new Error("LLM returned non-JSON");
@@ -470,6 +475,26 @@ function normalizeJsonLike(value: string): string {
     text = text.replace(/'/g, '"');
   }
   return text;
+}
+
+function extractJsonSubstring(text: string): string | null {
+  let depth = 0;
+  let start = -1;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth += 1;
+    } else if (ch === "}") {
+      if (depth > 0) {
+        depth -= 1;
+        if (depth === 0 && start >= 0) {
+          return text.slice(start, i + 1);
+        }
+      }
+    }
+  }
+  return null;
 }
 
 export function validateNoYears(payload: LlmPayload) {
