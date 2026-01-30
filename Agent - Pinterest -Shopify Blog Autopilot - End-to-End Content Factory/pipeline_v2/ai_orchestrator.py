@@ -48,11 +48,14 @@ for env_path in env_paths:
     if env_path.exists():
         # Allow closer .env files to override higher-level defaults.
         load_dotenv(env_path, override=True)
-SHOP = (
-    os.environ.get("SHOPIFY_SHOP")
-    or os.environ.get("SHOPIFY_STORE_DOMAIN")
-    or ""
-).strip()
+shop_env = (os.environ.get("SHOPIFY_SHOP") or "").strip()
+store_env = (os.environ.get("SHOPIFY_STORE_DOMAIN") or "").strip()
+if store_env and "." in store_env:
+    SHOP = store_env
+else:
+    SHOP = shop_env or store_env
+    if SHOP and "." not in SHOP:
+        SHOP = f"{SHOP}.myshopify.com"
 BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID") or os.environ.get("BLOG_ID") or ""
 TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get("SHOPIFY_TOKEN") or ""
 API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
@@ -165,6 +168,10 @@ GENERIC_SECTION_HEADINGS = [
     "continuous learning mindset",
     "environmental responsibility",
     "documentation and reflection",
+    "practical tips",
+    "maintenance and care",
+    "research highlights",
+    "expert insights",
 ]
 
 # Template contamination keywords
