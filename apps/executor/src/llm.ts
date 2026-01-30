@@ -55,7 +55,15 @@ export async function callLLM(
         return await attempt(userPrompt);
       } catch (error) {
         if (isNonJsonError(error)) {
-          return await attempt(STRICT_JSON_MESSAGE);
+          try {
+            return await attempt(STRICT_JSON_MESSAGE);
+          } catch (retryError) {
+            if (isNonJsonError(retryError)) {
+              lastError = retryError instanceof Error ? retryError : new Error(String(retryError));
+              continue;
+            }
+            throw retryError;
+          }
         }
         throw error;
       }
@@ -171,7 +179,15 @@ function parseBatchOutput(rawText: string): BatchGenerationResult {
 
 function isNonJsonError(error: unknown): boolean {
   const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
-  return message.includes("non-json") || message.includes("json");
+  return (
+    message.includes("non-json") ||
+    message.includes("invalid json") ||
+    message.includes("json parse") ||
+    message.includes("unexpected token") ||
+    message.includes("unterminated") ||
+    message.includes("end of json") ||
+    message.includes("llm returned non-json")
+  );
 }
 
 function resolveProviderOrder(): Provider[] {
