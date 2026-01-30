@@ -191,6 +191,7 @@ function isNonJsonError(error: unknown): boolean {
 }
 
 function resolveProviderOrder(): Provider[] {
+  const disableOpenAI = (process.env.DISABLE_OPENAI || "").toLowerCase() === "true";
   const raw = (process.env.LLM_PROVIDER_ORDER || process.env.LLM_PROVIDER || "gemini,github_models,openai")
     .split(",")
     .map((entry) => entry.trim().toLowerCase())
@@ -214,13 +215,19 @@ function resolveProviderOrder(): Provider[] {
       continue;
     }
     if (value === "openai") {
+      if (disableOpenAI) {
+        continue;
+      }
       if (!seen.has("openai")) {
         providers.push("openai");
         seen.add("openai");
       }
     }
   }
-  return providers.length ? providers : ["openai"];
+  if (!providers.length && !disableOpenAI) {
+    return ["openai"];
+  }
+  return providers;
 }
 
 function resolveModelForProvider(provider: Provider, fallbackModel: string): string {

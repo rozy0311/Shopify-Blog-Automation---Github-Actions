@@ -67,6 +67,7 @@ jobs:
             echo "GH_MODELS_MODEL=${{ vars.GH_MODELS_MODEL }}"
             echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-1.5-flash' }}"
             echo "LLM_PROVIDER_ORDER=${{ vars.LLM_PROVIDER_ORDER || 'gemini,github_models,openai' }}"
+            echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'true' }}"
             echo "CONFIG_FILE=${{ vars.CONFIG_FILE }}"
             echo "QUEUE_FILE=${{ vars.QUEUE_FILE }}"
             echo "QUEUE_URL=${{ vars.QUEUE_URL }}"
