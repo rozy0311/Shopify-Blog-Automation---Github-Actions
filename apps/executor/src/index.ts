@@ -2,7 +2,7 @@ import "./tracing.js";
 import fs from "fs-extra";
 import "dotenv/config";
 import { readConfig, readQueue, updateBackfill } from "./sheets.js";
-import { callOpenAI, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
+import { callLLM, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
 import { publishArticle } from "./shopify.js";
 import { withRetry } from "./batch.js";
 import { writePreview } from "./preview.js";
@@ -140,10 +140,10 @@ async function getDraftForRow(
   row: QueueRow,
   context: ExecutorContext,
   precomputed: BatchGenerationResult | null,
-): Promise<Awaited<ReturnType<typeof callOpenAI>>> {
+): Promise<Awaited<ReturnType<typeof callLLM>>> {
   const systemPrompt = context.buildSystemPrompt(row.url_blog_crawl);
   if (!precomputed) {
-    return withRetry(() => callOpenAI(systemPrompt, context.model));
+    return withRetry(() => callLLM(systemPrompt, context.model));
   }
   const precomputedError = precomputed.errors[row.url_blog_crawl];
   if (precomputedError) {
