@@ -218,12 +218,12 @@ async function callOpenAICompatible(
 ): Promise<LlmPayload> {
   const apiKey =
     provider === "github_models"
-      ? process.env.GITHUB_MODELS_API_KEY || process.env.GITHUB_TOKEN
+      ? process.env.GH_MODELS_API_KEY || process.env.GITHUB_MODELS_API_KEY || process.env.GITHUB_TOKEN
       : process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
     throw new Error(
-      provider === "github_models" ? "Missing GITHUB_MODELS_API_KEY" : "Missing OPENAI_API_KEY",
+      provider === "github_models" ? "Missing GH_MODELS_API_KEY" : "Missing OPENAI_API_KEY",
     );
   }
 
