@@ -23,7 +23,11 @@ jobs:
               id: heartbeat
               env:
                   LOCAL_HEARTBEAT_MAX_AGE_MINUTES: ${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}
-                  LOCAL_HEARTBEAT_URL: ${{ vars.LOCAL_HEARTBEAT_URL || 'https://raw.githubusercontent.com/rozy0311/Shopify-Blog-Automation---Github-Actions/feat/l6-reconcile-main/local_heartbeat.json' }}
+                  LOCAL_HEARTBEAT_URL: ${{ vars.LOCAL_HEARTBEAT_URL || '' }}
+                  LOCAL_HEARTBEAT_REPO: ${{ vars.LOCAL_HEARTBEAT_REPO || github.repository }}
+                  LOCAL_HEARTBEAT_REF: ${{ vars.LOCAL_HEARTBEAT_REF || 'feat/l6-reconcile-main' }}
+                  LOCAL_HEARTBEAT_PATH: ${{ vars.LOCAL_HEARTBEAT_PATH || 'local_heartbeat.json' }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   python - <<'PY'
                   import json
@@ -31,10 +35,16 @@ jobs:
                   import time
                   from pathlib import Path
                   from urllib.request import urlopen
+                  import base64
+                  import urllib.request
 
                   output = os.environ.get("GITHUB_OUTPUT")
                   max_age = int(os.environ.get("LOCAL_HEARTBEAT_MAX_AGE_MINUTES", "15"))
                   url = os.environ.get("LOCAL_HEARTBEAT_URL", "").strip()
+                  repo = os.environ.get("LOCAL_HEARTBEAT_REPO", "").strip()
+                  ref = os.environ.get("LOCAL_HEARTBEAT_REF", "").strip()
+                  hb_path = os.environ.get("LOCAL_HEARTBEAT_PATH", "local_heartbeat.json").strip()
+                  token = os.environ.get("GITHUB_TOKEN", "").strip()
                   path = Path(
                       "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/"
                       "local cursor shopify blogs automation/fix-guardrail/local_heartbeat.json"
@@ -45,6 +55,24 @@ jobs:
                       try:
                           with urlopen(url, timeout=10) as resp:
                               data = json.loads(resp.read().decode("utf-8"))
+                      except Exception:
+                          data = {}
+                  if not data and repo and ref and token:
+                      try:
+                          api_url = f"https://api.github.com/repos/{repo}/contents/{hb_path}?ref={ref}"
+                          req = urllib.request.Request(
+                              api_url,
+                              headers={
+                                  "Authorization": f"Bearer {token}",
+                                  "Accept": "application/vnd.github+json",
+                              },
+                          )
+                          with urllib.request.urlopen(req, timeout=10) as resp:
+                              payload = json.loads(resp.read().decode("utf-8"))
+                          content = payload.get("content", "")
+                          if content:
+                              raw = base64.b64decode(content).decode("utf-8")
+                              data = json.loads(raw)
                       except Exception:
                           data = {}
                   if not data and path.exists():
