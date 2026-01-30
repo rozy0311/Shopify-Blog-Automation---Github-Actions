@@ -61,13 +61,14 @@ jobs:
                               headers={
                                   "Authorization": f"Bearer {token}",
                                   "Accept": "application/vnd.github.raw",
+                                  "User-Agent": "heartbeat-check",
                               },
                           )
                           with urllib.request.urlopen(req, timeout=10) as resp:
                               data = json.loads(resp.read().decode("utf-8"))
                       except Exception as exc:
                           data = {}
-                          print(f"Heartbeat url fetch failed: {exc}")
+                          print(f"Heartbeat url fetch failed: {exc!r}")
                   if not data and repo and ref and token:
                       try:
                           api_url = f"https://api.github.com/repos/{repo}/contents/{hb_path}?ref={ref}"
@@ -76,6 +77,7 @@ jobs:
                               headers={
                                   "Authorization": f"Bearer {token}",
                                   "Accept": "application/vnd.github+json",
+                                  "User-Agent": "heartbeat-check",
                               },
                           )
                           with urllib.request.urlopen(req, timeout=10) as resp:
@@ -86,7 +88,7 @@ jobs:
                               data = json.loads(raw)
                       except Exception as exc:
                           data = {}
-                          print(f"Heartbeat api fetch failed: {exc}")
+                          print(f"Heartbeat api fetch failed: {exc!r}")
                   if not data and ref:
                       try:
                           fetch_ref = ref if ref.startswith("refs/") else f"refs/heads/{ref}"
@@ -101,7 +103,7 @@ jobs:
                           data = json.loads(raw.decode("utf-8"))
                       except Exception as exc:
                           data = {}
-                          print(f"Heartbeat fetch failed: {exc}")
+                          print(f"Heartbeat fetch failed: {exc!r}")
                   if not data and path.exists():
                       try:
                           data = json.loads(path.read_text(encoding="utf-8"))
