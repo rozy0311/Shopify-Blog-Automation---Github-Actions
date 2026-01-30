@@ -78,19 +78,19 @@ jobs:
                           data = {}
                   if not data and ref:
                       try:
+                          fetch_ref = ref if ref.startswith("refs/") else f"refs/heads/{ref}"
+                          target_ref = "refs/remotes/origin/local-heartbeat"
                           subprocess.run(
-                              ["git", "fetch", "origin", ref],
+                              ["git", "fetch", "origin", f"{fetch_ref}:{target_ref}"],
                               check=True,
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL,
                           )
                           raw = subprocess.check_output(
-                              ["git", "show", f"FETCH_HEAD:{hb_path}"],
-                              stderr=subprocess.DEVNULL,
+                              ["git", "show", f"{target_ref}:{hb_path}"]
                           )
                           data = json.loads(raw.decode("utf-8"))
-                      except Exception:
+                      except Exception as exc:
                           data = {}
+                          print(f"Heartbeat fetch failed: {exc}")
                   if not data and path.exists():
                       try:
                           data = json.loads(path.read_text(encoding="utf-8"))
