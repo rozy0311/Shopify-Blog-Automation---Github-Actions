@@ -37,6 +37,7 @@ jobs:
                   from urllib.request import urlopen
                   import base64
                   import urllib.request
+                  import subprocess
 
                   output = os.environ.get("GITHUB_OUTPUT")
                   max_age = int(os.environ.get("LOCAL_HEARTBEAT_MAX_AGE_MINUTES", "15"))
@@ -73,6 +74,21 @@ jobs:
                           if content:
                               raw = base64.b64decode(content).decode("utf-8")
                               data = json.loads(raw)
+                      except Exception:
+                          data = {}
+                  if not data and ref:
+                      try:
+                          subprocess.run(
+                              ["git", "fetch", "origin", ref],
+                              check=True,
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL,
+                          )
+                          raw = subprocess.check_output(
+                              ["git", "show", f"FETCH_HEAD:{hb_path}"],
+                              stderr=subprocess.DEVNULL,
+                          )
+                          data = json.loads(raw.decode("utf-8"))
                       except Exception:
                           data = {}
                   if not data and path.exists():
