@@ -27,7 +27,7 @@ jobs:
                   LOCAL_HEARTBEAT_REPO: ${{ vars.LOCAL_HEARTBEAT_REPO || github.repository }}
                   LOCAL_HEARTBEAT_REF: ${{ vars.LOCAL_HEARTBEAT_REF || 'feat/l6-reconcile-main' }}
                   LOCAL_HEARTBEAT_PATH: ${{ vars.LOCAL_HEARTBEAT_PATH || 'local_heartbeat.json' }}
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_TOKEN: ${{ github.token }}
               run: |
                   python - <<'PY'
                   import json
