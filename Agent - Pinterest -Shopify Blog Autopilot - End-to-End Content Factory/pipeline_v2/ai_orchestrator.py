@@ -168,10 +168,14 @@ GENERIC_PHRASES = [
     "with the right approach",
     "on the other hand",
     "here's everything you need to know",
+    "here is everything you need to know",
     "we'll walk you through",
+    "we will walk you through",
     "let's dive in",
     "in this post we'll",
+    "in this post we will",
     "in this article we'll",
+    "in this article we will",
     "read on to learn",
     "read on to discover",
     "without further ado",
@@ -2077,7 +2081,14 @@ class AIOrchestrator:
         if not article:
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
-        return {"status": "failed", "error": "EVIDENCE_REBUILD_REQUIRED"}
+        result = self._auto_fix_article(article_id)
+        if result.get("status") == "done":
+            return {"status": "done", "audit": result.get("audit", {})}
+        return {
+            "status": "failed",
+            "error": "EVIDENCE_REBUILD_REQUIRED",
+            "audit": result.get("audit", {}),
+        }
 
     def force_rebuild_article_ids(self, article_ids: list[str]):
         """Force rebuild a list of article IDs sequentially."""

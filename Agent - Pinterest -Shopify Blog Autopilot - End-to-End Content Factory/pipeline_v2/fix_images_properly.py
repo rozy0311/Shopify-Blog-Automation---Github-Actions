@@ -127,8 +127,12 @@ def load_matched_data():
     for rel_path in [MATCHED_DATA_FILE, MATCHED_FALLBACK_FILE]:
         filepath = os.path.join(script_dir, rel_path)
         if os.path.exists(filepath):
-            with open(filepath, "r", encoding="utf-8") as f:
-                return json.load(f)
+            try:
+                with open(filepath, "r", encoding="utf-8-sig") as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    return json.load(f)
     return {"matched": []}
 
 
