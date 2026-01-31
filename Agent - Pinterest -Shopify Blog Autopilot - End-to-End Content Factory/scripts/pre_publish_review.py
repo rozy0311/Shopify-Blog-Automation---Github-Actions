@@ -167,6 +167,40 @@ GENERIC_PHRASES = [
     "it is important to remember",
     "on the other hand",
     "at the end of the day",
+    "this guide explains",
+    "you will learn what works",
+    "by the end, you will know",
+    "taking your understanding to the next level",
+    "no one succeeds in isolation",
+    "in today's fast-paced world",
+    "perfect for anyone looking to improve",
+    "join thousands who have already mastered",
+    "here's everything you need to know",
+    "we'll walk you through",
+    "let's dive in",
+    "in this post we'll",
+    "in this article we'll",
+    "read on to learn",
+    "read on to discover",
+    "without further ado",
+    "when it comes to",
+    "the bottom line is",
+    "it goes without saying",
+    "needless to say",
+    "first and foremost",
+    "last but not least",
+    "when all is said and done",
+    "one of the best ways",
+    "one of the most important",
+    "there are many ways to",
+    "there are a number of",
+    "it's worth noting",
+    "it is worth noting",
+    "as mentioned above",
+    "as stated earlier",
+    "more often than not",
+    "at the end of the day",
+    "when it comes down to it",
 ]
 
 GENERIC_SECTION_HEADINGS = [
@@ -638,49 +672,39 @@ def review_article(article_id):
                     f"⚠️ INTRO PARAGRAPH: Only {intro_words} words (should be 20+ for engagement)"
                 )
 
-    # 16. Image relevance check (basic keyword matching)
-    title_words = set(title.lower().split())
-    common_topic_words = {
-        "citrus",
-        "vinegar",
-        "glass",
-        "cleaner",
-        "baking",
-        "soda",
-        "castile",
-        "soap",
-        "laundry",
-        "fabric",
-        "refresher",
-        "deodorizer",
-        "sachets",
-        "produce",
-        "wash",
-        "lemon",
-        "kombucha",
-    }
-    topic_words = title_words.intersection(common_topic_words)
-
-    # Check if alt texts contain relevant topic words
+    # 16. Image relevance check (alt texts must mention title topic) — ERROR if fail
+    topic_keys = _topic_keywords(title)
     all_alts = []
     if main_image and main_image.get("alt"):
         all_alts.append(main_image.get("alt").lower())
-
     for tag in img_tags:
         alt_match = re.search(r'alt=["\']([^"\']*)["\']', tag)
         if alt_match:
             all_alts.append(alt_match.group(1).lower())
 
     topic_mentioned = False
-    for alt in all_alts:
-        for word in topic_words:
-            if word in alt:
+    if topic_keys:
+        for alt in all_alts:
+            if any(kw in alt for kw in topic_keys):
                 topic_mentioned = True
                 break
+        if not topic_mentioned:
+            errors.append(
+                f"❌ IMAGE RELEVANCE: Alt texts must mention topic keywords from title ({', '.join(topic_keys[:5])})"
+            )
 
-    if not topic_mentioned and topic_words:
-        warnings.append(
-            f"⚠️ IMAGE RELEVANCE: Alt texts may not match topic '{' '.join(topic_words)}'"
+    # 16a. At least one image must be from Pinterest (quality standard)
+    all_srcs = []
+    if main_image and main_image.get("src"):
+        all_srcs.append(main_image.get("src"))
+    for tag in img_tags:
+        src_match = re.search(r'src=["\']([^"\']+)["\']', tag)
+        if src_match:
+            all_srcs.append(src_match.group(1))
+    has_pinterest = any("i.pinimg.com" in (s or "") for s in all_srcs)
+    if not has_pinterest and all_srcs:
+        errors.append(
+            "❌ IMAGE QUALITY: At least one image must be from Pinterest (i.pinimg.com)"
         )
 
     # 16b. Required section structure check (H2/H3 text)

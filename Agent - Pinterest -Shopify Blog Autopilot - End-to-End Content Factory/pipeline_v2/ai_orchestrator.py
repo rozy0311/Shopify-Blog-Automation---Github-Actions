@@ -65,6 +65,7 @@ BACKOFF_MAX_SECONDS = 600
 BACKOFF_JITTER_SECONDS = 30
 MAX_QUEUE_RETRIES = int(os.environ.get("MAX_QUEUE_RETRIES", "2"))
 MAX_CONSECUTIVE_FAILS = int(os.environ.get("MAX_CONSEC_FAILS", "3"))
+MAX_FIX_ATTEMPTS_PER_RUN = int(os.environ.get("MAX_FIX_ATTEMPTS_PER_RUN", "2"))
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
 PIPELINE_DIR = Path(__file__).parent
 ROOT_DIR = PIPELINE_DIR.parent.parent
@@ -158,6 +159,39 @@ GENERIC_PHRASES = [
     "wet ingredients",
     "shelf life 2-4 weeks",
     "shelf life 3-6 months",
+    "in conclusion",
+    "in summary",
+    "this article",
+    "this blog post",
+    "as we have seen",
+    "keep in mind",
+    "with the right approach",
+    "on the other hand",
+    "here's everything you need to know",
+    "we'll walk you through",
+    "let's dive in",
+    "in this post we'll",
+    "in this article we'll",
+    "read on to learn",
+    "read on to discover",
+    "without further ado",
+    "when it comes to",
+    "the bottom line is",
+    "it goes without saying",
+    "needless to say",
+    "first and foremost",
+    "last but not least",
+    "when all is said and done",
+    "one of the best ways",
+    "one of the most important",
+    "there are many ways to",
+    "there are a number of",
+    "it's worth noting",
+    "it is worth noting",
+    "as mentioned above",
+    "as stated earlier",
+    "more often than not",
+    "when it comes down to it",
 ]
 
 GENERIC_SECTION_HEADINGS = [
@@ -564,14 +598,20 @@ class QualityGate:
         unique_images = len(set(img_urls))
         min_images = META_PROMPT_REQUIREMENTS["images"]["min_images"]
 
-        # Check for Pinterest image
+        # Check for Pinterest image (required for quality)
         has_pinterest = any("pinimg.com" in url for url in img_urls)
 
         # Check for Shopify CDN images
         has_shopify_cdn = any("cdn.shopify.com" in url for url in img_urls)
 
+        # Pass only if: enough images, no duplicates, and at least one Pinterest image
+        images_ok = (
+            unique_images >= min_images
+            and len(duplicates) == 0
+            and (has_pinterest or not img_urls)  # require Pinterest when there are images
+        )
         return {
-            "pass": unique_images >= min_images and len(duplicates) == 0,
+            "pass": images_ok,
             "unique_images": unique_images,
             "min_required": min_images,
             "duplicates": duplicates,
@@ -653,9 +693,10 @@ class QualityGate:
         }
 
         score = sum(1 for passed in checks.values() if passed)
+        # Require all 10 checks to pass (content + images quality)
         return {
             "score": score,
-            "pass": score >= 9,
+            "pass": score >= 10,
             "checks": checks,
         }
 
@@ -701,6 +742,11 @@ class QualityGate:
                 all_issues.append(
                     f"Low images: {images['unique_images']}/{images['min_required']}"
                 )
+            if (
+                images["unique_images"] >= images["min_required"]
+                and not images.get("has_pinterest")
+            ):
+                all_issues.append("No Pinterest image (required for quality)")
         if not sources["pass"]:
             if sources["raw_urls_visible"]:
                 all_issues.append(f"Raw URLs visible: {sources['raw_urls_visible']}")
@@ -709,7 +755,8 @@ class QualityGate:
                     f"Low sources: {sources['source_links_count']}/{sources['min_required']}"
                 )
 
-        overall_pass = passed_checks >= 5  # At least 5/6 checks pass
+        # Require all 6 checks (structure, word_count, generic, contamination, images, sources)
+        overall_pass = passed_checks >= 6
         score = round(passed_checks / 6 * 10)
 
         deterministic_gate = cls.deterministic_gate(article)
@@ -889,6 +936,18 @@ class AIOrchestrator:
 
         resp = requests.put(url, headers=HEADERS, json=payload)
         return resp.status_code == 200
+
+    def _publish_to_shopify(self, article_id: str) -> bool:
+        """Publish article to Shopify (set published=True). Skip if PUBLISH_TO_SHOPIFY=false."""
+        if os.environ.get("PUBLISH_TO_SHOPIFY", "true").lower() in {"0", "false", "no"}:
+            print("⏸️ PUBLISH_TO_SHOPIFY disabled - article not published to live")
+            return True
+        ok = self.api.update_article(article_id, {"published": True})
+        if ok:
+            print("📤 Published to Shopify (live)")
+        else:
+            print("⚠️ Shopify publish failed - article may still be draft")
+        return ok
 
     def _run_pre_publish_review(self, article_id: str) -> tuple[bool, str]:
         """Run pre_publish_review.py and return (passed, error_msg)."""
@@ -1521,6 +1580,7 @@ class AIOrchestrator:
         if gate_pass:
             review_pass, review_error = self._run_pre_publish_review(article_id)
             if review_pass:
+                self._publish_to_shopify(article_id)
                 queue.mark_done(article_id)
                 queue.save()
                 done_ids = _load_done_blacklist()
@@ -1537,14 +1597,56 @@ class AIOrchestrator:
                     attempts=item.get("attempts"),
                     failures=item.get("failures"),
                 )
-                print(f"✅ Gate PASS ({gate_score}/10) + Review PASS - Marked DONE")
+                print(f"✅ Gate PASS ({gate_score}/10) + Review PASS - Published & Marked DONE")
                 self.progress["consecutive_fail_type"] = None
                 self.progress["consecutive_fail_count"] = 0
                 self._save_progress()
                 return
 
-            review_fail_type = self._classify_fail_type(review_error)
-            self._restore_backup(article_id)
+            # Review failed but gate passed: try auto-fix up to N times, re-run review until pass or give up
+            review_error_cur = review_error
+            review_fail_type = self._classify_fail_type(review_error_cur)
+            fixed_audit = None
+            for fix_attempt in range(1, MAX_FIX_ATTEMPTS_PER_RUN + 1):
+                print(
+                    f"🔧 Review FAIL - auto-fix attempt {fix_attempt}/{MAX_FIX_ATTEMPTS_PER_RUN}: {review_error_cur}"
+                )
+                fix_result = self._auto_fix_article(article_id)
+                if fix_result.get("status") != "done":
+                    self._restore_backup(article_id)
+                    review_fail_type = self._classify_fail_type(
+                        fix_result.get("error") or review_error_cur
+                    )
+                    break
+                fixed_audit = fix_result.get("audit", {})
+                review_pass2, review_error2 = self._run_pre_publish_review(article_id)
+                if review_pass2:
+                    self._publish_to_shopify(article_id)
+                    queue.mark_done(article_id)
+                    queue.save()
+                    done_ids = _load_done_blacklist()
+                    done_ids.add(str(article_id))
+                    _save_done_blacklist(done_ids)
+                    self._append_run_log(
+                        article_id,
+                        fixed_audit.get("title", audit.get("title", "")),
+                        "done",
+                        fixed_audit.get("deterministic_gate", {}).get("score", gate_score),
+                        True,
+                        "review_fail_then_auto_fix_pass",
+                        fail_type="",
+                        attempts=item.get("attempts"),
+                        failures=item.get("failures"),
+                    )
+                    print("✅ Review FAIL → Auto-fix → Review PASS - Published & Marked DONE")
+                    self.progress["consecutive_fail_type"] = None
+                    self.progress["consecutive_fail_count"] = 0
+                    self._save_progress()
+                    return
+                review_error_cur = review_error2
+                review_fail_type = self._classify_fail_type(review_error_cur)
+                # Leave article in fixed state; next iteration will fix again if any
+            review_error = review_error_cur
             if use_backoff and failures < MAX_QUEUE_RETRIES:
                 retry_at = self._next_retry_at(failures + 1)
                 queue.mark_retry(article_id, review_error, retry_at, fail_type=review_fail_type)
@@ -1574,13 +1676,14 @@ class AIOrchestrator:
                 raise SystemExit(2)
             return
 
-        # Attempt auto-fix before retry/manual review
+        # Gate failed: attempt auto-fix before retry/manual review
         fix_result = self._auto_fix_article(article_id)
         if fix_result.get("status") == "done":
             fixed_audit = fix_result.get("audit", {})
             fixed_gate = fixed_audit.get("deterministic_gate", {})
             review_pass, review_error = self._run_pre_publish_review(article_id)
             if review_pass:
+                self._publish_to_shopify(article_id)
                 queue.mark_done(article_id)
                 queue.save()
                 done_ids = _load_done_blacklist()
@@ -1594,7 +1697,7 @@ class AIOrchestrator:
                     True,
                     "auto_fix",
                 )
-                print("✅ Auto-fix PASS + Review PASS - Marked DONE")
+                print("✅ Auto-fix PASS + Review PASS - Published & Marked DONE")
                 return
 
             review_fail_type = self._classify_fail_type(review_error)
@@ -2282,6 +2385,23 @@ def main():
             print("Error: Provide one or more article IDs")
             return
         orchestrator.force_rebuild_article_ids(article_ids)
+
+    elif command == "publish-id":
+        if len(sys.argv) < 3:
+            print("Usage: python ai_orchestrator.py publish-id <article_id>")
+            return
+        article_id = sys.argv[2].strip()
+        if orchestrator._publish_to_shopify(article_id):
+            queue = AntiDriftQueue.load()
+            if ANTI_DRIFT_QUEUE_FILE.exists():
+                queue.mark_done(article_id)
+                queue.save()
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+            print(f"✅ Published and marked done: {article_id}")
+        else:
+            print(f"⚠️ Publish failed for {article_id}")
 
     else:
         print(f"Unknown command: {command}")
