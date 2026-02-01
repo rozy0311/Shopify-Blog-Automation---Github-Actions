@@ -1149,6 +1149,7 @@ class AIOrchestrator:
             return True
         self._ensure_featured_image(article_id)
         self._strip_generic_before_publish(article_id)
+        self._strip_generic_before_publish(article_id)  # Second pass: catch remaining generic
         # Use current UTC time so admin and storefront show as published now (not scheduled)
         published_at_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         print("[INFO] Publishing to shop=%s blog_id=%s" % (SHOP, BLOG_ID))
