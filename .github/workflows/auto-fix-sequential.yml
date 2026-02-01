@@ -242,7 +242,7 @@ jobs:
                   fi
                   python ai_orchestrator.py queue-init
 
-            - name: Run queue (same flow as local: meta fix, gate 9/10, targeted fix, review, publish)
+            - name: "Run queue (same flow as local: meta fix, gate 9/10, targeted fix, review, publish)"
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   set +e

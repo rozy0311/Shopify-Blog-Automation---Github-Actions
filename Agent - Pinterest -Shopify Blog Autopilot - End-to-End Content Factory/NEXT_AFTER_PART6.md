@@ -120,3 +120,12 @@ Các việc sau đã làm trong repo / Agent folder:
 3. **Vừa local vừa GHA**: Một bên “sở hữu” tại một thời điểm: hoặc local chạy và push heartbeat (hoặc dùng `LOCAL_HEARTBEAT_URL`) → GHA skip; hoặc không chạy local → GHA chạy. Không có hai executor chạy song song. Chi tiết: **LOCAL_RUNNER_AND_WORKFLOW.md**.
 
 **Chưa làm (tuỳ chọn):** Alert heartbeat quá cũ, Cost agent, Eval trend chất lượng bài, dashboard báo cáo định kỳ.
+
+---
+
+## Đã làm tự động (session agent)
+
+- **AUTO_ACTIONS_DONE.md**: Tài liệu "tự làm theo ý agent" – giải thích vì sao có thể không thấy Auto Fix Sequential chạy mỗi 10 phút, cách kiểm tra và việc có thể làm ngay (chạy local, trigger workflow, merge lên default branch).
+- **config/decision_log.json**: Thêm `next_action`, `recommendation`; đổi `last_decision` sang `review_only` với lý do "log có thể chỉ ghi fail; tiếp tục chạy queue + monitor".
+- **run_local_queue.ps1**: Khi `LOCAL_HEARTBEAT_PUSH=true`, mỗi lần update heartbeat sẽ commit + push `local_heartbeat.json` lên repo để GHA skip khi local đang chạy.
+- **.github/workflows/auto-fix-sequential.yml**: Thêm `workflow_dispatch` inputs: `fix_max_items` (số bài/run, 0 = dùng mặc định 1), `skip_heartbeat` (boolean, chạy dù heartbeat active). Điều kiện job `auto-fix-one`: skip heartbeat **hoặc** `skip_heartbeat == true` thì vẫn chạy.
