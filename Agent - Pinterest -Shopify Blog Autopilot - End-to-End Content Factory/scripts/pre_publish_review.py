@@ -205,6 +205,64 @@ GENERIC_PHRASES = [
     "more often than not",
     "at the end of the day",
     "when it comes down to it",
+    # AI slop / generic filler (2024-2025)
+    "delve into",
+    "dive deep",
+    "dive deeper",
+    "navigate the landscape",
+    "tapestry of",
+    "realm of possibilities",
+    "in the realm of",
+    "as we continue to evolve",
+    "i'm excited to announce",
+    "thrilled to share",
+    "it's essential to",
+    "it is essential to",
+    "crucial to understand",
+    "game-changer",
+    "unlock the potential",
+    "master the art of",
+    "elevate your",
+    "transform your",
+    "navigating the world of",
+    "empower yourself",
+    "unlock the secrets",
+    "discover the power of",
+    "harness the power",
+    "key takeaways",
+    "in a nutshell",
+    "at its core",
+    "boils down to",
+    "in essence",
+    "the truth is",
+    "the reality is",
+    "simply put",
+    "to put it simply",
+    "taking it to the next level",
+    "stay ahead of the curve",
+    "stay ahead of the game",
+    "proven strategies",
+    "tried and tested",
+    "get started today",
+    "start your journey",
+    "embark on",
+    "dive right in",
+    "let's explore",
+    "in this comprehensive",
+    "this in-depth",
+    "deep dive into",
+    "comprehensive breakdown",
+    "ultimate guide to",
+    "synergy",
+    "leverage the power",
+    "thought leadership",
+    "industry-leading",
+    "world-class",
+    "best-in-class",
+    "gold standard",
+    "silver bullet",
+    "no-brainer",
+    "must-have",
 ]
 
 GENERIC_SECTION_HEADINGS = [
@@ -414,12 +472,14 @@ def review_article(article_id):
             f"⚠️ WORDS: {word_count} > {REQUIREMENTS['max_words']} (slightly over)"
         )
 
-    # 1b. Generic content check
+    # 1b. Generic content check (strict - block AI slop before publish)
     text_lower = re.sub(r"<[^>]+>", " ", body).lower()
     found_generic = [phrase for phrase in GENERIC_PHRASES if phrase in text_lower]
     if found_generic:
+        # Show first 5 for debugging, all count toward fail
         errors.append(
-            f"❌ GENERIC CONTENT: {', '.join(found_generic[:3])}"
+            f"❌ GENERIC CONTENT (agent must fix): {', '.join(found_generic[:5])}"
+            + (f" (+{len(found_generic)-5} more)" if len(found_generic) > 5 else "")
         )
     if GENERIC_SECTION_HEADINGS:
         heading_hits = []
