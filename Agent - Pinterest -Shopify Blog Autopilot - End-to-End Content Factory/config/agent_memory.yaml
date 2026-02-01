@@ -148,11 +148,3 @@ audit_log:
     action: "Initial audit"
     result: "6 pass, 20 fail"
     issues: "Thiếu hidden links"
-
-## ==========================================
-## DECISION LOG (Reconcile layer)
-## ==========================================
-# Quyết định gần nhất từ pipeline: review_only | continue_publish | pause_and_review | no_data
-# File: config/decision_log.json
-# Script: pipeline_v2/reconcile_decision.py (đọc anti_drift_run_log.csv → ghi recommendation)
-# Chi tiết: config/DECISION_LOG_README.md

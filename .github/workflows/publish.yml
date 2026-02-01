@@ -52,7 +52,7 @@ jobs:
       - name: Install guardrail dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install PyYAML pillow
+          python -m pip install PyYAML
       - name: Export configuration
         run: |
           {
@@ -77,12 +77,6 @@ jobs:
             echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
             echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
-            echo "POLLINATIONS_NEGATIVE=text, watermark, logo, signature"
-            echo "PRE_PUBLISH_TIMEOUT_MS=${{ vars.PRE_PUBLISH_TIMEOUT_MS || '300000' }}"
-            echo "OPENAI_TIMEOUT_MS=${{ vars.OPENAI_TIMEOUT_MS || '120000' }}"
-            echo "SHOPIFY_TIMEOUT_MS=${{ vars.SHOPIFY_TIMEOUT_MS || '60000' }}"
-            echo "SHEETS_TIMEOUT_MS=${{ vars.SHEETS_TIMEOUT_MS || '20000' }}"
-            echo "EXECUTOR_TIMEOUT_MS=${{ vars.EXECUTOR_TIMEOUT_MS || '360000' }}"
             echo "MODE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }}"
             echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
           } >> "$GITHUB_ENV"
@@ -123,10 +117,10 @@ jobs:
           heartbeat_ts=""
           if [ -n "${LOCAL_HEARTBEAT_URL:-}" ]; then
             echo "Checking heartbeat URL: $LOCAL_HEARTBEAT_URL"
-            heartbeat_ts=$(python3 -c $'import json,os,urllib.request\nu=os.environ.get("LOCAL_HEARTBEAT_URL","")\ntry:\n r=urllib.request.urlopen(u,timeout=10)\n d=json.loads(r.read().decode("utf-8"))\n print(str(d.get("timestamp","")).strip())\nexcept Exception:\n pass')
+            heartbeat_ts=$(python -c "import json, os, urllib.request; url=os.environ.get('LOCAL_HEARTBEAT_URL','');\ntry:\n  resp=urllib.request.urlopen(url,timeout=10)\n  data=json.loads(resp.read().decode('utf-8'))\n  print(str(data.get('timestamp','')).strip())\nexcept Exception:\n  print('', end='')\n")
           elif [ -f "${LOCAL_HEARTBEAT_FILE:-local_heartbeat.json}" ]; then
             echo "Checking heartbeat file: ${LOCAL_HEARTBEAT_FILE:-local_heartbeat.json}"
-            heartbeat_ts=$(python3 -c $'import json,os\np=os.environ.get("LOCAL_HEARTBEAT_FILE","local_heartbeat.json")\ntry:\n f=open(p,"r",encoding="utf-8")\n d=json.load(f)\n f.close()\n print(str(d.get("timestamp","")).strip())\nexcept Exception:\n pass')
+            heartbeat_ts=$(python -c "import json, os; path=os.environ.get('LOCAL_HEARTBEAT_FILE','local_heartbeat.json');\ntry:\n  data=json.load(open(path,'r',encoding='utf-8'))\n  print(str(data.get('timestamp','')).strip())\nexcept Exception:\n  print('', end='')\n")
           fi
 
           active="false"

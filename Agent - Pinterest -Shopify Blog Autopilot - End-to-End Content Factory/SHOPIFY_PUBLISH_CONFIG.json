@@ -2,7 +2,7 @@
   "shop": {
     "domain": "the-rike-inc.myshopify.com",
     "api_version": "2025-10",
-    "access_token": ""
+    "access_token": "os.environ.get("SHOPIFY_ACCESS_TOKEN", "")"
   },
   "defaults": {
     "blog_handle": "sustainable-living",

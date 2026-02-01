@@ -181,37 +181,3 @@ class OrchestratorAgent(BaseAgent):
             result = agent.execute(context)
             results.append(result)
         return {"results": results}
-
-    def run(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Default orchestrator run implementation.
-
-        If context provides:
-          - run_all: true -> run all child agents
-          - agents: list of agent names -> run those agents in order
-        Otherwise, report success with no actions.
-        """
-        if context.get("run_all") is True:
-            results = self.run_all(context)
-            return {
-                "status": "success",
-                "message": f"Ran {len(results.get('results', []))} agents",
-                "data": results,
-            }
-
-        agent_list = context.get("agents")
-        if isinstance(agent_list, list) and agent_list:
-            results = []
-            for name in agent_list:
-                results.append(self.run_agent(str(name), context))
-            return {
-                "status": "success",
-                "message": f"Ran {len(results)} agents",
-                "data": {"results": results},
-            }
-
-        return {
-            "status": "success",
-            "message": "No agents requested; orchestrator idle",
-            "data": {"results": []},
-        }
