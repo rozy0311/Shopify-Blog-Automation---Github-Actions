@@ -46,9 +46,6 @@ env_paths = [
 ]
 for env_path in env_paths:
     if env_path.exists():
-<<<<<<< HEAD
-        load_dotenv(env_path)
-=======
         # Allow closer .env files to override higher-level defaults.
         load_dotenv(env_path, override=True)
 shop_env = (os.environ.get("SHOPIFY_SHOP") or "").strip()
@@ -63,7 +60,6 @@ BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID") or os.environ.get("BLOG_ID") or ""
 TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get("SHOPIFY_TOKEN") or ""
 API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
 HEADERS = {"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}
->>>>>>> c938507 (Tighten generic and topic drift checks)
 BACKOFF_BASE_SECONDS = 120
 BACKOFF_MAX_SECONDS = 600
 BACKOFF_JITTER_SECONDS = 30
