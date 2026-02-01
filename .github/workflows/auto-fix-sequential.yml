@@ -278,6 +278,12 @@ jobs:
                               echo "Pre-publish review failed after rebuild for $article_id. Skipping."
                           fi
                       fi
+                      if [ "$review_status" == "0" ] || [ "${review_status_after:-1}" == "0" ]; then
+                          echo "Review passed for $article_id. Publishing to Shopify..."
+                          python publish_now_graphql.py "$article_id" || true
+                          python ai_orchestrator.py queue-review "$article_id" done "PUBLISHED" || true
+                          echo "Published and marked done: $article_id"
+                      fi
                   done
 
             - name: Upload fix artifacts
