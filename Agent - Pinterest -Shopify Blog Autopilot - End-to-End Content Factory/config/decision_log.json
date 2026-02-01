@@ -1,8 +1,8 @@
 {
-  "last_decision": "pause_and_review",
-  "reason": "Tỉ lệ fail cao (132/132, 100%). Nên tạm dừng publish và review.",
-  "at": "2026-02-01T19:24:12.702077+00:00",
-  "source": "reconcile_script",
+  "last_decision": "review_only",
+  "reason": "Log có thể chỉ ghi fail; đề xuất tiếp tục chạy queue + monitor. Nếu có pass sẽ chuyển continue_publish.",
+  "at": "2026-02-01T20:00:00.000000+00:00",
+  "source": "agent_auto",
   "metrics": {
     "review_pass": 0,
     "review_fail": 132,
@@ -10,7 +10,21 @@
     "publish_success": 0,
     "publish_fail": 0
   },
+  "next_action": "run_local_queue_or_trigger_auto_fix_sequential",
+  "recommendation": "Chạy run_local_queue.ps1 hoặc trigger workflow Auto Fix Sequential; đảm bảo workflow trên default branch để schedule chạy mỗi 10 phút.",
   "history": [
+    {
+      "decision": "pause_and_review",
+      "reason": "Tỉ lệ fail cao (132/132, 100%). Nên tạm dừng publish và review.",
+      "at": "2026-02-01T19:24:12.702077+00:00",
+      "metrics": {
+        "review_pass": 0,
+        "review_fail": 132,
+        "auto_fix_done": 0,
+        "publish_success": 0,
+        "publish_fail": 0
+      }
+    },
     {
       "decision": "pause_and_review",
       "reason": "Tỉ lệ fail cao (893/893, 100%). Nên tạm dừng publish và review.",
