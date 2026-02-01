@@ -95,7 +95,38 @@ QUALITY_CHECKS = {
     "check_heading_hierarchy": True,  # H2 before H3
     "check_call_to_action": True,  # CTA in content
     "check_intro_paragraph": True,  # First paragraph should be engaging
+    "check_generic_content": True,  # Check for generic AI slop
+    "check_title_generic": True,  # Check for generic title phrases
 }
+
+# GENERIC PHRASES TO DETECT (AI slop / template content)
+GENERIC_PHRASES = [
+    "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
+    "in this guide", "this guide", "this article",
+    "whether you're a beginner", "whether you are a beginner", "whether you are new",
+    "in today's world", "in today's fast-paced", "in our modern world",
+    "you will learn", "by the end", "throughout this article", "in this post",
+    "we'll explore", "let's dive", "let's explore", "without further ado",
+    "in conclusion", "to sum up", "in summary", "to summarize",
+    "thank you for reading", "happy growing", "happy gardening", "happy cooking",
+    "game-changer", "unlock the potential", "master the art", "elevate your",
+    "transform your", "empower yourself", "unlock the secrets", "discover the power",
+    "crucial to understand", "it's essential", "it is essential", "it's important",
+    "thrilled to share", "excited to share", "perfect for anyone",
+    "join thousands who", "one of the best ways", "one of the most important",
+    "first and foremost", "last but not least", "needless to say",
+    "when it comes to", "the bottom line is", "it goes without saying",
+    "as mentioned above", "as stated earlier", "as we have seen",
+    "more often than not", "when all is said and done", "at the end of the day",
+    "here's everything you need", "read on to learn", "read on to discover",
+]
+
+# TITLE-SPECIFIC GENERIC PHRASES (to strip from title)
+TITLE_GENERIC_PHRASES = [
+    "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
+    "everything you need to know", "the ultimate", "a complete",
+    ": a guide", "- a guide", "the complete", "the definitive",
+]
 
 # META-PROMPT HARD VALIDATIONS (from SHOPIFY BLOG META-PROMPT)
 META_PROMPT_CHECKS = {
@@ -397,6 +428,30 @@ def review_article(article_id):
                 warnings.append(
                     f"⚠️ INTRO PARAGRAPH: Only {intro_words} words (should be 20+ for engagement)"
                 )
+
+    # 15b. GENERIC CONTENT CHECK - detect AI slop phrases
+    if QUALITY_CHECKS.get("check_generic_content", True):
+        body_lower = body.lower()
+        found_generic = []
+        for phrase in GENERIC_PHRASES:
+            if phrase.lower() in body_lower:
+                found_generic.append(phrase)
+        if found_generic:
+            errors.append(
+                f"GENERIC CONTENT: Found {len(found_generic)} generic phrase(s): {', '.join(found_generic[:5])}"
+            )
+
+    # 15c. TITLE GENERIC CHECK - detect generic title patterns
+    if QUALITY_CHECKS.get("check_title_generic", True):
+        title_lower = title.lower()
+        found_title_generic = []
+        for phrase in TITLE_GENERIC_PHRASES:
+            if phrase.lower() in title_lower:
+                found_title_generic.append(phrase)
+        if found_title_generic:
+            errors.append(
+                f"GENERIC TITLE: Title contains generic phrase(s): {', '.join(found_title_generic)}"
+            )
 
     # 16. Image relevance check (basic keyword matching)
     title_words = set(title.lower().split())
