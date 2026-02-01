@@ -160,6 +160,7 @@ GENERIC_PHRASES = [
     "shelf life 3-6 months",
     "in conclusion",
     "in summary",
+    "overall,",
     "this article",
     "this blog post",
     "as we have seen",
@@ -194,6 +195,7 @@ GENERIC_PHRASES = [
     "as mentioned above",
     "as stated earlier",
     "more often than not",
+    "at the end of the day",
     "when it comes down to it",
     # AI slop / generic filler (2024-2025)
     "delve into",

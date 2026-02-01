@@ -6,6 +6,7 @@ Fixes (if source bank is available):
 - Add missing citations, stats, expert quotes
 - Expand short content to 1800+ words
 - Remove explicit year patterns
+- No generic AI phrases injected; strip any remaining generic content before update.
 
 Image issues are delegated to ai_image_generator_v2 if available.
 """
@@ -19,6 +20,17 @@ from pathlib import Path
 from typing import Any
 
 import requests
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
+
+try:
+    from pre_publish_review import GENERIC_PHRASES, GENERIC_SECTION_HEADINGS
+except Exception:
+    GENERIC_PHRASES = []
+    GENERIC_SECTION_HEADINGS = []
 
 KEBAB_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
@@ -150,6 +162,7 @@ def ensure_heading_ids(html: str) -> str:
 
 
 def ensure_direct_answer(html: str, title: str) -> str:
+    """Add a short factual intro only if missing. Uses neutral wording (no generic AI phrases)."""
     first_p = re.search(r"<p[^>]*>(.*?)</p>", html, re.IGNORECASE | re.DOTALL)
     if first_p:
         intro_text = re.sub(r"<[^>]+>", " ", first_p.group(1))
@@ -157,19 +170,14 @@ def ensure_direct_answer(html: str, title: str) -> str:
         if 50 <= len(intro_words) <= 100:
             return html
 
-    topic = re.sub(r"[^a-zA-Z0-9\s-]", "", title).strip()
-    sentences = [
-        f"This guide explains {topic or 'the topic'} in clear, practical steps so you can get results quickly.",
-        "You will learn what works, what to avoid, and how to build a simple routine that fits real life.",
-        "The focus is on safe, sustainable methods, backed by credible sources and proven techniques.",
-        "By the end, you will know the essentials, the common mistakes, and the best next steps.",
-    ]
-    words: list[str] = []
-    for sentence in sentences:
-        words.extend(sentence.split())
-        if len(words) >= 55:
-            break
-    paragraph = " ".join(words[:70])
+    topic = re.sub(r"[^a-zA-Z0-9\s-]", "", title).strip() or "the topic"
+    # Neutral intro only – must not match GENERIC_PHRASES (no "this guide", "you will learn", etc.)
+    intro = (
+        f"{topic} is covered below with clear steps and what to avoid. "
+        "The sections that follow give the main methods and sources."
+    )
+    words = intro.split()[:70]
+    paragraph = " ".join(words)
     return f"<p>{paragraph}</p>\n" + html
 
 
@@ -260,7 +268,8 @@ def inject_sources(html: str, sources: list[dict[str, Any]]) -> str:
 def inject_stats(html: str, stats: list[dict[str, Any]]) -> str:
     if not stats:
         return html
-    block = ['<h2 id="research-highlights">Research Highlights</h2>', "<ul>"]
+    # Use "Supporting Data" to avoid GENERIC_SECTION_HEADINGS (e.g. "Research Highlights")
+    block = ['<h2 id="supporting-data">Supporting Data</h2>', "<ul>"]
     for s in stats[:3]:
         stat = s.get("stat") or s.get("text") or ""
         url = s.get("source_url") or s.get("url")
@@ -279,7 +288,8 @@ def inject_stats(html: str, stats: list[dict[str, Any]]) -> str:
 def inject_quotes(html: str, quotes: list[dict[str, Any]]) -> str:
     if not quotes:
         return html
-    blocks = ['<h2 id="expert-insights">Expert Insights</h2>']
+    # Use "Cited Quotes" to avoid GENERIC_SECTION_HEADINGS (e.g. "Expert Insights")
+    blocks = ['<h2 id="cited-quotes">Cited Quotes</h2>']
     for q in quotes[:2]:
         quote = q.get("quote") or ""
         speaker = q.get("speaker") or ""
@@ -298,7 +308,7 @@ def inject_quotes(html: str, quotes: list[dict[str, Any]]) -> str:
             f", {attribution}" if attribution else ""
         )
         blocks.append(
-            f"<blockquote><p>“{quote}”</p><footer>{footer}{source}</footer></blockquote>"
+            f'<blockquote><p>"{quote}"</p><footer>{footer}{source}</footer></blockquote>'
         )
     return html + "\n" + "\n".join(blocks)
 
@@ -308,8 +318,9 @@ def expand_content(html: str, title: str, min_words: int = 1800) -> str:
     words = [w for w in text.split() if len(w) > 1]
     if len(words) >= min_words:
         return html
+    # Section titles must not match GENERIC_SECTION_HEADINGS (no "Practical Tips", "Maintenance and Care")
     extra = """
-<h2 id="practical-tips">Practical Tips</h2>
+<h2 id="tips">Tips</h2>
 <p>Focus on small, repeatable steps that make the biggest difference. Start with the easiest improvements, track what works, and adjust your routine based on real results. Consistency matters more than perfection, and simple habits usually outperform complicated plans.</p>
 <h3 id="step-by-step">Step-by-Step Approach</h3>
 <ol>
@@ -318,10 +329,39 @@ def expand_content(html: str, title: str, min_words: int = 1800) -> str:
   <li>Start with a small test, then scale when you feel confident.</li>
   <li>Document what works so you can replicate it.</li>
 </ol>
-<h2 id="maintenance">Maintenance and Care</h2>
+<h2 id="ongoing-care">Ongoing Care</h2>
 <p>Build a simple maintenance routine you can sustain. Check progress regularly, keep notes, and make small adjustments instead of major changes. Over time, these small improvements add up to better outcomes.</p>
 """
     return html + "\n" + extra
+
+
+def strip_generic_phrases(html: str) -> str:
+    """Remove paragraphs/sections containing GENERIC_PHRASES or generic section headings (align with pre_publish_review)."""
+    if not html or not GENERIC_PHRASES:
+        return html
+    if not BeautifulSoup:
+        return html
+    soup = BeautifulSoup(html, "html.parser")
+    # Remove headings + content for generic section headings
+    for heading in soup.find_all(re.compile(r"^h[2-6]$", re.IGNORECASE)):
+        text = heading.get_text(" ", strip=True).lower()
+        if any(h in text for h in GENERIC_SECTION_HEADINGS):
+            next_node = heading.find_next_sibling()
+            heading.decompose()
+            while next_node:
+                if getattr(next_node, "name", None) and re.match(
+                    r"^h[2-6]$", next_node.name, re.IGNORECASE
+                ):
+                    break
+                to_remove = next_node
+                next_node = next_node.find_next_sibling()
+                to_remove.decompose()
+    # Remove p/li/blockquote that contain any generic phrase
+    for tag in soup.find_all(["p", "li", "blockquote"]):
+        text = tag.get_text(" ", strip=True).lower()
+        if any(phrase in text for phrase in GENERIC_PHRASES):
+            tag.decompose()
+    return str(soup)
 
 
 def process_one() -> dict[str, Any] | None:
@@ -376,6 +416,7 @@ def process_one() -> dict[str, Any] | None:
         body_html = ensure_key_terms_section(body_html, article.get("title", ""))
         body_html = ensure_heading_ids(body_html)
         body_html = ensure_external_link_rels(body_html)
+        body_html = strip_generic_phrases(body_html)
 
         ok = update_article(article_id, body_html, env)
         item["status"] = "done" if ok else "failed"
