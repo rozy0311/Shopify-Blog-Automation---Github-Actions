@@ -129,10 +129,16 @@ def load_matched_data():
         if os.path.exists(filepath):
             try:
                 with open(filepath, "r", encoding="utf-8-sig") as f:
-                    return json.load(f)
+                    data = json.load(f)
             except json.JSONDecodeError:
                 with open(filepath, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    data = json.load(f)
+            if isinstance(data, dict):
+                if "matched" in data:
+                    return data
+                if "exact_matches" in data:
+                    return {"matched": data.get("exact_matches", [])}
+            return data
     return {"matched": []}
 
 
