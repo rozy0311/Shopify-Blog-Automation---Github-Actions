@@ -35,7 +35,7 @@ jobs:
                   python-version: "3.11"
 
             - name: Install dependencies
-              run: python -m pip install --upgrade pip && pip install requests PyYAML pillow
+              run: python -m pip install --upgrade pip && pip install requests PyYAML pillow beautifulsoup4 python-dotenv
 
             - name: Run pre-publish review (initial)
               env:
