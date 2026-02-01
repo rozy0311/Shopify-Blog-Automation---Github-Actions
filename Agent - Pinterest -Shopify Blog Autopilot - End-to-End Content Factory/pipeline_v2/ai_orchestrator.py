@@ -32,7 +32,7 @@ import hashlib
 import subprocess
 import requests
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 from collections import Counter
 from dotenv import load_dotenv
@@ -201,6 +201,21 @@ GENERIC_PHRASES = [
     "more often than not",
     "at the end of the day",
     "when it comes down to it",
+    "the focus is on",
+    "it's essential to",
+    "it is essential to",
+    "thrilled to share",
+    "crucial to understand",
+    "game-changer",
+    "unlock the potential",
+    "master the art of",
+    "elevate your",
+    "transform your",
+    "navigating the world of",
+    "empower yourself",
+    "unlock the secrets",
+    "discover the power of",
+    "harness the power",
     # AI slop / generic filler (2024-2025)
     "delve into",
     "dive deep",
@@ -259,6 +274,21 @@ GENERIC_PHRASES = [
     "silver bullet",
     "no-brainer",
     "must-have",
+    # Short / partial matches (common in basil, garden, how-to)
+    "comprehensive guide",
+    "thank you for reading",
+    "we hope you enjoyed",
+    "feel free to share",
+    "leave a comment below",
+    "don't forget to",
+    "make sure to",
+    "remember to",
+    "happy growing",
+    "happy gardening",
+    "in this guide",
+    "throughout this article",
+    "as outlined above",
+    "as discussed above",
 ]
 
 GENERIC_SECTION_HEADINGS = [
@@ -903,10 +933,59 @@ class ShopifyAPI:
 
     @staticmethod
     def update_article(article_id: str, data: dict) -> bool:
-        """Update article"""
+        """Update article. On non-200, log response body for debugging."""
         url = f"https://{SHOP}/admin/api/2025-01/blogs/{BLOG_ID}/articles/{article_id}.json"
-        resp = requests.put(url, headers=HEADERS, json={"article": data})
+        resp = requests.put(url, headers=HEADERS, json={"article": data}, timeout=30)
+        if resp.status_code != 200:
+            try:
+                err = resp.text[:500] if resp.text else resp.reason
+                print("[WARN] Shopify API %s: %s" % (resp.status_code, err))
+            except Exception:
+                pass
         return resp.status_code == 200
+
+    @staticmethod
+    def update_article_graphql(article_id: str, is_published: bool = True, publish_date: str | None = None) -> bool:
+        """Publish/unpublish article via GraphQL articleUpdate (authoritative for storefront visibility)."""
+        gql_url = f"https://{SHOP}/admin/api/{API_VERSION}/graphql.json"
+        gid = f"gid://shopify/Article/{article_id}"
+        pub_date = publish_date or "2024-01-01T00:00:00Z"
+        query = """
+        mutation articleUpdate($id: ID!, $article: ArticleUpdateInput!) {
+          articleUpdate(id: $id, article: $article) {
+            article { id }
+            userErrors { field, message }
+          }
+        }
+        """
+        variables = {
+            "id": gid,
+            "article": {
+                "isPublished": is_published,
+                "publishDate": pub_date,
+            },
+        }
+        try:
+            resp = requests.post(
+                gql_url,
+                headers=HEADERS,
+                json={"query": query, "variables": variables},
+                timeout=30,
+            )
+            if resp.status_code != 200:
+                print("[WARN] GraphQL %s: %s" % (resp.status_code, (resp.text or resp.reason)[:300]))
+                return False
+            data = resp.json()
+            payload = data.get("data", {}).get("articleUpdate") or {}
+            errors = payload.get("userErrors") or []
+            if errors:
+                for e in errors:
+                    print("[WARN] GraphQL articleUpdate: %s" % e.get("message", str(e)))
+                return False
+            return True
+        except Exception as e:
+            print("[WARN] GraphQL articleUpdate error: %s" % e)
+            return False
 
 
 # ============================================================================
@@ -1016,7 +1095,7 @@ class AIOrchestrator:
         return resp.status_code == 200
 
     def _strip_generic_before_publish(self, article_id: str) -> bool:
-        """Strip generic content and duplicate paragraphs from body_html before publish. Returns True if updated."""
+        """Strip generic content and duplicate paragraphs from body_html before publish. Preserve featured image. Returns True if updated."""
         article = self.api.get_article(article_id)
         if not article:
             return False
@@ -1025,26 +1104,68 @@ class AIOrchestrator:
         cleaned = _dedupe_paragraphs(cleaned)
         if cleaned == body:
             return True  # No change, OK to proceed
-        ok = self.api.update_article(
-            article_id, {"id": int(article_id), "body_html": cleaned}
-        )
+        # Payload: body_html only; preserve image so featured image is not cleared (do not send id)
+        payload = {"body_html": cleaned}
+        if article.get("image"):
+            payload["image"] = article["image"]
+        ok = self.api.update_article(article_id, payload)
         if ok:
             print("[OK] Stripped generic + duplicate paragraphs before publish")
         return ok
 
+    def _ensure_featured_image(self, article_id: str) -> bool:
+        """If article has no featured image, set it from first <img> in body_html. Returns True if OK."""
+        article = self.api.get_article(article_id)
+        if not article:
+            return True
+        if article.get("image") and article["image"].get("src"):
+            return True
+        body = article.get("body_html", "") or ""
+        img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', body, re.IGNORECASE)
+        if not img_match:
+            print("[WARN] No featured image and no inline image in body - article may show without image")
+            return True
+        src = img_match.group(1).strip()
+        if src.startswith("//"):
+            src = "https:" + src
+        elif src.startswith("/"):
+            base = ("https://%s" % SHOP) if SHOP else "https://cdn.shopify.com"
+            src = base.rstrip("/") + src
+        alt_match = re.search(r'<img[^>]+alt=["\']([^"\']*)["\']', body, re.IGNORECASE)
+        alt = (alt_match.group(1).strip() if alt_match else "") or (article.get("title") or "")[:100]
+        payload = {"image": {"src": src, "alt": alt}}
+        ok = self.api.update_article(article_id, payload)
+        if ok:
+            print("[OK] Set featured image from first inline image")
+        return ok
+
     def _publish_to_shopify(self, article_id: str) -> bool:
-        """Publish article to Shopify (set published=True and published_at=now). Strip generic content first. Skip if PUBLISH_TO_SHOPIFY=false."""
+        """Publish article to Shopify: REST + always GraphQL (storefront uses GraphQL). Strip generic first. Skip if PUBLISH_TO_SHOPIFY=false."""
         if os.environ.get("PUBLISH_TO_SHOPIFY", "true").lower() in {"0", "false", "no"}:
             print("[SKIP] PUBLISH_TO_SHOPIFY disabled - article not published to live")
             return True
+        self._ensure_featured_image(article_id)
         self._strip_generic_before_publish(article_id)
-        payload = {"id": int(article_id), "published": True}
-        ok = self.api.update_article(article_id, payload)
-        if ok:
-            print("[OK] Published to Shopify (live)")
-        else:
-            print("[WARN] Shopify publish failed - article may still be draft")
-        return ok
+        # Use current UTC time so admin and storefront show as published now (not scheduled)
+        published_at_now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        print("[INFO] Publishing to shop=%s blog_id=%s" % (SHOP, BLOG_ID))
+        # REST: do not send "id" in body (id is in URL); only published + published_at
+        rest_payload = {"published": True, "published_at": published_at_now}
+        rest_ok = self.api.update_article(article_id, rest_payload)
+        if rest_ok:
+            print("[OK] REST: published_at=%s" % published_at_now)
+        # ReconcileGPT: storefront visibility is driven by GraphQL - always call GraphQL after REST.
+        gql_ok = self.api.update_article_graphql(article_id, is_published=True, publish_date=published_at_now)
+        if gql_ok:
+            print("[OK] GraphQL: isPublished=true, publishDate=%s (storefront)" % published_at_now)
+        if not rest_ok and not gql_ok:
+            print("[WARN] Shopify publish failed (REST and GraphQL) - article may still be draft")
+            return False
+        # Verify: GET article and print actual state (so we see if admin really updated)
+        article = self.api.get_article(article_id)
+        if article:
+            print("[VERIFY] GET article: published=%s published_at=%s" % (article.get("published"), article.get("published_at")))
+        return True
 
     def _run_pre_publish_review(self, article_id: str) -> tuple[bool, str]:
         """Run pre_publish_review.py and return (passed, error_msg)."""
@@ -2561,7 +2682,9 @@ def main():
         print("  python ai_orchestrator.py fix-manual-review [limit]")
         print("  python ai_orchestrator.py fix-ids <id1> <id2> ...")
         print("  python ai_orchestrator.py force-rebuild-ids <id1> <id2> ...")
+        print("  python ai_orchestrator.py check-article <article_id>  # print published, published_at, title")
         print("  python ai_orchestrator.py strip-and-publish <article_id>  # strip generic then publish")
+        print("  python ai_orchestrator.py publish-graphql <article_id>  # force publish via GraphQL only (storefront)")
         print("  python ai_orchestrator.py publish-id <article_id>")
         print("  python ai_orchestrator.py status")
         return
@@ -2679,6 +2802,27 @@ def main():
             return
         orchestrator.force_rebuild_article_ids(article_ids)
 
+    elif command == "check-article":
+        if len(sys.argv) < 3:
+            print("Usage: python ai_orchestrator.py check-article <article_id>")
+            print("  Print article status: published, published_at, title, handle.")
+            return
+        article_id = sys.argv[2].strip()
+        article = orchestrator.api.get_article(article_id)
+        if not article:
+            print("[WARN] Article not found: %s" % article_id)
+            return
+        print("id: %s" % article.get("id"))
+        print("title: %s" % (article.get("title") or ""))
+        print("published: %s" % article.get("published"))
+        print("published_at: %s" % article.get("published_at"))
+        print("handle: %s" % (article.get("handle") or ""))
+        print("blog_id: %s" % article.get("blog_id"))
+        if article.get("published_at"):
+            print("[OK] Article is published (published_at set)")
+        else:
+            print("[WARN] Article has no published_at - may not show on storefront")
+
     elif command == "strip-and-publish":
         if len(sys.argv) < 3:
             print("Usage: python ai_orchestrator.py strip-and-publish <article_id>")
@@ -2697,6 +2841,24 @@ def main():
             print(f"[OK] Stripped generic + published and marked done: {article_id}")
         else:
             print(f"[WARN] Publish failed for {article_id}")
+
+    elif command == "publish-graphql":
+        if len(sys.argv) < 3:
+            print("Usage: python ai_orchestrator.py publish-graphql <article_id>")
+            print("  Force publish via GraphQL only (storefront visibility). No REST, no strip.")
+            return
+        article_id = sys.argv[2].strip()
+        published_at_past = "2024-01-01T00:00:00Z"
+        gql_ok = orchestrator.api.update_article_graphql(article_id, is_published=True, publish_date=published_at_past)
+        if gql_ok:
+            print("[OK] GraphQL publish: isPublished=true, publishDate=%s" % published_at_past)
+            article = orchestrator.api.get_article(article_id)
+            if article:
+                print("id: %s  title: %s  published_at: %s" % (
+                    article.get("id"), (article.get("title") or "")[:50], article.get("published_at")
+                ))
+        else:
+            print("[WARN] GraphQL publish failed for %s" % article_id)
 
     elif command == "publish-id":
         if len(sys.argv) < 3:
