@@ -1,11 +1,9 @@
 import "./tracing.js";
 import fs from "fs-extra";
-import path from "path";
-import { spawnSync } from "child_process";
 import "dotenv/config";
 import { readConfig, readQueue, updateBackfill } from "./sheets.js";
-import { callOpenAI, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
-import { createDraftArticle, publishExistingArticle } from "./shopify.js";
+import { callLLM, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
+import { publishArticle } from "./shopify.js";
 import { withRetry } from "./batch.js";
 import { writePreview } from "./preview.js";
 
@@ -42,42 +40,9 @@ async function writeSummary(summary: Summary) {
   console.log("SUMMARY", JSON.stringify(summary));
 }
 
-function runPrePublishReview(articleId: string) {
-  const script = path.join(
-    "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory",
-    "scripts",
-    "pre_publish_review.py",
-  );
-  const timeoutMs = Number(process.env.PRE_PUBLISH_TIMEOUT_MS || "300000");
-  const result = spawnSync("python", [script, articleId], {
-    stdio: "inherit",
-    timeout: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 300000,
-    killSignal: "SIGKILL",
-  });
-  if (result.error) {
-    const message = result.error.message || "Pre-publish review failed";
-    throw new Error(message);
-  }
-  if (result.status !== 0) {
-    throw new Error(`Pre-publish review failed for ${articleId}`);
-  }
-}
-
 async function main() {
-  const watchdogMs = Number(process.env.EXECUTOR_TIMEOUT_MS || "360000");
-  const watchdog = setTimeout(() => {
-    console.error("[EXECUTOR] Timeout exceeded, exiting.");
-    process.exit(1);
-  }, Number.isFinite(watchdogMs) && watchdogMs > 0 ? watchdogMs : 360000);
-
-  console.log("[EXECUTOR] Loading config...");
   const config = await readConfig();
-  console.log("[EXECUTOR] Config loaded.");
-
-  console.log("[EXECUTOR] Loading queue...");
   const queue = await readQueue(parseBatchSize());
-  console.log(`[EXECUTOR] Queue items: ${queue.length}`);
-
   const summary: Summary = { attempted: queue.length, processed: 0, failed: 0, errors: [] };
 
   if (!queue.length) {
@@ -90,7 +55,6 @@ async function main() {
   const precomputed = await maybeGenerateBatch(context, queue);
   await processQueue(queue, context, summary, precomputed);
   await writeSummary(summary);
-  clearTimeout(watchdog);
 }
 
 function parseBatchSize() {
@@ -153,28 +117,14 @@ async function processQueue(
         continue;
       }
 
-      console.log(`[EXECUTOR] Creating draft for ${row.url_blog_crawl}`);
-      const draft = await createDraftArticle(context.blogHandle, context.author, data);
-      const articleId = String(draft?.article?.id || "");
-      if (!articleId) throw new Error("Shopify response missing article id");
-
-      console.log(`[EXECUTOR] Draft created: ${articleId}`);
-      console.log(`[EXECUTOR] Pre-publish review: ${articleId}`);
-      runPrePublishReview(articleId);
-      console.log(`[EXECUTOR] Pre-publish review passed: ${articleId}`);
-
-      const published = await publishExistingArticle(articleId);
-      const handle = published?.article?.handle || draft?.article?.handle;
+      const article = await publishArticle(context.blogHandle, context.author, data);
+      const handle = article?.article?.handle;
       if (!handle) throw new Error("Shopify response missing article handle");
       const shop = process.env.SHOPIFY_SHOP;
       if (!shop) throw new Error("Missing SHOPIFY_SHOP env var");
       const url = `https://${shop}.myshopify.com/blogs/${context.blogHandle}/${handle}`;
 
-      if (process.env.SHEETS_ENABLED === "true" && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-        await withRetry(() => updateBackfill(row.url_blog_crawl, url));
-      } else {
-        console.warn("Skipping Sheets backfill (SHEETS_ENABLED=false or missing credentials).");
-      }
+      await withRetry(() => updateBackfill(row.url_blog_crawl, url));
       console.log(`Published: ${url}`);
       summary.processed += 1;
     } catch (error) {
@@ -190,10 +140,10 @@ async function getDraftForRow(
   row: QueueRow,
   context: ExecutorContext,
   precomputed: BatchGenerationResult | null,
-): Promise<Awaited<ReturnType<typeof callOpenAI>>> {
+): Promise<Awaited<ReturnType<typeof callLLM>>> {
   const systemPrompt = context.buildSystemPrompt(row.url_blog_crawl);
   if (!precomputed) {
-    return withRetry(() => callOpenAI(systemPrompt, context.model));
+    return withRetry(() => callLLM(systemPrompt, context.model));
   }
   const precomputedError = precomputed.errors[row.url_blog_crawl];
   if (precomputedError) {

@@ -63,6 +63,18 @@ jobs:
             echo "BLOG_HANDLE=${{ vars.BLOG_HANDLE }}"
             echo "AUTHOR=${{ vars.AUTHOR }}"
             echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL }}"
+            echo "GH_MODELS_API_BASE=${{ vars.GH_MODELS_API_BASE || 'https://models.github.ai/inference' }}"
+            echo "GH_MODELS_MODEL=${{ vars.GH_MODELS_MODEL }}"
+            echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-1.5-flash' }}"
+            echo "LLM_PROVIDER_ORDER=${{ vars.LLM_PROVIDER_ORDER || 'gemini,github_models,openai' }}"
+            echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'true' }}"
+            echo "CONFIG_FILE=${{ vars.CONFIG_FILE }}"
+            echo "QUEUE_FILE=${{ vars.QUEUE_FILE }}"
+            echo "QUEUE_URL=${{ vars.QUEUE_URL }}"
+            echo "LOCAL_HEARTBEAT_FILE=${{ vars.LOCAL_HEARTBEAT_FILE || 'local_heartbeat.json' }}"
+            echo "LOCAL_HEARTBEAT_URL=${{ vars.LOCAL_HEARTBEAT_URL }}"
+            echo "LOCAL_HEARTBEAT_MAX_AGE_MINUTES=${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}"
+            echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
             echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
             echo "POLLINATIONS_NEGATIVE=text, watermark, logo, signature"
@@ -83,6 +95,9 @@ jobs:
           {
             echo "SHOPIFY_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}"
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+            echo "GH_MODELS_API_KEY=${{ secrets.GH_MODELS_API_KEY || secrets.GITHUB_TOKEN }}"
+            echo "GITHUB_MODELS_API_KEY=${{ secrets.GITHUB_MODELS_API_KEY || secrets.GITHUB_TOKEN }}"
+            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
           } >> "$GITHUB_ENV"
       - name: Install dependencies
         run: npm ci
@@ -101,7 +116,35 @@ jobs:
           fi
       - name: Build executor
         run: npm run --workspace apps/executor build
+      - name: Check local heartbeat
+        run: |
+          set -euo pipefail
+          max_age_min="${LOCAL_HEARTBEAT_MAX_AGE_MINUTES:-15}"
+          heartbeat_ts=""
+          if [ -n "${LOCAL_HEARTBEAT_URL:-}" ]; then
+            echo "Checking heartbeat URL: $LOCAL_HEARTBEAT_URL"
+            heartbeat_ts=$(python -c "import json, os, urllib.request; url=os.environ.get('LOCAL_HEARTBEAT_URL','');\ntry:\n  resp=urllib.request.urlopen(url,timeout=10)\n  data=json.loads(resp.read().decode('utf-8'))\n  print(str(data.get('timestamp','')).strip())\nexcept Exception:\n  print('', end='')\n")
+          elif [ -f "${LOCAL_HEARTBEAT_FILE:-local_heartbeat.json}" ]; then
+            echo "Checking heartbeat file: ${LOCAL_HEARTBEAT_FILE:-local_heartbeat.json}"
+            heartbeat_ts=$(python -c "import json, os; path=os.environ.get('LOCAL_HEARTBEAT_FILE','local_heartbeat.json');\ntry:\n  data=json.load(open(path,'r',encoding='utf-8'))\n  print(str(data.get('timestamp','')).strip())\nexcept Exception:\n  print('', end='')\n")
+          fi
+
+          active="false"
+          if [ -n "$heartbeat_ts" ]; then
+            now=$(date +%s)
+            age=$((now - heartbeat_ts))
+            max_age_sec=$((max_age_min * 60))
+            if [ "$age" -ge 0 ] && [ "$age" -le "$max_age_sec" ]; then
+              active="true"
+            fi
+            echo "Heartbeat age: ${age}s (max ${max_age_sec}s)"
+          fi
+          echo "LOCAL_HEARTBEAT_ACTIVE=$active" >> "$GITHUB_ENV"
+          if [ "$active" = "true" ]; then
+            echo "Local runner active; skipping executor run."
+          fi
       - name: Run executor (${{ env.MODE }}) - fresh session per blog (single item)
+        if: env.LOCAL_HEARTBEAT_ACTIVE != 'true'
         env:
           MODE: ${{ env.MODE }}
           DISPATCH_REASON: ${{ env.DISPATCH_REASON }}

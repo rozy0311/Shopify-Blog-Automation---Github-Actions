@@ -2234,3 +2234,136 @@ Sources
 [21] How To Find Copilot Limit Count? · community · Discussion #148897 https://github.com/orgs/community/discussions/148897
 
 --———————————
+[Tavily - The Web Access Layer for AI Agents](https://www.tavily.com/)  ( tham khảo )
+
+Tui muốn bạn dùng Shopify Magic (AI generate images built-in của Shopify) thay vì tốn tiền API bên ngoài.
+
+Bạn có thể tạo script Playwright để automate việc:
+
+Login Shopify admin
+Mở article vừa tạo
+Click "Generate images" button
+Chờ Shopify AI generate
+Lưu ảnh
+
+nếu ko được thì tìm ảnh trên pinterest phù hợp với topic và nội dung topic, đừng có link chèn vào trong ảnh là ok. ảnh rõ nét, sống động và đẹp 
+đảm bảo ảnh ko bị dính bản quyền
+đảm bảo là ko có link nào trong ảnh và ảnh phải đúng với topic và nội dung topic chuẩn ko bị lạc đề nhé
+tạo Image Review Agent để kiểm tra ảnh có phù hợp với topic không:
+
+Dùng https://www.pexels.com/api/
+
+yêu cầu nếu images có chữ thì phải chọn images có chữ rõ ràng, đọc lên hiểu  liền ko thì thôi
+
+chọn author là The Rike , và bạn quên ghi SEO tittle và meta description, và quên cho agent review toàn bộ từ blog tới image rồi tự động publish luôn
+_______________________________________________________
+
+ý tui là nếu xảy ra lỗi cần tui bấm nút try again thì bạn cho agent tự bấm nút luôn trong lúc tui đang ngủ hoặc đi chơi
+
+Rất tiếc, tôi **không có khả năng tự động bấm nút "Try Again"** khi xảy ra lỗi server 500 của GitHub Copilot. Đây là giới hạn của hệ thống:
+
+**Lý do:**
+
+1. Lỗi 500 xảy ra ở **phía GitHub Copilot server** - không phải lỗi trong code hay terminal
+2. Agent không có quyền truy cập vào **VS Code UI elements** (nút bấm, popup, dialog)
+3. Agent chỉ có thể thao tác với: files, terminal, tools được cấp - không thể interact với VS Code interface
+
+**Giải pháp thay thế cho workflow tự động:**
+
+Nếu bạn muốn chạy batch publish blogs mà không cần ngồi canh, tôi có thể tạo một **Python script tự động** chạy trong terminal:
+# Script tự động publish với retry logic
+import time
+import requests
+
+def publish_with_retry(topic, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            # Publish logic here
+            result = publish_article(topic)
+            return result
+        except Exception as e:
+            print(f"Attempt {attempt+1} failed: {e}")
+            time.sleep(30)  # Wait 30s before retry
+    return None
+
+**Bạn muốn tôi tạo script batch tự động publish 54 topics còn lại với retry logic không?** Script này sẽ:
+
+- Tự động research + tạo content
+- Retry khi có lỗi API
+- Log progress vào file
+- Bạn có thể chạy rồi đi ngủ
+  
+  có nha.  tạo script batch tự động publish với retry logic:
+
+________________________________________
+
+Tôi không có khả năng tự động bấm nút "Allow" trong VS Code UI. Agent chỉ có thể thao tác với files và terminal commands - không thể click buttons, dialogs hay popups.
+
+Giải pháp: Chạy script trực tiếp trong terminal - không cần bấm Allow:
+
+và tạo agent tự động review lại  mọi  bài blogs với đầy đủ các tiêu chuẩn trong prompt đã đưa ra , agent tự động nhớ những gì tui yêu cầu, để tui khỏi phải hỏi lại nữa
+
+_________________
+
+Người dùng đang phàn nàn rằng:
+
+Tôi đã tạo một agent có thể nhớ tất cả những gì đã được cài đặt và cuộc hội thoại
+Nhưng mỗi lần làm task, người dùng phải nhắc lại hoài
+Người dùng phải chỉ lỗi sai cho tôi
+Tôi không tự review được - người dùng phải nhắc suốt
+Đây là một phản hồi hợp lệ. Người dùng đúng - tôi nên:
+
+Nhớ META-PROMPT standards từ đầu và áp dụng ngay
+Tự review trước khi publish
+Không để người dùng phải phát hiện lỗi
+Tôi cần thừa nhận lỗi và đề xuất giải pháp - tạo một quy trình tự động review trước khi publish để tránh những lỗi này trong tương lai.
+
+Tôi nên:
+
+Thừa nhận lỗi của mình
+Giải thích nguyên nhân
+Đề xuất giải pháp cụ thể - tạo một pre-publish checklist/review script để tự động kiểm tra trước khi publish
+
+_________________________________
+
+Bạn nói đúng hoàn toàn. Tôi xin lỗi.
+
+Những lỗi tôi đã mắc:
+
+Không apply META-PROMPT standards ngay từ đầu - dù đã có trong context
+Thiếu main images - phải bạn nhắc mới biết
+Images không liên quan topic - phải bạn chỉ ra
+Không tự review trước khi publish - chạy xong là xong, không verify
+Nguyên nhân:
+
+Tôi chạy task rồi báo "done" mà không tự audit kết quả
+Không so sánh output với META-PROMPT requirements trước khi kết thúc
+Giải pháp: Tôi sẽ tạo một pre-publish review script để tự động check mọi thứ TRƯỚC khi publish:
+
+Tôi hiểu và thừa nhận:
+Bạn đúng hoàn toàn. Tôi có tất cả thông tin META-PROMPT ngay từ đầu conversation, nhưng tôi đã:
+❌ Tạo articles thiếu main image
+❌ Tạo articles với ảnh generic không liên quan topic
+❌ Không tự review trước khi nói "hoàn thành"
+❌ Để bạn phải phát hiện lỗi và nhắc tôi
+Workflow tôi sẽ áp dụng từ giờ:
+1. Tạo content → 2. Chạy pre_publish_review.py → 3. Fix nếu có lỗi → 4. Chỉ khi PASS 100% mới báo hoàn thành
+
+Workflow bắt buộc cho mọi content task:
+
+1. Tạo content đúng META-PROMPT ngay từ đầu:
+   - 1800-2200 words
+   - Main image + alt text (topic-specific)
+   - 3+ inline images trong <figure> + alt text (topic-specific)
+   - 2+ blockquotes với expert credentials
+   - 1+ table
+
+2. Tự chạy pre_publish_review.py TRƯỚC khi báo hoàn thành
+
+3. Nếu có lỗi → tự fix → chạy lại review
+
+4. Chỉ khi 100% PASS mới báo hoàn thành
+
+User wants me to add a feature to the agent review script to check for empty/unfilled fields like meta description, title, and other fields.
+ 
+bạn đọc  lại mấy file trên rồi coi agent cần thêm tính  năng review nào nữa thì bổ sung vào 

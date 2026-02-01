@@ -6,6 +6,8 @@ import { wait } from "./batch.js";
 
 type OpenAIError = Error & { status?: number; retryAfterMs?: number };
 
+type Provider = "github_models" | "gemini" | "openai";
+
 type LlmPayload = {
   title: string;
   seo_title?: string;
@@ -26,70 +28,64 @@ export type BatchGenerationResult = {
 };
 
 const JSON_ONLY_MESSAGE = "Return only a single minified JSON object. No markdown, no code fences, no commentary.";
+const STRICT_JSON_MESSAGE =
+  "Return ONLY a valid minified JSON object. Use double quotes, no trailing commas, no extra text.";
 const TERMINAL_BATCH_STATUSES = new Set(["completed", "failed", "expired", "canceled"]);
 let cachedOpenAIClient: OpenAI | null = null;
 
-export async function callOpenAI(systemPrompt: string, model: string): Promise<LlmPayload> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("Missing OPENAI_API_KEY");
+export async function callLLM(
+  systemPrompt: string,
+  model: string,
+  userPrompt: string = JSON_ONLY_MESSAGE,
+): Promise<LlmPayload> {
+  const providers = resolveProviderOrder();
+  let lastError: Error | null = null;
 
-  const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || "120000");
-  const controller = new AbortController();
-  const timeout = setTimeout(
-    () => controller.abort(),
-    Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 120000,
-  );
-  let response: Response;
-  try {
-    response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0.3,
-        max_tokens: 2200,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content: JSON_ONLY_MESSAGE,
-          },
-        ],
-      }),
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("OpenAI request timed out");
+  for (const provider of providers) {
+    try {
+      const resolvedModel = resolveModelForProvider(provider, model);
+      const attempt = async (prompt: string) => {
+        if (provider === "gemini") {
+          return await callGemini(systemPrompt, prompt, resolvedModel);
+        }
+        return await callOpenAICompatible(provider, systemPrompt, prompt, resolvedModel);
+      };
+
+      try {
+        return await attempt(userPrompt);
+      } catch (error) {
+        if (isNonJsonError(error)) {
+          try {
+            return await attempt(STRICT_JSON_MESSAGE);
+          } catch (retryError) {
+            if (isNonJsonError(retryError)) {
+              lastError = retryError instanceof Error ? retryError : new Error(String(retryError));
+              continue;
+            }
+            throw retryError;
+          }
+        }
+        throw error;
+      }
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      lastError = err;
+      if (shouldFallback(provider, err)) {
+        continue;
+      }
+      throw err;
     }
-    throw error;
-  } finally {
-    clearTimeout(timeout);
   }
 
-  if (!response.ok) {
-    const message = await extractErrorMessage(response);
-    const error = new Error(message) as OpenAIError;
-    error.status = response.status;
-    const retryAfterMs = computeRetryAfter(response);
-    if (retryAfterMs) {
-      error.retryAfterMs = retryAfterMs;
-    }
-    throw error;
-  }
-
-  const json = await response.json();
-  const text = json?.choices?.[0]?.message?.content ?? "";
-  return parseJsonRelaxed(text) as LlmPayload;
+  if (lastError) throw lastError;
+  throw new Error("No LLM providers configured");
 }
 
 export async function generateBatch(items: BatchJobItem[], model: string): Promise<BatchGenerationResult> {
   if (!items.length) return { outputs: {}, errors: {} };
-  if (process.env.USE_BATCH !== "true") {
+  const providers = resolveProviderOrder();
+  const primaryProvider = providers[0] ?? "openai";
+  if (process.env.USE_BATCH !== "true" || primaryProvider !== "openai") {
     return generateSequential(items, model);
   }
   return runBatchWorkflow(items, model);
@@ -99,7 +95,7 @@ async function generateSequential(items: BatchJobItem[], model: string): Promise
   const result: BatchGenerationResult = { outputs: {}, errors: {} };
   for (const item of items) {
     try {
-      result.outputs[item.id] = await callOpenAI(item.systemPrompt, model);
+      result.outputs[item.id] = await callLLM(item.systemPrompt, model, item.userPrompt);
     } catch (error) {
       result.errors[item.id] = error instanceof Error ? error.message : String(error);
     }
@@ -181,6 +177,228 @@ function parseBatchOutput(rawText: string): BatchGenerationResult {
   return result;
 }
 
+function isNonJsonError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  return (
+    message.includes("non-json") ||
+    message.includes("invalid json") ||
+    message.includes("json parse") ||
+    message.includes("unexpected token") ||
+    message.includes("unterminated") ||
+    message.includes("end of json") ||
+    message.includes("llm returned non-json")
+  );
+}
+
+function resolveProviderOrder(): Provider[] {
+  const disableOpenAI = (process.env.DISABLE_OPENAI || "").toLowerCase() === "true";
+  const raw = (process.env.LLM_PROVIDER_ORDER || process.env.LLM_PROVIDER || "gemini,github_models,openai")
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+
+  const seen = new Set<Provider>();
+  const providers: Provider[] = [];
+  for (const value of raw) {
+    if (value === "github_models" || value === "github" || value === "githubmodels") {
+      if (!seen.has("github_models")) {
+        providers.push("github_models");
+        seen.add("github_models");
+      }
+      continue;
+    }
+    if (value === "gemini") {
+      if (!seen.has("gemini")) {
+        providers.push("gemini");
+        seen.add("gemini");
+      }
+      continue;
+    }
+    if (value === "openai") {
+      if (disableOpenAI) {
+        continue;
+      }
+      if (!seen.has("openai")) {
+        providers.push("openai");
+        seen.add("openai");
+      }
+    }
+  }
+  if (!providers.length && !disableOpenAI) {
+    return ["openai"];
+  }
+  return providers;
+}
+
+function resolveModelForProvider(provider: Provider, fallbackModel: string): string {
+  if (provider === "github_models") {
+    const explicit = process.env.GH_MODELS_MODEL || process.env.GITHUB_MODELS_MODEL;
+    if (explicit) return explicit;
+    return fallbackModel.includes("/") ? fallbackModel : `openai/${fallbackModel}`;
+  }
+  if (provider === "gemini") {
+    return process.env.GEMINI_MODEL || "gemini-1.5-flash";
+  }
+  return fallbackModel;
+}
+
+function shouldFallback(provider: Provider, error: Error): boolean {
+  const message = error.message.toLowerCase();
+  const status = (error as OpenAIError).status;
+  if (message.includes("missing")) return true;
+  if (status && [401, 403, 429].includes(status)) return true;
+  if (
+    message.includes("quota") ||
+    message.includes("rate limit") ||
+    message.includes("insufficient") ||
+    message.includes("budget limit") ||
+    message.includes("budget") ||
+    message.includes("exceeded")
+  ) {
+    return true;
+  }
+  return provider !== "openai" && message.includes("timed out");
+}
+
+async function callOpenAICompatible(
+  provider: "github_models" | "openai",
+  systemPrompt: string,
+  userPrompt: string,
+  model: string,
+): Promise<LlmPayload> {
+  const apiKey =
+    provider === "github_models"
+      ? process.env.GH_MODELS_API_KEY || process.env.GITHUB_MODELS_API_KEY || process.env.GITHUB_TOKEN
+      : process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error(
+      provider === "github_models" ? "Missing GH_MODELS_API_KEY" : "Missing OPENAI_API_KEY",
+    );
+  }
+
+  const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || "120000");
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 120000,
+  );
+
+  const baseUrl =
+    provider === "github_models"
+      ? process.env.GH_MODELS_API_BASE ||
+        process.env.GITHUB_MODELS_API_BASE ||
+        "https://models.github.ai/inference"
+      : "https://api.openai.com/v1";
+
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "api-key": apiKey,
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.3,
+        max_tokens: 2200,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          {
+            role: "user",
+            content: userPrompt,
+          },
+        ],
+      }),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(`${provider} request timed out`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    const message = await extractErrorMessage(response);
+    const error = new Error(message) as OpenAIError;
+    error.status = response.status;
+    const retryAfterMs = computeRetryAfter(response);
+    if (retryAfterMs) {
+      error.retryAfterMs = retryAfterMs;
+    }
+    throw error;
+  }
+
+  const json = await response.json();
+  const text = json?.choices?.[0]?.message?.content ?? "";
+  return parseJsonRelaxed(text) as LlmPayload;
+}
+
+async function callGemini(systemPrompt: string, userPrompt: string, model: string): Promise<LlmPayload> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("Missing GEMINI_API_KEY");
+
+  const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || "120000");
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 120000,
+  );
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        systemInstruction: {
+          role: "system",
+          parts: [{ text: systemPrompt }],
+        },
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: userPrompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 2200,
+          response_mime_type: "application/json",
+        },
+      }),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("gemini request timed out");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    const message = await extractErrorMessage(response);
+    const error = new Error(message) as OpenAIError;
+    error.status = response.status;
+    throw error;
+  }
+
+  const json = await response.json();
+  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  return parseJsonRelaxed(text) as LlmPayload;
+}
+
 async function extractErrorMessage(response: Response): Promise<string> {
   const fallback = `OpenAI HTTP ${response.status}`;
   try {
@@ -244,13 +462,55 @@ export function parseJsonRelaxed(input: string) {
   try {
     return JSON.parse(stripped);
   } catch {
-    const start = stripped.indexOf("{");
-    const end = stripped.lastIndexOf("}");
-    if (start >= 0 && end > start) {
-      return JSON.parse(stripped.slice(start, end + 1));
+    const normalized = normalizeJsonLike(stripped);
+    try {
+      return JSON.parse(normalized);
+    } catch {
+      const start = stripped.indexOf("{");
+      const end = stripped.lastIndexOf("}");
+      if (start >= 0 && end > start) {
+        const slice = stripped.slice(start, end + 1);
+        return JSON.parse(normalizeJsonLike(slice));
+      }
+      const extracted = extractJsonSubstring(stripped);
+      if (extracted) {
+        return JSON.parse(normalizeJsonLike(extracted));
+      }
     }
   }
   throw new Error("LLM returned non-JSON");
+}
+
+function normalizeJsonLike(value: string): string {
+  let text = value.trim();
+  if (!text) return text;
+  text = text.replace(/,\s*([}\]])/g, "$1");
+  const hasDouble = /"/.test(text);
+  const hasSingle = /'/.test(text);
+  if (!hasDouble && hasSingle) {
+    text = text.replace(/'/g, '"');
+  }
+  return text;
+}
+
+function extractJsonSubstring(text: string): string | null {
+  let depth = 0;
+  let start = -1;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth += 1;
+    } else if (ch === "}") {
+      if (depth > 0) {
+        depth -= 1;
+        if (depth === 0 && start >= 0) {
+          return text.slice(start, i + 1);
+        }
+      }
+    }
+  }
+  return null;
 }
 
 export function validateNoYears(payload: LlmPayload) {

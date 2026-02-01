@@ -790,6 +790,25 @@ def review_article(article_id):
             f"❌ SECTION STRUCTURE: Missing required sections: {', '.join(missing_sections)}"
         )
 
+    # 16b. Required section structure check (H2/H3 text)
+    heading_texts = re.findall(
+        r"<h[23][^>]*>(.*?)</h[23]>",
+        body,
+        re.IGNORECASE | re.DOTALL,
+    )
+    heading_texts = [
+        re.sub(r"<[^>]+>", " ", h).replace("&amp;", "&").strip().lower()
+        for h in heading_texts
+    ]
+    missing_sections = []
+    for label, pattern in REQUIRED_SECTION_PATTERNS:
+        if not any(re.search(pattern, h, re.IGNORECASE) for h in heading_texts):
+            missing_sections.append(label)
+    if missing_sections:
+        errors.append(
+            f"❌ SECTION STRUCTURE: Missing required sections: {', '.join(missing_sections)}"
+        )
+
     # ========== META-PROMPT HARD VALIDATIONS ==========
     # Initialize tracking variables
     sources_links_count = 0
