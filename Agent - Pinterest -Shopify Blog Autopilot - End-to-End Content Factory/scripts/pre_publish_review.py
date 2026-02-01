@@ -101,6 +101,7 @@ SEO_REQUIREMENTS = {
 QUALITY_CHECKS = {
     "check_broken_images": True,
     "check_duplicate_images": True,
+    "check_duplicate_text": True,  # Block repeated paragraphs/sentences
     "check_empty_paragraphs": True,
     "check_heading_hierarchy": True,  # H2 before H3
     "check_call_to_action": True,  # CTA in content
@@ -688,6 +689,26 @@ def review_article(article_id):
         if len(img_srcs) != len(unique_srcs):
             errors.append(
                 f"❌ DUPLICATE IMAGES: {len(img_srcs) - len(unique_srcs)} duplicate image(s) found"
+            )
+
+    # 12b. Duplicate text check (repeated paragraphs / long repeated substrings)
+    if QUALITY_CHECKS.get("check_duplicate_text", True):
+        paras = re.findall(r"<p[^>]*>(.*?)</p>", body, re.IGNORECASE | re.DOTALL)
+        seen = {}
+        dup_paras = []
+        for p in paras:
+            clean = re.sub(r"\s+", " ", _strip_html(p)).strip().lower()
+            if len(clean) < 40:
+                continue
+            if clean in seen:
+                seen[clean] += 1
+                if seen[clean] == 2:
+                    dup_paras.append(clean[:60] + "…")
+            else:
+                seen[clean] = 1
+        if dup_paras:
+            errors.append(
+                f"❌ DUPLICATE TEXT: {len(dup_paras)} repeated paragraph(s) — e.g. \"{dup_paras[0]}\""
             )
 
     # 13. Heading hierarchy check (H2 should come before H3)

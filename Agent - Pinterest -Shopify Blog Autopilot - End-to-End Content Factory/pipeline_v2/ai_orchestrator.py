@@ -336,6 +336,23 @@ def _remove_generic_sections(body_html: str) -> str:
     return str(soup)
 
 
+def _dedupe_paragraphs(body_html: str) -> str:
+    """Remove duplicate paragraphs (same text 40+ chars). Keeps first occurrence."""
+    if not body_html:
+        return body_html
+    soup = BeautifulSoup(body_html, "html.parser")
+    seen = set()
+    for tag in soup.find_all("p"):
+        text = re.sub(r"\s+", " ", tag.get_text(" ", strip=True)).strip().lower()
+        if len(text) < 40:
+            continue
+        if text in seen:
+            tag.decompose()
+        else:
+            seen.add(text)
+    return str(soup)
+
+
 def _ensure_run_log_header():
     header = [
         "timestamp",
@@ -999,32 +1016,34 @@ class AIOrchestrator:
         return resp.status_code == 200
 
     def _strip_generic_before_publish(self, article_id: str) -> bool:
-        """Strip any remaining generic content from body_html before publish. Returns True if updated."""
+        """Strip generic content and duplicate paragraphs from body_html before publish. Returns True if updated."""
         article = self.api.get_article(article_id)
         if not article:
             return False
         body = article.get("body_html", "") or ""
         cleaned = _remove_generic_sections(body)
+        cleaned = _dedupe_paragraphs(cleaned)
         if cleaned == body:
             return True  # No change, OK to proceed
         ok = self.api.update_article(
             article_id, {"id": int(article_id), "body_html": cleaned}
         )
         if ok:
-            print("🧹 Stripped generic content before publish")
+            print("[OK] Stripped generic + duplicate paragraphs before publish")
         return ok
 
     def _publish_to_shopify(self, article_id: str) -> bool:
-        """Publish article to Shopify (set published=True). Strip generic content first. Skip if PUBLISH_TO_SHOPIFY=false."""
+        """Publish article to Shopify (set published=True and published_at=now). Strip generic content first. Skip if PUBLISH_TO_SHOPIFY=false."""
         if os.environ.get("PUBLISH_TO_SHOPIFY", "true").lower() in {"0", "false", "no"}:
-            print("⏸️ PUBLISH_TO_SHOPIFY disabled - article not published to live")
+            print("[SKIP] PUBLISH_TO_SHOPIFY disabled - article not published to live")
             return True
         self._strip_generic_before_publish(article_id)
-        ok = self.api.update_article(article_id, {"published": True})
+        payload = {"id": int(article_id), "published": True}
+        ok = self.api.update_article(article_id, payload)
         if ok:
-            print("📤 Published to Shopify (live)")
+            print("[OK] Published to Shopify (live)")
         else:
-            print("⚠️ Shopify publish failed - article may still be draft")
+            print("[WARN] Shopify publish failed - article may still be draft")
         return ok
 
     def _run_pre_publish_review(self, article_id: str) -> tuple[bool, str]:
@@ -1683,6 +1702,10 @@ class AIOrchestrator:
         if self._run_meta_fix(article_id):
             print("📋 Meta fix applied (citations/stats/expand)")
             article = self.api.get_article(article_id) or article
+
+        # Strip generic content before gate so review sees clean content; avoid publishing generic
+        self._strip_generic_before_publish(article_id)
+        article = self.api.get_article(article_id) or article
 
         audit = self.quality_gate.full_audit(article)
         gate = audit.get("deterministic_gate", {})
@@ -2538,6 +2561,8 @@ def main():
         print("  python ai_orchestrator.py fix-manual-review [limit]")
         print("  python ai_orchestrator.py fix-ids <id1> <id2> ...")
         print("  python ai_orchestrator.py force-rebuild-ids <id1> <id2> ...")
+        print("  python ai_orchestrator.py strip-and-publish <article_id>  # strip generic then publish")
+        print("  python ai_orchestrator.py publish-id <article_id>")
         print("  python ai_orchestrator.py status")
         return
 
@@ -2653,6 +2678,25 @@ def main():
             print("Error: Provide one or more article IDs")
             return
         orchestrator.force_rebuild_article_ids(article_ids)
+
+    elif command == "strip-and-publish":
+        if len(sys.argv) < 3:
+            print("Usage: python ai_orchestrator.py strip-and-publish <article_id>")
+            print("  Strip generic content from body_html, then publish to live.")
+            return
+        article_id = sys.argv[2].strip()
+        orchestrator._strip_generic_before_publish(article_id)
+        if orchestrator._publish_to_shopify(article_id):
+            queue = AntiDriftQueue.load()
+            if ANTI_DRIFT_QUEUE_FILE.exists():
+                queue.mark_done(article_id)
+                queue.save()
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+            print(f"[OK] Stripped generic + published and marked done: {article_id}")
+        else:
+            print(f"[WARN] Publish failed for {article_id}")
 
     elif command == "publish-id":
         if len(sys.argv) < 3:
