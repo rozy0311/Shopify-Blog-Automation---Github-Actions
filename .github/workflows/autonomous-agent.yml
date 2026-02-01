@@ -71,11 +71,12 @@ jobs:
         run: |
           echo "Running safety checks..."
 
-          # Check 1: No forbidden files modified
+          # Check only *this run's* changes (working tree + staged), not previous commits
+          CHANGED=$(git diff --name-only; git diff --cached --name-only) || true
           FORBIDDEN=".github/workflows apps/ package.json package-lock.json .env vertex-sa.json"
           for path in $FORBIDDEN; do
-            if git diff --name-only HEAD~1 2>/dev/null | grep -q "^$path"; then
-              echo "ERROR: Forbidden path modified: $path"
+            if echo "$CHANGED" | grep -q "^$path"; then
+              echo "ERROR: Forbidden path modified by this run: $path"
               exit 1
             fi
           done

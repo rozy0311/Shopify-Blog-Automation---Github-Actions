@@ -22,6 +22,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                   ref: ${{ vars.LOCAL_HEARTBEAT_REF || 'feat/l6-reconcile-main' }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Check local heartbeat
               id: heartbeat
