@@ -65,6 +65,7 @@ jobs:
             contents: read
         env:
             SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+            SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
             SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
             SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
             SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
@@ -95,6 +96,7 @@ jobs:
             MIN_PASS_RATE: "0.95"
             PASS_RATE_WINDOW: "20"
             PASS_RATE_MIN_SAMPLES: "10"
+            MAX_QUEUE_RETRIES: ${{ vars.MAX_QUEUE_RETRIES || '20' }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -239,97 +241,20 @@ jobs:
                   fi
                   python ai_orchestrator.py queue-init
 
-            - name: Fix up to 50 articles sequentially (no batch)
+            - name: Run queue (same flow as local: meta fix, gate 9/10, targeted fix, review, publish)
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                  set -euo pipefail
+                  set +e
                   if [ ! -f "anti_drift_queue.json" ]; then
                       echo "Queue missing; re-initializing."
                       python ai_orchestrator.py queue-init || true
                   fi
                   if [ ! -f "anti_drift_queue.json" ]; then
-                      echo "No queue found; skipping fix loop."
+                      echo "No queue found; skipping."
                       exit 0
                   fi
-                  max=${FIX_MAX_ITEMS:-50}
-                  processed_file=".processed_ids"
-                  : > "$processed_file"
-                  for i in $(seq 1 "$max"); do
-                      article_id=$(python - <<'PY'
-                  import json
-                  from pathlib import Path
-
-                  queue_path = Path('anti_drift_queue.json')
-                  if not queue_path.exists():
-                      raise SystemExit('')
-
-                  data = json.loads(queue_path.read_text(encoding='utf-8'))
-                  items = data.get('items', [])
-                  priority = ['pending', 'retrying', 'failed', 'manual_review']
-                  chosen = None
-                  for status in priority:
-                      for item in items:
-                          if item.get('status') == status:
-                              chosen = item
-                              break
-                      if chosen:
-                          break
-
-                  print(chosen.get('id') if chosen else '')
-                  PY
-                      )
-
-                      if [ -z "$article_id" ]; then
-                          echo "No eligible items in queue."
-                          break
-                      fi
-
-                      if grep -Fxq "$article_id" "$processed_file"; then
-                          echo "Already processed $article_id in this run; skipping."
-                          python - <<PY
-                  import json
-                  from pathlib import Path
-                  article_id = "$article_id"
-                  queue_path = Path('anti_drift_queue.json')
-                  data = json.loads(queue_path.read_text(encoding='utf-8'))
-                  for item in data.get('items', []):
-                      if str(item.get('id')) == str(article_id):
-                          item['status'] = 'skipped'
-                          item['error'] = 'DUP_IN_RUN'
-                  queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
-                  PY
-                          continue
-                      fi
-                      echo "Processing $article_id ($i/$max)"
-                      echo "$article_id" >> "$processed_file"
-                      python ai_orchestrator.py fix-ids "$article_id"
-
-                      python "../scripts/build_meta_fix_queue.py" "$article_id"
-                      python "../scripts/run_meta_fix_queue.py"
-
-                      set +e
-                      python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
-                      review_status=${PIPESTATUS[0]}
-                      set -e
-
-                      if [ "$review_status" = "0" ]; then
-                          python ai_orchestrator.py publish-id "$article_id"
-                          echo "Pre-publish review PASS - Published $article_id"
-                      else
-                          python ai_orchestrator.py force-rebuild-ids "$article_id"
-                          set +e
-                          python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
-                          review_status_after=${PIPESTATUS[0]}
-                          set -e
-                          if [ "$review_status_after" = "0" ]; then
-                              python ai_orchestrator.py publish-id "$article_id"
-                              echo "Review PASS after rebuild - Published $article_id"
-                          else
-                              python ai_orchestrator.py queue-review "$article_id" fail "PRE_PUBLISH_REVIEW_FAIL"
-                              echo "Pre-publish review failed after rebuild for $article_id. Skipping."
-                          fi
-                      fi
-                  done
+                  max=${FIX_MAX_ITEMS:-1}
+                  python ai_orchestrator.py queue-run "$max" --delay 0 --no-subprocess
 
             - name: Upload fix artifacts
               uses: actions/upload-artifact@v4
