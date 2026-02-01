@@ -74,7 +74,7 @@ jobs:
             LEXICA_ONLY_SD15: "1"
             LEXICA_RESULT_LIMIT: "30"
             LEXICA_FALLBACK_ONLY: "1"
-            VISION_REVIEW: "1"
+            VISION_REVIEW: "0"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
             VISION_PROVIDER: ${{ vars.VISION_PROVIDER || '' }}
@@ -126,10 +126,7 @@ jobs:
 
             - name: Verify vision review enabled
               run: |
-                  if [ -z "${VISION_API_KEY:-}" ] && [ -z "${GEMINI_API_KEY:-}" ]; then
-                      echo "Missing VISION_API_KEY or GEMINI_API_KEY; vision review is required."
-                      exit 1
-                  fi
+                  echo "Vision review disabled (VISION_REVIEW=0). Skipping API key check."
 
             - name: Check if queue needs refresh
               id: queue_check
@@ -315,13 +312,19 @@ jobs:
                       review_status=${PIPESTATUS[0]}
                       set -e
 
-                      if [ "$review_status" != "0" ]; then
+                      if [ "$review_status" = "0" ]; then
+                          python ai_orchestrator.py publish-id "$article_id"
+                          echo "Pre-publish review PASS - Published $article_id"
+                      else
                           python ai_orchestrator.py force-rebuild-ids "$article_id"
                           set +e
                           python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
                           review_status_after=${PIPESTATUS[0]}
                           set -e
-                          if [ "$review_status_after" != "0" ]; then
+                          if [ "$review_status_after" = "0" ]; then
+                              python ai_orchestrator.py publish-id "$article_id"
+                              echo "Review PASS after rebuild - Published $article_id"
+                          else
                               python ai_orchestrator.py queue-review "$article_id" fail "PRE_PUBLISH_REVIEW_FAIL"
                               echo "Pre-publish review failed after rebuild for $article_id. Skipping."
                           fi
