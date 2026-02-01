@@ -10,9 +10,19 @@ import json
 import os
 import re
 import sys
+import io
 from pathlib import Path
 
 import requests
+try:
+    from PIL import Image, ImageStat  # type: ignore
+except Exception:
+    Image = None
+    ImageStat = None
+
+# Fix encoding for Windows console output
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 ROOT_DIR = Path(__file__).parent.parent
 CONFIG_PATH = ROOT_DIR / "SHOPIFY_PUBLISH_CONFIG.json"
@@ -111,9 +121,6 @@ META_PROMPT_CHECKS = {
     "require_sources_section": True,  # Sources & Further Reading section
 }
 
-# Regex patterns
-YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
-KEBAB_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 # 11-section structure (pattern-based, case-insensitive)
 REQUIRED_SECTION_PATTERNS = [
     ("Direct Answer", r"\bdirect answer\b"),
@@ -160,6 +167,102 @@ GENERIC_PHRASES = [
     "it is important to remember",
     "on the other hand",
     "at the end of the day",
+    "this guide explains",
+    "you will learn what works",
+    "by the end, you will know",
+    "taking your understanding to the next level",
+    "no one succeeds in isolation",
+    "in today's fast-paced world",
+    "perfect for anyone looking to improve",
+    "join thousands who have already mastered",
+    "here's everything you need to know",
+    "here is everything you need to know",
+    "we'll walk you through",
+    "we will walk you through",
+    "let's dive in",
+    "in this post we'll",
+    "in this post we will",
+    "in this article we'll",
+    "in this article we will",
+    "read on to learn",
+    "read on to discover",
+    "without further ado",
+    "when it comes to",
+    "the bottom line is",
+    "it goes without saying",
+    "needless to say",
+    "first and foremost",
+    "last but not least",
+    "when all is said and done",
+    "one of the best ways",
+    "one of the most important",
+    "there are many ways to",
+    "there are a number of",
+    "it's worth noting",
+    "it is worth noting",
+    "as mentioned above",
+    "as stated earlier",
+    "more often than not",
+    "at the end of the day",
+    "when it comes down to it",
+    # AI slop / generic filler (2024-2025)
+    "delve into",
+    "dive deep",
+    "dive deeper",
+    "navigate the landscape",
+    "tapestry of",
+    "realm of possibilities",
+    "in the realm of",
+    "as we continue to evolve",
+    "i'm excited to announce",
+    "thrilled to share",
+    "it's essential to",
+    "it is essential to",
+    "crucial to understand",
+    "game-changer",
+    "unlock the potential",
+    "master the art of",
+    "elevate your",
+    "transform your",
+    "navigating the world of",
+    "empower yourself",
+    "unlock the secrets",
+    "discover the power of",
+    "harness the power",
+    "key takeaways",
+    "in a nutshell",
+    "at its core",
+    "boils down to",
+    "in essence",
+    "the truth is",
+    "the reality is",
+    "simply put",
+    "to put it simply",
+    "taking it to the next level",
+    "stay ahead of the curve",
+    "stay ahead of the game",
+    "proven strategies",
+    "tried and tested",
+    "get started today",
+    "start your journey",
+    "embark on",
+    "dive right in",
+    "let's explore",
+    "in this comprehensive",
+    "this in-depth",
+    "deep dive into",
+    "comprehensive breakdown",
+    "ultimate guide to",
+    "synergy",
+    "leverage the power",
+    "thought leadership",
+    "industry-leading",
+    "world-class",
+    "best-in-class",
+    "gold standard",
+    "silver bullet",
+    "no-brainer",
+    "must-have",
 ]
 
 GENERIC_SECTION_HEADINGS = [
@@ -283,6 +386,26 @@ def validate_image_url(url: str, timeout: int = 10) -> tuple:
         return False, str(e)[:30]
 
 
+def _is_blank_image(image_bytes: bytes) -> bool:
+    """
+    Best-effort blank/near-blank detection.
+    Uses Pillow when available; otherwise returns False.
+    """
+    if Image is None or ImageStat is None:
+        return False
+    try:
+        img = Image.open(io.BytesIO(image_bytes))
+        img = img.convert("L").resize((64, 64))
+        stat = ImageStat.Stat(img)
+        mean = stat.mean[0]
+        var = stat.var[0]
+        if (mean >= 245 or mean <= 10) and var < 15:
+            return True
+    except Exception:
+        return False
+    return False
+
+
 def review_article(article_id):
     """Comprehensive review of a single article"""
     url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
@@ -349,12 +472,14 @@ def review_article(article_id):
             f"⚠️ WORDS: {word_count} > {REQUIREMENTS['max_words']} (slightly over)"
         )
 
-    # 1b. Generic content check
+    # 1b. Generic content check (strict - block AI slop before publish)
     text_lower = re.sub(r"<[^>]+>", " ", body).lower()
     found_generic = [phrase for phrase in GENERIC_PHRASES if phrase in text_lower]
     if found_generic:
+        # Show first 5 for debugging, all count toward fail
         errors.append(
-            f"❌ GENERIC CONTENT: {', '.join(found_generic[:3])}"
+            f"❌ GENERIC CONTENT (agent must fix): {', '.join(found_generic[:5])}"
+            + (f" (+{len(found_generic)-5} more)" if len(found_generic) > 5 else "")
         )
     if GENERIC_SECTION_HEADINGS:
         heading_hits = []
@@ -428,10 +553,27 @@ def review_article(article_id):
 
     # 3.5. IMAGE URL VALIDATION - Check all image URLs are accessible
     broken_images = []
+    blank_images = []
     for img_name, img_url in all_image_urls:
         is_valid, status = validate_image_url(img_url)
         if not is_valid:
             broken_images.append((img_name, status, img_url[:60]))
+        else:
+            try:
+                resp = requests.get(img_url, timeout=10)
+                if resp.status_code == 200:
+                    content = resp.content
+                    if len(content) < 8192:
+                        blank_images.append((img_name, "TOO_SMALL", img_url[:60]))
+                    elif _is_blank_image(content):
+                        blank_images.append((img_name, "BLANK", img_url[:60]))
+            except Exception:
+                pass
+
+        if any(src in img_url for src in DISALLOWED_IMAGE_SOURCES):
+            errors.append(f"❌ DISALLOWED IMAGE SOURCE: {img_name} uses {img_url[:60]}...")
+        if not any(src in img_url for src in ALLOWED_IMAGE_SOURCES):
+            errors.append(f"❌ IMAGE SOURCE NOT ALLOWED: {img_name} uses {img_url[:60]}...")
 
     if broken_images:
         for img_name, status, url_preview in broken_images:
@@ -440,6 +582,14 @@ def review_article(article_id):
             )
         errors.append(
             f"❌ IMAGE VALIDATION: {len(broken_images)}/{len(all_image_urls)} images not accessible"
+        )
+    if blank_images:
+        for img_name, status, url_preview in blank_images:
+            errors.append(
+                f"❌ BLANK IMAGE ({img_name}): {status} - {url_preview}..."
+            )
+        errors.append(
+            f"❌ BLANK IMAGES: {len(blank_images)}/{len(all_image_urls)} appear blank or too small"
         )
 
     # 4. Figure tags check (proper image formatting)
@@ -528,12 +678,16 @@ def review_article(article_id):
             )
 
     # 12. Duplicate images check
+    img_srcs = []
+    unique_srcs = set()
     if QUALITY_CHECKS["check_duplicate_images"]:
-        img_srcs = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', body, re.IGNORECASE)
+        img_srcs = re.findall(
+            r'<img[^>]+src=["\']([^"\']+)["\']', body, re.IGNORECASE
+        )
         unique_srcs = set(img_srcs)
         if len(img_srcs) != len(unique_srcs):
-            warnings.append(
-                f"⚠️ DUPLICATE IMAGES: {len(img_srcs) - len(unique_srcs)} duplicate image(s) found"
+            errors.append(
+                f"❌ DUPLICATE IMAGES: {len(img_srcs) - len(unique_srcs)} duplicate image(s) found"
             )
 
     # 13. Heading hierarchy check (H2 should come before H3)
@@ -582,49 +736,58 @@ def review_article(article_id):
                     f"⚠️ INTRO PARAGRAPH: Only {intro_words} words (should be 20+ for engagement)"
                 )
 
-    # 16. Image relevance check (basic keyword matching)
-    title_words = set(title.lower().split())
-    common_topic_words = {
-        "citrus",
-        "vinegar",
-        "glass",
-        "cleaner",
-        "baking",
-        "soda",
-        "castile",
-        "soap",
-        "laundry",
-        "fabric",
-        "refresher",
-        "deodorizer",
-        "sachets",
-        "produce",
-        "wash",
-        "lemon",
-        "kombucha",
-    }
-    topic_words = title_words.intersection(common_topic_words)
-
-    # Check if alt texts contain relevant topic words
+    # 16. Image relevance check (alt texts must mention title topic) — ERROR if fail
+    topic_keys = _topic_keywords(title)
     all_alts = []
     if main_image and main_image.get("alt"):
         all_alts.append(main_image.get("alt").lower())
-
     for tag in img_tags:
         alt_match = re.search(r'alt=["\']([^"\']*)["\']', tag)
         if alt_match:
             all_alts.append(alt_match.group(1).lower())
 
     topic_mentioned = False
-    for alt in all_alts:
-        for word in topic_words:
-            if word in alt:
+    if topic_keys:
+        for alt in all_alts:
+            if any(kw in alt for kw in topic_keys):
                 topic_mentioned = True
                 break
+        if not topic_mentioned:
+            errors.append(
+                f"❌ IMAGE RELEVANCE: Alt texts must mention topic keywords from title ({', '.join(topic_keys[:5])})"
+            )
 
-    if not topic_mentioned and topic_words:
+    # 16a. Prefer Pinterest images when available (not required)
+    all_srcs = []
+    if main_image and main_image.get("src"):
+        all_srcs.append(main_image.get("src"))
+    for tag in img_tags:
+        src_match = re.search(r'src=["\']([^"\']+)["\']', tag)
+        if src_match:
+            all_srcs.append(src_match.group(1))
+    has_pinterest = any("i.pinimg.com" in (s or "") for s in all_srcs)
+    if not has_pinterest and all_srcs:
         warnings.append(
-            f"⚠️ IMAGE RELEVANCE: Alt texts may not match topic '{' '.join(topic_words)}'"
+            "⚠️ IMAGE QUALITY: No Pinterest image detected; using AI/Shopify images"
+        )
+
+    # 16b. Required section structure check (H2/H3 text)
+    heading_texts = re.findall(
+        r"<h[23][^>]*>(.*?)</h[23]>",
+        body,
+        re.IGNORECASE | re.DOTALL,
+    )
+    heading_texts = [
+        re.sub(r"<[^>]+>", " ", h).replace("&amp;", "&").strip().lower()
+        for h in heading_texts
+    ]
+    missing_sections = []
+    for label, pattern in REQUIRED_SECTION_PATTERNS:
+        if not any(re.search(pattern, h, re.IGNORECASE) for h in heading_texts):
+            missing_sections.append(label)
+    if missing_sections:
+        errors.append(
+            f"❌ SECTION STRUCTURE: Missing required sections: {', '.join(missing_sections)}"
         )
 
     # 16b. Required section structure check (H2/H3 text)
@@ -649,6 +812,7 @@ def review_article(article_id):
     # ========== META-PROMPT HARD VALIDATIONS ==========
     # Initialize tracking variables
     sources_links_count = 0
+    sources_section_urls = []
     valid_quotes = 0
     stats_found = 0
     headings_with_id = []
@@ -697,6 +861,11 @@ def review_article(article_id):
                 r'<a[^>]+href=["\']https?://[^"\']+["\'][^>]*>.*?</a>',
                 sources_content,
                 re.IGNORECASE | re.DOTALL,
+            )
+            sources_section_urls = re.findall(
+                r'href=["\'](https?://[^"\']+)["\']',
+                sources_content,
+                re.IGNORECASE,
             )
             sources_links_count = len(sources_links)
 

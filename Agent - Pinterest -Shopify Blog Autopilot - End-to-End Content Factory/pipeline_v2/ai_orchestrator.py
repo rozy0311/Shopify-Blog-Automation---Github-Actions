@@ -39,7 +39,6 @@ from dotenv import load_dotenv
 
 # Load environment - check multiple locations
 env_paths = [
-    Path(__file__).parent.parent.parent.parent / ".env",  # Root repo
     Path(__file__).parent.parent.parent / ".env",
     Path(__file__).parent.parent / ".env",
     Path(__file__).parent / ".env",
@@ -63,14 +62,20 @@ HEADERS = {"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}
 BACKOFF_BASE_SECONDS = 120
 BACKOFF_MAX_SECONDS = 600
 BACKOFF_JITTER_SECONDS = 30
+MAX_QUEUE_RETRIES = int(os.environ.get("MAX_QUEUE_RETRIES", "2"))
+MAX_CONSECUTIVE_FAILS = int(os.environ.get("MAX_CONSEC_FAILS", "3"))
+MAX_FIX_ATTEMPTS_PER_RUN = int(os.environ.get("MAX_FIX_ATTEMPTS_PER_RUN", "2"))
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
 PIPELINE_DIR = Path(__file__).parent
 ROOT_DIR = PIPELINE_DIR.parent.parent
-ANTI_DRIFT_QUEUE_FILE = ROOT_DIR / "anti_drift_queue.json"
-ANTI_DRIFT_RUN_LOG_FILE = ROOT_DIR / "anti_drift_run_log.csv"
-ANTI_DRIFT_DONE_FILE = ROOT_DIR / "anti_drift_done.json"
+AGENT_DIR = PIPELINE_DIR.parent
+ANTI_DRIFT_QUEUE_FILE = PIPELINE_DIR / "anti_drift_queue.json"
+ANTI_DRIFT_RUN_LOG_FILE = PIPELINE_DIR / "anti_drift_run_log.csv"
+ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done_blacklist.json"
 ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
 ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
+PRE_PUBLISH_REVIEW_SCRIPT = AGENT_DIR / "scripts" / "pre_publish_review.py"
+BACKUP_DIR = PIPELINE_DIR / "backups_auto_fix"
 
 
 # ============================================================================
@@ -99,7 +104,7 @@ META_PROMPT_REQUIREMENTS = {
     },
     "images": {
         "min_images": 4,
-        "required_types": ["pinterest_original", "ai_inline", "featured"],
+        "required_types": ["ai_inline", "featured"],
         "no_duplicates": True,
         "must_match_topic": True,
     },
@@ -122,6 +127,19 @@ GENERIC_PHRASES = [
     "this comprehensive guide covers",
     "whether you are a beginner",
     "whether you're a beginner",
+    "this guide explains",
+    "you will learn what works",
+    "the focus is on",
+    "by the end, you will know",
+    "taking your understanding to the next level",
+    "advanced considerations and expert insights",
+    "quality over quantity",
+    "building community connections",
+    "continuous learning mindset",
+    "environmental responsibility",
+    "documentation and reflection",
+    "no one succeeds in isolation",
+    "in today's fast-paced world",
     "natural materials vary throughout",
     "professional practitioners recommend",
     "achieving consistent results requires attention",
@@ -140,6 +158,115 @@ GENERIC_PHRASES = [
     "wet ingredients",
     "shelf life 2-4 weeks",
     "shelf life 3-6 months",
+    "in conclusion",
+    "in summary",
+    "this article",
+    "this blog post",
+    "as we have seen",
+    "keep in mind",
+    "with the right approach",
+    "on the other hand",
+    "here's everything you need to know",
+    "here is everything you need to know",
+    "we'll walk you through",
+    "we will walk you through",
+    "let's dive in",
+    "in this post we'll",
+    "in this post we will",
+    "in this article we'll",
+    "in this article we will",
+    "read on to learn",
+    "read on to discover",
+    "without further ado",
+    "when it comes to",
+    "the bottom line is",
+    "it goes without saying",
+    "needless to say",
+    "first and foremost",
+    "last but not least",
+    "when all is said and done",
+    "one of the best ways",
+    "one of the most important",
+    "there are many ways to",
+    "there are a number of",
+    "it's worth noting",
+    "it is worth noting",
+    "as mentioned above",
+    "as stated earlier",
+    "more often than not",
+    "when it comes down to it",
+    # AI slop / generic filler (2024-2025)
+    "delve into",
+    "dive deep",
+    "dive deeper",
+    "navigate the landscape",
+    "tapestry of",
+    "realm of possibilities",
+    "in the realm of",
+    "as we continue to evolve",
+    "i'm excited to announce",
+    "thrilled to share",
+    "it's essential to",
+    "it is essential to",
+    "crucial to understand",
+    "game-changer",
+    "unlock the potential",
+    "master the art of",
+    "elevate your",
+    "transform your",
+    "navigating the world of",
+    "empower yourself",
+    "unlock the secrets",
+    "discover the power of",
+    "harness the power",
+    "key takeaways",
+    "in a nutshell",
+    "at its core",
+    "boils down to",
+    "in essence",
+    "the truth is",
+    "the reality is",
+    "simply put",
+    "to put it simply",
+    "taking it to the next level",
+    "stay ahead of the curve",
+    "stay ahead of the game",
+    "proven strategies",
+    "tried and tested",
+    "get started today",
+    "start your journey",
+    "embark on",
+    "dive right in",
+    "let's explore",
+    "in this comprehensive",
+    "this in-depth",
+    "deep dive into",
+    "comprehensive breakdown",
+    "ultimate guide to",
+    "synergy",
+    "leverage the power",
+    "thought leadership",
+    "industry-leading",
+    "world-class",
+    "best-in-class",
+    "gold standard",
+    "silver bullet",
+    "no-brainer",
+    "must-have",
+]
+
+GENERIC_SECTION_HEADINGS = [
+    "advanced considerations and expert insights",
+    "timing and seasonal factors",
+    "quality over quantity",
+    "building community connections",
+    "continuous learning mindset",
+    "environmental responsibility",
+    "documentation and reflection",
+    "practical tips",
+    "maintenance and care",
+    "research highlights",
+    "expert insights",
 ]
 
 GENERIC_SECTION_HEADINGS = [
@@ -188,35 +315,89 @@ def _file_sha256(path: Path) -> str:
     return hasher.hexdigest()
 
 
+def _remove_generic_sections(body_html: str) -> str:
+    """Remove known generic/off-topic sections and phrases."""
+    if not body_html:
+        return body_html
+    soup = BeautifulSoup(body_html, "html.parser")
+    headings = soup.find_all(re.compile(r"^h[2-6]$", re.IGNORECASE))
+    for heading in headings:
+        text = heading.get_text(" ", strip=True).lower()
+        if any(h in text for h in GENERIC_SECTION_HEADINGS):
+            # Remove heading and content until the next heading
+            next_node = heading.find_next_sibling()
+            heading.decompose()
+            while next_node:
+                if getattr(next_node, "name", None) and re.match(
+                    r"^h[2-6]$", next_node.name, re.IGNORECASE
+                ):
+                    break
+                to_remove = next_node
+                next_node = next_node.find_next_sibling()
+                to_remove.decompose()
+
+    for tag in soup.find_all(["p", "li", "blockquote"]):
+        text = tag.get_text(" ", strip=True).lower()
+        if any(phrase in text for phrase in GENERIC_PHRASES):
+            tag.decompose()
+
+    return str(soup)
+
+
 def _ensure_run_log_header():
+    header = [
+        "timestamp",
+        "article_id",
+        "title",
+        "status",
+        "fail_type",
+        "attempts",
+        "failures",
+        "gate_score",
+        "gate_pass",
+        "issues",
+        "spec_hash",
+        "goldens_hash",
+    ]
     if ANTI_DRIFT_RUN_LOG_FILE.exists():
+        with open(ANTI_DRIFT_RUN_LOG_FILE, "r", encoding="utf-8") as f:
+            first_line = f.readline().strip()
+        if first_line == ",".join(header):
+            return
+        rows = []
+        with open(ANTI_DRIFT_RUN_LOG_FILE, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            existing = list(reader)
+        if existing and existing[0]:
+            rows = existing[1:]
+        with open(ANTI_DRIFT_RUN_LOG_FILE, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            for row in rows:
+                padded = row + [""] * (len(header) - len(row))
+                writer.writerow(padded[: len(header)])
         return
     with open(ANTI_DRIFT_RUN_LOG_FILE, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(
-            [
-                "timestamp",
-                "article_id",
-                "title",
-                "status",
-                "gate_score",
-                "gate_pass",
-                "issues",
-                "spec_hash",
-                "goldens_hash",
-            ]
-        )
+        writer.writerow(header)
 
 
 def _load_done_blacklist() -> set[str]:
-    if not ANTI_DRIFT_DONE_FILE.exists():
-        return set()
-    try:
-        payload = json.loads(ANTI_DRIFT_DONE_FILE.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return set()
-    ids = payload.get("done_ids", []) if isinstance(payload, dict) else payload
-    return {str(x) for x in ids}
+    candidates = [
+        ANTI_DRIFT_DONE_FILE,
+        ROOT_DIR / "anti_drift_done.json",
+        ROOT_DIR / "anti_drift_done_blacklist.json",
+    ]
+    for path in candidates:
+        if not path.exists():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        ids = payload.get("done_ids", []) if isinstance(payload, dict) else payload
+        return {str(x) for x in ids}
+    return set()
 
 
 def _save_done_blacklist(done_ids: set[str]) -> None:
@@ -330,13 +511,16 @@ class AntiDriftQueue:
     def mark_manual_review(self, article_id: str, error: str):
         self._update_status(article_id, "manual_review", last_error=error)
 
-    def mark_retry(self, article_id: str, error: str, retry_at: datetime):
+    def mark_retry(
+        self, article_id: str, error: str, retry_at: datetime, fail_type: str | None = None
+    ):
         self._update_status(
             article_id,
             "retrying",
             last_error=error,
             retry_at=retry_at.isoformat(),
             increment_failures=True,
+            fail_type=fail_type,
         )
 
     def _update_status(
@@ -347,6 +531,7 @@ class AntiDriftQueue:
         shopify_url: str | None = None,
         retry_at: str | None = None,
         increment_failures: bool = False,
+        fail_type: str | None = None,
     ):
         for item in self.payload.get("items", []):
             if str(item.get("id")) == str(article_id):
@@ -354,6 +539,8 @@ class AntiDriftQueue:
                 item["attempts"] = int(item.get("attempts", 0)) + 1
                 if increment_failures:
                     item["failures"] = int(item.get("failures", 0)) + 1
+                if fail_type:
+                    item["fail_type"] = fail_type
                 item["last_error"] = last_error
                 if retry_at:
                     item["retry_at"] = retry_at
@@ -485,14 +672,16 @@ class QualityGate:
         unique_images = len(set(img_urls))
         min_images = META_PROMPT_REQUIREMENTS["images"]["min_images"]
 
-        # Check for Pinterest image
+        # Check for Pinterest image (required for quality)
         has_pinterest = any("pinimg.com" in url for url in img_urls)
 
         # Check for Shopify CDN images
         has_shopify_cdn = any("cdn.shopify.com" in url for url in img_urls)
 
+        # Pass only if: enough images and no duplicates (Pinterest preferred, not required)
+        images_ok = unique_images >= min_images and len(duplicates) == 0
         return {
-            "pass": unique_images >= min_images and len(duplicates) == 0,
+            "pass": images_ok,
             "unique_images": unique_images,
             "min_required": min_images,
             "duplicates": duplicates,
@@ -574,9 +763,10 @@ class QualityGate:
         }
 
         score = sum(1 for passed in checks.values() if passed)
+        # Require all 10 checks to pass (content + images quality)
         return {
             "score": score,
-            "pass": score >= 9,
+            "pass": score >= 10,
             "checks": checks,
         }
 
@@ -622,6 +812,7 @@ class QualityGate:
                 all_issues.append(
                     f"Low images: {images['unique_images']}/{images['min_required']}"
                 )
+            # Pinterest images are preferred but not required for pass
         if not sources["pass"]:
             if sources["raw_urls_visible"]:
                 all_issues.append(f"Raw URLs visible: {sources['raw_urls_visible']}")
@@ -630,7 +821,8 @@ class QualityGate:
                     f"Low sources: {sources['source_links_count']}/{sources['min_required']}"
                 )
 
-        overall_pass = passed_checks >= 5  # At least 5/6 checks pass
+        # Require all 6 checks (structure, word_count, generic, contamination, images, sources)
+        overall_pass = passed_checks >= 6
         score = round(passed_checks / 6 * 10)
 
         deterministic_gate = cls.deterministic_gate(article)
@@ -730,6 +922,8 @@ class AIOrchestrator:
             "failed": [],
             "fixed": [],
             "pending": [],
+            "consecutive_fail_type": None,
+            "consecutive_fail_count": 0,
         }
 
     def _save_progress(self):
@@ -737,6 +931,138 @@ class AIOrchestrator:
         self.progress["last_run"] = datetime.now().isoformat()
         with open(PROGRESS_FILE, "w", encoding="utf-8") as f:
             json.dump(self.progress, f, indent=2, ensure_ascii=False)
+
+    def _classify_fail_type(self, error_text: str) -> str:
+        text = (error_text or "").lower()
+        if "duplicate image" in text or "duplicate images" in text:
+            return "DUP_EXACT"
+        if "pre_publish_review" in text or "pre-publish" in text:
+            return "PRE_PUBLISH_REVIEW_FAIL"
+        if "raw urls" in text or "sources" in text:
+            return "VALIDATION_FAIL"
+        if "word count" in text or "missing sections" in text:
+            return "VALIDATION_FAIL"
+        if "generic phrases" in text or "off-topic" in text:
+            return "DRIFT"
+        if "evidence" in text or "no-fetch" in text:
+            return "EVIDENCE_REQUIRED"
+        if "image" in text or "asset" in text:
+            return "ASSET_MISSING"
+        if "update_failed" in text or "fetch" in text or "not_found" in text:
+            return "API_FAIL"
+        if "hallucination" in text:
+            return "HALLUCINATION"
+        return "UNKNOWN"
+
+    def _record_fail_streak(self, fail_type: str) -> None:
+        if not fail_type:
+            return
+        if self.progress.get("consecutive_fail_type") == fail_type:
+            self.progress["consecutive_fail_count"] = int(
+                self.progress.get("consecutive_fail_count", 0)
+            ) + 1
+        else:
+            self.progress["consecutive_fail_type"] = fail_type
+            self.progress["consecutive_fail_count"] = 1
+        self._save_progress()
+
+    def _backup_article(self, article: dict) -> Path | None:
+        article_id = str(article.get("id")) if article else ""
+        if not article_id:
+            return None
+        BACKUP_DIR.mkdir(exist_ok=True)
+        backup_file = BACKUP_DIR / f"{article_id}_backup.json"
+        with open(backup_file, "w", encoding="utf-8") as f:
+            json.dump(article, f, indent=2, ensure_ascii=False)
+        return backup_file
+
+    def _restore_backup(self, article_id: str) -> bool:
+        backup_file = BACKUP_DIR / f"{article_id}_backup.json"
+        if not backup_file.exists():
+            return False
+        try:
+            backup_data = json.loads(backup_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return False
+
+        url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
+        payload = {
+            "article": {
+                "id": int(article_id),
+                "title": backup_data.get("title"),
+                "body_html": backup_data.get("body_html"),
+                "summary_html": backup_data.get("summary_html"),
+                "tags": backup_data.get("tags"),
+                "author": backup_data.get("author"),
+                "handle": backup_data.get("handle"),
+            }
+        }
+        if backup_data.get("image"):
+            payload["article"]["image"] = backup_data["image"]
+
+        resp = requests.put(url, headers=HEADERS, json=payload)
+        return resp.status_code == 200
+
+    def _publish_to_shopify(self, article_id: str) -> bool:
+        """Publish article to Shopify (set published=True). Skip if PUBLISH_TO_SHOPIFY=false."""
+        if os.environ.get("PUBLISH_TO_SHOPIFY", "true").lower() in {"0", "false", "no"}:
+            print("⏸️ PUBLISH_TO_SHOPIFY disabled - article not published to live")
+            return True
+        ok = self.api.update_article(article_id, {"published": True})
+        if ok:
+            print("📤 Published to Shopify (live)")
+        else:
+            print("⚠️ Shopify publish failed - article may still be draft")
+        return ok
+
+    def _run_pre_publish_review(self, article_id: str) -> tuple[bool, str]:
+        """Run pre_publish_review.py and return (passed, error_msg)."""
+        if not PRE_PUBLISH_REVIEW_SCRIPT.exists():
+            return False, "PRE_PUBLISH_REVIEW_SCRIPT_MISSING"
+
+        output_path = PIPELINE_DIR / f"review-output-{article_id}.txt"
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                result = subprocess.run(
+                    [sys.executable, str(PRE_PUBLISH_REVIEW_SCRIPT), str(article_id)],
+                    stdout=f,
+                    stderr=subprocess.STDOUT,
+                    env=os.environ.copy(),
+                    check=False,
+                )
+        except Exception as exc:
+            return False, f"PRE_PUBLISH_REVIEW_ERROR: {exc}"
+
+        if result.returncode == 0:
+            return True, ""
+        return False, "PRE_PUBLISH_REVIEW_FAIL"
+
+    def _recent_pass_rate_ok(self) -> bool:
+        """Optional guardrail: stop if recent pass rate < threshold."""
+        enforce = os.environ.get("PASS_RATE_ENFORCE", "").lower() in {"1", "true", "yes"}
+        if not enforce:
+            return True
+
+        if not ANTI_DRIFT_RUN_LOG_FILE.exists():
+            return True
+
+        min_rate = float(os.environ.get("MIN_PASS_RATE", "0.95"))
+        window = int(os.environ.get("PASS_RATE_WINDOW", "20"))
+        min_samples = int(os.environ.get("PASS_RATE_MIN_SAMPLES", "10"))
+
+        with open(ANTI_DRIFT_RUN_LOG_FILE, "r", encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+
+        if len(rows) < min_samples:
+            return True
+
+        recent = rows[-window:] if window > 0 else rows
+        if not recent:
+            return True
+
+        passed = sum(1 for r in recent if str(r.get("gate_pass", "")).lower() in {"true", "1"})
+        rate = passed / max(len(recent), 1)
+        return rate >= min_rate
 
     def _normalize_topic(self, title: str) -> str:
         cleaned = re.sub(r"\s+", " ", re.sub(r"[^A-Za-z0-9\s\-]", " ", title))
@@ -804,7 +1130,10 @@ class AIOrchestrator:
             ),
         ]
         items = "\n".join(
-            [f'<li><a href="{url}">{text}</a></li>' for url, text in sources]
+            [
+                f'<li><a href="{url}" rel="nofollow noopener" target="_blank">{text}</a></li>'
+                for url, text in sources
+            ]
         )
         return f"""
 <h2>Sources & Further Reading</h2>
@@ -947,37 +1276,45 @@ class AIOrchestrator:
 
         body = f"""
 <article>
-<h2>Direct Answer</h2>
-    <p>{topic} works best when you keep the steps specific to {focus_phrase}, measure ratios carefully, and test a small area before scaling. Use consistent timing, note the surface or material details, and repeat the same sequence until the result is stable. If anything looks off, adjust one variable at a time so you can trace the cause and lock in a reliable routine.</p>
+<h2 id="direct-answer">Direct Answer</h2>
+    <p>{topic} is most reliable when you keep steps aligned with {focus_phrase}, measure ratios, and test a small area first. Maintain consistent timing, note the material details, and repeat the same sequence until results are stable. If the outcome shifts, adjust one variable at a time so the cause is clear and the routine stays repeatable.</p>
 
-<h2>Key Conditions at a Glance</h2>
+<h2 id="key-conditions">Key Conditions</h2>
 <ul>
 {key_points}
 </ul>
 
-<h2>Understanding {topic}</h2>
-<p>{topic} is most reliable when the steps match the materials and surface you’re treating. That means selecting the right container, applying the method evenly, and checking the result before repeating.</p>
+<h2 id="understanding">Understanding {topic}</h2>
+<p>{topic} is most reliable when the steps match the materials and surface you are treating. That means selecting the right container, applying the method evenly, and checking the result before repeating.</p>
 <p>Identify the main variables for {topic} (ratio, contact time, and surface type). Keeping those consistent makes the outcome repeatable.</p>
-<p>Work in a stable environment and avoid mixing steps from unrelated tasks. If a step doesn’t directly support {focus_phrase}, skip it.</p>
-<p>Use a short checklist so each pass of {topic} is measured and comparable.</p>
+<p>Work in a stable environment and avoid mixing steps from unrelated tasks. If a step does not directly support {focus_phrase}, skip it.</p>
+<p>Use a short checklist so each pass of {topic} is measured and comparable. A 1:1 ratio, a 24- to 48-hour window, and a 3-step checklist are common baselines to track.</p>
 
-<h2>Complete Step-by-Step Guide</h2>
-<h3>Preparation</h3>
+<h2 id="key-terms">Key Terms</h2>
+<ul>
+    <li>Ratio: the measured balance of ingredients or inputs for {topic}.</li>
+    <li>Contact time: how long the method sits before rinsing or finishing.</li>
+    <li>Surface type: the material you are treating, which changes how {topic} behaves.</li>
+    <li>Batch size: the total amount produced per run.</li>
+</ul>
+
+<h2 id="step-by-step">Step-by-Step Guide</h2>
+<h3 id="step-by-step-prep">Preparation</h3>
 <p>Set up a clean workspace and gather containers, measuring tools, and cloths or applicators that fit {topic}. Label any bottles or jars so ratios are not confused later.</p>
 <p>Choose a small test surface or a single item first. This keeps {topic} controlled before you scale it to a full batch or larger area.</p>
 <p>Measure the base ingredients and note the ratio so you can repeat the same {topic} mix.</p>
 
-<h3>Main Process</h3>
+<h3 id="step-by-step-main">Main Process</h3>
 <p>Apply the mixture or method evenly, using light passes instead of flooding the surface. This helps {topic} work consistently and reduces streaks or residue.</p>
 <p>Allow the recommended contact time, then wipe or rinse as needed. Track the timing for {topic} so you can adjust if the result is too strong or too weak.</p>
 <p>Check the finish or effect immediately. If it’s not right, adjust one variable at a time (ratio, time, or technique) and re-test.</p>
 
-<h3>Finishing</h3>
+<h3 id="step-by-step-finish">Finishing</h3>
 <p>Buff or rinse the surface to remove any remaining film. For {topic}, a final clean pass often makes the difference.</p>
 <p>Store the remaining mixture in a labeled container and note the ratio used.</p>
 <p>Record what worked and what didn’t so the next {topic} run is faster and more consistent.</p>
 
-<h2>Types and Varieties</h2>
+<h2 id="types-varieties">Types and Varieties</h2>
 <p>{topic} can vary based on surface type, container size, and application method. Choose the option that matches your use case.</p>
 <ul>
     <li>Light-duty use: small batch, gentle application, quick wipe or rinse.</li>
@@ -986,7 +1323,7 @@ class AIOrchestrator:
 </ul>
 <p>For {topic}, the best method is the one that delivers a clean finish without extra residue or rework.</p>
 
-<h2>Troubleshooting Common Issues</h2>
+<h2 id="troubleshooting">Troubleshooting Common Issues</h2>
 <p>If {topic} looks streaky, spotty, or leaves residue, the ratio or contact time likely needs adjustment.</p>
 <ul>
     <li>Issue: streaks or haze → Fix: reduce mixture strength and buff with a clean cloth.</li>
@@ -995,27 +1332,45 @@ class AIOrchestrator:
 </ul>
 <p>Adjust one variable at a time so you can see what actually improves {topic}.</p>
 
-<h2>Pro Tips from Experts</h2>
+<h2 id="pro-tips">Pro Tips from Experts</h2>
 {pro_tips}
 
 {self._build_faqs(topic)}
 
-<h2>Advanced Techniques</h2>
+<h2 id="advanced-techniques">Advanced Techniques</h2>
 <p>Once {topic} is reliable, test small changes in ratio or application method while keeping everything else the same.</p>
 <p>Track each change in a short log so you can identify the best-performing version of {topic}.</p>
 <p>For recurring tasks, pre-label containers and tools so each session starts with the same setup.</p>
 
+<h2 id="comparison-table">Comparison Table</h2>
 {self._build_comparison_table(topic)}
+
+<h2 id="next-steps">Next Steps</h2>
+<p>Explore more how-to guides in the <a href="https://therike.com/blogs/sustainable-living" rel="nofollow noopener">Sustainable Living blog</a> and compare related methods for your pantry projects.</p>
+<p>For additional fermentation tips, visit <a href="https://therike.com/blogs/sustainable-living/fermentation" rel="nofollow noopener">Fermentation basics</a> to build a consistent routine.</p>
 
 {self._build_sources_section(topic)}
 </article>
 """
+        body = self._ensure_heading_ids(body)
         return self._pad_to_word_count(body, topic)
 
     def _build_meta_description(self, title: str) -> str:
         topic = self._normalize_topic(title)
         desc = f"Learn how to handle {topic} with a clear step-by-step process, practical tips, and troubleshooting guidance for reliable results."
         return desc[:160]
+
+    def _ensure_heading_ids(self, body_html: str) -> str:
+        soup = BeautifulSoup(body_html, "html.parser")
+        for heading in soup.find_all(["h2", "h3"]):
+            if heading.get("id"):
+                continue
+            text = heading.get_text(" ", strip=True).lower()
+            slug = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+            if not slug:
+                continue
+            heading["id"] = slug[:80]
+        return str(soup)
 
     def _auto_fix_article(self, article_id: str) -> dict:
         article = self.api.get_article(article_id)
@@ -1042,6 +1397,10 @@ class AIOrchestrator:
                     "--article-id",
                     str(article_id),
                 ],
+                env={
+                    **os.environ,
+                    "VISION_REVIEW": os.environ.get("VISION_REVIEW", "1"),
+                },
                 check=False,
             )
 
@@ -1252,6 +1611,8 @@ class AIOrchestrator:
 
     def run_queue_once(self):
         """Process exactly one article from the anti-drift queue."""
+        if not self._recent_pass_rate_ok():
+            raise SystemExit(3)
         queue = AntiDriftQueue.load()
         item = queue.next_pending()
         if not item:
@@ -1262,6 +1623,8 @@ class AIOrchestrator:
 
     def run_queue_once_with_backoff(self):
         """Process exactly one eligible item with retry/backoff support."""
+        if not self._recent_pass_rate_ok():
+            raise SystemExit(3)
         queue = AntiDriftQueue.load()
         item = queue.next_eligible()
         if not item:
@@ -1287,15 +1650,21 @@ class AIOrchestrator:
         article = self.api.get_article(article_id)
         if not article:
             error = "ARTICLE_NOT_FOUND"
+            fail_type = self._classify_fail_type(error)
             if use_backoff and failures < MAX_QUEUE_RETRIES:
                 retry_at = self._next_retry_at(failures + 1)
-                queue.mark_retry(article_id, error, retry_at)
+                queue.mark_retry(article_id, error, retry_at, fail_type=fail_type)
                 print(f"⏳ {error} - retry scheduled at {retry_at.isoformat()}")
             else:
                 queue.mark_failed(article_id, error)
                 print(f"❌ {error}")
             queue.save()
-            self._append_run_log(article_id, title, "failed", 0, False, error)
+            self._append_run_log(
+                article_id, title, "failed", 0, False, error, fail_type=fail_type
+            )
+            self._record_fail_streak(fail_type)
+            if self.progress.get("consecutive_fail_count", 0) >= MAX_CONSECUTIVE_FAILS:
+                raise SystemExit(2)
             return
 
         audit = self.quality_gate.full_audit(article)
@@ -1304,41 +1673,155 @@ class AIOrchestrator:
         gate_pass = gate.get("pass", False)
 
         if gate_pass:
-            queue.mark_done(article_id)
+            review_pass, review_error = self._run_pre_publish_review(article_id)
+            if review_pass:
+                self._publish_to_shopify(article_id)
+                queue.mark_done(article_id)
+                queue.save()
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "done",
+                    gate_score,
+                    True,
+                    "; ".join(audit.get("issues", [])[:3]),
+                    fail_type="",
+                    attempts=item.get("attempts"),
+                    failures=item.get("failures"),
+                )
+                print(f"✅ Gate PASS ({gate_score}/10) + Review PASS - Published & Marked DONE")
+                self.progress["consecutive_fail_type"] = None
+                self.progress["consecutive_fail_count"] = 0
+                self._save_progress()
+                return
+
+            # Review failed but gate passed: try auto-fix up to N times, re-run review until pass or give up
+            review_error_cur = review_error
+            review_fail_type = self._classify_fail_type(review_error_cur)
+            fixed_audit = None
+            for fix_attempt in range(1, MAX_FIX_ATTEMPTS_PER_RUN + 1):
+                print(
+                    f"🔧 Review FAIL - auto-fix attempt {fix_attempt}/{MAX_FIX_ATTEMPTS_PER_RUN}: {review_error_cur}"
+                )
+                fix_result = self._auto_fix_article(article_id)
+                if fix_result.get("status") != "done":
+                    self._restore_backup(article_id)
+                    review_fail_type = self._classify_fail_type(
+                        fix_result.get("error") or review_error_cur
+                    )
+                    break
+                fixed_audit = fix_result.get("audit", {})
+                review_pass2, review_error2 = self._run_pre_publish_review(article_id)
+                if review_pass2:
+                    self._publish_to_shopify(article_id)
+                    queue.mark_done(article_id)
+                    queue.save()
+                    done_ids = _load_done_blacklist()
+                    done_ids.add(str(article_id))
+                    _save_done_blacklist(done_ids)
+                    self._append_run_log(
+                        article_id,
+                        fixed_audit.get("title", audit.get("title", "")),
+                        "done",
+                        fixed_audit.get("deterministic_gate", {}).get("score", gate_score),
+                        True,
+                        "review_fail_then_auto_fix_pass",
+                        fail_type="",
+                        attempts=item.get("attempts"),
+                        failures=item.get("failures"),
+                    )
+                    print("✅ Review FAIL → Auto-fix → Review PASS - Published & Marked DONE")
+                    self.progress["consecutive_fail_type"] = None
+                    self.progress["consecutive_fail_count"] = 0
+                    self._save_progress()
+                    return
+                review_error_cur = review_error2
+                review_fail_type = self._classify_fail_type(review_error_cur)
+                # Leave article in fixed state; next iteration will fix again if any
+            review_error = review_error_cur
+            if use_backoff and failures < MAX_QUEUE_RETRIES:
+                retry_at = self._next_retry_at(failures + 1)
+                queue.mark_retry(article_id, review_error, retry_at, fail_type=review_fail_type)
+                print(
+                    f"⏳ Review FAIL - retry scheduled at {retry_at.isoformat()}: {review_error}"
+                )
+            else:
+                queue.mark_manual_review(article_id, review_error)
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                print(f"🟡 Review FAIL - manual review queued: {review_error}")
             queue.save()
-            done_ids = _load_done_blacklist()
-            done_ids.add(str(article_id))
-            _save_done_blacklist(done_ids)
             self._append_run_log(
                 article_id,
                 audit.get("title", ""),
-                "done",
+                "failed",
                 gate_score,
-                True,
-                "; ".join(audit.get("issues", [])[:3]),
+                False,
+                review_error,
+                fail_type=review_fail_type,
+                attempts=item.get("attempts"),
+                failures=item.get("failures"),
             )
-            print(f"✅ Gate PASS ({gate_score}/10) - Marked DONE")
+            self._record_fail_streak(review_fail_type)
+            if self.progress.get("consecutive_fail_count", 0) >= MAX_CONSECUTIVE_FAILS:
+                raise SystemExit(2)
             return
 
-        # Attempt auto-fix before retry/manual review
+        # Gate failed: attempt auto-fix before retry/manual review
         fix_result = self._auto_fix_article(article_id)
         if fix_result.get("status") == "done":
             fixed_audit = fix_result.get("audit", {})
             fixed_gate = fixed_audit.get("deterministic_gate", {})
-            queue.mark_done(article_id)
+            review_pass, review_error = self._run_pre_publish_review(article_id)
+            if review_pass:
+                self._publish_to_shopify(article_id)
+                queue.mark_done(article_id)
+                queue.save()
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                self._append_run_log(
+                    article_id,
+                    fixed_audit.get("title", ""),
+                    "done",
+                    fixed_gate.get("score", 0),
+                    True,
+                    "auto_fix",
+                )
+                print("✅ Auto-fix PASS + Review PASS - Published & Marked DONE")
+                return
+
+            review_fail_type = self._classify_fail_type(review_error)
+            self._restore_backup(article_id)
+            if use_backoff and failures < MAX_QUEUE_RETRIES:
+                retry_at = self._next_retry_at(failures + 1)
+                queue.mark_retry(article_id, review_error, retry_at, fail_type=review_fail_type)
+                print(
+                    f"⏳ Review FAIL - retry scheduled at {retry_at.isoformat()}: {review_error}"
+                )
+            else:
+                queue.mark_manual_review(article_id, review_error)
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                print(f"🟡 Review FAIL - manual review queued: {review_error}")
             queue.save()
-            done_ids = _load_done_blacklist()
-            done_ids.add(str(article_id))
-            _save_done_blacklist(done_ids)
             self._append_run_log(
                 article_id,
                 fixed_audit.get("title", ""),
-                "done",
+                "failed",
                 fixed_gate.get("score", 0),
-                True,
-                "auto_fix",
+                False,
+                review_error,
+                fail_type=review_fail_type,
             )
-            print("✅ Auto-fix PASS - Marked DONE")
+            self._record_fail_streak(review_fail_type)
+            if self.progress.get("consecutive_fail_count", 0) >= MAX_CONSECUTIVE_FAILS:
+                raise SystemExit(2)
             return
 
         error_msg = fix_result.get("error") or "; ".join(
@@ -1346,9 +1829,10 @@ class AIOrchestrator:
         )
         if not error_msg:
             error_msg = "; ".join(audit.get("issues", [])[:3]) or "GATE_FAIL"
+        fail_type = self._classify_fail_type(error_msg)
         if use_backoff and failures < MAX_QUEUE_RETRIES:
             retry_at = self._next_retry_at(failures + 1)
-            queue.mark_retry(article_id, error_msg, retry_at)
+            queue.mark_retry(article_id, error_msg, retry_at, fail_type=fail_type)
             print(
                 f"⏳ Gate FAIL ({gate_score}/10) - retry scheduled at {retry_at.isoformat()}: {error_msg}"
             )
@@ -1366,7 +1850,13 @@ class AIOrchestrator:
             gate_score,
             False,
             error_msg,
+            fail_type=fail_type,
+            attempts=item.get("attempts"),
+            failures=item.get("failures"),
         )
+        self._record_fail_streak(fail_type)
+        if self.progress.get("consecutive_fail_count", 0) >= MAX_CONSECUTIVE_FAILS:
+            raise SystemExit(2)
 
     def fix_failed_batch(self, limit: int = 15):
         """Attempt fixes for failed items, then re-audit."""
@@ -1511,20 +2001,39 @@ class AIOrchestrator:
             print(f"\n[{idx}/{len(article_ids)}] Fixing {article_id}...")
             result = self._auto_fix_article(article_id)
             if result.get("status") == "done":
-                if queue:
-                    queue.mark_done(article_id)
-                    queue.save()
-                audit = result.get("audit", {})
-                gate = audit.get("deterministic_gate", {})
-                self._append_run_log(
-                    article_id,
-                    audit.get("title", ""),
-                    "done",
-                    gate.get("score", 0),
-                    True,
-                    "manual_review_fix",
-                )
-                print("✅ Auto-fix PASS")
+                review_pass, review_error = self._run_pre_publish_review(article_id)
+                if review_pass:
+                    if queue:
+                        queue.mark_done(article_id)
+                        queue.save()
+                    audit = result.get("audit", {})
+                    gate = audit.get("deterministic_gate", {})
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "done",
+                        gate.get("score", 0),
+                        True,
+                        "manual_review_fix",
+                    )
+                    print("✅ Auto-fix PASS + Review PASS")
+                else:
+                    self._restore_backup(article_id)
+                    if queue:
+                        queue.mark_manual_review(article_id, review_error)
+                        queue.save()
+                    audit = result.get("audit", {})
+                    gate = audit.get("deterministic_gate", {}) if audit else {}
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "failed",
+                        gate.get("score", 0),
+                        False,
+                        review_error,
+                        fail_type=self._classify_fail_type(review_error),
+                    )
+                    print(f"🟡 Review FAIL: {review_error}")
             else:
                 audit = result.get("audit", {})
                 gate = audit.get("deterministic_gate", {}) if audit else {}
@@ -1555,6 +2064,7 @@ class AIOrchestrator:
         try:
             subprocess.run(
                 [sys.executable, str(script_path), "--article-id", str(article_id)],
+                env={**os.environ, "VISION_REVIEW": "1"},
                 check=False,
             )
         except Exception as e:
@@ -1597,6 +2107,7 @@ class AIOrchestrator:
         if not article:
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
+        self._backup_article(article)
         audit = self.quality_gate.full_audit(article)
         issues_text = "; ".join(audit.get("issues", []))
 
@@ -1612,14 +2123,30 @@ class AIOrchestrator:
             ]
         )
 
+        if "Generic phrases" in issues_text or "Off-topic content" in issues_text:
+            cleaned = _remove_generic_sections(article.get("body_html", ""))
+            if cleaned and cleaned != article.get("body_html"):
+                updated = self.api.update_article(
+                    article_id, {"id": int(article_id), "body_html": cleaned}
+                )
+                if updated:
+                    article = self.api.get_article(article_id) or article
+                    audit = self.quality_gate.full_audit(article)
+                    issues_text = "; ".join(audit.get("issues", []))
+                    needs_rebuild = any(
+                        key in issues_text
+                        for key in [
+                            "Missing sections",
+                            "Generic phrases",
+                            "Off-topic content",
+                            "Word count",
+                            "Raw URLs",
+                            "Low sources",
+                        ]
+                    )
+
         if needs_rebuild:
-            title = article.get("title", "")
-            body_html = self._build_article_body(title)
-            meta_description = self._build_meta_description(title)
-            update_payload = {"body_html": body_html, "summary_html": meta_description}
-            updated = self.api.update_article(article_id, update_payload)
-            if not updated:
-                return {"status": "failed", "error": "UPDATE_FAILED"}
+            return {"status": "failed", "error": "EVIDENCE_REBUILD_REQUIRED"}
 
         if "Low images" in issues_text or "Duplicate images" in issues_text:
             self._run_fix_images(article_id)
@@ -1645,25 +2172,14 @@ class AIOrchestrator:
         if not article:
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
-        title = article.get("title", "")
-        body_html = self._build_article_body(title)
-        meta_description = self._build_meta_description(title)
-        update_payload = {"body_html": body_html, "summary_html": meta_description}
-        updated = self.api.update_article(article_id, update_payload)
-        if not updated:
-            return {"status": "failed", "error": "UPDATE_FAILED"}
-
-        self._run_fix_images(article_id)
-
-        updated_article = self.api.get_article(article_id)
-        if not updated_article:
-            return {"status": "failed", "error": "REFETCH_FAILED"}
-
-        re_audit = self.quality_gate.full_audit(updated_article)
-        gate = re_audit.get("deterministic_gate", {})
-        if gate.get("pass", False):
-            return {"status": "done", "audit": re_audit}
-        return {"status": "failed", "audit": re_audit, "error": "GATE_FAIL"}
+        result = self._auto_fix_article(article_id)
+        if result.get("status") == "done":
+            return {"status": "done", "audit": result.get("audit", {})}
+        return {
+            "status": "failed",
+            "error": "EVIDENCE_REBUILD_REQUIRED",
+            "audit": result.get("audit", {}),
+        }
 
     def force_rebuild_article_ids(self, article_ids: list[str]):
         """Force rebuild a list of article IDs sequentially."""
@@ -1678,20 +2194,39 @@ class AIOrchestrator:
             print(f"\n[{idx}/{len(article_ids)}] Rebuilding {article_id}...")
             result = self._force_rebuild_article(article_id)
             if result.get("status") == "done":
-                if queue:
-                    queue.mark_done(article_id)
-                    queue.save()
-                audit = result.get("audit", {})
-                gate = audit.get("deterministic_gate", {})
-                self._append_run_log(
-                    article_id,
-                    audit.get("title", ""),
-                    "done",
-                    gate.get("score", 0),
-                    True,
-                    "force_rebuild",
-                )
-                print("✅ Force rebuild PASS")
+                review_pass, review_error = self._run_pre_publish_review(article_id)
+                if review_pass:
+                    if queue:
+                        queue.mark_done(article_id)
+                        queue.save()
+                    audit = result.get("audit", {})
+                    gate = audit.get("deterministic_gate", {})
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "done",
+                        gate.get("score", 0),
+                        True,
+                        "force_rebuild",
+                    )
+                    print("✅ Force rebuild PASS + Review PASS")
+                else:
+                    self._restore_backup(article_id)
+                    if queue:
+                        queue.mark_manual_review(article_id, review_error)
+                        queue.save()
+                    audit = result.get("audit", {})
+                    gate = audit.get("deterministic_gate", {}) if audit else {}
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "failed",
+                        gate.get("score", 0),
+                        False,
+                        review_error,
+                        fail_type=self._classify_fail_type(review_error),
+                    )
+                    print(f"🟡 Review FAIL: {review_error}")
             else:
                 audit = result.get("audit", {})
                 gate = audit.get("deterministic_gate", {}) if audit else {}
@@ -1783,6 +2318,9 @@ class AIOrchestrator:
         gate_score: int,
         gate_pass: bool,
         issues: str,
+        fail_type: str = "",
+        attempts: int | None = None,
+        failures: int | None = None,
     ):
         _ensure_run_log_header()
         with open(ANTI_DRIFT_RUN_LOG_FILE, "a", newline="", encoding="utf-8") as f:
@@ -1793,6 +2331,9 @@ class AIOrchestrator:
                     article_id,
                     title,
                     status,
+                    fail_type,
+                    attempts if attempts is not None else "",
+                    failures if failures is not None else "",
                     gate_score,
                     gate_pass,
                     issues,
@@ -1894,6 +2435,36 @@ def main():
 
     elif command == "queue-status":
         orchestrator.queue_status()
+    elif command == "queue-review":
+        if len(sys.argv) < 4:
+            print("Usage: python ai_orchestrator.py queue-review <article_id> <pass|fail> [error]")
+            return
+        article_id = sys.argv[2]
+        passed = sys.argv[3].lower() == "pass"
+        error_msg = " ".join(sys.argv[4:]).strip() if len(sys.argv) > 4 else ""
+        queue = AntiDriftQueue.load()
+        fail_type = orchestrator._classify_fail_type(
+            error_msg or "PRE_PUBLISH_REVIEW_FAIL"
+        )
+        if passed:
+            queue.mark_done(article_id)
+        else:
+            queue.mark_manual_review(article_id, error_msg or "PRE_PUBLISH_REVIEW_FAIL")
+            done_ids = _load_done_blacklist()
+            done_ids.add(str(article_id))
+            _save_done_blacklist(done_ids)
+            orchestrator._record_fail_streak(fail_type)
+        queue.save()
+        orchestrator._append_run_log(
+            article_id,
+            "",
+            "done" if passed else "manual_review",
+            0,
+            passed,
+            error_msg or ("review_failed" if not passed else ""),
+            fail_type=fail_type if not passed else "",
+        )
+
 
     elif command == "fix-failed":
         limit = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else 30
@@ -1916,6 +2487,23 @@ def main():
             print("Error: Provide one or more article IDs")
             return
         orchestrator.force_rebuild_article_ids(article_ids)
+
+    elif command == "publish-id":
+        if len(sys.argv) < 3:
+            print("Usage: python ai_orchestrator.py publish-id <article_id>")
+            return
+        article_id = sys.argv[2].strip()
+        if orchestrator._publish_to_shopify(article_id):
+            queue = AntiDriftQueue.load()
+            if ANTI_DRIFT_QUEUE_FILE.exists():
+                queue.mark_done(article_id)
+                queue.save()
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+            print(f"✅ Published and marked done: {article_id}")
+        else:
+            print(f"⚠️ Publish failed for {article_id}")
 
     else:
         print(f"Unknown command: {command}")

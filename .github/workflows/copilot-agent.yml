@@ -1,11 +1,6 @@
 name: Copilot Coding Agent
+# Disabled (user moved from VSCode Copilot to Cursor)
 on:
-  issues:
-    types: [opened, labeled]
-  issue_comment:
-    types: [created]
-  schedule:
-    - cron: "0 */6 * * *"  # Every 6 hours
   workflow_dispatch:
     inputs:
       task:
@@ -13,82 +8,102 @@ on:
         required: false
         default: "auto"
 
+concurrency:
+  group: copilot-agent-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write
-  issues: write
+
+env:
+  BASE_BRANCH: ${{ github.event.repository.default_branch }}
+  TASK_KEY: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.task || format('run-{0}', github.run_id) }}
+  POLLINATIONS_NEGATIVE: "text, watermark, logo, signature"
 
 jobs:
   copilot-agent:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'schedule' ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'copilot')) ||
-      (github.event_name == 'issue_comment' && (contains(github.event.comment.body, '@copilot') || contains(github.event.comment.body, '/fix')))
-    
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    name: copilot-agent
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Git
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install guardrail dependencies
         run: |
+          pip install PyYAML
+
+      - name: Run guardrail checks
+        env:
+          GUARDRAIL_REPORT_PATH: logs/guardrail-report.json
+          GUARDRAIL_MODE: agent
+        run: |
+          python scripts/check_allowed_changes.py
+
+      - name: Upload guardrail report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardrail-report-${{ github.run_id }}
+          path: logs/guardrail-report.json
+
+      - name: Create branch, commit, and push changes
+        if: ${{ github.event_name != '' }}
+        run: |
+          if ! git status --porcelain | grep -q .; then
+            echo "No changes to commit"
+            echo "AGENT_BRANCH=" >> $GITHUB_ENV
+            exit 0
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Auto-assign Copilot to Issue
-        if: github.event_name == 'issues' || github.event_name == 'issue_comment'
+          TIMESTAMP=$(date -u +"%Y%m%d-%H%M%S")
+          TASK_SLUG=$(echo "$TASK_KEY" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-+|-+$//g')
+          if [ -z "$TASK_SLUG" ]; then
+            TASK_SLUG="run-$TIMESTAMP"
+          fi
+          BRANCH="agent/tasks/$TASK_SLUG"
+
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+          else
+            git checkout -b "$BRANCH"
+          fi
+          echo "AGENT_BRANCH=$BRANCH" >> $GITHUB_ENV
+
+          git add -A
+          git commit -m "🤖 Copilot Agent: $TIMESTAMP"
+          git push origin "$BRANCH"
+
+      - name: Create pull request
+        if: ${{ env.AGENT_BRANCH != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_BRANCH: ${{ env.BASE_BRANCH }}
+          AGENT_BRANCH: ${{ env.AGENT_BRANCH }}
+          PR_SUMMARY: ${{ github.event.inputs.task || 'Automated copilot-agent run' }}
+          GUARDRAIL_REPORT_PATH: logs/guardrail-report.json
+          PR_LABELS: autonomous-agent
+          PR_REVIEWERS: ${{ github.actor }}
+          PR_SUMMARY_PATH: logs/pr-summary.md
+          TASK_KEY: ${{ env.TASK_KEY }}
         run: |
-          ISSUE_NUMBER="${{ github.event.issue.number || github.event.comment.issue_url }}"
-          
-          if [ -n "$ISSUE_NUMBER" ]; then
-            echo "Assigning Copilot to issue #$ISSUE_NUMBER"
-            
-            # Add comment to trigger Copilot
-            gh issue comment "$ISSUE_NUMBER" --body "@github-copilot Please analyze and implement a fix for this issue. Create a PR with the solution."
-            
-            echo "Copilot has been notified to work on issue #$ISSUE_NUMBER"
-          fi
+          python scripts/create_pr.py
 
-      - name: Scheduled Maintenance
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Running scheduled maintenance..."
-          
-          # Check for open issues that need attention
-          OPEN_ISSUES=$(gh issue list --state open --limit 10 --json number,title,labels)
-          
-          echo "## Open Issues Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "$OPEN_ISSUES" | jq -r '.[] | "- #\(.number): \(.title)"' >> $GITHUB_STEP_SUMMARY
-          
-          # Create maintenance issue if none exists
-          MAINTENANCE_ISSUE=$(gh issue list --label "maintenance" --state open --json number | jq length)
-          
-          if [ "$MAINTENANCE_ISSUE" -eq 0 ]; then
-            TIMESTAMP=$(date -u +"%Y-%m-%d")
-            gh issue create \
-              --title "Scheduled Maintenance Check - $TIMESTAMP" \
-              --body "This is an automated maintenance check. @github-copilot please:
-          
-          1. Review any open issues and suggest solutions
-          2. Check for any code improvements
-          3. Update documentation if needed
-          
-          Auto-generated by Copilot Agent workflow." \
-              --label "maintenance,copilot" || true
-          fi
-
-      - name: Generate Summary
+      - name: Publish PR step summary
         if: always()
         run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          if [ -f logs/pr-summary.md ]; then
+            cat logs/pr-summary.md >> $GITHUB_STEP_SUMMARY
+          fi

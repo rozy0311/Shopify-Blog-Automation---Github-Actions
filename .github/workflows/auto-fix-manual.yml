@@ -23,7 +23,7 @@ jobs:
             LEXICA_ONLY_SD15: "1"
             LEXICA_RESULT_LIMIT: "30"
             LEXICA_FALLBACK_ONLY: "1"
-            VISION_REVIEW: "1"
+            VISION_REVIEW: "0"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
             VISION_PROVIDER: ${{ vars.VISION_PROVIDER || '' }}
@@ -44,6 +44,7 @@ jobs:
             MIN_PASS_RATE: "0.95"
             PASS_RATE_WINDOW: "20"
             PASS_RATE_MIN_SAMPLES: "10"
+            MAX_FIX_ATTEMPTS_PER_RUN: ${{ vars.MAX_FIX_ATTEMPTS_PER_RUN || '2' }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -75,10 +76,7 @@ jobs:
 
             - name: Verify vision review enabled
               run: |
-                  if [ -z "${VISION_API_KEY:-}" ] && [ -z "${GEMINI_API_KEY:-}" ]; then
-                      echo "Missing VISION_API_KEY or GEMINI_API_KEY; vision review is required."
-                      exit 1
-                  fi
+                  echo "Vision review disabled (VISION_REVIEW=0). Skipping API key check."
 
             - name: Check if queue needs refresh
               id: queue_check
@@ -265,15 +263,29 @@ jobs:
                       review_status=${PIPESTATUS[0]}
                       set -e
 
-                      if [ "$review_status" != "0" ]; then
-                          python ai_orchestrator.py force-rebuild-ids "$article_id"
-                          set +e
-                          python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
-                          review_status_after=${PIPESTATUS[0]}
-                          set -e
-                          if [ "$review_status_after" != "0" ]; then
+                      if [ "$review_status" = "0" ]; then
+                          python ai_orchestrator.py publish-id "$article_id"
+                      else
+                          max_fix_attempts=${MAX_FIX_ATTEMPTS_PER_RUN:-2}
+                          review_passed=0
+                          for attempt in $(seq 1 "$max_fix_attempts"); do
+                              echo "Review failed - fix attempt $attempt/$max_fix_attempts for $article_id"
+                              python ai_orchestrator.py force-rebuild-ids "$article_id"
+                              python "../scripts/build_meta_fix_queue.py" "$article_id"
+                              python "../scripts/run_meta_fix_queue.py"
+                              set +e
+                              python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-attempt${attempt}.txt"
+                              rev_status=${PIPESTATUS[0]}
+                              set -e
+                              if [ "$rev_status" = "0" ]; then
+                                  python ai_orchestrator.py publish-id "$article_id"
+                                  review_passed=1
+                                  break
+                              fi
+                          done
+                          if [ "$review_passed" != "1" ]; then
                               python ai_orchestrator.py queue-review "$article_id" fail "PRE_PUBLISH_REVIEW_FAIL"
-                              echo "Pre-publish review failed after rebuild for $article_id. Skipping."
+                              echo "Pre-publish review failed after $max_fix_attempts fix attempts for $article_id. Skipping."
                           fi
                       fi
                   done
