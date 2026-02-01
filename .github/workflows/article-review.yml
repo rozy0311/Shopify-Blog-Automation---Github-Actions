@@ -96,13 +96,22 @@ jobs:
 
             - name: Publish to Shopify
               if: steps.review_initial.outputs.review_status == '0' || steps.review_after.outputs.review_status_after == '0' || steps.review_after_rebuild.outputs.review_status_after_rebuild == '0'
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
                   SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
                   SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
                   SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
-              run: python publish_now_graphql.py "${{ inputs.article_id }}"
+              run: |
+                  AID=$(echo "${{ inputs.article_id }}" | tr -d ' ')
+                  if [ -f "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/publish_now_graphql.py" ]; then
+                    python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/publish_now_graphql.py" "$AID"
+                  elif [ -f "pipeline_v2/publish_now_graphql.py" ]; then
+                    python pipeline_v2/publish_now_graphql.py "$AID"
+                  else
+                    echo "publish_now_graphql.py not found, using inline publish..."
+                    export ARTICLE_ID="$AID"
+                    python -c 'import os,sys,requests; from datetime import datetime,timezone; aid=os.environ.get("ARTICLE_ID","").strip(); sid=os.environ.get("SHOPIFY_SHOP","").strip(); tok=os.environ.get("SHOPIFY_ACCESS_TOKEN",""); bid=os.environ.get("SHOPIFY_BLOG_ID",""); sid=sid+".myshopify.com" if sid and ".myshopify.com" not in sid else sid; dt=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"); url="https://"+sid+"/admin/api/2025-01/blogs/"+bid+"/articles/"+aid+".json"; r=requests.put(url,headers={"X-Shopify-Access-Token":tok,"Content-Type":"application/json"},json={"article":{"published":True,"published_at":dt}}); print("REST:",r.status_code,"OK" if r.status_code==200 else r.text[:150]); sys.exit(0 if r.status_code==200 else 1)'
+                  fi
 
             - name: Fail if review still not passing
               if: ${{ steps.review_after_rebuild.outputs.review_status_after_rebuild != '' && steps.review_after_rebuild.outputs.review_status_after_rebuild != '0' }}
