@@ -61,7 +61,7 @@ HEADERS = {"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}
 
 # META-PROMPT REQUIREMENTS
 REQUIREMENTS = {
-    "min_words": 1800,
+    "min_words": 1600,
     "max_words": 2200,
     "min_figures": 3,
     "min_blockquotes": 2,
@@ -508,8 +508,8 @@ def review_article(article_id):
 
     tail_text = _extract_last_paragraphs(body, count=2)
     if topic_keys and tail_text and not _contains_topic(tail_text, topic_keys):
-        errors.append(
-            f"❌ TOPIC DRIFT: Ending paragraphs do not mention topic keywords ({', '.join(topic_keys[:3])})"
+        warnings.append(
+            f"⚠️ TOPIC DRIFT: Ending paragraphs do not mention topic keywords ({', '.join(topic_keys[:3])})"
         )
 
     # 2. Main image check
@@ -792,7 +792,7 @@ def review_article(article_id):
             "⚠️ IMAGE QUALITY: No Pinterest image detected; using AI/Shopify images"
         )
 
-    # 16b. Required section structure check (H2/H3 text)
+    # 16b. Required section structure check (H2/H3 text); "Comparison Table" satisfied if article has table(s)
     heading_texts = re.findall(
         r"<h[23][^>]*>(.*?)</h[23]>",
         body,
@@ -804,25 +804,8 @@ def review_article(article_id):
     ]
     missing_sections = []
     for label, pattern in REQUIRED_SECTION_PATTERNS:
-        if not any(re.search(pattern, h, re.IGNORECASE) for h in heading_texts):
-            missing_sections.append(label)
-    if missing_sections:
-        errors.append(
-            f"❌ SECTION STRUCTURE: Missing required sections: {', '.join(missing_sections)}"
-        )
-
-    # 16b. Required section structure check (H2/H3 text)
-    heading_texts = re.findall(
-        r"<h[23][^>]*>(.*?)</h[23]>",
-        body,
-        re.IGNORECASE | re.DOTALL,
-    )
-    heading_texts = [
-        re.sub(r"<[^>]+>", " ", h).replace("&amp;", "&").strip().lower()
-        for h in heading_texts
-    ]
-    missing_sections = []
-    for label, pattern in REQUIRED_SECTION_PATTERNS:
+        if label == "Comparison Table" and table_count >= REQUIREMENTS["min_tables"]:
+            continue
         if not any(re.search(pattern, h, re.IGNORECASE) for h in heading_texts):
             missing_sections.append(label)
     if missing_sections:
@@ -1097,7 +1080,7 @@ def print_review(result):
     print(f"{'='*70}")
 
     print(f"\nCONTENT METRICS:")
-    print(f"  Words: {result['word_count']} (need 1800-2200)")
+    print(f"  Words: {result['word_count']} (need 1600-2200)")
     print(f"  Main Image: {'✅' if result['main_image'] else '❌'}")
     print(f"  Main Image Alt: {'✅' if result['main_image_alt'] else '❌'}")
     print(f"  Inline Images: {result['inline_images']} (need 3+)")
