@@ -101,6 +101,17 @@ jobs:
               id: review_after_rebuild
               continue-on-error: true
 
+            - name: Publish to Shopify
+              if: ${{ steps.review_initial.outputs.review_status == '0' || steps.review_after.outputs.review_status_after == '0' || steps.review_after_rebuild.outputs.review_status_after_rebuild == '0' }}
+              env:
+                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python ai_orchestrator.py strip-and-publish "${{ inputs.article_id }}"
+
             - name: Fail if review still not passing
               if: ${{ steps.review_after_rebuild.outputs.review_status_after_rebuild != '' && steps.review_after_rebuild.outputs.review_status_after_rebuild != '0' }}
               run: |
