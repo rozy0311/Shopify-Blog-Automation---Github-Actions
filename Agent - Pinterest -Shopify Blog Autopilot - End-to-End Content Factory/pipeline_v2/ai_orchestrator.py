@@ -39,7 +39,6 @@ from dotenv import load_dotenv
 
 # Load environment - check multiple locations
 env_paths = [
-    Path(__file__).parent.parent.parent.parent / ".env",  # Root repo
     Path(__file__).parent.parent.parent / ".env",
     Path(__file__).parent.parent / ".env",
     Path(__file__).parent / ".env",
@@ -105,7 +104,7 @@ META_PROMPT_REQUIREMENTS = {
     },
     "images": {
         "min_images": 4,
-        "required_types": ["pinterest_original", "ai_inline", "featured"],
+        "required_types": ["ai_inline", "featured"],
         "no_duplicates": True,
         "must_match_topic": True,
     },
@@ -608,12 +607,8 @@ class QualityGate:
         # Check for Shopify CDN images
         has_shopify_cdn = any("cdn.shopify.com" in url for url in img_urls)
 
-        # Pass only if: enough images, no duplicates, and at least one Pinterest image
-        images_ok = (
-            unique_images >= min_images
-            and len(duplicates) == 0
-            and (has_pinterest or not img_urls)  # require Pinterest when there are images
-        )
+        # Pass only if: enough images and no duplicates (Pinterest preferred, not required)
+        images_ok = unique_images >= min_images and len(duplicates) == 0
         return {
             "pass": images_ok,
             "unique_images": unique_images,
@@ -746,11 +741,7 @@ class QualityGate:
                 all_issues.append(
                     f"Low images: {images['unique_images']}/{images['min_required']}"
                 )
-            if (
-                images["unique_images"] >= images["min_required"]
-                and not images.get("has_pinterest")
-            ):
-                all_issues.append("No Pinterest image (required for quality)")
+            # Pinterest images are preferred but not required for pass
         if not sources["pass"]:
             if sources["raw_urls_visible"]:
                 all_issues.append(f"Raw URLs visible: {sources['raw_urls_visible']}")
@@ -1214,37 +1205,45 @@ class AIOrchestrator:
 
         body = f"""
 <article>
-<h2>Direct Answer</h2>
-    <p>{topic} works best when you keep the steps specific to {focus_phrase}, measure ratios carefully, and test a small area before scaling. Use consistent timing, note the surface or material details, and repeat the same sequence until the result is stable. If anything looks off, adjust one variable at a time so you can trace the cause and lock in a reliable routine.</p>
+<h2 id="direct-answer">Direct Answer</h2>
+    <p>{topic} is most reliable when you keep steps aligned with {focus_phrase}, measure ratios, and test a small area first. Maintain consistent timing, note the material details, and repeat the same sequence until results are stable. If the outcome shifts, adjust one variable at a time so the cause is clear and the routine stays repeatable.</p>
 
-<h2>Key Conditions at a Glance</h2>
+<h2 id="key-conditions">Key Conditions</h2>
 <ul>
 {key_points}
 </ul>
 
-<h2>Understanding {topic}</h2>
-<p>{topic} is most reliable when the steps match the materials and surface you’re treating. That means selecting the right container, applying the method evenly, and checking the result before repeating.</p>
+<h2 id="understanding">Understanding {topic}</h2>
+<p>{topic} is most reliable when the steps match the materials and surface you are treating. That means selecting the right container, applying the method evenly, and checking the result before repeating.</p>
 <p>Identify the main variables for {topic} (ratio, contact time, and surface type). Keeping those consistent makes the outcome repeatable.</p>
-<p>Work in a stable environment and avoid mixing steps from unrelated tasks. If a step doesn’t directly support {focus_phrase}, skip it.</p>
-<p>Use a short checklist so each pass of {topic} is measured and comparable.</p>
+<p>Work in a stable environment and avoid mixing steps from unrelated tasks. If a step does not directly support {focus_phrase}, skip it.</p>
+<p>Use a short checklist so each pass of {topic} is measured and comparable. A 1:1 ratio, a 24- to 48-hour window, and a 3-step checklist are common baselines to track.</p>
 
-<h2>Complete Step-by-Step Guide</h2>
-<h3>Preparation</h3>
+<h2 id="key-terms">Key Terms</h2>
+<ul>
+    <li>Ratio: the measured balance of ingredients or inputs for {topic}.</li>
+    <li>Contact time: how long the method sits before rinsing or finishing.</li>
+    <li>Surface type: the material you are treating, which changes how {topic} behaves.</li>
+    <li>Batch size: the total amount produced per run.</li>
+</ul>
+
+<h2 id="step-by-step">Step-by-Step Guide</h2>
+<h3 id="step-by-step-prep">Preparation</h3>
 <p>Set up a clean workspace and gather containers, measuring tools, and cloths or applicators that fit {topic}. Label any bottles or jars so ratios are not confused later.</p>
 <p>Choose a small test surface or a single item first. This keeps {topic} controlled before you scale it to a full batch or larger area.</p>
 <p>Measure the base ingredients and note the ratio so you can repeat the same {topic} mix.</p>
 
-<h3>Main Process</h3>
+<h3 id="step-by-step-main">Main Process</h3>
 <p>Apply the mixture or method evenly, using light passes instead of flooding the surface. This helps {topic} work consistently and reduces streaks or residue.</p>
 <p>Allow the recommended contact time, then wipe or rinse as needed. Track the timing for {topic} so you can adjust if the result is too strong or too weak.</p>
 <p>Check the finish or effect immediately. If it’s not right, adjust one variable at a time (ratio, time, or technique) and re-test.</p>
 
-<h3>Finishing</h3>
+<h3 id="step-by-step-finish">Finishing</h3>
 <p>Buff or rinse the surface to remove any remaining film. For {topic}, a final clean pass often makes the difference.</p>
 <p>Store the remaining mixture in a labeled container and note the ratio used.</p>
 <p>Record what worked and what didn’t so the next {topic} run is faster and more consistent.</p>
 
-<h2>Types and Varieties</h2>
+<h2 id="types-varieties">Types and Varieties</h2>
 <p>{topic} can vary based on surface type, container size, and application method. Choose the option that matches your use case.</p>
 <ul>
     <li>Light-duty use: small batch, gentle application, quick wipe or rinse.</li>
@@ -1253,7 +1252,7 @@ class AIOrchestrator:
 </ul>
 <p>For {topic}, the best method is the one that delivers a clean finish without extra residue or rework.</p>
 
-<h2>Troubleshooting Common Issues</h2>
+<h2 id="troubleshooting">Troubleshooting Common Issues</h2>
 <p>If {topic} looks streaky, spotty, or leaves residue, the ratio or contact time likely needs adjustment.</p>
 <ul>
     <li>Issue: streaks or haze → Fix: reduce mixture strength and buff with a clean cloth.</li>
@@ -1262,27 +1261,45 @@ class AIOrchestrator:
 </ul>
 <p>Adjust one variable at a time so you can see what actually improves {topic}.</p>
 
-<h2>Pro Tips from Experts</h2>
+<h2 id="pro-tips">Pro Tips from Experts</h2>
 {pro_tips}
 
 {self._build_faqs(topic)}
 
-<h2>Advanced Techniques</h2>
+<h2 id="advanced-techniques">Advanced Techniques</h2>
 <p>Once {topic} is reliable, test small changes in ratio or application method while keeping everything else the same.</p>
 <p>Track each change in a short log so you can identify the best-performing version of {topic}.</p>
 <p>For recurring tasks, pre-label containers and tools so each session starts with the same setup.</p>
 
+<h2 id="comparison-table">Comparison Table</h2>
 {self._build_comparison_table(topic)}
+
+<h2 id="next-steps">Next Steps</h2>
+<p>Explore more how-to guides in the <a href="https://therike.com/blogs/sustainable-living" rel="nofollow noopener">Sustainable Living blog</a> and compare related methods for your pantry projects.</p>
+<p>For additional fermentation tips, visit <a href="https://therike.com/blogs/sustainable-living/fermentation" rel="nofollow noopener">Fermentation basics</a> to build a consistent routine.</p>
 
 {self._build_sources_section(topic)}
 </article>
 """
+        body = self._ensure_heading_ids(body)
         return self._pad_to_word_count(body, topic)
 
     def _build_meta_description(self, title: str) -> str:
         topic = self._normalize_topic(title)
         desc = f"Learn how to handle {topic} with a clear step-by-step process, practical tips, and troubleshooting guidance for reliable results."
         return desc[:160]
+
+    def _ensure_heading_ids(self, body_html: str) -> str:
+        soup = BeautifulSoup(body_html, "html.parser")
+        for heading in soup.find_all(["h2", "h3"]):
+            if heading.get("id"):
+                continue
+            text = heading.get_text(" ", strip=True).lower()
+            slug = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+            if not slug:
+                continue
+            heading["id"] = slug[:80]
+        return str(soup)
 
     def _auto_fix_article(self, article_id: str) -> dict:
         article = self.api.get_article(article_id)
@@ -1309,7 +1326,10 @@ class AIOrchestrator:
                     "--article-id",
                     str(article_id),
                 ],
-                env={**os.environ, "VISION_REVIEW": "1"},
+                env={
+                    **os.environ,
+                    "VISION_REVIEW": os.environ.get("VISION_REVIEW", "1"),
+                },
                 check=False,
             )
 

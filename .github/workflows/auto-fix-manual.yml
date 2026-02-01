@@ -24,9 +24,9 @@ jobs:
             LEXICA_RESULT_LIMIT: "30"
             LEXICA_FALLBACK_ONLY: "1"
             VISION_REVIEW: "1"
-            VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+            VISION_API_KEY: ""
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-            VISION_PROVIDER: ${{ vars.VISION_PROVIDER || '' }}
+            VISION_PROVIDER: gemini
             VISION_API_BASE: ${{ vars.VISION_API_BASE || 'https://models.github.ai/inference' }}
             VISION_MODEL_ID: ${{ vars.VISION_MODEL_ID || 'openai/gpt-4o-mini' }}
             VISION_TIMEOUT: "30"
@@ -76,8 +76,8 @@ jobs:
 
             - name: Verify vision review enabled
               run: |
-                  if [ -z "${VISION_API_KEY:-}" ] && [ -z "${GEMINI_API_KEY:-}" ]; then
-                      echo "Missing VISION_API_KEY or GEMINI_API_KEY; vision review is required."
+                  if [ -z "${GEMINI_API_KEY:-}" ]; then
+                      echo "Missing GEMINI_API_KEY; vision review is required."
                       exit 1
                   fi
 

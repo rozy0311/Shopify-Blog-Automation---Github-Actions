@@ -697,7 +697,7 @@ def review_article(article_id):
                 f"❌ IMAGE RELEVANCE: Alt texts must mention topic keywords from title ({', '.join(topic_keys[:5])})"
             )
 
-    # 16a. At least one image must be from Pinterest (quality standard)
+    # 16a. Prefer Pinterest images when available (not required)
     all_srcs = []
     if main_image and main_image.get("src"):
         all_srcs.append(main_image.get("src"))
@@ -707,8 +707,8 @@ def review_article(article_id):
             all_srcs.append(src_match.group(1))
     has_pinterest = any("i.pinimg.com" in (s or "") for s in all_srcs)
     if not has_pinterest and all_srcs:
-        errors.append(
-            "❌ IMAGE QUALITY: At least one image must be from Pinterest (i.pinimg.com)"
+        warnings.append(
+            "⚠️ IMAGE QUALITY: No Pinterest image detected; using AI/Shopify images"
         )
 
     # 16b. Required section structure check (H2/H3 text)

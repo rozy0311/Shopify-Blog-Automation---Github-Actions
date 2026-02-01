@@ -22,7 +22,9 @@ jobs:
             POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
             POLLINATIONS_NEGATIVE: "text, watermark, logo, signature"
             VISION_REVIEW: "1"
-            VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+            VISION_API_KEY: ""
+            GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+            VISION_PROVIDER: gemini
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -44,7 +46,9 @@ jobs:
                   SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
                   SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
                   VISION_REVIEW: "1"
-                  VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+                  VISION_API_KEY: ""
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+                  VISION_PROVIDER: gemini
               run: |
                   set -o pipefail
                   python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output.txt
@@ -65,7 +69,9 @@ jobs:
                   SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
                   SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
                   VISION_REVIEW: "1"
-                  VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+                  VISION_API_KEY: ""
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+                  VISION_PROVIDER: gemini
               run: |
                   set -o pipefail
                   python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-fix.txt
@@ -87,7 +93,9 @@ jobs:
                   SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
                   SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
                   VISION_REVIEW: "1"
-                  VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+                  VISION_API_KEY: ""
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+                  VISION_PROVIDER: gemini
               run: |
                   set -o pipefail
                   python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-rebuild.txt
