@@ -269,6 +269,19 @@ GENERIC_SECTION_HEADINGS = [
     "expert insights",
 ]
 
+GENERIC_SECTION_HEADINGS = [
+    "advanced considerations and expert insights",
+    "timing and seasonal factors",
+    "quality over quantity",
+    "building community connections",
+    "continuous learning mindset",
+    "environmental responsibility",
+    "documentation and reflection",
+    "practical tips",
+    "maintenance and care",
+    "research highlights",
+    "expert insights",
+]
 # Template contamination keywords
 CONTAMINATION_RULES = {
     "cordage": [
