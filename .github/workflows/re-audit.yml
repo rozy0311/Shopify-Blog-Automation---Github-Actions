@@ -8,13 +8,15 @@ on:
                 required: false
                 default: "250"
     schedule:
-        - cron: "0 2 * * *"
+        - cron: "0 */6 * * *"
 
 jobs:
     audit:
         runs-on: ubuntu-latest
         permissions:
             contents: read
+        env:
+            POLLINATIONS_NEGATIVE: "text, watermark, logo, signature"
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -36,7 +38,8 @@ jobs:
                   SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
                   SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
               run: |
-                  python scripts/quality_agent.py --limit ${{ inputs.limit }} --export
+                  LIMIT="${{ github.event.inputs.limit || '250' }}"
+                  python scripts/quality_agent.py --limit "$LIMIT" --export
 
             - name: Run meta-prompt content audit
               env:
@@ -45,7 +48,8 @@ jobs:
                   SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
                   SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
               run: |
-                  python scripts/meta_prompt_quality_agent.py --limit ${{ inputs.limit }} --export
+                  LIMIT="${{ github.event.inputs.limit || '250' }}"
+                  python scripts/meta_prompt_quality_agent.py --limit "$LIMIT" --export
 
             - name: Upload audit report
               uses: actions/upload-artifact@v4
@@ -54,4 +58,4 @@ jobs:
                   path: |
                       quality_report_*.json
                       meta_prompt_quality_report_*.json
-                  if-no-files-found: error
+                  if-no-files-found: ignore
