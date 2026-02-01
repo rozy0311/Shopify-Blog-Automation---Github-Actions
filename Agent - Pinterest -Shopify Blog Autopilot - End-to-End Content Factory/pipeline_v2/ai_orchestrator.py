@@ -1119,6 +1119,7 @@ class AIOrchestrator:
         if not article:
             return True
         if article.get("image") and article["image"].get("src"):
+            print("[OK] Article already has featured image")
             return True
         body = article.get("body_html", "") or ""
         img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', body, re.IGNORECASE)
@@ -1136,7 +1137,9 @@ class AIOrchestrator:
         payload = {"image": {"src": src, "alt": alt}}
         ok = self.api.update_article(article_id, payload)
         if ok:
-            print("[OK] Set featured image from first inline image")
+            print("[OK] Set featured image from first inline image: %s" % (src[:80] + "..." if len(src) > 80 else src))
+        else:
+            print("[WARN] Failed to set featured image (REST PUT returned non-200)")
         return ok
 
     def _publish_to_shopify(self, article_id: str) -> bool:
