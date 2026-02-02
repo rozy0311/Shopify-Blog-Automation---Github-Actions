@@ -101,14 +101,15 @@ jobs:
                   echo "status=$?" >> $GITHUB_OUTPUT
               continue-on-error: true
 
-            # Run from workspace root with explicit path. Publish when any review passed OR publish_anyway.
+            # Run from agent root so path works for both repo layouts (root=Content Factory or subfolder).
             - name: Publish to Shopify (cleanup + set featured + publish)
               if: steps.review_initial.outputs.status == '0' || steps.review_after_fix.outputs.status == '0' || steps.review_after_rebuild.outputs.status == '0' || github.event.inputs.publish_anyway == 'true'
               run: |
                   BASE="${{ steps.agent_dir.outputs.dir }}"
-                  python "$BASE/pipeline_v2/cleanup_before_publish.py" "${{ inputs.article_id }}"
-                  python "$BASE/pipeline_v2/set_featured_image_if_missing.py" "${{ inputs.article_id }}"
-                  python "$BASE/pipeline_v2/publish_now_graphql.py" "${{ inputs.article_id }}"
+                  cd "$BASE"
+                  python pipeline_v2/cleanup_before_publish.py "${{ inputs.article_id }}"
+                  python pipeline_v2/set_featured_image_if_missing.py "${{ inputs.article_id }}"
+                  python pipeline_v2/publish_now_graphql.py "${{ inputs.article_id }}"
 
             - name: Fail if review never passed (and not publish_anyway)
               if: (steps.review_initial.outputs.status != '0' && steps.review_after_fix.outputs.status != '0' && steps.review_after_rebuild.outputs.status != '0') && github.event.inputs.publish_anyway != 'true'
