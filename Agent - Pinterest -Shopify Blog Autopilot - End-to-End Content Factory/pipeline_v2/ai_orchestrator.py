@@ -631,8 +631,43 @@ class QualityGate:
 
 
 # ============================================================================
-# SHOPIFY API
+# SHOPIFY API (env or config fallback for GHA)
 # ============================================================================
+
+def _shopify_config():
+    """SHOP, BLOG_ID, TOKEN, API_VERSION from env; fallback from SHOPIFY_PUBLISH_CONFIG.json"""
+    shop = os.getenv("SHOPIFY_SHOP") or os.getenv("SHOPIFY_STORE_DOMAIN")
+    blog_id = os.getenv("SHOPIFY_BLOG_ID")
+    token = os.getenv("SHOPIFY_ACCESS_TOKEN")
+    api_ver = os.getenv("SHOPIFY_API_VERSION", "2025-01")
+    if not shop or not blog_id or not token:
+        config_path = PIPELINE_DIR.parent / "SHOPIFY_PUBLISH_CONFIG.json"
+        if not config_path.exists():
+            config_path = ROOT_DIR / "SHOPIFY_PUBLISH_CONFIG.json"
+        if config_path.exists():
+            with open(config_path, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+            shop_cfg = cfg.get("shop", {})
+            if not shop:
+                shop = shop_cfg.get("domain", "")
+            if not token:
+                token = shop_cfg.get("access_token", "")
+            if not api_ver:
+                api_ver = shop_cfg.get("api_version", "2025-01")
+        # BLOG_ID often only in env (secrets)
+        if not blog_id:
+            blog_id = ""
+    return shop or "", blog_id or "", token or "", api_ver or "2025-01"
+
+
+_SHOP, _BLOG_ID, _TOKEN, _API_VER = _shopify_config()
+SHOP = _SHOP
+BLOG_ID = _BLOG_ID
+API_VERSION = _API_VER
+HEADERS = {
+    "X-Shopify-Access-Token": _TOKEN,
+    "Content-Type": "application/json",
+}
 
 
 class ShopifyAPI:
@@ -641,7 +676,7 @@ class ShopifyAPI:
     @staticmethod
     def get_article(article_id: str) -> dict:
         """Fetch single article"""
-        url = f"https://{SHOP}/admin/api/2025-01/blogs/{BLOG_ID}/articles/{article_id}.json"
+        url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
         resp = requests.get(url, headers=HEADERS)
         if resp.status_code == 200:
             return resp.json().get("article")
@@ -650,7 +685,7 @@ class ShopifyAPI:
     @staticmethod
     def get_all_articles(status: str = "any", limit: int = 250) -> list:
         """Fetch all articles"""
-        url = f"https://{SHOP}/admin/api/2025-01/blogs/{BLOG_ID}/articles.json?limit={limit}"
+        url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles.json?limit={limit}"
         if status != "any":
             url += f"&published_status={status}"
 
@@ -675,7 +710,7 @@ class ShopifyAPI:
     @staticmethod
     def update_article(article_id: str, data: dict) -> bool:
         """Update article"""
-        url = f"https://{SHOP}/admin/api/2025-01/blogs/{BLOG_ID}/articles/{article_id}.json"
+        url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
         resp = requests.put(url, headers=HEADERS, json={"article": data})
         return resp.status_code == 200
 
@@ -1654,7 +1689,7 @@ class AIOrchestrator:
             return False
 
         article_id = str(article.get("id"))
-        url = f"https://{SHOP}/admin/api/2025-01/blogs/{BLOG_ID}/articles/{article_id}.json"
+        url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
         payload = {"article": {"id": int(article_id), "summary_html": meta}}
         resp = requests.put(url, headers=HEADERS, json=payload)
         return resp.status_code == 200
