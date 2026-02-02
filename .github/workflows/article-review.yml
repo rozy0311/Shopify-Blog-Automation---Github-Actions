@@ -109,6 +109,7 @@ jobs:
 
             - name: Publish to Shopify (cleanup + set featured + publish)
               if: steps.review_initial.outputs.review_status == '0' || steps.review_after.outputs.review_status_after == '0' || steps.review_after_rebuild.outputs.review_status_after_rebuild == '0'
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
                   SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
@@ -116,8 +117,6 @@ jobs:
                   SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
                   SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
               run: |
-                  BASE="${{ steps.agent_dir.outputs.dir }}"
-                  cd "$BASE"
                   python pipeline_v2/cleanup_before_publish.py "${{ inputs.article_id }}"
                   python pipeline_v2/set_featured_image_if_missing.py "${{ inputs.article_id }}"
                   python pipeline_v2/publish_now_graphql.py "${{ inputs.article_id }}"
