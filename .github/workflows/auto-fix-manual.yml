@@ -40,6 +40,7 @@ jobs:
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             FIX_MAX_ITEMS: "1"
+            FIX_DELAY_SECONDS: "600"
             PASS_RATE_ENFORCE: "1"
             MIN_PASS_RATE: "0.95"
             PASS_RATE_WINDOW: "20"
@@ -204,6 +205,7 @@ jobs:
                       exit 0
                   fi
                   max=${FIX_MAX_ITEMS:-50}
+                  delay=${FIX_DELAY_SECONDS:-600}
                   processed_file=".processed_ids"
                   : > "$processed_file"
                   for i in $(seq 1 "$max"); do
@@ -275,6 +277,10 @@ jobs:
                               python ai_orchestrator.py queue-review "$article_id" fail "PRE_PUBLISH_REVIEW_FAIL"
                               echo "Pre-publish review failed after rebuild for $article_id. Skipping."
                           fi
+                      fi
+                      if [ "$i" -lt "$max" ]; then
+                          echo "Sleeping ${delay}s before next article..."
+                          sleep "$delay"
                       fi
                   done
 
