@@ -1019,7 +1019,7 @@ class AIOrchestrator:
                 f"validate {term} conditions, record the outcome, and keep the procedure consistent before scaling.</p>\n"
             )
             soup = BeautifulSoup(body_html, "html.parser")
-            current_words = len(soup.get_text(separator=\" \", strip=True).split())
+            current_words = len(soup.get_text(separator=" ", strip=True).split())
             counter += 1
 
         return body_html
