@@ -1027,6 +1027,8 @@ class AIOrchestrator:
 
     def _build_article_body(self, title: str) -> str:
         topic = self._normalize_topic(title)
+        if self._is_gardening_topic(title):
+            return self._build_gardening_body(topic, title)
         terms = self._extract_topic_terms(title)
         focus_phrase = ", ".join(terms[:3]) if terms else topic
         focus_terms = ", ".join(terms) if terms else topic
@@ -1114,6 +1116,110 @@ class AIOrchestrator:
 <p>Once {topic} is reliable, test small changes in inputs or method while keeping everything else the same.</p>
 <p>Track each change in a short log so you can identify the best-performing version of {topic}.</p>
 <p>For recurring tasks, pre-label containers and tools so each session starts with the same setup.</p>
+
+{self._build_comparison_table(topic)}
+
+{self._build_sources_section(topic)}
+</article>
+"""
+        return self._pad_to_word_count(body, topic)
+
+    def _is_gardening_topic(self, title: str) -> bool:
+        t = title.lower()
+        return any(
+            kw in t
+            for kw in [
+                "grow",
+                "growing",
+                "garden",
+                "gardening",
+                "plant",
+                "container",
+                "containers",
+                "herb",
+                "basil",
+                "soil",
+                "potting",
+                "seed",
+                "seedling",
+            ]
+        )
+
+    def _build_gardening_body(self, topic: str, title: str) -> str:
+        terms = self._extract_topic_terms(title)
+        focus_phrase = ", ".join(terms[:3]) if terms else topic
+        key_points = "\n".join(
+            [
+                f"<li>Use containers with drainage and match size to {focus_phrase} growth.</li>",
+                f"<li>Use a light, well-draining potting mix for {topic}.</li>",
+                f"<li>Keep light, watering, and feeding consistent to avoid stress.</li>",
+                f"<li>Prune regularly to keep {topic} compact and productive.</li>",
+                "<li>Track changes in light and temperature and adjust gradually.</li>",
+                "<li>Record inputs and results so you can repeat what works.</li>",
+            ]
+        )
+
+        body = f"""
+<article>
+<h2>Direct Answer</h2>
+    <p>{topic} works best when you use the right container size, a well-draining mix, steady light, and consistent watering. Start with healthy starts or seeds, keep the soil evenly moist (not soggy), and prune often to encourage new growth. If results slip, adjust one variable at a time so you can identify what is holding {topic} back.</p>
+
+<h2>Key Conditions at a Glance</h2>
+<ul>
+{key_points}
+</ul>
+
+<h2>Understanding {topic}</h2>
+<p>{topic} is most reliable when the container, soil structure, and light exposure are aligned. Containers control root space and moisture, so drainage and mix quality determine whether plants stay healthy.</p>
+<p>Identify the main variables for {topic} (container size, soil structure, light hours, watering rhythm). Keeping those consistent makes the outcome repeatable.</p>
+<p>Work in stable conditions and avoid changing multiple variables at once. If a step doesn’t directly support {focus_phrase}, skip it.</p>
+<p>Use a short checklist so each pass of {topic} is measured and comparable.</p>
+
+<h2>Complete Step-by-Step Guide</h2>
+<h3>Preparation</h3>
+<p>Choose containers with drainage holes and a saucer that prevents standing water. For {topic}, clean containers prevent carryover issues.</p>
+<p>Use a light, well-draining potting mix and pre-moisten it before planting.</p>
+<p>Set a plan for light (window, grow light, or outdoor spot) and note your starting conditions.</p>
+
+<h3>Planting and Setup</h3>
+<p>Plant seeds or starts at the correct depth and spacing for {topic}. Press soil lightly and water to settle.</p>
+<p>Place containers where they receive consistent light. Rotate containers every few days so growth stays even.</p>
+<p>Keep the top inch of soil evenly moist. Overwatering is the most common setback for {topic} in containers.</p>
+
+<h3>Ongoing Care</h3>
+<p>Water when the top layer dries, then let excess drain completely. Avoid leaving containers in standing water.</p>
+<p>Prune regularly by pinching back stems to encourage bushier growth.</p>
+<p>Feed lightly with a balanced fertilizer every 2–4 weeks during active growth.</p>
+
+<h2>Types and Varieties</h2>
+<p>{topic} can vary by variety, growth habit, and flavor profile. Choose types that fit your space and use case.</p>
+<ul>
+    <li>Compact varieties: best for small containers and indoor setups.</li>
+    <li>Standard varieties: vigorous growth with frequent pruning.</li>
+    <li>Specialty varieties: unique flavors but may need more light.</li>
+</ul>
+<p>For {topic}, the best method is the one that fits your light conditions and how often you can maintain the plants.</p>
+
+<h2>Troubleshooting Common Issues</h2>
+<p>If {topic} looks weak or leggy, light or watering is usually the cause.</p>
+<ul>
+    <li>Issue: yellowing leaves → Fix: reduce watering and improve drainage.</li>
+    <li>Issue: slow growth → Fix: increase light and adjust feeding.</li>
+    <li>Issue: wilting midday → Fix: check root space and water schedule.</li>
+</ul>
+<p>Adjust one variable at a time so you can see what actually improves {topic}.</p>
+
+<h2>Pro Tips from Experts</h2>
+{pro_tips}
+
+{self._build_key_terms_section(topic)}
+
+{self._build_faqs(topic)}
+
+<h2>Advanced Techniques</h2>
+<p>Once {topic} is reliable, test small changes in light, spacing, or feeding while keeping everything else the same.</p>
+<p>Track each change in a short log so you can identify the best-performing setup for {topic}.</p>
+<p>For recurring batches, pre-label containers so each session starts with the same setup.</p>
 
 {self._build_comparison_table(topic)}
 
