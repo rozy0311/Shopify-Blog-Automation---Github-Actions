@@ -102,7 +102,7 @@ QUALITY_CHECKS = {
 # GENERIC PHRASES TO DETECT (AI slop / template content) - aligned with PROMPT + meta-prompt
 GENERIC_PHRASES = [
     "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
-    "in this guide", "this article", "this blog post",
+    "in this guide", "this guide", "this article", "this blog post",
     "whether you're a beginner", "whether you are a beginner", "whether you are new",
     "in today's world", "in today's fast-paced", "in our modern world",
     "you will learn", "by the end", "throughout this article", "in this post",
@@ -712,8 +712,8 @@ def review_article(article_id):
         if len(normalized) > 30:
             seen_normalized.append(normalized)
     if duplicate_count > 0:
-        warnings.append(
-            f"⚠️ DUPLICATE TEXT: {duplicate_count} duplicate paragraph(s) found (consider reducing repeated content)"
+        errors.append(
+            f"❌ DUPLICATE TEXT: {duplicate_count} duplicate paragraph(s) found (remove repeated content)"
         )
 
     # 26. 11-section structure (META-PROMPT) - FAIL if too few key sections

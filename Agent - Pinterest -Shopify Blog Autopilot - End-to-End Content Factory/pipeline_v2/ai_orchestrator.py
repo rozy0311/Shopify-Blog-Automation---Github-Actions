@@ -926,26 +926,44 @@ class AIOrchestrator:
         focus_phrase = ", ".join(terms[:3]) if terms else topic
 
         pad_section = "<h2>Additional Practical Notes</h2>"
-        pad_paragraph = (
-            f"<p>For {topic}, keep the focus on {focus_phrase}. "
-            "Document the exact materials, amounts, and timing so you can repeat what works. "
-            "If the result is inconsistent, adjust only one variable and re-test.</p>"
-        )
-        pad_paragraph_2 = (
-            f"<p>A simple checklist helps with {topic}: confirm the surface or item type, "
-            "match the method to that use case, and verify the finish before moving on. "
-            "This prevents drifting into steps that don’t fit the goal.</p>"
-        )
-        pad_paragraph_3 = (
-            f"<p>When {topic} involves mixtures or solutions, label containers and note ratios. "
-            "Store in a cool, safe place and keep a small test area to verify results before full use.</p>"
-        )
+        pad_paragraphs = [
+            (
+                f"<p>For {topic}, keep the focus on {focus_phrase}. "
+                "Document the exact materials, amounts, and timing so you can repeat what works. "
+                "If the result is inconsistent, adjust only one variable and re-test.</p>"
+            ),
+            (
+                f"<p>A simple checklist helps with {topic}: confirm the surface or item type, "
+                "match the method to that use case, and verify the finish before moving on. "
+                "This prevents drifting into steps that don’t fit the goal.</p>"
+            ),
+            (
+                f"<p>When {topic} involves mixtures or solutions, label containers and note ratios. "
+                "Store in a cool, safe place and keep a small test area to verify results before full use.</p>"
+            ),
+            (
+                f"<p>Track outcomes for {topic} in a short log so you can compare results across attempts. "
+                "Consistency comes from repeating the same steps with minor, measured tweaks.</p>"
+            ),
+            (
+                f"<p>For {topic}, avoid adding extra steps that do not directly improve the outcome. "
+                "Keep the workflow lean so you can spot what actually changes the result.</p>"
+            ),
+            (
+                f"<p>Store leftover materials for {topic} in labeled containers and note dates. "
+                "This makes it easy to re-check performance and update ratios if needed.</p>"
+            ),
+        ]
 
         if pad_section not in body_html:
             body_html += f"\n{pad_section}\n"
 
-        while current_words < target:
-            body_html += f"\n{pad_paragraph}\n{pad_paragraph_2}\n{pad_paragraph_3}\n"
+        for para in pad_paragraphs:
+            if current_words >= target:
+                break
+            if para in body_html:
+                continue
+            body_html += f"\n{para}\n"
             soup = BeautifulSoup(body_html, "html.parser")
             current_words = len(soup.get_text(separator=" ", strip=True).split())
 
