@@ -10,6 +10,11 @@ on:
                 description: "Shopify article ID to review (then cleanup + publish if pass)"
                 required: true
                 type: string
+            publish_anyway:
+                description: "Nếu bật: vẫn cleanup + set featured + publish dù review không pass (fix tối thiểu)"
+                required: false
+                default: false
+                type: boolean
 
 permissions:
     contents: read
@@ -33,18 +38,20 @@ jobs:
                   python-version: "3.11"
 
             - name: Install dependencies
-              run: python -m pip install --upgrade pip && pip install requests beautifulsoup4 python-dotenv PyYAML
+              run: python -m pip install --upgrade pip && pip install requests beautifulsoup4 python-dotenv PyYAML google-auth pillow
 
-            # Prefer repo root (pipeline_v2 at root); only use subfolder if file not at root.
+            # Prefer repo root (pipeline_v2 at root). Output dir + pipeline_dir for stable paths.
             - name: Set agent dir
               id: agent_dir
               run: |
                   SUB="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory"
                   if [ -f "pipeline_v2/publish_now_graphql.py" ]; then
                     echo "dir=." >> $GITHUB_OUTPUT
-                    echo "Using agent dir: . (repo root)"
+                    echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
+                    echo "Using agent dir: . (repo root), pipeline_dir: pipeline_v2"
                   elif [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
                     echo "dir=$SUB" >> $GITHUB_OUTPUT
+                    echo "pipeline_dir=$SUB/pipeline_v2" >> $GITHUB_OUTPUT
                     echo "Using agent dir: $SUB"
                   else
                     echo "Neither ./pipeline_v2 nor $SUB/pipeline_v2 contains publish_now_graphql.py"
@@ -63,7 +70,7 @@ jobs:
 
             - name: Auto-fix on review failure
               if: steps.review_initial.outputs.status != '0'
-              working-directory: ${{ steps.agent_dir.outputs.dir }}/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: python ai_orchestrator.py fix-ids "${{ inputs.article_id }}"
 
             - name: Run pre-publish review (after fix)
@@ -77,8 +84,13 @@ jobs:
 
             - name: Force rebuild on review failure
               if: steps.review_after_fix.outputs.status != '0'
-              working-directory: ${{ steps.agent_dir.outputs.dir }}/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: python ai_orchestrator.py force-rebuild-ids "${{ inputs.article_id }}"
+
+            - name: Fix images (standalone)
+              if: steps.review_after_fix.outputs.status != '0'
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
+              run: python fix_images_properly.py --article-id "${{ inputs.article_id }}" || true
 
             - name: Run pre-publish review (after rebuild)
               if: steps.review_after_fix.outputs.status != '0'
@@ -89,19 +101,19 @@ jobs:
                   echo "status=$?" >> $GITHUB_OUTPUT
               continue-on-error: true
 
-            # Run from workspace root with explicit path (avoids working-directory + spaces issues)
+            # Run from workspace root with explicit path. Publish when any review passed OR publish_anyway.
             - name: Publish to Shopify (cleanup + set featured + publish)
-              if: steps.review_initial.outputs.status == '0' || steps.review_after_fix.outputs.status == '0' || steps.review_after_rebuild.outputs.status == '0'
+              if: steps.review_initial.outputs.status == '0' || steps.review_after_fix.outputs.status == '0' || steps.review_after_rebuild.outputs.status == '0' || github.event.inputs.publish_anyway == 'true'
               run: |
                   BASE="${{ steps.agent_dir.outputs.dir }}"
                   python "$BASE/pipeline_v2/cleanup_before_publish.py" "${{ inputs.article_id }}"
                   python "$BASE/pipeline_v2/set_featured_image_if_missing.py" "${{ inputs.article_id }}"
                   python "$BASE/pipeline_v2/publish_now_graphql.py" "${{ inputs.article_id }}"
 
-            - name: Fail if review never passed
-              if: steps.review_initial.outputs.status != '0' && steps.review_after_fix.outputs.status != '0' && steps.review_after_rebuild.outputs.status != '0'
+            - name: Fail if review never passed (and not publish_anyway)
+              if: (steps.review_initial.outputs.status != '0' && steps.review_after_fix.outputs.status != '0' && steps.review_after_rebuild.outputs.status != '0') && github.event.inputs.publish_anyway != 'true'
               run: |
-                  echo "Pre-publish review failed (meta-prompt not met). Not publishing."
+                  echo "Pre-publish review failed (meta-prompt not met). Not publishing. Enable 'publish_anyway' to still cleanup + set featured + publish."
                   exit 1
 
             - name: Upload review output
@@ -120,7 +132,8 @@ jobs:
               run: |
                   echo "## Article Pre-Publish Review (Meta-Prompt)" >> $GITHUB_STEP_SUMMARY
                   echo "- Article ID: ${{ inputs.article_id }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- Publish anyway: ${{ github.event.inputs.publish_anyway }}" >> $GITHUB_STEP_SUMMARY
                   echo "- Initial: ${{ steps.review_initial.outputs.status == '0' && 'PASS' || 'FAIL' }}" >> $GITHUB_STEP_SUMMARY
                   echo "- After fix: ${{ steps.review_after_fix.outputs.status == '0' && 'PASS' || 'N/A or FAIL' }}" >> $GITHUB_STEP_SUMMARY
                   echo "- After rebuild: ${{ steps.review_after_rebuild.outputs.status == '0' && 'PASS' || 'N/A or FAIL' }}" >> $GITHUB_STEP_SUMMARY
-                  echo "- Published: ${{ steps.review_initial.outputs.status == '0' || steps.review_after_fix.outputs.status == '0' || steps.review_after_rebuild.outputs.status == '0' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- Published: ${{ steps.review_initial.outputs.status == '0' || steps.review_after_fix.outputs.status == '0' || steps.review_after_rebuild.outputs.status == '0' || github.event.inputs.publish_anyway == 'true' }}" >> $GITHUB_STEP_SUMMARY
