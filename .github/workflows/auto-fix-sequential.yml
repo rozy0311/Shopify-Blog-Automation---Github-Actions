@@ -198,7 +198,7 @@ jobs:
             - name: Fix up to 50 articles sequentially (no batch)
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                  set -euo pipefail
+                  set -uo pipefail
                   if [ ! -f "anti_drift_queue.json" ]; then
                       echo "Queue missing; re-initializing."
                       python ai_orchestrator.py queue-init || true
@@ -240,7 +240,7 @@ jobs:
                           break
                       fi
 
-                      if grep -Fxq "$article_id" "$processed_file"; then
+                      if grep -Fxq "$article_id" "$processed_file" 2>/dev/null; then
                           echo "Already processed $article_id in this run; skipping."
                           python - <<PY
                   import json
@@ -258,10 +258,17 @@ jobs:
                       fi
                       echo "Processing $article_id ($i/$max)"
                       echo "$article_id" >> "$processed_file"
+                      set +e
                       python ai_orchestrator.py fix-ids "$article_id"
-
+                      fix_ok=$?
+                      if [ "$fix_ok" != "0" ]; then echo "[WARN] fix-ids $article_id exited $fix_ok"; fi
                       python "../scripts/build_meta_fix_queue.py" "$article_id"
+                      build_ok=$?
+                      if [ "$build_ok" != "0" ]; then echo "[WARN] build_meta_fix_queue exited $build_ok"; fi
                       python "../scripts/run_meta_fix_queue.py"
+                      run_ok=$?
+                      if [ "$run_ok" != "0" ]; then echo "[WARN] run_meta_fix_queue exited $run_ok"; fi
+                      set -e
 
                       set +e
                       python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
@@ -269,13 +276,13 @@ jobs:
                       set -e
 
                       if [ "$review_status" != "0" ]; then
-                          python ai_orchestrator.py force-rebuild-ids "$article_id"
                           set +e
+                          python ai_orchestrator.py force-rebuild-ids "$article_id"
                           python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
                           review_status_after=${PIPESTATUS[0]}
                           set -e
                           if [ "$review_status_after" != "0" ]; then
-                              python ai_orchestrator.py queue-review "$article_id" fail "PRE_PUBLISH_REVIEW_FAIL"
+                              python ai_orchestrator.py queue-review "$article_id" fail "PRE_PUBLISH_REVIEW_FAIL" || true
                               echo "Pre-publish review failed after rebuild for $article_id. Skipping."
                           fi
                       fi
@@ -286,6 +293,7 @@ jobs:
                           echo "Published and marked done: $article_id"
                       fi
                   done
+                  exit 0
 
             - name: Upload fix artifacts
               uses: actions/upload-artifact@v4
