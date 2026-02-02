@@ -50,6 +50,7 @@ jobs:
                   fi
 
             - name: Run pre-publish review (initial)
+              shell: bash
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
                   SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
@@ -59,8 +60,9 @@ jobs:
                   VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
               run: |
                   set +e
-                  python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output.txt
-                  echo "review_status=$?" >> $GITHUB_OUTPUT
+                  python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" 2>&1 | tee review-output.txt
+                  EXIT=${PIPESTATUS[0]}
+                  echo "review_status=$EXIT" >> $GITHUB_OUTPUT
               id: review_initial
               continue-on-error: true
 
@@ -71,6 +73,8 @@ jobs:
                   python ai_orchestrator.py fix-ids "${{ inputs.article_id }}"
 
             - name: Run pre-publish review (after fix)
+              if: ${{ steps.review_initial.outputs.review_status != '0' }}
+              shell: bash
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
                   SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
@@ -80,19 +84,21 @@ jobs:
                   VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
               run: |
                   set +e
-                  python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-fix.txt
-                  echo "review_status_after=$?" >> $GITHUB_OUTPUT
+                  python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" 2>&1 | tee review-output-after-fix.txt
+                  EXIT=${PIPESTATUS[0]}
+                  echo "review_status_after=$EXIT" >> $GITHUB_OUTPUT
               id: review_after
               continue-on-error: true
 
             - name: Force rebuild on review failure
-              if: ${{ steps.review_after.outputs.review_status_after != '0' }}
+              if: ${{ steps.review_after.outputs.review_status_after == '1' }}
               working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   python ai_orchestrator.py force-rebuild-ids "${{ inputs.article_id }}"
 
             - name: Run pre-publish review (after rebuild)
-              if: ${{ steps.review_after.outputs.review_status_after != '0' }}
+              if: ${{ steps.review_after.outputs.review_status_after == '1' }}
+              shell: bash
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
                   SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
@@ -101,9 +107,10 @@ jobs:
                   VISION_REVIEW: "1"
                   VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
               run: |
-                  set -o pipefail
-                  python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-rebuild.txt
-                  echo "review_status_after_rebuild=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+                  set +e
+                  python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" 2>&1 | tee review-output-after-rebuild.txt
+                  EXIT=${PIPESTATUS[0]}
+                  echo "review_status_after_rebuild=$EXIT" >> $GITHUB_OUTPUT
               id: review_after_rebuild
               continue-on-error: true
 
