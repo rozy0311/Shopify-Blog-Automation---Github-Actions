@@ -1320,6 +1320,15 @@ class AIOrchestrator:
                         capture_output=True,
                         timeout=90,
                     )
+                # Ensure featured image (fallback: set from first inline if still missing)
+                set_featured_script = PIPELINE_DIR / "set_featured_image_if_missing.py"
+                if set_featured_script.exists():
+                    subprocess.run(
+                        [sys.executable, str(set_featured_script), str(article_id)],
+                        cwd=str(content_factory_dir),
+                        capture_output=True,
+                        timeout=60,
+                    )
                 if publish_script.exists():
                     subprocess.run(
                         [sys.executable, str(publish_script), str(article_id)],

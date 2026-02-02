@@ -1,0 +1,288 @@
+name: Auto Fix Sequential (1 article)
+# noop: re-register workflow dispatch
+
+on:
+    workflow_dispatch:
+        inputs:
+            fix_max_items:
+                description: "Số bài xử lý mỗi run (0 = dùng env FIX_MAX_ITEMS)"
+                required: false
+                default: "0"
+            skip_heartbeat:
+                description: "Bỏ qua heartbeat (chạy dù local đang chạy)"
+                required: false
+                default: false
+                type: boolean
+    schedule:
+        - cron: "*/10 * * * *"
+
+concurrency:
+    group: auto-fix-sequential
+    cancel-in-progress: false
+
+jobs:
+    heartbeat-check:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        outputs:
+            skip: ${{ steps.heartbeat.outputs.skip }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  ref: ${{ vars.LOCAL_HEARTBEAT_REF || github.ref }}
+
+            - name: Check local heartbeat
+              id: heartbeat
+              env:
+                  LOCAL_HEARTBEAT_MAX_AGE_MINUTES: ${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}
+                  LOCAL_HEARTBEAT_PATH: ${{ vars.LOCAL_HEARTBEAT_PATH || 'local_heartbeat.json' }}
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  import time
+                  from pathlib import Path
+
+                  output = os.environ.get("GITHUB_OUTPUT")
+                  max_age = int(os.environ.get("LOCAL_HEARTBEAT_MAX_AGE_MINUTES", "15"))
+                  hb_path = os.environ.get("LOCAL_HEARTBEAT_PATH", "local_heartbeat.json").strip()
+                  path = Path(hb_path)
+                  skip = "false"
+                  data = {}
+                  if path.exists():
+                      try:
+                          data = json.loads(path.read_text(encoding="utf-8"))
+                      except Exception:
+                          data = {}
+                      ts = data.get("timestamp")
+                      if isinstance(ts, (int, float)):
+                          age = time.time() - float(ts)
+                          if 0 <= age <= max_age * 60:
+                              skip = "true"
+                  if output:
+                      with open(output, "a", encoding="utf-8") as f:
+                          f.write(f"skip={skip}\n")
+                  print(f"Heartbeat skip={skip}")
+                  PY
+
+    auto-fix-one:
+        needs: heartbeat-check
+        if: needs.heartbeat-check.outputs.skip != 'true' || github.event.inputs.skip_heartbeat == 'true'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        env:
+            SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+            SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
+            SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+            SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+            SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+            POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+            POLLINATIONS_NEGATIVE: "text, watermark, logo, signature"
+            USE_LEXICA: "0"
+            LEXICA_ONLY_SD15: "1"
+            LEXICA_RESULT_LIMIT: "30"
+            LEXICA_FALLBACK_ONLY: "1"
+            VISION_REVIEW: "0"
+            VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+            GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+            GEMINI_MODEL: gemini-2.0-flash
+            LLM_PROVIDER_ORDER: gemini
+            DISABLE_OPENAI: "true"
+            VISION_PROVIDER: gemini
+            VISION_TIMEOUT: ${{ vars.VISION_TIMEOUT || '30' }}
+            VISION_MAX_ATTEMPTS: ${{ vars.VISION_MAX_ATTEMPTS || '6' }}
+            VISION_RETRY_SLEEP: ${{ vars.VISION_RETRY_SLEEP || '6' }}
+            VISION_BACKOFF_FACTOR: ${{ vars.VISION_BACKOFF_FACTOR || '1.8' }}
+            GCP_PROJECT: ${{ vars.GCP_PROJECT || '' }}
+            GCP_LOCATION: ${{ vars.GCP_LOCATION || 'us-central1' }}
+            GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'imagen-4.0-fast-generate-001' }}
+            GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-sa.json
+            GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+            USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items && github.event.inputs.fix_max_items != '0' && github.event.inputs.fix_max_items || '1' }}
+            PASS_RATE_ENFORCE: "1"
+            MIN_PASS_RATE: "0.95"
+            PASS_RATE_WINDOW: "20"
+            PASS_RATE_MIN_SAMPLES: "10"
+            MAX_FIX_ATTEMPTS_PER_RUN: ${{ vars.MAX_FIX_ATTEMPTS_PER_RUN || '2' }}
+            MAX_QUEUE_RETRIES: ${{ vars.MAX_QUEUE_RETRIES || '20' }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
+
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  python -m pip install requests beautifulsoup4 python-dotenv PyYAML google-auth pillow
+
+            - name: Write GCP service account
+              run: |
+                  python - <<'PY'
+                  import os
+                  from pathlib import Path
+                  data = os.environ.get("GCP_SA_JSON", "").strip()
+                  if not data:
+                      raise SystemExit(0)
+                  path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+                  if not path:
+                      raise SystemExit("GOOGLE_APPLICATION_CREDENTIALS is not set")
+                  Path(path).write_text(data, encoding="utf-8")
+                  print(f"Wrote service account to {path}")
+                  PY
+
+            - name: Verify vision review enabled
+              run: |
+                  if [ -z "${VISION_API_KEY:-}" ] && [ -z "${GEMINI_API_KEY:-}" ]; then
+                      echo "Missing VISION_API_KEY or GEMINI_API_KEY; vision review is required."
+                      exit 1
+                  fi
+
+            - name: Check if queue needs refresh
+              id: queue_check
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
+
+                  output_path = os.environ.get('GITHUB_OUTPUT')
+
+                  queue_path = Path('anti_drift_queue.json')
+                  if not queue_path.exists():
+                      if output_path:
+                          with open(output_path, 'a', encoding='utf-8') as f:
+                              f.write('needs_refresh=true\n')
+                      raise SystemExit(0)
+
+                  try:
+                      data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  except json.JSONDecodeError:
+                      if output_path:
+                          with open(output_path, 'a', encoding='utf-8') as f:
+                              f.write('needs_refresh=true\n')
+                      raise SystemExit(0)
+
+                  items = data.get('items', [])
+                  pending_like = [
+                      i for i in items
+                      if i.get('status') in {'pending', 'failed', 'retrying', 'manual_review'}
+                  ]
+                  needs_refresh = 'false' if pending_like else 'true'
+                  if output_path:
+                      with open(output_path, 'a', encoding='utf-8') as f:
+                          f.write(f'needs_refresh={needs_refresh}\n')
+                  PY
+
+            - name: Scan issues (published)
+              if: steps.queue_check.outputs.needs_refresh == 'true'
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  SCAN_LIMIT=200 python scan_issues_now.py
+
+            - name: Ensure articles_to_fix.json exists
+              if: steps.queue_check.outputs.needs_refresh == 'true'
+              id: fix_list
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
+
+                  path = Path('articles_to_fix.json')
+                  if not path.exists():
+                      path.write_text('[]', encoding='utf-8')
+
+                  try:
+                      items = json.loads(path.read_text(encoding='utf-8'))
+                  except json.JSONDecodeError:
+                      items = []
+                      path.write_text('[]', encoding='utf-8')
+
+                  has_items = 'true' if items else 'false'
+                  output_path = os.environ.get('GITHUB_OUTPUT')
+                  if output_path:
+                      with open(output_path, 'a', encoding='utf-8') as f:
+                          f.write(f'has_items={has_items}\n')
+                  print(f'articles_to_fix count: {len(items)}')
+                  PY
+
+            - name: Rotate queue to avoid repeat
+              if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  if [ ! -s "articles_to_fix.json" ]; then
+                      echo "No items to fix; skipping rotate."
+                      exit 0
+                  fi
+                  python - <<'PY'
+                  import json
+                  import os
+                  from pathlib import Path
+
+                  path = Path('articles_to_fix.json')
+                  if not path.exists():
+                      print('articles_to_fix.json not found; skip rotate')
+                      raise SystemExit(0)
+
+                  items = json.loads(path.read_text(encoding='utf-8'))
+                  if not items:
+                      print('No items to fix')
+                      raise SystemExit(0)
+
+                  run_number = int(os.environ.get('GITHUB_RUN_NUMBER', '0'))
+                  offset = run_number % len(items)
+                  rotated = items[offset:] + items[:offset]
+                  path.write_text(json.dumps(rotated, ensure_ascii=False, indent=2), encoding='utf-8')
+                  print(f'Rotated queue by offset {offset} (run {run_number})')
+                  PY
+
+            - name: Init anti-drift queue
+              if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  if [ ! -s "articles_to_fix.json" ]; then
+                      echo "No items to fix; skipping queue init."
+                      exit 0
+                  fi
+                  python ai_orchestrator.py queue-init
+
+            # Flow: meta fix → gate → pre_publish_review → cleanup (strip generic + set featured) → set_featured_image_if_missing → publish
+            - name: "Run queue (meta fix, gate, review, cleanup, set featured image, publish)"
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  set +e
+                  if [ ! -f "anti_drift_queue.json" ]; then
+                      echo "Queue missing; re-initializing."
+                      python ai_orchestrator.py queue-init || true
+                  fi
+                  if [ ! -f "anti_drift_queue.json" ]; then
+                      echo "No queue found; skipping."
+                      exit 0
+                  fi
+                  max=${FIX_MAX_ITEMS:-1}
+                  python ai_orchestrator.py queue-run "$max" --delay 0 --no-subprocess
+
+            - name: Upload fix artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: auto-fix-sequential
+                  path: |
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_queue.json
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_run_log.csv
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/orchestrator_progress.json
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_done_blacklist.json
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output*.txt
+                  if-no-files-found: warn

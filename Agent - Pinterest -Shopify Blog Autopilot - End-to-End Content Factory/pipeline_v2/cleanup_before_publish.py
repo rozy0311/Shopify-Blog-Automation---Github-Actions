@@ -126,17 +126,29 @@ def dedupe_paragraphs(html: str) -> str:
             pass
     return str(soup)
 
-def first_image_src(html: str) -> str | None:
+def first_image_src(html: str, prefer_shopify_cdn: bool = True) -> str | None:
+    """First <img> src in body. If prefer_shopify_cdn, return first cdn.shopify.com src if any."""
     soup = BeautifulSoup(html, "html.parser")
-    img = soup.find("img", src=True)
-    if not img or not img["src"]:
+    imgs = soup.find_all("img", src=True)
+    if not imgs:
         return None
-    src = img["src"].strip()
-    if src.startswith("//"):
-        src = "https:" + src
-    elif src.startswith("/"):
-        src = f"https://{SHOP}" + src
-    return src
+    first_any = None
+    first_cdn = None
+    for img in imgs:
+        src = (img.get("src") or "").strip()
+        if not src:
+            continue
+        if src.startswith("//"):
+            src = "https:" + src
+        elif src.startswith("/"):
+            src = f"https://{SHOP}" + src
+        if first_any is None:
+            first_any = src
+        if first_cdn is None and "cdn.shopify.com" in src:
+            first_cdn = src
+            if prefer_shopify_cdn:
+                return first_cdn
+    return first_cdn if (prefer_shopify_cdn and first_cdn) else first_any
 
 def main():
     if len(sys.argv) < 2:
@@ -155,12 +167,19 @@ def main():
         sys.exit(0)
     body = strip_generic_sections(body)
     body = dedupe_paragraphs(body)
+    current_image = article.get("image") or {}
+    current_src = (current_image.get("src") or "").strip()
+    has_valid_featured = current_src and "cdn.shopify.com" in current_src
     image_src = None
-    if not article.get("image") or not article.get("image", {}).get("src"):
-        image_src = first_image_src(body)
+    if not has_valid_featured:
+        image_src = first_image_src(body, prefer_shopify_cdn=True)
         if image_src:
-            print("Set featured image from first inline image")
+            print("Setting featured image from first inline image (prefer Shopify CDN)")
+        else:
+            print("WARN: No inline image found; article may have no featured image")
     ok = put_article(article_id, body, image_src)
+    if ok and image_src:
+        print("Featured image sent to Shopify (check Admin if not visible)")
     sys.exit(0 if ok else 1)
 
 if __name__ == "__main__":
