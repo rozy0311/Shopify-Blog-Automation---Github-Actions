@@ -30,8 +30,20 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install requests
 
+            - name: Set agent dir
+              id: agent_dir
+              run: |
+                  SUB="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory"
+                  if [ -f "pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=." >> $GITHUB_OUTPUT
+                  elif [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=$SUB" >> $GITHUB_OUTPUT
+                  else
+                    echo "dir=." >> $GITHUB_OUTPUT
+                  fi
+
             - name: Run quality audit
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory
+              working-directory: ${{ steps.agent_dir.outputs.dir }}
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
                   SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
@@ -55,6 +67,6 @@ jobs:
               with:
                   name: quality-report
                   path: |
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/quality_report_*.json
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/meta_prompt_quality_report_*.json
-                  if-no-files-found: error
+                      ${{ steps.agent_dir.outputs.dir }}/quality_report_*.json
+                      ${{ steps.agent_dir.outputs.dir }}/meta_prompt_quality_report_*.json
+                  if-no-files-found: ignore

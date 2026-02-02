@@ -282,9 +282,9 @@ jobs:
               with:
                   name: auto-fix-manual
                   path: |
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_queue.json
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_run_log.csv
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/orchestrator_progress.json
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_done_blacklist.json
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output*.txt
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/anti_drift_queue.json
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/anti_drift_run_log.csv
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/orchestrator_progress.json
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/anti_drift_done_blacklist.json
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/review-output*.txt
                   if-no-files-found: warn

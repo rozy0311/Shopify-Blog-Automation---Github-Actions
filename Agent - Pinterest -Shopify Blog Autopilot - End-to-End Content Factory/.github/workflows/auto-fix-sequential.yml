@@ -148,9 +148,24 @@ jobs:
                       exit 1
                   fi
 
+            - name: Set agent dir
+              id: agent_dir
+              run: |
+                  SUB="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory"
+                  if [ -f "pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=." >> $GITHUB_OUTPUT
+                    echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
+                  elif [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=$SUB" >> $GITHUB_OUTPUT
+                    echo "pipeline_dir=$SUB/pipeline_v2" >> $GITHUB_OUTPUT
+                  else
+                    echo "dir=." >> $GITHUB_OUTPUT
+                    echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
+                  fi
+
             - name: Check if queue needs refresh
               id: queue_check
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   python - <<'PY'
                   import json
@@ -187,7 +202,7 @@ jobs:
 
             - name: Scan issues (published)
               if: steps.queue_check.outputs.needs_refresh == 'true'
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   SCAN_LIMIT=200 python scan_issues_now.py
 
@@ -221,7 +236,7 @@ jobs:
 
             - name: Rotate queue to avoid repeat
               if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   if [ ! -s "articles_to_fix.json" ]; then
                       echo "No items to fix; skipping rotate."
@@ -251,7 +266,7 @@ jobs:
 
             - name: Init anti-drift queue
               if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   if [ ! -s "articles_to_fix.json" ]; then
                       echo "No items to fix; skipping queue init."
@@ -262,7 +277,7 @@ jobs:
             # Only publish after pre_publish_review PASS (orchestrator blocks publish without review / on generic)
             # Flow: meta fix → gate → pre_publish_review → cleanup → set featured → publish
             - name: "Run queue (meta fix, gate, review, cleanup, set featured image, publish)"
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   set +e
                   if [ ! -f "anti_drift_queue.json" ]; then
@@ -281,9 +296,9 @@ jobs:
               with:
                   name: auto-fix-sequential
                   path: |
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_queue.json
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_run_log.csv
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/orchestrator_progress.json
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_done_blacklist.json
-                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output*.txt
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/anti_drift_queue.json
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/anti_drift_run_log.csv
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/orchestrator_progress.json
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/anti_drift_done_blacklist.json
+                      ${{ steps.agent_dir.outputs.pipeline_dir }}/review-output*.txt
                   if-no-files-found: warn
