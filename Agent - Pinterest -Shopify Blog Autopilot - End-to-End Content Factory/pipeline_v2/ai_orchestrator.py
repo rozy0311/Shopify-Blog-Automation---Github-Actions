@@ -916,7 +916,7 @@ class AIOrchestrator:
 {items}
 """
 
-    def _pad_to_word_count(self, body_html: str, topic: str, target: int = 1850) -> str:
+    def _pad_to_word_count(self, body_html: str, topic: str, target: int = 1850, mode: str | None = None) -> str:
         soup = BeautifulSoup(body_html, "html.parser")
         current_words = len(soup.get_text(separator=" ", strip=True).split())
         if current_words >= target:
@@ -926,34 +926,58 @@ class AIOrchestrator:
         focus_phrase = ", ".join(terms[:3]) if terms else topic
 
         pad_section = "<h2>Additional Practical Notes</h2>"
-        pad_paragraphs = [
-            (
-                f"<p>For {topic}, keep the focus on {focus_phrase}. "
-                "Document the exact materials, amounts, and timing so you can repeat what works. "
-                "If the result is inconsistent, adjust only one variable and re-test.</p>"
-            ),
-            (
-                f"<p>A simple checklist helps with {topic}: confirm the goal and inputs, "
-                "match the method to that use case, and verify the result before moving on. "
-                "This prevents drifting into steps that don’t fit the goal.</p>"
-            ),
-            (
-                f"<p>When {topic} involves mixtures or solutions, label containers and note ratios. "
-                "Store in a cool, safe place and keep a small test area to verify results before full use.</p>"
-            ),
-            (
-                f"<p>Track outcomes for {topic} in a short log so you can compare results across attempts. "
-                "Consistency comes from repeating the same steps with minor, measured tweaks.</p>"
-            ),
-            (
-                f"<p>For {topic}, avoid adding extra steps that do not directly improve the outcome. "
-                "Keep the workflow lean so you can spot what actually changes the result.</p>"
-            ),
-            (
-                f"<p>Store leftover materials for {topic} in labeled containers and note dates. "
-                "This makes it easy to re-check performance and update ratios if needed.</p>"
-            ),
-        ]
+        if mode == "gardening":
+            pad_paragraphs = [
+                (
+                    f"<p>For {topic}, keep container size, drainage, and light consistent so results are comparable. "
+                    "If growth slows, adjust only one variable at a time and re-check within a week.</p>"
+                ),
+                (
+                    f"<p>A simple checklist helps with {topic}: confirm light hours, check moisture in the top inch, "
+                    "and prune lightly to encourage new growth.</p>"
+                ),
+                (
+                    f"<p>Track watering rhythm and leaf color for {topic} so you can spot stress early. "
+                    "Small adjustments are more reliable than large changes.</p>"
+                ),
+                (
+                    f"<p>For {topic}, avoid crowded containers that limit airflow. "
+                    "Spacing and airflow reduce pests and keep foliage healthy.</p>"
+                ),
+                (
+                    f"<p>Label containers with dates and note fertilizer timing. "
+                    "This keeps {topic} care consistent across cycles.</p>"
+                ),
+            ]
+        else:
+            pad_paragraphs = [
+                (
+                    f"<p>For {topic}, keep the focus on {focus_phrase}. "
+                    "Document the exact materials, amounts, and timing so you can repeat what works. "
+                    "If the result is inconsistent, adjust only one variable and re-test.</p>"
+                ),
+                (
+                    f"<p>A simple checklist helps with {topic}: confirm the goal and inputs, "
+                    "match the method to that use case, and verify the result before moving on. "
+                    "This prevents drifting into steps that don’t fit the goal.</p>"
+                ),
+                (
+                    f"<p>When {topic} involves mixtures or solutions, label containers and note ratios. "
+                    "Store in a cool, safe place and keep a small test area to verify results before full use.</p>"
+                ),
+                (
+                    f"<p>Track outcomes for {topic} in a short log so you can compare results across attempts. "
+                    "Consistency comes from repeating the same steps with minor, measured tweaks.</p>"
+                ),
+                (
+                    f"<p>For {topic}, avoid adding extra steps that do not directly improve the outcome. "
+                    "Keep the workflow lean so you can spot what actually changes the result.</p>"
+                ),
+                (
+                    f"<p>Store leftover materials for {topic} in labeled containers and note dates. "
+                    "This makes it easy to re-check performance and update ratios if needed.</p>"
+                ),
+            ]
         # Add unique, term-driven paragraphs to reach word count without duplicates.
         for idx, term in enumerate(terms[:6], 1):
             pad_paragraphs.append(
@@ -961,14 +985,24 @@ class AIOrchestrator:
                 "Keep measurements consistent and record results so the next iteration is comparable.</p>"
             )
 
-        checklist_items = "\n".join(
-            [
-                f"<li>Confirm the goal and materials for {topic}.</li>",
-                f"<li>Verify ratios and timing before scaling the {topic} process.</li>",
-                f"<li>Run a small test, then adjust one variable at a time.</li>",
-                f"<li>Document outcomes so repeat runs of {topic} stay consistent.</li>",
-            ]
-        )
+        if mode == "gardening":
+            checklist_items = "\n".join(
+                [
+                    f"<li>Confirm container size and drainage for {topic}.</li>",
+                    f"<li>Verify light hours and rotate pots for even growth.</li>",
+                    f"<li>Water when the top inch is dry and avoid standing water.</li>",
+                    f"<li>Document growth changes so {topic} stays consistent.</li>",
+                ]
+            )
+        else:
+            checklist_items = "\n".join(
+                [
+                    f"<li>Confirm the goal and materials for {topic}.</li>",
+                    f"<li>Verify ratios and timing before scaling the {topic} process.</li>",
+                    f"<li>Run a small test, then adjust one variable at a time.</li>",
+                    f"<li>Document outcomes so repeat runs of {topic} stay consistent.</li>",
+                ]
+            )
         pad_paragraphs.append(
             f"<h3>Consistency Checklist</h3><ul>{checklist_items}</ul>"
         )
@@ -986,16 +1020,28 @@ class AIOrchestrator:
             current_words = len(soup.get_text(separator=" ", strip=True).split())
 
         if current_words < target:
-            extra_sentences = [
-                f"{topic} improves when you keep ratios and timing consistent across tests.",
-                f"Record {topic} results in a simple table so you can compare outcomes week to week.",
-                f"Use a dedicated container for {topic} to avoid cross-contamination with unrelated tasks.",
-                f"If {topic} is seasonal, note temperature and light conditions for each run.",
-                f"Prioritize repeatability in {topic} before optimizing for speed or scale.",
-                f"Track material quality and source changes that could affect {topic} results.",
-                f"Calibrate tools used for {topic} to keep measurements consistent.",
-                f"Document adjustments so {topic} variations can be traced and reversed if needed.",
-            ]
+            if mode == "gardening":
+                extra_sentences = [
+                    f"{topic} improves when light and watering stay consistent across weeks.",
+                    f"Record {topic} growth in a simple log so you can compare conditions over time.",
+                    f"Use clean containers for {topic} to reduce stress and pests.",
+                    f"If {topic} is seasonal, note temperature and day length for each cycle.",
+                    f"Prioritize steady growth in {topic} before pushing for faster harvests.",
+                    f"Track potting mix changes that could affect {topic} results.",
+                    f"Rotate containers for {topic} to keep foliage balanced and upright.",
+                    f"Document adjustments so {topic} changes can be traced and reversed if needed.",
+                ]
+            else:
+                extra_sentences = [
+                    f"{topic} improves when you keep ratios and timing consistent across tests.",
+                    f"Record {topic} results in a simple table so you can compare outcomes week to week.",
+                    f"Use a dedicated container for {topic} to avoid cross-contamination with unrelated tasks.",
+                    f"If {topic} is seasonal, note temperature and light conditions for each run.",
+                    f"Prioritize repeatability in {topic} before optimizing for speed or scale.",
+                    f"Track material quality and source changes that could affect {topic} results.",
+                    f"Calibrate tools used for {topic} to keep measurements consistent.",
+                    f"Document adjustments so {topic} variations can be traced and reversed if needed.",
+                ]
             extra_text = " ".join(extra_sentences)
             body_html += (
                 f"\n<h3>Extended Notes</h3>\n"
@@ -1014,11 +1060,18 @@ class AIOrchestrator:
         counter = 1
         while current_words < target and counter <= 20:
             term = terms[(counter - 1) % len(terms)] if terms else topic
-            body_html += (
-                f"\n<p>Additional note {counter} for {topic}: "
-                f"validate {term} conditions, record the outcome, and keep the procedure consistent before scaling. "
-                f"Check one variable at a time to keep {topic} repeatable.</p>\n"
-            )
+            if mode == "gardening":
+                body_html += (
+                    f"\n<p>Additional note {counter} for {topic}: "
+                    f"keep drainage, light, and watering steady, then track how {term} responds over 7–10 days. "
+                    f"Prune lightly and adjust only one variable at a time to keep {topic} predictable.</p>\n"
+                )
+            else:
+                body_html += (
+                    f"\n<p>Additional note {counter} for {topic}: "
+                    f"validate {term} conditions, record the outcome, and keep the procedure consistent before scaling. "
+                    f"Check one variable at a time to keep {topic} repeatable.</p>\n"
+                )
             soup = BeautifulSoup(body_html, "html.parser")
             current_words = len(soup.get_text(separator=' ', strip=True).split())
             counter += 1
@@ -1224,19 +1277,74 @@ class AIOrchestrator:
 
 {self._build_key_terms_section(topic)}
 
-{self._build_faqs(topic)}
+{self._build_gardening_faqs(topic)}
 
 <h2>Advanced Techniques</h2>
 <p>Once {topic} is reliable, test small changes in light, spacing, or feeding while keeping everything else the same.</p>
 <p>Track each change in a short log so you can identify the best-performing setup for {topic}.</p>
 <p>For recurring batches, pre-label containers so each session starts with the same setup.</p>
 
-{self._build_comparison_table(topic)}
+{self._build_gardening_comparison_table(topic)}
 
 {self._build_sources_section(topic)}
 </article>
 """
-        return self._pad_to_word_count(body, topic)
+        return self._pad_to_word_count(body, topic, mode="gardening")
+
+    def _build_gardening_faqs(self, topic: str) -> str:
+        return f"""
+<h2>Frequently Asked Questions</h2>
+<h3>How much light does {topic} need?</h3>
+<p>Most setups do best with 6–8 hours of strong light or a consistent grow light schedule.</p>
+<h3>What container size works best for {topic}?</h3>
+<p>A 6–8 inch pot per plant is a reliable starting point, with larger containers for multiple plants.</p>
+<h3>How often should I water {topic} in containers?</h3>
+<p>Water when the top inch of mix is dry; avoid keeping containers saturated.</p>
+<h3>Should I prune {topic}?</h3>
+<p>Yes—pinching back stems keeps plants bushy and extends productive growth.</p>
+<h3>When can I start harvesting {topic}?</h3>
+<p>Harvest once plants have several sets of leaves and avoid taking more than a third at a time.</p>
+<h3>Do I need fertilizer for {topic}?</h3>
+<p>A light, balanced feed every 2–4 weeks is usually enough in containers.</p>
+<h3>What pests are common with {topic}?</h3>
+<p>Check for aphids and mites; rinse gently and improve airflow if they appear.</p>
+"""
+
+    def _build_gardening_comparison_table(self, topic: str) -> str:
+        return f"""
+<div class="table-responsive">
+<table class="comparison-table">
+<thead>
+  <tr>
+    <th>Setup</th>
+    <th>Light Target</th>
+    <th>Watering Rhythm</th>
+    <th>Key Note</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Indoor windowsill</td>
+    <td>Bright light 6–8 hrs</td>
+    <td>Check daily, water as needed</td>
+    <td>Rotate pots for even growth</td>
+  </tr>
+  <tr>
+    <td>Outdoor patio</td>
+    <td>Full sun or morning sun</td>
+    <td>Water when top inch dries</td>
+    <td>Protect from extreme heat</td>
+  </tr>
+  <tr>
+    <td>Grow light setup</td>
+    <td>12–14 hrs consistent</td>
+    <td>Moist but not soggy</td>
+    <td>Keep light close and stable</td>
+  </tr>
+</tbody>
+</table>
+</div>
+"""
 
     def _build_meta_description(self, title: str) -> str:
         topic = self._normalize_topic(title)
