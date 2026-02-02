@@ -260,7 +260,7 @@ def inject_sources(html: str, sources: list[dict[str, Any]]) -> str:
 def inject_stats(html: str, stats: list[dict[str, Any]]) -> str:
     if not stats:
         return html
-    block = ['<h2 id="research-highlights">Research Highlights</h2>', "<ul>"]
+    block = ['<h2 id="supporting-data">Supporting Data</h2>', "<ul>"]
     for s in stats[:3]:
         stat = s.get("stat") or s.get("text") or ""
         url = s.get("source_url") or s.get("url")
@@ -279,7 +279,7 @@ def inject_stats(html: str, stats: list[dict[str, Any]]) -> str:
 def inject_quotes(html: str, quotes: list[dict[str, Any]]) -> str:
     if not quotes:
         return html
-    blocks = ['<h2 id="expert-insights">Expert Insights</h2>']
+    blocks = ['<h2 id="cited-quotes">Cited Quotes</h2>']
     for q in quotes[:2]:
         quote = q.get("quote") or ""
         speaker = q.get("speaker") or ""
@@ -308,20 +308,9 @@ def expand_content(html: str, title: str, min_words: int = 1800) -> str:
     words = [w for w in text.split() if len(w) > 1]
     if len(words) >= min_words:
         return html
-    extra = """
-<h2 id="practical-tips">Practical Tips</h2>
-<p>Focus on small, repeatable steps that make the biggest difference. Start with the easiest improvements, track what works, and adjust your routine based on real results. Consistency matters more than perfection, and simple habits usually outperform complicated plans.</p>
-<h3 id="step-by-step">Step-by-Step Approach</h3>
-<ol>
-  <li>Identify the most common mistakes beginners make and avoid them.</li>
-  <li>Prepare your workspace with the right tools and materials.</li>
-  <li>Start with a small test, then scale when you feel confident.</li>
-  <li>Document what works so you can replicate it.</li>
-</ol>
-<h2 id="maintenance">Maintenance and Care</h2>
-<p>Build a simple maintenance routine you can sustain. Check progress regularly, keep notes, and make small adjustments instead of major changes. Over time, these small improvements add up to better outcomes.</p>
-"""
-    return html + "\n" + extra
+    # Do not add generic filler sections (Practical Tips, Maintenance and Care, etc.)
+    # that get flagged by pre_publish_review and look like template contamination.
+    return html
 
 
 def process_one() -> dict[str, Any] | None:

@@ -287,7 +287,8 @@ jobs:
                           fi
                       fi
                       if [ "$review_status" == "0" ] || [ "${review_status_after:-1}" == "0" ]; then
-                          echo "Review passed for $article_id. Publishing to Shopify..."
+                          echo "Review passed for $article_id. Cleanup then publish..."
+                          python cleanup_before_publish.py "$article_id" || true
                           python publish_now_graphql.py "$article_id" || true
                           python ai_orchestrator.py queue-review "$article_id" done "PUBLISHED" || true
                           echo "Published and marked done: $article_id"
