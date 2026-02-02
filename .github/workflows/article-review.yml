@@ -141,6 +141,36 @@ jobs:
                   python pipeline_v2/publish_now_graphql.py "${{ inputs.article_id }}"
                   echo "Publish step finished for ${{ inputs.article_id }}"
 
+            - name: Export article body for verification
+              if: steps.publish_ok.outputs.allowed == 'true'
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory
+              env:
+                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+              run: |
+                  python - <<'PY'
+                  import os, requests
+                  from bs4 import BeautifulSoup
+                  article_id = "${{ inputs.article_id }}"
+                  shop = os.environ.get("SHOPIFY_SHOP")
+                  token = os.environ.get("SHOPIFY_ACCESS_TOKEN")
+                  blog_id = os.environ.get("SHOPIFY_BLOG_ID")
+                  api_ver = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
+                  url = f"https://{shop}/admin/api/{api_ver}/blogs/{blog_id}/articles/{article_id}.json"
+                  r = requests.get(url, headers={"X-Shopify-Access-Token": token, "Content-Type": "application/json"})
+                  r.raise_for_status()
+                  article = r.json().get("article") or {}
+                  body_html = article.get("body_html") or ""
+                  with open("article-body.html", "w", encoding="utf-8") as f:
+                      f.write(body_html)
+                  text = BeautifulSoup(body_html, "html.parser").get_text("\n", strip=True)
+                  with open("article-body.txt", "w", encoding="utf-8") as f:
+                      f.write(text)
+                  print("Exported article-body.html and article-body.txt")
+                  PY
+
             - name: Fail if no review passed (block publish when meta-prompt not met)
               if: steps.publish_ok.outputs.allowed != 'true'
               run: |
@@ -156,6 +186,8 @@ jobs:
                       review-output.txt
                       review-output-after-fix.txt
                       review-output-after-rebuild.txt
+                      article-body.html
+                      article-body.txt
                   if-no-files-found: ignore
                   retention-days: 7
 
