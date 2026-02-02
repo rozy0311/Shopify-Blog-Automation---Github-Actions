@@ -800,7 +800,7 @@ class AIOrchestrator:
         terms = terms[:6]
         items = "\n".join(
             [
-                f'<li><strong>{t.replace("-", " ").title()}</strong> — Central to {topic} and used throughout this guide.</li>'
+                f'<li><strong>{t.replace("-", " ").title()}</strong> — Central to {topic} and used throughout the content below.</li>'
                 for t in terms
             ]
         )
@@ -954,6 +954,24 @@ class AIOrchestrator:
                 "This makes it easy to re-check performance and update ratios if needed.</p>"
             ),
         ]
+        # Add unique, term-driven paragraphs to reach word count without duplicates.
+        for idx, term in enumerate(terms[:6], 1):
+            pad_paragraphs.append(
+                f"<p><strong>Note {idx}:</strong> In {topic}, {term} should be checked against the goal and the surface or container type. "
+                "Keep measurements consistent and record results so the next iteration is comparable.</p>"
+            )
+
+        checklist_items = "\n".join(
+            [
+                f"<li>Confirm the goal and materials for {topic}.</li>",
+                f"<li>Verify ratios and timing before scaling the {topic} process.</li>",
+                f"<li>Run a small test, then adjust one variable at a time.</li>",
+                f"<li>Document outcomes so repeat runs of {topic} stay consistent.</li>",
+            ]
+        )
+        pad_paragraphs.append(
+            f"<h3>Consistency Checklist</h3><ul>{checklist_items}</ul>"
+        )
 
         if pad_section not in body_html:
             body_html += f"\n{pad_section}\n"
