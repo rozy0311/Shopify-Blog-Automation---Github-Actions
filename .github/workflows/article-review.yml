@@ -186,8 +186,8 @@ jobs:
                       review-output.txt
                       review-output-after-fix.txt
                       review-output-after-rebuild.txt
-                      article-body.html
-                      article-body.txt
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/article-body.html
+                      Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/article-body.txt
                   if-no-files-found: ignore
                   retention-days: 7
 
