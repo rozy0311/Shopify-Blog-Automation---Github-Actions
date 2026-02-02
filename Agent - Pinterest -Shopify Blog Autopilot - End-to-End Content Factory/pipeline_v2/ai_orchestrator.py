@@ -1346,7 +1346,8 @@ class AIOrchestrator:
                 if not review_ok and r.stderr:
                     print(f"[WARN] pre_publish_review: {r.stderr[:200]}")
             else:
-                review_ok = True
+                print("[FAIL] pre_publish_review.py not found - refusing to publish without review")
+                review_ok = False
             if review_ok:
                 if cleanup_script.exists():
                     subprocess.run(
@@ -1389,20 +1390,72 @@ class AIOrchestrator:
                 print(f"⏳ Gate PASS but pre_publish_review FAIL - attempting auto-fix")
                 fix_result = self._auto_fix_article(article_id)
                 if fix_result.get("status") == "done":
-                    queue.mark_done(article_id)
-                    queue.save()
-                    done_ids = _load_done_blacklist()
-                    done_ids.add(str(article_id))
-                    _save_done_blacklist(done_ids)
-                    self._append_run_log(
-                        article_id,
-                        fix_result.get("audit", {}).get("title", ""),
-                        "done",
-                        gate_score,
-                        True,
-                        "auto_fix_after_review_fail",
-                    )
-                    print("✅ Auto-fix after review fail - Marked DONE")
+                    # Re-run pre_publish_review on fixed content; only publish if it passes
+                    review_pass_after_fix = False
+                    if review_script.exists():
+                        r2 = subprocess.run(
+                            [sys.executable, str(review_script), str(article_id)],
+                            cwd=str(content_factory_dir),
+                            capture_output=True,
+                            text=True,
+                            timeout=120,
+                        )
+                        review_pass_after_fix = r2.returncode == 0
+                    if review_pass_after_fix:
+                        if cleanup_script.exists():
+                            subprocess.run(
+                                [sys.executable, str(cleanup_script), str(article_id)],
+                                cwd=str(content_factory_dir),
+                                capture_output=True,
+                                timeout=90,
+                            )
+                        set_featured_script = PIPELINE_DIR / "set_featured_image_if_missing.py"
+                        if set_featured_script.exists():
+                            subprocess.run(
+                                [sys.executable, str(set_featured_script), str(article_id)],
+                                cwd=str(content_factory_dir),
+                                capture_output=True,
+                                timeout=60,
+                            )
+                        if publish_script.exists():
+                            subprocess.run(
+                                [sys.executable, str(publish_script), str(article_id)],
+                                cwd=str(content_factory_dir),
+                                capture_output=True,
+                                timeout=60,
+                            )
+                        queue.mark_done(article_id)
+                        queue.save()
+                        done_ids = _load_done_blacklist()
+                        done_ids.add(str(article_id))
+                        _save_done_blacklist(done_ids)
+                        self._append_run_log(
+                            article_id,
+                            fix_result.get("audit", {}).get("title", ""),
+                            "done",
+                            gate_score,
+                            True,
+                            "auto_fix+review_pass+cleanup+publish",
+                        )
+                        print("✅ Auto-fix + review pass - Cleanup + Publish - Marked DONE")
+                    else:
+                        error_msg = "pre_publish_review_fail_after_fix"
+                        if use_backoff and failures < MAX_QUEUE_RETRIES:
+                            retry_at = self._next_retry_at(failures + 1)
+                            queue.mark_retry(article_id, error_msg, retry_at)
+                            print(f"⏳ Review still FAIL after fix - retry at {retry_at.isoformat()}")
+                        else:
+                            queue.mark_failed(article_id, error_msg)
+                            print(f"❌ Review FAIL after fix - {error_msg}")
+                        queue.save()
+                        self._append_run_log(
+                            article_id,
+                            fix_result.get("audit", {}).get("title", ""),
+                            "failed",
+                            gate_score,
+                            False,
+                            error_msg,
+                        )
                 else:
                     error_msg = fix_result.get("error") or "pre_publish_review_fail"
                     if use_backoff and failures < MAX_QUEUE_RETRIES:

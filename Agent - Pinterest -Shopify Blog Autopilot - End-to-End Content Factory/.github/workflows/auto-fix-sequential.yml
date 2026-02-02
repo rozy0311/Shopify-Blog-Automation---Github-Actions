@@ -259,7 +259,8 @@ jobs:
                   fi
                   python ai_orchestrator.py queue-init
 
-            # Flow: meta fix → gate → pre_publish_review → cleanup (strip generic + set featured) → set_featured_image_if_missing → publish
+            # Only publish after pre_publish_review PASS (orchestrator blocks publish without review / on generic)
+            # Flow: meta fix → gate → pre_publish_review → cleanup → set featured → publish
             - name: "Run queue (meta fix, gate, review, cleanup, set featured image, publish)"
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
