@@ -380,6 +380,7 @@ class QualityGate:
             "advanced": ["advanced", "expert methods"],
             "comparison": ["comparison", "compare", "vs", "table"],
             "sources": ["sources", "further reading", "references"],
+            "key_terms": ["key terms"],
         }
 
         found = []
@@ -790,6 +791,26 @@ class AIOrchestrator:
                 terms.append(word)
         return terms[:6]
 
+    def _build_key_terms_section(self, topic: str) -> str:
+        """Build Key Terms section (META-PROMPT required)."""
+        terms = self._extract_topic_terms(topic) or [topic]
+        # Ensure we have at least 3 terms
+        if len(terms) < 3:
+            terms = terms + [f"{topic} process", f"{topic} method", "best practices"]
+        terms = terms[:6]
+        items = "\n".join(
+            [
+                f'<li><strong>{t.replace("-", " ").title()}</strong> — Central to {topic} and used throughout this guide.</li>'
+                for t in terms
+            ]
+        )
+        return f"""
+<h2 id="key-terms">Key Terms</h2>
+<ul>
+{items}
+</ul>
+"""
+
     def _build_sources_section(self, topic: str) -> str:
         sources = [
             (
@@ -814,7 +835,10 @@ class AIOrchestrator:
             ),
         ]
         items = "\n".join(
-            [f'<li><a href="{url}">{text}</a></li>' for url, text in sources]
+            [
+                f'<li><a href="{url}" rel="nofollow noopener">{text}</a></li>'
+                for url, text in sources
+            ]
         )
         return f"""
 <h2>Sources & Further Reading</h2>
@@ -1007,6 +1031,8 @@ class AIOrchestrator:
 
 <h2>Pro Tips from Experts</h2>
 {pro_tips}
+
+{self._build_key_terms_section(topic)}
 
 {self._build_faqs(topic)}
 
@@ -1716,6 +1742,45 @@ class AIOrchestrator:
         except Exception as e:
             print(f"⚠️ Image fix failed: {e}")
 
+    def _apply_meta_prompt_patch(self, article_id: str) -> bool:
+        """Inject missing Sources & Further Reading and Key Terms sections (META-PROMPT)."""
+        article = self.api.get_article(article_id)
+        if not article:
+            return False
+        body = article.get("body_html", "") or ""
+        title = article.get("title", "")
+        topic = self._normalize_topic(title)
+        body_lower = body.lower()
+        has_sources = (
+            "sources" in body_lower and "further reading" in body_lower
+        ) or re.search(
+            r"<h2[^>]*>.*(?:Sources|Further Reading|References).*</h2>",
+            body,
+            re.IGNORECASE,
+        )
+        has_key_terms = (
+            "key terms" in body_lower
+            and re.search(r"<h2[^>]*>.*Key Terms.*</h2>", body, re.IGNORECASE)
+        ) or bool(re.search(r'id=["\']key-terms["\']', body, re.IGNORECASE))
+        if has_sources and has_key_terms:
+            return True
+        sections_to_add = []
+        if not has_key_terms:
+            sections_to_add.append(self._build_key_terms_section(topic))
+        if not has_sources:
+            sections_to_add.append(self._build_sources_section(topic))
+        if not sections_to_add:
+            return True
+        insert_html = "\n".join(sections_to_add)
+        if "</article>" in body:
+            body = body.replace("</article>", "\n" + insert_html + "\n</article>")
+        else:
+            body = body.rstrip() + "\n" + insert_html + "\n"
+        updated = self.api.update_article(article_id, {"body_html": body})
+        if updated:
+            print("📝 Meta-prompt patch applied (Sources / Key Terms).")
+        return bool(updated)
+
     def _ensure_meta_description(self, article: dict) -> bool:
         """Ensure summary_html has a 50-160 char meta description."""
         summary_html = (article.get("summary_html") or "").strip()
@@ -1783,6 +1848,8 @@ class AIOrchestrator:
         if needs_rebuild:
             self._run_fix_images(article_id)
 
+        self._apply_meta_prompt_patch(article_id)
+        article = self.api.get_article(article_id) or article
         self._ensure_meta_description(article)
 
         updated_article = self.api.get_article(article_id)
@@ -1810,6 +1877,7 @@ class AIOrchestrator:
             return {"status": "failed", "error": "UPDATE_FAILED"}
 
         self._run_fix_images(article_id)
+        self._apply_meta_prompt_patch(article_id)
 
         updated_article = self.api.get_article(article_id)
         if not updated_article:

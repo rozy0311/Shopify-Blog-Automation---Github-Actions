@@ -782,14 +782,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.article_id:
-        # Load matched data to get Pinterest URL
+        # Load matched data to get Pinterest URL (draft_id can be int or str)
         matched_data = load_matched_data()
         pinterest_url = None
+        aid = args.article_id
         for article in matched_data.get("matched", []):
-            if article["draft_id"] == args.article_id:
-                pin_id = article.get("pin_id", "")
-                if pin_id:
-                    pinterest_url = f"https://i.pinimg.com/736x/{pin_id}.jpg"
+            did = article.get("draft_id")
+            if did == aid or str(did) == str(aid):
+                pin_id = article.get("pin_id", "") or article.get("pin_url", "")
+                if pin_id and "pinimg.com" in str(pin_id):
+                    pinterest_url = str(pin_id)
+                elif pin_id:
+                    pinterest_url = get_pinterest_image_url(str(pin_id))
                 break
 
         fix_article_images(args.article_id, pinterest_url, args.dry_run)
