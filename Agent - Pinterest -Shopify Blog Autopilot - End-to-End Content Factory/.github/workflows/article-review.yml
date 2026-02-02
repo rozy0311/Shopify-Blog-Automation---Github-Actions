@@ -35,21 +35,21 @@ jobs:
             - name: Install dependencies
               run: python -m pip install --upgrade pip && pip install requests beautifulsoup4 python-dotenv PyYAML
 
-            # Repo may be root = agent folder (no subfolder) or root = parent (agent is subfolder). Pick base where pipeline_v2/publish_now_graphql.py exists.
+            # Prefer repo root (pipeline_v2 at root); only use subfolder if file not at root.
             - name: Set agent dir
               id: agent_dir
               run: |
                   SUB="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory"
-                  if [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
-                    echo "dir=$SUB" >> $GITHUB_OUTPUT
-                    echo "Using agent dir: $SUB"
-                  elif [ -f "pipeline_v2/publish_now_graphql.py" ]; then
+                  if [ -f "pipeline_v2/publish_now_graphql.py" ]; then
                     echo "dir=." >> $GITHUB_OUTPUT
                     echo "Using agent dir: . (repo root)"
+                  elif [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=$SUB" >> $GITHUB_OUTPUT
+                    echo "Using agent dir: $SUB"
                   else
-                    echo "Neither $SUB/pipeline_v2 nor ./pipeline_v2 contains publish_now_graphql.py"
-                    ls -la "$SUB/pipeline_v2" 2>/dev/null || true
+                    echo "Neither ./pipeline_v2 nor $SUB/pipeline_v2 contains publish_now_graphql.py"
                     ls -la pipeline_v2 2>/dev/null || true
+                    ls -la "$SUB/pipeline_v2" 2>/dev/null || true
                     exit 1
                   fi
 
@@ -89,13 +89,14 @@ jobs:
                   echo "status=$?" >> $GITHUB_OUTPUT
               continue-on-error: true
 
+            # Run from workspace root with explicit path (avoids working-directory + spaces issues)
             - name: Publish to Shopify (cleanup + set featured + publish)
               if: steps.review_initial.outputs.status == '0' || steps.review_after_fix.outputs.status == '0' || steps.review_after_rebuild.outputs.status == '0'
-              working-directory: ${{ steps.agent_dir.outputs.dir }}
               run: |
-                  python pipeline_v2/cleanup_before_publish.py "${{ inputs.article_id }}"
-                  python pipeline_v2/set_featured_image_if_missing.py "${{ inputs.article_id }}"
-                  python pipeline_v2/publish_now_graphql.py "${{ inputs.article_id }}"
+                  BASE="${{ steps.agent_dir.outputs.dir }}"
+                  python "$BASE/pipeline_v2/cleanup_before_publish.py" "${{ inputs.article_id }}"
+                  python "$BASE/pipeline_v2/set_featured_image_if_missing.py" "${{ inputs.article_id }}"
+                  python "$BASE/pipeline_v2/publish_now_graphql.py" "${{ inputs.article_id }}"
 
             - name: Fail if review never passed
               if: steps.review_initial.outputs.status != '0' && steps.review_after_fix.outputs.status != '0' && steps.review_after_rebuild.outputs.status != '0'
