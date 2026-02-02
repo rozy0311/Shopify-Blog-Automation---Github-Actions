@@ -52,6 +52,34 @@ GENERIC_HEADINGS = {
     "supporting data", "cited quotes", "key concept related to this topic",
 }
 
+# Generic phrases to strip from body content
+GENERIC_PHRASES = [
+    "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
+    "in this guide", "this guide", "this article", "this blog post",
+    "whether you're a beginner", "whether you are a beginner", "whether you are new",
+    "in today's world", "in today's fast-paced", "in our modern world",
+    "you will learn", "by the end", "throughout this article", "in this post",
+    "we'll explore", "let's dive", "let's explore", "without further ado",
+    "in conclusion", "to sum up", "in summary", "to summarize",
+    "thank you for reading", "happy growing", "happy gardening", "happy cooking",
+    "game-changer", "unlock the potential", "master the art", "elevate your",
+    "transform your", "empower yourself", "unlock the secrets", "discover the power",
+    "crucial to understand", "it's essential", "it is essential", "it's important",
+    "thrilled to share", "excited to share", "perfect for anyone",
+    "join thousands who", "one of the best ways", "one of the most important",
+    "first and foremost", "last but not least", "needless to say",
+    "when it comes to", "the bottom line is", "it goes without saying",
+    "as mentioned above", "as stated earlier", "as we have seen",
+    "more often than not", "when all is said and done", "at the end of the day",
+    "here's everything you need", "read on to learn", "read on to discover",
+    "here's everything you need to know", "we'll walk you through", "let's dive in",
+    "in this post we'll", "in this article we'll", "keep in mind",
+    "with the right approach", "on the other hand", "it's worth noting",
+    "this guide explains", "you will learn what works", "by the end, you will know",
+    "no one succeeds in isolation", "perfect for anyone looking to improve",
+    "the focus is on", "overall,", "it's important to remember", "it is important to remember",
+]
+
 def get_article(article_id: str):
     import requests
     url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
@@ -104,6 +132,26 @@ def strip_generic_sections(html: str) -> str:
             tag.decompose()
         except Exception:
             pass
+    return str(soup)
+
+def strip_generic_phrases(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+    phrases = [p.lower() for p in GENERIC_PHRASES]
+
+    def has_generic(text: str) -> bool:
+        t = text.lower()
+        return any(p in t for p in phrases)
+
+    # Remove headings with generic phrases
+    for tag in soup.find_all(["h2", "h3", "h4"]):
+        if has_generic(tag.get_text(strip=True)):
+            tag.decompose()
+
+    # Remove paragraphs or list items that contain generic phrases
+    for tag in soup.find_all(["p", "li"]):
+        if has_generic(tag.get_text(strip=True)):
+            tag.decompose()
+
     return str(soup)
 
 def dedupe_paragraphs(html: str) -> str:
@@ -211,6 +259,7 @@ def main():
         print("Article has no body_html")
         sys.exit(0)
     body = strip_generic_sections(body)
+    body = strip_generic_phrases(body)
     body = dedupe_paragraphs(body)
     body = ensure_heading_ids(body)
     blog_handle = (_from_config.get("defaults", {}) or {}).get("blog_handle", "sustainable-living")
