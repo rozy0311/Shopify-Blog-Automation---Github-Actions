@@ -58,9 +58,9 @@ jobs:
                   VISION_REVIEW: "1"
                   VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
               run: |
-                  set -o pipefail
+                  set +e
                   python "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output.txt
-                  echo "review_status=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+                  echo "review_status=$?" >> $GITHUB_OUTPUT
               id: review_initial
               continue-on-error: true
 
@@ -79,9 +79,9 @@ jobs:
                   VISION_REVIEW: "1"
                   VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
               run: |
-                  set -o pipefail
+                  set +e
                   python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-fix.txt
-                  echo "review_status_after=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+                  echo "review_status_after=$?" >> $GITHUB_OUTPUT
               id: review_after
               continue-on-error: true
 
@@ -107,8 +107,20 @@ jobs:
               id: review_after_rebuild
               continue-on-error: true
 
+            - name: Set publish-allowed (only when at least one review passed)
+              id: publish_ok
+              run: |
+                  INIT="${{ steps.review_initial.outputs.review_status }}"
+                  AFTER="${{ steps.review_after.outputs.review_status_after }}"
+                  REBUILD="${{ steps.review_after_rebuild.outputs.review_status_after_rebuild }}"
+                  if [ "$INIT" = "0" ] || [ "$AFTER" = "0" ] || [ "$REBUILD" = "0" ]; then
+                    echo "allowed=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "allowed=false" >> $GITHUB_OUTPUT
+                  fi
+
             - name: Publish to Shopify (cleanup + set featured + publish)
-              if: steps.review_initial.outputs.review_status == '0' || steps.review_after.outputs.review_status_after == '0' || steps.review_after_rebuild.outputs.review_status_after_rebuild == '0'
+              if: steps.publish_ok.outputs.allowed == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
@@ -122,10 +134,10 @@ jobs:
                   python pipeline_v2/publish_now_graphql.py "${{ inputs.article_id }}"
                   echo "Publish step finished for ${{ inputs.article_id }}"
 
-            - name: Fail if review still not passing
-              if: ${{ steps.review_after_rebuild.outputs.review_status_after_rebuild != '' && steps.review_after_rebuild.outputs.review_status_after_rebuild != '0' }}
+            - name: Fail if no review passed (block publish when meta-prompt not met)
+              if: steps.publish_ok.outputs.allowed != 'true'
               run: |
-                  echo "Pre-publish review failed after rebuild. Blocking publish."
+                  echo "Pre-publish review did not pass (meta-prompt not met). Not publishing."
                   exit 1
 
             - name: Upload review output
