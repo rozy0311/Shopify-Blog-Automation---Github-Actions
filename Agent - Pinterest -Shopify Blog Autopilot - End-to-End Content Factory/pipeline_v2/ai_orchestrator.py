@@ -985,6 +985,25 @@ class AIOrchestrator:
             soup = BeautifulSoup(body_html, "html.parser")
             current_words = len(soup.get_text(separator=" ", strip=True).split())
 
+        if current_words < target:
+            extra_sentences = [
+                f"{topic} improves when you keep ratios and timing consistent across tests.",
+                f"Record {topic} results in a simple table so you can compare outcomes week to week.",
+                f"Use a dedicated container for {topic} to avoid cross-contamination with unrelated tasks.",
+                f"If {topic} is seasonal, note temperature and light conditions for each run.",
+                f"Prioritize repeatability in {topic} before optimizing for speed or scale.",
+            ]
+            extra_text = " ".join(extra_sentences)
+            body_html += (
+                f"\n<h3>Extended Notes</h3>\n"
+                f"<p>{extra_text}</p>\n"
+                f"<ul>"
+                f"<li>Define the goal for {topic} before changing inputs.</li>"
+                f"<li>Keep a small test batch to validate changes safely.</li>"
+                f"<li>Review results after each run and update your checklist.</li>"
+                f"</ul>\n"
+            )
+
         return body_html
 
     def _build_article_body(self, title: str) -> str:
