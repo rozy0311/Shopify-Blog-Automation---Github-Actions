@@ -35,13 +35,22 @@ jobs:
             - name: Install dependencies
               run: python -m pip install --upgrade pip && pip install requests beautifulsoup4 python-dotenv PyYAML
 
+            # Repo may be root = agent folder (no subfolder) or root = parent (agent is subfolder). Pick base where pipeline_v2/publish_now_graphql.py exists.
             - name: Set agent dir
               id: agent_dir
               run: |
-                  if [ -d "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory" ]; then
-                    echo "dir=Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory" >> $GITHUB_OUTPUT
-                  else
+                  SUB="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory"
+                  if [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=$SUB" >> $GITHUB_OUTPUT
+                    echo "Using agent dir: $SUB"
+                  elif [ -f "pipeline_v2/publish_now_graphql.py" ]; then
                     echo "dir=." >> $GITHUB_OUTPUT
+                    echo "Using agent dir: . (repo root)"
+                  else
+                    echo "Neither $SUB/pipeline_v2 nor ./pipeline_v2 contains publish_now_graphql.py"
+                    ls -la "$SUB/pipeline_v2" 2>/dev/null || true
+                    ls -la pipeline_v2 2>/dev/null || true
+                    exit 1
                   fi
 
             - name: Run pre-publish review (initial)
