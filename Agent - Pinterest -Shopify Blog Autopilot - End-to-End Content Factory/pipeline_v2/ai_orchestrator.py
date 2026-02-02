@@ -53,9 +53,10 @@ BACKOFF_JITTER_SECONDS = 30
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
 PIPELINE_DIR = Path(__file__).parent
 ROOT_DIR = PIPELINE_DIR.parent.parent
-ANTI_DRIFT_QUEUE_FILE = ROOT_DIR / "anti_drift_queue.json"
-ANTI_DRIFT_RUN_LOG_FILE = ROOT_DIR / "anti_drift_run_log.csv"
-ANTI_DRIFT_DONE_FILE = ROOT_DIR / "anti_drift_done.json"
+# Queue and log in pipeline_v2 so GHA (working-directory pipeline_v2) finds them
+ANTI_DRIFT_QUEUE_FILE = PIPELINE_DIR / "anti_drift_queue.json"
+ANTI_DRIFT_RUN_LOG_FILE = PIPELINE_DIR / "anti_drift_run_log.csv"
+ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done.json"
 ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
 ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 
@@ -1276,6 +1277,20 @@ class AIOrchestrator:
         gate = audit.get("deterministic_gate", {})
         gate_score = gate.get("score", 0)
         gate_pass = gate.get("pass", False)
+
+        # HARD BLOCK: Word count must be >= 1600 regardless of gate
+        word_count_info = audit.get("word_count", {})
+        current_word_count = word_count_info.get("word_count", 0)
+        HARD_MIN_WORDS = 1600
+        if current_word_count < HARD_MIN_WORDS:
+            error_msg = f"HARD_BLOCK: Word count {current_word_count} < {HARD_MIN_WORDS}"
+            print(f"[FAIL] {error_msg} - Cannot mark done")
+            queue.mark_retry(article_id, error_msg, datetime.now() + timedelta(minutes=30))
+            queue.save()
+            self._append_run_log(
+                article_id, audit.get("title", ""), "failed", gate_score, False, error_msg
+            )
+            return
 
         if gate_pass:
             queue.mark_done(article_id)

@@ -17,6 +17,7 @@ jobs:
             contents: read
         env:
             SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+            SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
             SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
             SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
             SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
@@ -297,3 +298,20 @@ jobs:
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/anti_drift_done_blacklist.json
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/review-output*.txt
                   if-no-files-found: ignore
+
+            - name: Job summary
+              if: always()
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  echo "## Auto Fix Sequential - Run Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  if [ -f "anti_drift_queue.json" ]; then
+                    QUEUE_COUNT=$(python -c "import json; d=json.load(open('anti_drift_queue.json')); print(len(d.get('items',[])))" 2>/dev/null || echo "0")
+                    PENDING=$(python -c "import json; d=json.load(open('anti_drift_queue.json')); items=d.get('items',[]); print(len([i for i in items if i.get('status') in {'pending','retrying','failed','manual_review'}]))" 2>/dev/null || echo "0")
+                    DONE=$(python -c "import json; d=json.load(open('anti_drift_queue.json')); items=d.get('items',[]); print(len([i for i in items if i.get('status')=='done']))" 2>/dev/null || echo "0")
+                    echo "- Queue: $QUEUE_COUNT items | Pending: $PENDING | Done: $DONE" >> $GITHUB_STEP_SUMMARY
+                  else
+                    echo "- Queue file not found (scan + queue-init run first; check logs above)." >> $GITHUB_STEP_SUMMARY
+                  fi
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**Schedule:** This workflow runs every 10 min on the **default branch** only. Set repo default branch to \`feat/l6-reconcile-main\` if you use that branch." >> $GITHUB_STEP_SUMMARY
