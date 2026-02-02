@@ -1757,7 +1757,7 @@ class AIOrchestrator:
     def fix_article_ids(self, article_ids: list[str]):
         """Auto-fix a specific list of article IDs sequentially."""
         if not article_ids:
-            print("❌ No article IDs provided")
+            print("[ERROR] No article IDs provided")
             return
 
         queue = AntiDriftQueue.load() if ANTI_DRIFT_QUEUE_FILE.exists() else None
@@ -1970,7 +1970,7 @@ class AIOrchestrator:
             return
 
         queue = AntiDriftQueue.load() if ANTI_DRIFT_QUEUE_FILE.exists() else None
-        print(f"\n🔧 Force rebuilding {len(article_ids)} articles...")
+        print(f"\n[INFO] Force rebuilding {len(article_ids)} articles...")
 
         for idx, article_id in enumerate(article_ids, 1):
             print(f"\n[{idx}/{len(article_ids)}] Rebuilding {article_id}...")
@@ -1989,7 +1989,7 @@ class AIOrchestrator:
                     True,
                     "force_rebuild",
                 )
-                print("✅ Force rebuild PASS")
+                print("[OK] Force rebuild PASS")
             else:
                 audit = result.get("audit", {})
                 gate = audit.get("deterministic_gate", {}) if audit else {}
