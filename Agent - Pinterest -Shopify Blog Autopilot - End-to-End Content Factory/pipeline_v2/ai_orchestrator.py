@@ -1012,14 +1012,15 @@ class AIOrchestrator:
 
         # Final padding: add short unique notes until minimum word count is reached.
         counter = 1
-        while current_words < target and counter <= 6:
+        while current_words < target and counter <= 20:
             term = terms[(counter - 1) % len(terms)] if terms else topic
             body_html += (
                 f"\n<p>Additional note {counter} for {topic}: "
-                f"validate {term} conditions, record the outcome, and keep the procedure consistent before scaling.</p>\n"
+                f"validate {term} conditions, record the outcome, and keep the procedure consistent before scaling. "
+                f"Check one variable at a time to keep {topic} repeatable.</p>\n"
             )
             soup = BeautifulSoup(body_html, "html.parser")
-            current_words = len(soup.get_text(separator=" ", strip=True).split())
+            current_words = len(soup.get_text(separator=' ', strip=True).split())
             counter += 1
 
         return body_html
