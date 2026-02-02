@@ -4,11 +4,11 @@ name: Auto Fix Sequential (1 article)
 on:
     workflow_dispatch: {}
     schedule:
-        - cron: "*/10 * * * *"
+        - cron: "*/30 * * * *"
 
 concurrency:
     group: auto-fix-sequential
-    cancel-in-progress: false
+    cancel-in-progress: true
 
 jobs:
     auto-fix-one:
