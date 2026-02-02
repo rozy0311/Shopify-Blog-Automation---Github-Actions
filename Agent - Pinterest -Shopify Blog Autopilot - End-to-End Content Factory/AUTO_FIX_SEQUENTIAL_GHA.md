@@ -29,5 +29,14 @@
      - **publish_now_graphql** → mark_done.
   3. Nếu review fail: thử auto_fix_article; vẫn fail thì mark_retry / mark_failed.
 - Featured image: luôn đảm bảo có ảnh (ưu tiên cdn.shopify.com trong body) trước khi publish.
-- Chuẩn review: 11-section structure (gợi ý), 5+ sources (format Name — Description), 2+ expert quotes, 3+ stats, no generic phrases, no raw URL trong link text.
+- Chuẩn review (META-PROMPT): 11-section structure, 1800-2500 words, 5+ sources (format Name — Description), 2+ expert quotes, 3+ stats, no generic phrases, no raw URL trong link text, comparison table mobile responsive.
 - Cần **Secrets** đúng: `SHOPIFY_SHOP`, `SHOPIFY_ACCESS_TOKEN`, `SHOPIFY_BLOG_ID` (đúng store/blog bạn đang xem).
+
+---
+
+## Article Pre-Publish Review workflow (article-review.yml)
+
+- **Kích hoạt:** workflow_dispatch với input `article_id`.
+- **Flow:** Review (meta-prompt) → nếu fail: fix-ids → review lại → nếu fail: force-rebuild → review lại → nếu **có bất kỳ lần review nào pass**: cleanup → set_featured_image_if_missing → publish.
+- **Chuẩn:** Cùng META-PROMPT với auto-fix-sequential (11-section, 1800-2500 words, 5+ sources Name — Description, 2+ expert quotes, 3+ stats, no generic).
+- **Hai workflow đồng bộ:** Cả auto-fix-sequential và article-review đều dùng pre_publish_review → cleanup → set featured → publish khi đạt chuẩn.

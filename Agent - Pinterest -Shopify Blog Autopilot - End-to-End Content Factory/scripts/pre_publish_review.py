@@ -49,10 +49,10 @@ if not SHOP or not TOKEN or not BLOG_ID:
 
 HEADERS = {"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}
 
-# META-PROMPT REQUIREMENTS
+# META-PROMPT REQUIREMENTS (PROMPT: 1800-2500 words)
 REQUIREMENTS = {
     "min_words": 1800,
-    "max_words": 2200,
+    "max_words": 2500,
     "min_figures": 3,
     "min_blockquotes": 2,
     "min_tables": 1,
@@ -780,7 +780,7 @@ def print_review(result):
     print(f"{'='*70}")
 
     print(f"\nCONTENT METRICS:")
-    print(f"  Words: {result['word_count']} (need 1800-2200)")
+    print(f"  Words: {result['word_count']} (need 1800-2500)")
     print(f"  Main Image: {'✅' if result['main_image'] else '❌'}")
     print(f"  Main Image Alt: {'✅' if result['main_image_alt'] else '❌'}")
     print(f"  Inline Images: {result['inline_images']} (need 3+)")
