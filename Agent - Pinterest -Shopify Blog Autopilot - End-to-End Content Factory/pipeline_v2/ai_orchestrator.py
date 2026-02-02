@@ -1638,7 +1638,7 @@ class AIOrchestrator:
         gate_pass = gate.get("pass", False)
 
         # HARD BLOCK: Word count must be >= 1600 regardless of gate
-        word_count_info = audit.get("word_count", {})
+        word_count_info = audit.get("details", {}).get("word_count", {})
         current_word_count = word_count_info.get("word_count", 0)
         HARD_MIN_WORDS = 1600
         if current_word_count < HARD_MIN_WORDS:

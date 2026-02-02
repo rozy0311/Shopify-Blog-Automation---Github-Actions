@@ -34,6 +34,8 @@ TOKEN = os.environ.get("SHOPIFY_ACCESS_TOKEN") or os.environ.get("SHOPIFY_TOKEN"
 BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID", "108441862462")  # Sustainable Living
 API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
 SCAN_LIMIT = int(os.environ.get("SCAN_LIMIT", "0") or 0)
+YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
+KEBAB_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 if not TOKEN:
     raise SystemExit("Missing SHOPIFY_ACCESS_TOKEN")
@@ -79,6 +81,88 @@ if response.status_code == 200:
         )
         body_lower = body.lower()
         generic_found = [p for p in GENERIC_PHRASES if p in body_lower]
+        has_years = bool(YEAR_PATTERN.search(title) or YEAR_PATTERN.search(body))
+
+        # Direct Answer (first paragraph) word count
+        first_p = soup.find("p")
+        intro_words = 0
+        if first_p:
+            intro_text = first_p.get_text(" ", strip=True)
+            intro_words = len(re.findall(r"\w+", intro_text))
+
+        # Key Terms section
+        has_key_terms = bool(
+            soup.find("h2", string=re.compile(r"key terms", re.IGNORECASE))
+            or soup.find(id=re.compile(r"key-terms", re.IGNORECASE))
+        )
+
+        # Sources section and link format
+        sources_h2 = None
+        for h2 in soup.find_all("h2"):
+            if re.search(r"sources|further reading|references", h2.get_text(" ", strip=True), re.IGNORECASE):
+                sources_h2 = h2
+                break
+        sources_links = []
+        if sources_h2:
+            for sib in sources_h2.find_next_siblings():
+                if sib.name == "h2":
+                    break
+                sources_links.extend(sib.find_all("a", href=True))
+        source_links_text = [a.get_text(" ", strip=True) for a in sources_links]
+        links_without_em_dash = [t for t in source_links_text if "—" not in t and "–" not in t]
+        links_with_raw_url = [t for t in source_links_text if re.search(r"\.(com|org|edu|gov)\b", t, re.IGNORECASE)]
+
+        # Expert quotes check
+        blockquotes = soup.find_all("blockquote")
+        valid_quotes = 0
+        for bq in blockquotes:
+            if re.search(r"[—–-]\s*(?:Dr\.?\s+)?[A-Z][a-z]+", bq.get_text(" ", strip=True)):
+                valid_quotes += 1
+
+        # Stats check
+        stat_patterns = [
+            r"\d+(?:\.\d+)?%",
+            r"\d+(?:,\d{3})+",
+            r"\d+(?:\.\d+)?\s*(?:ml|g|oz|lb|kg|cm|inch|hours?|minutes?|days?|weeks?|months?)",
+        ]
+        stats_found = sum(len(re.findall(p, text, re.IGNORECASE)) for p in stat_patterns)
+
+        # Heading IDs (kebab-case) check
+        headings_without_id = len(
+            [h for h in soup.find_all(["h2", "h3"]) if not h.get("id")]
+        )
+        invalid_heading_ids = [
+            h.get("id") for h in soup.find_all(["h2", "h3"])
+            if h.get("id") and not KEBAB_PATTERN.match(h.get("id"))
+        ]
+
+        # External link rel check
+        external_links = [
+            a for a in links
+            if "the-rike" not in a.get("href", "").lower()
+        ]
+        links_missing_rel = [
+            a for a in external_links
+            if "rel" not in a.attrs or "nofollow" not in (a.get("rel") or [])
+        ]
+
+        # Schema in body
+        has_schema = "application/ld+json" in body_lower or '"@context"' in body
+
+        # 11-section structure (approx)
+        key_section_patterns = [
+            r"direct answer|key conditions|at a glance",
+            r"understanding\s+\w+",
+            r"step-by-step|complete step",
+            r"types and varieties|troubleshooting",
+            r"pro tips|expert|blockquote",
+            r"faq|frequently asked",
+            r"advanced techniques|comparison table",
+            r"sources\s*&|further reading|references",
+        ]
+        sections_found = sum(
+            1 for p in key_section_patterns if re.search(p, body_lower, re.IGNORECASE)
+        )
 
         issues = []
         if not has_meta:
@@ -99,6 +183,34 @@ if response.status_code == 200:
             issues.append(f"LOW_SOURCE_LINKS:{source_link_count}")
         if generic_found:
             issues.append(f"GENERIC:{len(generic_found)}")
+        if has_years:
+            issues.append("HAS_YEAR")
+        if intro_words and (intro_words < 50 or intro_words > 100):
+            issues.append(f"DIRECT_ANSWER_WORDS:{intro_words}")
+        if not has_key_terms:
+            issues.append("MISSING_KEY_TERMS")
+        if not sources_h2:
+            issues.append("MISSING_SOURCES_SECTION")
+        if sources_h2 and len(sources_links) < 5:
+            issues.append(f"LOW_SOURCES:{len(sources_links)}")
+        if links_without_em_dash:
+            issues.append("SOURCE_FORMAT_NO_EM_DASH")
+        if links_with_raw_url:
+            issues.append("SOURCE_FORMAT_RAW_URL")
+        if valid_quotes < 2:
+            issues.append(f"LOW_QUOTES:{valid_quotes}")
+        if stats_found < 3:
+            issues.append(f"LOW_STATS:{stats_found}")
+        if headings_without_id > 0:
+            issues.append(f"MISSING_HEADING_IDS:{headings_without_id}")
+        if invalid_heading_ids:
+            issues.append("INVALID_HEADING_IDS")
+        if links_missing_rel:
+            issues.append("LINKS_MISSING_NOFOLLOW")
+        if has_schema:
+            issues.append("SCHEMA_IN_BODY")
+        if sections_found < 8:
+            issues.append(f"LOW_SECTIONS:{sections_found}")
 
         if issues:
             all_issues.append({"id": art_id, "title": title, "issues": issues})
@@ -113,7 +225,7 @@ if response.status_code == 200:
         print(f"\nScan limit enabled: keeping first {SCAN_LIMIT} items")
 
     # Save to file for processing
-    with open("articles_to_fix.json", "w") as f:
+    with open("articles_to_fix.json", "w", encoding="utf-8") as f:
         json.dump(all_issues, f, indent=2)
     print(f"\nSaved {len(all_issues)} articles to articles_to_fix.json")
 else:

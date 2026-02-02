@@ -282,11 +282,16 @@ def review_article(article_id):
         else:
             all_image_urls.append((f"INLINE_{i}", src_match.group(1)))
 
-    # 3.4. PINTEREST IMAGE (optional — only when matched data has pin; không bắt buộc mọi bài)
+    # 3.4. PINTEREST IMAGE (optional by default; can require via env)
     has_pinterest_image = "i.pinimg.com" in body
-    if not has_pinterest_image:
+    require_pinterest = os.environ.get("REQUIRE_PINTEREST_IMAGE", "").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    if require_pinterest and not has_pinterest_image:
         warnings.append(
-            "⚠️ PINTEREST IMAGE: No Pinterest image (i.pinimg.com); add only if matched_drafts_pinterest has pin for this article"
+            "⚠️ PINTEREST IMAGE: No Pinterest image (i.pinimg.com); required by REQUIRE_PINTEREST_IMAGE"
         )
 
     # 3.5. IMAGE URL VALIDATION - Check all image URLs are accessible

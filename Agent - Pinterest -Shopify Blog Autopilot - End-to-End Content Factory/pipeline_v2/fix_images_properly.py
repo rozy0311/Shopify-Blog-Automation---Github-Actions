@@ -381,7 +381,8 @@ def generate_topic_specific_prompts(title: str) -> dict:
     # Topic-specific keywords for better image matching
     topic_keywords = main_subject.lower()
 
-    safety_suffix = "no people, no hands, no fingers, no faces"
+    # Positive constraints to reduce hands/people without explicit bans
+    safety_suffix = "object-only frame, static composition, empty scene, no interaction"
 
     # Generate SPECIFIC prompts based on the topic
     prompts = {
@@ -417,108 +418,132 @@ def generate_topic_specific_prompts(title: str) -> dict:
 
     # Make prompts even MORE specific based on keywords
     if "vinegar" in topic_keywords or "ferment" in topic_keywords:
-        prompts["inline1"][
-            "prompt"
-        ] = f"Fresh fruit scraps, apple peels, glass jars for making homemade vinegar, rustic kitchen setting, {QUALITY}"
-        prompts["inline2"][
-            "prompt"
-        ] = f"Adding fruit scraps into glass jar with water for vinegar fermentation, {QUALITY}"
-        prompts["inline3"][
-            "prompt"
-        ] = f"Beautiful homemade fruit vinegar in glass bottles, amber color, rustic labels, {QUALITY}"
+        prompts["inline1"]["prompt"] = (
+            f"Fresh fruit scraps, apple peels, glass jars for making homemade vinegar, rustic kitchen setting, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline2"]["prompt"] = (
+            f"Fruit scraps arranged in a glass jar with water for vinegar fermentation, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline3"]["prompt"] = (
+            f"Homemade fruit vinegar in glass bottles, amber color, rustic labels, "
+            f"{QUALITY}, {safety_suffix}"
+        )
 
     elif (
         "cordage" in topic_keywords
         or "rope" in topic_keywords
         or "fiber" in topic_keywords
     ):
-        prompts["inline1"][
-            "prompt"
-        ] = f"Natural plant fibers for making cordage, bark strips, dried leaves, bushcraft materials, {QUALITY}"
-        prompts["inline2"][
-            "prompt"
-        ] = f"Twisting natural plant fibers into strong rope using reverse wrap technique, {QUALITY}"
-        prompts["inline3"][
-            "prompt"
-        ] = f"Finished natural cordage and handmade rope coiled beautifully, rustic outdoor setting, {QUALITY}"
+        prompts["inline1"]["prompt"] = (
+            f"Natural plant fibers for making cordage, bark strips, dried leaves, bushcraft materials, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline2"]["prompt"] = (
+            f"Natural plant fibers arranged into rope strands using reverse wrap technique, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline3"]["prompt"] = (
+            f"Finished natural cordage and handmade rope coiled neatly, rustic outdoor setting, "
+            f"{QUALITY}, {safety_suffix}"
+        )
 
     elif "cactus" in topic_keywords or "propagat" in topic_keywords:
-        prompts["inline1"][
-            "prompt"
-        ] = f"Christmas cactus cuttings, small pots, potting soil, propagation supplies on table, {QUALITY}"
-        prompts["inline2"][
-            "prompt"
-        ] = f"Carefully cutting christmas cactus segment for propagation, {QUALITY}"
-        prompts["inline3"][
-            "prompt"
-        ] = f"Rooted christmas cactus cuttings in small pots, new growth, healthy plants, {QUALITY}"
+        prompts["inline1"]["prompt"] = (
+            f"Christmas cactus cuttings, small pots, potting soil, propagation supplies on table, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline2"]["prompt"] = (
+            f"Christmas cactus segments arranged for propagation, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline3"]["prompt"] = (
+            f"Rooted christmas cactus cuttings in small pots, new growth, healthy plants, "
+            f"{QUALITY}, {safety_suffix}"
+        )
 
     elif (
         "drip" in topic_keywords
         or "water" in topic_keywords
         or "bottle" in topic_keywords
     ):
-        prompts["inline1"][
-            "prompt"
-        ] = f"Plastic soda bottles, scissors, drill, garden supplies for DIY drip irrigation, {QUALITY}"
-        prompts["inline2"][
-            "prompt"
-        ] = f"Making holes in plastic bottle for drip feeder system, tools in action, {QUALITY}"
-        prompts["inline3"][
-            "prompt"
-        ] = f"Completed bottle drip feeder watering plants in garden, sustainable irrigation, {QUALITY}"
+        prompts["inline1"]["prompt"] = (
+            f"Plastic soda bottles, scissors, drill, garden supplies for DIY drip irrigation, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline2"]["prompt"] = (
+            f"Plastic bottle prepared for drip feeder system, tools arranged nearby, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline3"]["prompt"] = (
+            f"Completed bottle drip feeder placed in garden soil, sustainable irrigation, "
+            f"{QUALITY}, {safety_suffix}"
+        )
 
     elif (
         "survival" in topic_keywords
         or "garden" in topic_keywords
         or "medicine" in topic_keywords
     ):
-        prompts["inline1"][
-            "prompt"
-        ] = f"Seeds, medicinal herbs, garden tools for survival garden planning, {QUALITY}"
-        prompts["inline2"][
-            "prompt"
-        ] = f"Planting medicinal herbs and vegetables in survival garden, soil and tools, {QUALITY}"
-        prompts["inline3"][
-            "prompt"
-        ] = f"Thriving survival garden with medicinal plants and vegetables, abundant harvest, {QUALITY}"
+        prompts["inline1"]["prompt"] = (
+            f"Seeds, medicinal herbs, garden tools for survival garden planning, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline2"]["prompt"] = (
+            f"Medicinal herbs and vegetables arranged in a survival garden bed, soil and tools, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline3"]["prompt"] = (
+            f"Thriving survival garden with medicinal plants and vegetables, abundant harvest, "
+            f"{QUALITY}, {safety_suffix}"
+        )
 
     elif "pot" in topic_keywords or "planter" in topic_keywords:
-        prompts["inline1"][
-            "prompt"
-        ] = f"Upcycled materials for DIY plant pots, cans, bottles, paint, crafting supplies, {QUALITY}"
-        prompts["inline2"][
-            "prompt"
-        ] = f"Decorating and creating DIY plant pots from recycled materials, {QUALITY}"
-        prompts["inline3"][
-            "prompt"
-        ] = f"Beautiful collection of handmade DIY plant pots with succulents and plants, {QUALITY}"
+        prompts["inline1"]["prompt"] = (
+            f"Upcycled materials for DIY plant pots, cans, bottles, paint, crafting supplies, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline2"]["prompt"] = (
+            f"DIY plant pots made from recycled materials, arranged neatly, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline3"]["prompt"] = (
+            f"Collection of handmade DIY plant pots with succulents and plants, "
+            f"{QUALITY}, {safety_suffix}"
+        )
 
     elif "ginger" in topic_keywords or "nausea" in topic_keywords:
-        prompts["inline1"][
-            "prompt"
-        ] = f"Fresh ginger root, lemon slices, honey, and a ceramic mug for ginger tea, clean kitchen counter, {QUALITY}, {safety_suffix}"
-        prompts["inline2"][
-            "prompt"
-        ] = f"Ginger tea preparation setup with sliced ginger simmering in a small pot, steam rising, close-up, {QUALITY}, {safety_suffix}"
-        prompts["inline3"][
-            "prompt"
-        ] = f"Finished ginger tea in a mug with sliced ginger beside it, calming setting, {QUALITY}, {safety_suffix}"
+        prompts["inline1"]["prompt"] = (
+            f"Fresh ginger root, lemon slices, honey, and a ceramic mug for ginger tea, clean kitchen counter, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline2"]["prompt"] = (
+            f"Ginger tea preparation setup with sliced ginger simmering in a small pot, steam rising, close-up, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline3"]["prompt"] = (
+            f"Finished ginger tea in a mug with sliced ginger beside it, calming setting, "
+            f"{QUALITY}, {safety_suffix}"
+        )
 
     elif (
         "cinder" in topic_keywords
         or "block" in topic_keywords
         or "outdoor" in topic_keywords
     ):
-        prompts["inline1"][
-            "prompt"
-        ] = f"Cinder blocks, paint, brushes, and outdoor decor materials for DIY garden projects, {QUALITY}, {safety_suffix}"
-        prompts["inline2"][
-            "prompt"
-        ] = f"Arranging and painting cinder blocks for outdoor garden decoration, {QUALITY}, {safety_suffix}"
-        prompts["inline3"][
-            "prompt"
-        ] = f"Stunning cinder block garden furniture and planters in backyard, styled outdoor space, {QUALITY}, {safety_suffix}"
+        prompts["inline1"]["prompt"] = (
+            f"Cinder blocks, paint, brushes, and outdoor decor materials for DIY garden projects, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline2"]["prompt"] = (
+            f"Cinder blocks arranged for outdoor garden decoration, "
+            f"{QUALITY}, {safety_suffix}"
+        )
+        prompts["inline3"]["prompt"] = (
+            f"Cinder block garden furniture and planters in backyard, styled outdoor space, "
+            f"{QUALITY}, {safety_suffix}"
+        )
 
     for value in prompts.values():
         if safety_suffix not in value["prompt"].lower():
@@ -546,6 +571,10 @@ def count_existing_images(body_html: str) -> dict:
         "pexels": pexels_imgs,
         "total": total,
     }
+
+
+def extract_pinterest_urls(body_html: str) -> list[str]:
+    return re.findall(r'<img[^>]+src="([^"]*pinimg\.com[^"]*)"', body_html)
 
 
 def fix_article_images(
@@ -581,6 +610,12 @@ def fix_article_images(
     print(
         f"   Current images: Pinterest={img_counts['pinterest']}, Shopify CDN={img_counts['shopify_cdn']}, Total={img_counts['total']}"
     )
+
+    # Preserve an existing Pinterest image if none matched
+    if not pinterest_image_url:
+        existing_pins = extract_pinterest_urls(body_html)
+        if existing_pins:
+            pinterest_image_url = existing_pins[0]
 
     # Generate topic-specific prompts
     prompts = generate_topic_specific_prompts(title)
