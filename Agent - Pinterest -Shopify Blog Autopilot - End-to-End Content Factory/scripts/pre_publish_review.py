@@ -122,6 +122,12 @@ GENERIC_PHRASES = [
     "here's everything you need to know", "we'll walk you through", "let's dive in",
     "in this post we'll", "in this article we'll", "keep in mind",
     "with the right approach", "on the other hand", "it's worth noting",
+    # PROMPT meta-prompt: extra AI slop
+    "this guide explains", "you will learn what works", "by the end, you will know",
+    "no one succeeds in isolation", "perfect for anyone looking to improve",
+    "the focus is on", "overall,", "it's important to remember", "it is important to remember",
+    "supporting data", "cited quotes", "advanced techniques for experienced",
+    "practical tips", "maintenance and care", "expert insights", "research highlights",
 ]
 
 # TITLE-SPECIFIC GENERIC PHRASES (to strip from title)
@@ -205,13 +211,13 @@ def review_article(article_id):
                 )
                 empty_fields.append(field)
         elif field == "meta_description":
-            # Check summary_html as fallback for meta description
+            # META-PROMPT: meta description required for publish
             summary = article.get("summary_html", "")
             if (not value or not value.strip()) and (
                 not summary or not summary.strip()
             ):
-                warnings.append(
-                    f"⚠️ EMPTY FIELD: '{field}' or 'summary_html' recommended for SEO"
+                errors.append(
+                    f"❌ META DESCRIPTION: '{field}' or 'summary_html' is required for publish"
                 )
                 empty_fields.append(field)
             elif value and len(value) > 160:
@@ -275,6 +281,13 @@ def review_article(article_id):
             errors.append(f"❌ INLINE IMAGE {i} SRC: Missing src URL")
         else:
             all_image_urls.append((f"INLINE_{i}", src_match.group(1)))
+
+    # 3.4. PINTEREST IMAGE REQUIRED (META-PROMPT: keep original Pinterest image as inline)
+    has_pinterest_image = "i.pinimg.com" in body
+    if not has_pinterest_image:
+        errors.append(
+            "❌ PINTEREST IMAGE: At least one image must be from Pinterest (i.pinimg.com)"
+        )
 
     # 3.5. IMAGE URL VALIDATION - Check all image URLs are accessible
     broken_images = []
@@ -497,8 +510,8 @@ def review_article(article_id):
                 break
 
     if not topic_mentioned and topic_words:
-        warnings.append(
-            f"⚠️ IMAGE RELEVANCE: Alt texts may not match topic '{' '.join(topic_words)}'"
+        errors.append(
+            f"❌ IMAGE RELEVANCE: Image alt texts must mention topic keywords (e.g. '{' '.join(list(topic_words)[:3])}')"
         )
 
     # ========== META-PROMPT HARD VALIDATIONS ==========
@@ -565,7 +578,7 @@ def review_article(article_id):
                 errors.append(
                     f"❌ SOURCES: {sources_links_count} < {META_PROMPT_CHECKS['min_sources_links']} citations required"
                 )
-            # META-PROMPT: Source link format = Name — Description (no raw URL in text)
+            # META-PROMPT: Source link format = Name — Description (no raw URL in text) — FAIL if not met
             links_without_em_dash = 0
             links_with_raw_url = 0
             for link_text in link_texts:
@@ -575,8 +588,8 @@ def review_article(article_id):
                 if re.search(r"\.(com|org|edu|gov)\b", text, re.IGNORECASE):
                     links_with_raw_url += 1
             if links_without_em_dash > 0 and link_texts:
-                warnings.append(
-                    f"⚠️ SOURCE FORMAT: {links_without_em_dash} link(s) missing 'Name — Description' format (use em dash)"
+                errors.append(
+                    f"❌ SOURCE FORMAT: {links_without_em_dash} link(s) must use 'Name — Description' (em dash); no raw URL in text"
                 )
             if links_with_raw_url > 0:
                 errors.append(
@@ -676,7 +689,7 @@ def review_article(article_id):
                     f"⚠️ DIRECT ANSWER: Opening paragraph {intro_words} words (too long, aim for 50-70)"
                 )
 
-    # 25. Key Terms section check
+    # 25. Key Terms section check (META-PROMPT: required)
     if META_PROMPT_CHECKS["require_key_terms"]:
         key_terms_section = re.search(
             r"<h2[^>]*>.*Key Terms.*</h2>", body, re.IGNORECASE
@@ -686,9 +699,24 @@ def review_article(article_id):
                 r'id=["\']key-terms["\']', body, re.IGNORECASE
             )
         if not key_terms_section:
-            warnings.append("⚠️ KEY TERMS: Missing Key Terms section")
+            errors.append("❌ KEY TERMS: Missing Key Terms section (required)")
 
-    # 26. 11-section structure (META-PROMPT) - warn if too few key sections
+    # 25b. DUPLICATE PARAGRAPH check (META-PROMPT: no duplicate text)
+    paragraphs = re.findall(r"<p[^>]*>(.+?)</p>", body, re.IGNORECASE | re.DOTALL)
+    seen_normalized = []
+    duplicate_count = 0
+    for p in paragraphs:
+        normalized = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", p)).strip()
+        if len(normalized) > 30 and normalized in seen_normalized:
+            duplicate_count += 1
+        if len(normalized) > 30:
+            seen_normalized.append(normalized)
+    if duplicate_count > 0:
+        errors.append(
+            f"❌ DUPLICATE TEXT: {duplicate_count} duplicate paragraph(s) found (remove repeated content)"
+        )
+
+    # 26. 11-section structure (META-PROMPT) - FAIL if too few key sections
     key_section_patterns = [
         r"direct answer|key conditions|at a glance",
         r"understanding\s+\[?topic\]?|understanding\s+\w+",
@@ -703,9 +731,9 @@ def review_article(article_id):
     sections_found = sum(
         1 for p in key_section_patterns if re.search(p, body_lower_sections, re.IGNORECASE)
     )
-    if sections_found < 6:
-        warnings.append(
-            f"⚠️ 11-SECTION STRUCTURE: Only ~{sections_found} key sections detected (aim for 11: Direct Answer, Key Conditions, Understanding, Step-by-Step, Types, Troubleshooting, Pro Tips, FAQs, Advanced Techniques, Comparison Table, Sources)"
+    if sections_found < 8:
+        errors.append(
+            f"❌ 11-SECTION STRUCTURE: Only ~{sections_found} key sections (need 8+): Direct Answer, Key Conditions, Understanding, Step-by-Step, Types, Troubleshooting, Pro Tips, FAQs, Advanced Techniques, Comparison Table, Sources"
         )
 
     # Summary
