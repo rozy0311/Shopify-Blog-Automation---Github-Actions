@@ -3,8 +3,6 @@ name: Auto Fix Sequential (1 article)
 
 on:
     workflow_dispatch: {}
-    schedule:
-        - cron: "*/30 * * * *"
 
 concurrency:
     group: auto-fix-sequential
