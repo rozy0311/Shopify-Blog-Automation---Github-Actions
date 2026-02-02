@@ -1293,20 +1293,90 @@ class AIOrchestrator:
             return
 
         if gate_pass:
-            queue.mark_done(article_id)
-            queue.save()
-            done_ids = _load_done_blacklist()
-            done_ids.add(str(article_id))
-            _save_done_blacklist(done_ids)
-            self._append_run_log(
-                article_id,
-                audit.get("title", ""),
-                "done",
-                gate_score,
-                True,
-                "; ".join(audit.get("issues", [])[:3]),
-            )
-            print(f"✅ Gate PASS ({gate_score}/10) - Marked DONE")
+            # META-PROMPT: Pre-publish review then cleanup + publish before mark_done
+            content_factory_dir = PIPELINE_DIR.parent  # repo root for this agent (scripts + pipeline_v2)
+            review_script = content_factory_dir / "scripts" / "pre_publish_review.py"
+            cleanup_script = PIPELINE_DIR / "cleanup_before_publish.py"
+            publish_script = PIPELINE_DIR / "publish_now_graphql.py"
+            review_ok = False
+            if review_script.exists():
+                r = subprocess.run(
+                    [sys.executable, str(review_script), str(article_id)],
+                    cwd=str(content_factory_dir),
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                )
+                review_ok = r.returncode == 0
+                if not review_ok and r.stderr:
+                    print(f"[WARN] pre_publish_review: {r.stderr[:200]}")
+            else:
+                review_ok = True
+            if review_ok:
+                if cleanup_script.exists():
+                    subprocess.run(
+                        [sys.executable, str(cleanup_script), str(article_id)],
+                        cwd=str(content_factory_dir),
+                        capture_output=True,
+                        timeout=90,
+                    )
+                if publish_script.exists():
+                    subprocess.run(
+                        [sys.executable, str(publish_script), str(article_id)],
+                        cwd=str(content_factory_dir),
+                        capture_output=True,
+                        timeout=60,
+                    )
+                queue.mark_done(article_id)
+                queue.save()
+                done_ids = _load_done_blacklist()
+                done_ids.add(str(article_id))
+                _save_done_blacklist(done_ids)
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "done",
+                    gate_score,
+                    True,
+                    "review+cleanup+publish",
+                )
+                print(f"✅ Gate PASS ({gate_score}/10) - Review OK - Cleanup + Publish - Marked DONE")
+            else:
+                print(f"⏳ Gate PASS but pre_publish_review FAIL - attempting auto-fix")
+                fix_result = self._auto_fix_article(article_id)
+                if fix_result.get("status") == "done":
+                    queue.mark_done(article_id)
+                    queue.save()
+                    done_ids = _load_done_blacklist()
+                    done_ids.add(str(article_id))
+                    _save_done_blacklist(done_ids)
+                    self._append_run_log(
+                        article_id,
+                        fix_result.get("audit", {}).get("title", ""),
+                        "done",
+                        gate_score,
+                        True,
+                        "auto_fix_after_review_fail",
+                    )
+                    print("✅ Auto-fix after review fail - Marked DONE")
+                else:
+                    error_msg = fix_result.get("error") or "pre_publish_review_fail"
+                    if use_backoff and failures < MAX_QUEUE_RETRIES:
+                        retry_at = self._next_retry_at(failures + 1)
+                        queue.mark_retry(article_id, error_msg, retry_at)
+                        print(f"⏳ Review FAIL - retry at {retry_at.isoformat()}")
+                    else:
+                        queue.mark_failed(article_id, error_msg)
+                        print(f"❌ Review FAIL - {error_msg}")
+                    queue.save()
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "failed",
+                        gate_score,
+                        False,
+                        error_msg,
+                    )
             return
 
         # Attempt auto-fix before retry/manual review

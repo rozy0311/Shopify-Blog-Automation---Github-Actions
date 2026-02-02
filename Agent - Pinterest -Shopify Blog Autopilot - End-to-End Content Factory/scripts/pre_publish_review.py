@@ -99,10 +99,10 @@ QUALITY_CHECKS = {
     "check_title_generic": True,  # Check for generic title phrases
 }
 
-# GENERIC PHRASES TO DETECT (AI slop / template content)
+# GENERIC PHRASES TO DETECT (AI slop / template content) - aligned with PROMPT + meta-prompt
 GENERIC_PHRASES = [
     "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
-    "in this guide", "this guide", "this article",
+    "in this guide", "this guide", "this article", "this blog post",
     "whether you're a beginner", "whether you are a beginner", "whether you are new",
     "in today's world", "in today's fast-paced", "in our modern world",
     "you will learn", "by the end", "throughout this article", "in this post",
@@ -119,6 +119,9 @@ GENERIC_PHRASES = [
     "as mentioned above", "as stated earlier", "as we have seen",
     "more often than not", "when all is said and done", "at the end of the day",
     "here's everything you need", "read on to learn", "read on to discover",
+    "here's everything you need to know", "we'll walk you through", "let's dive in",
+    "in this post we'll", "in this article we'll", "keep in mind",
+    "with the right approach", "on the other hand", "it's worth noting",
 ]
 
 # TITLE-SPECIFIC GENERIC PHRASES (to strip from title)
@@ -545,16 +548,39 @@ def review_article(article_id):
             next_h2 = re.search(r"<h2", sources_content, re.IGNORECASE)
             if next_h2:
                 sources_content = sources_content[: next_h2.start()]
-            sources_links = re.findall(
+            sources_links_tags = re.findall(
                 r'<a[^>]+href=["\']https?://[^"\']+["\'][^>]*>',
                 sources_content,
                 re.IGNORECASE,
             )
-            sources_links_count = len(sources_links)
+            sources_links_count = len(sources_links_tags)
+            # Extract link text (between > and </a>) for format check
+            link_texts = re.findall(
+                r'<a[^>]+href=["\']https?://[^"\']+["\'][^>]*>([^<]+)</a>',
+                sources_content,
+                re.IGNORECASE,
+            )
 
             if sources_links_count < META_PROMPT_CHECKS["min_sources_links"]:
                 errors.append(
                     f"❌ SOURCES: {sources_links_count} < {META_PROMPT_CHECKS['min_sources_links']} citations required"
+                )
+            # META-PROMPT: Source link format = Name — Description (no raw URL in text)
+            links_without_em_dash = 0
+            links_with_raw_url = 0
+            for link_text in link_texts:
+                text = (link_text or "").strip()
+                if "—" not in text and "–" not in text:
+                    links_without_em_dash += 1
+                if re.search(r"\.(com|org|edu|gov)\b", text, re.IGNORECASE):
+                    links_with_raw_url += 1
+            if links_without_em_dash > 0 and link_texts:
+                warnings.append(
+                    f"⚠️ SOURCE FORMAT: {links_without_em_dash} link(s) missing 'Name — Description' format (use em dash)"
+                )
+            if links_with_raw_url > 0:
+                errors.append(
+                    "❌ SOURCE FORMAT: Do not show raw URL in link text; use 'Name — Description'"
                 )
 
     # 19. Expert quotes check - ≥2 with real name/title/org
@@ -570,8 +596,8 @@ def review_article(article_id):
                 valid_quotes += 1
 
         if valid_quotes < META_PROMPT_CHECKS["min_expert_quotes"]:
-            warnings.append(
-                f"⚠️ EXPERT QUOTES: {valid_quotes} < {META_PROMPT_CHECKS['min_expert_quotes']} quotes with real name/title/org"
+            errors.append(
+                f"❌ EXPERT QUOTES: {valid_quotes} < {META_PROMPT_CHECKS['min_expert_quotes']} required (use '— Name, Title' in blockquotes)"
             )
 
     # 20. Stats check - ≥3 quantified stats
@@ -587,8 +613,8 @@ def review_article(article_id):
             stats_found += len(re.findall(pattern, body, re.IGNORECASE))
 
         if stats_found < META_PROMPT_CHECKS["min_stats"]:
-            warnings.append(
-                f"⚠️ STATS: {stats_found} < {META_PROMPT_CHECKS['min_stats']} quantified stats found"
+            errors.append(
+                f"❌ STATS: {stats_found} < {META_PROMPT_CHECKS['min_stats']} quantified stats required (add numbers with units/%)"
             )
 
     # 21. Kebab-case IDs on H2/H3 check
@@ -661,6 +687,26 @@ def review_article(article_id):
             )
         if not key_terms_section:
             warnings.append("⚠️ KEY TERMS: Missing Key Terms section")
+
+    # 26. 11-section structure (META-PROMPT) - warn if too few key sections
+    key_section_patterns = [
+        r"direct answer|key conditions|at a glance",
+        r"understanding\s+\[?topic\]?|understanding\s+\w+",
+        r"step-by-step|complete step",
+        r"types and varieties|troubleshooting",
+        r"pro tips|expert|blockquote",
+        r"faq|frequently asked",
+        r"advanced techniques|comparison table",
+        r"sources\s*&|further reading|references",
+    ]
+    body_lower_sections = body.lower()
+    sections_found = sum(
+        1 for p in key_section_patterns if re.search(p, body_lower_sections, re.IGNORECASE)
+    )
+    if sections_found < 6:
+        warnings.append(
+            f"⚠️ 11-SECTION STRUCTURE: Only ~{sections_found} key sections detected (aim for 11: Direct Answer, Key Conditions, Understanding, Step-by-Step, Types, Troubleshooting, Pro Tips, FAQs, Advanced Techniques, Comparison Table, Sources)"
+        )
 
     # Summary
     passed = len(errors) == 0

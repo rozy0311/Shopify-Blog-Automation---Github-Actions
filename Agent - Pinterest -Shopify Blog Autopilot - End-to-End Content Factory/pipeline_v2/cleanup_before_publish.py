@@ -11,26 +11,45 @@ from pathlib import Path
 
 try:
     from dotenv import load_dotenv
-    for p in [Path(__file__).parent.parent.parent / ".env", Path(__file__).parent / ".env"]:
+    for p in [Path(__file__).parent.parent / ".env", Path(__file__).parent / ".env"]:
         if p.exists():
             load_dotenv(p)
             break
 except Exception:
     pass
 
+# Fallback: load from SHOPIFY_PUBLISH_CONFIG.json (repo root)
+def _load_publish_config():
+    p = Path(__file__).parent.parent / "SHOPIFY_PUBLISH_CONFIG.json"
+    if not p.exists():
+        return {}
+    try:
+        import json
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+_from_config = _load_publish_config()
+_shop_cfg = _from_config.get("shop", {})
+
 from bs4 import BeautifulSoup
 
 SHOP = (os.environ.get("SHOPIFY_SHOP") or os.environ.get("SHOPIFY_STORE_DOMAIN") or "").strip()
+if not SHOP:
+    SHOP = (_shop_cfg.get("domain") or "").strip()
 if SHOP and ".myshopify.com" not in SHOP:
     SHOP = f"{SHOP}.myshopify.com"
 BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID") or os.environ.get("BLOG_ID") or ""
-TOKEN = (os.environ.get("SHOPIFY_ACCESS_TOKEN") or "").strip()
-API_VERSION = os.environ.get("SHOPIFY_API_VERSION", "2025-01")
+TOKEN = (os.environ.get("SHOPIFY_ACCESS_TOKEN") or _shop_cfg.get("access_token") or "").strip()
+API_VERSION = os.environ.get("SHOPIFY_API_VERSION") or _shop_cfg.get("api_version") or "2025-01"
 
 # Section headings to remove (generic / template contamination)
 GENERIC_HEADINGS = {
     "practical tips", "maintenance and care", "research highlights", "expert insights",
     "step-by-step approach", "key terms", "sources & further reading", "sources &amp; further reading",
+    "advanced techniques for experienced practitioners", "customization and personalization",
+    "batch production", "quality enhancement", "creative variations",
+    "supporting data", "cited quotes", "key concept related to this topic",
 }
 
 def get_article(article_id: str):
