@@ -38,12 +38,12 @@ jobs:
               id: agent_dir
               run: |
                   SUB="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory"
-                  if [ -f "pipeline_v2/publish_now_graphql.py" ]; then
-                    echo "dir=." >> $GITHUB_OUTPUT
-                    echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
-                  elif [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
+                  if [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
                     echo "dir=$SUB" >> $GITHUB_OUTPUT
                     echo "pipeline_dir=$SUB/pipeline_v2" >> $GITHUB_OUTPUT
+                  elif [ -f "pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=." >> $GITHUB_OUTPUT
+                    echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
                   else
                     echo "dir=." >> $GITHUB_OUTPUT
                     echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
