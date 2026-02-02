@@ -65,7 +65,8 @@ jobs:
               run: |
                   set +e
                   python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output.txt
-                  echo "status=$?" >> $GITHUB_OUTPUT
+                  EXIT=${PIPESTATUS[0]}
+                  echo "status=$EXIT" >> $GITHUB_OUTPUT
               continue-on-error: true
 
             - name: Auto-fix on review failure
@@ -79,7 +80,8 @@ jobs:
               run: |
                   set +e
                   python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-fix.txt
-                  echo "status=$?" >> $GITHUB_OUTPUT
+                  EXIT=${PIPESTATUS[0]}
+                  echo "status=$EXIT" >> $GITHUB_OUTPUT
               continue-on-error: true
 
             - name: Force rebuild on review failure
@@ -98,7 +100,8 @@ jobs:
               run: |
                   set +e
                   python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" | tee review-output-after-rebuild.txt
-                  echo "status=$?" >> $GITHUB_OUTPUT
+                  EXIT=${PIPESTATUS[0]}
+                  echo "status=$EXIT" >> $GITHUB_OUTPUT
               continue-on-error: true
 
             # Run from agent root so path works for both repo layouts (root=Content Factory or subfolder).
