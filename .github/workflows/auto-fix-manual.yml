@@ -261,6 +261,7 @@ jobs:
 
                       python "../scripts/build_meta_fix_queue.py" "$article_id"
                       python "../scripts/run_meta_fix_queue.py"
+                      python "fix_images_properly.py" --article-id "$article_id"
 
                       set +e
                       python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
@@ -269,6 +270,7 @@ jobs:
 
                       if [ "$review_status" != "0" ]; then
                           python ai_orchestrator.py force-rebuild-ids "$article_id"
+                          python "fix_images_properly.py" --article-id "$article_id"
                           set +e
                           python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
                           review_status_after=${PIPESTATUS[0]}

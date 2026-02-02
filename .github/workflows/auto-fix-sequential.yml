@@ -268,6 +268,7 @@ jobs:
                       build_ok=$?
                       if [ "$build_ok" != "0" ]; then echo "[WARN] build_meta_fix_queue exited $build_ok"; fi
                       python "../scripts/run_meta_fix_queue.py"
+                      python "fix_images_properly.py" --article-id "$article_id"
                       run_ok=$?
                       if [ "$run_ok" != "0" ]; then echo "[WARN] run_meta_fix_queue exited $run_ok"; fi
                       set -e
@@ -280,6 +281,7 @@ jobs:
                       if [ "$review_status" != "0" ]; then
                           set +e
                           python ai_orchestrator.py force-rebuild-ids "$article_id"
+                          python "fix_images_properly.py" --article-id "$article_id"
                           python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
                           review_status_after=${PIPESTATUS[0]}
                           set -e
