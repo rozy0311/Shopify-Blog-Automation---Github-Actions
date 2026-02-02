@@ -1637,6 +1637,33 @@ class AIOrchestrator:
         gate_score = gate.get("score", 0)
         gate_pass = gate.get("pass", False)
 
+        # If gate is far from pass, force rebuild immediately (avoid retry loop)
+        if not gate_pass and gate_score < 9:
+            print(f"🔁 Gate LOW ({gate_score}/10) - forcing rebuild now")
+            try:
+                self.force_rebuild_article_ids([article_id])
+            except Exception as exc:
+                print(f"[WARN] force_rebuild failed: {exc}")
+
+            rebuilt_article = self.api.get_article(article_id)
+            if not rebuilt_article:
+                error = "REBUILD_ARTICLE_NOT_FOUND"
+                if use_backoff and failures < MAX_QUEUE_RETRIES:
+                    retry_at = self._next_retry_at(failures + 1)
+                    queue.mark_retry(article_id, error, retry_at)
+                    print(f"⏳ {error} - retry scheduled at {retry_at.isoformat()}")
+                else:
+                    queue.mark_failed(article_id, error)
+                    print(f"❌ {error}")
+                queue.save()
+                self._append_run_log(article_id, title, "failed", 0, False, error)
+                return
+
+            audit = self.quality_gate.full_audit(rebuilt_article)
+            gate = audit.get("deterministic_gate", {})
+            gate_score = gate.get("score", 0)
+            gate_pass = gate.get("pass", False)
+
         # HARD BLOCK: Word count must be >= 1600 regardless of gate
         word_count_info = audit.get("details", {}).get("word_count", {})
         current_word_count = word_count_info.get("word_count", 0)
@@ -2347,6 +2374,7 @@ def main():
             "  python ai_orchestrator.py queue-run [max] [--delay N] [--no-subprocess]"
         )
         print("  python ai_orchestrator.py queue-status")
+        print("  python ai_orchestrator.py queue-review <id> [failed|manual] [error]")
         print("  python ai_orchestrator.py fix-failed [limit]")
         print("  python ai_orchestrator.py fix-manual-review [limit]")
         print("  python ai_orchestrator.py fix-ids <id1> <id2> ...")
@@ -2416,6 +2444,29 @@ def main():
 
     elif command == "queue-status":
         orchestrator.queue_status()
+
+    elif command == "queue-review":
+        if len(sys.argv) < 3:
+            print("Error: Article ID required")
+            return
+        article_id = sys.argv[2]
+        status = sys.argv[3] if len(sys.argv) > 3 else "failed"
+        error_msg = " ".join(sys.argv[4:]).strip() if len(sys.argv) > 4 else ""
+        if not error_msg:
+            error_msg = "PRE_PUBLISH_REVIEW_FAIL"
+
+        queue = AntiDriftQueue.load()
+        if status in {"done", "published"}:
+            queue.mark_done(article_id)
+            new_status = "done"
+        elif status in {"manual", "manual_review"}:
+            queue.mark_manual_review(article_id, error_msg)
+            new_status = "manual_review"
+        else:
+            queue.mark_failed(article_id, error_msg)
+            new_status = "failed"
+        queue.save()
+        print(f"✅ Queue item {article_id} -> {new_status} ({error_msg})")
 
     elif command == "fix-failed":
         limit = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else 30
