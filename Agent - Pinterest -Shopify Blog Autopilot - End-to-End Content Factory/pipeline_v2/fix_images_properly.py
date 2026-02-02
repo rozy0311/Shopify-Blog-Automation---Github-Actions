@@ -82,12 +82,23 @@ def download_image(url: str, max_retries: int = 3) -> bytes:
     for attempt in range(1, max_retries + 1):
         try:
             print(f"    📥 Downloading... (attempt {attempt})")
-            response = requests.get(url, timeout=120)
-            if response.status_code == 200 and len(response.content) > 10000:
+            response = requests.get(
+                url,
+                timeout=120,
+                headers={"User-Agent": "Mozilla/5.0"},
+            )
+            content_len = len(response.content)
+            if response.status_code == 200 and content_len > 10000:
                 print(f"    ✅ Downloaded {len(response.content) // 1024}KB")
                 return response.content
             else:
-                print(f"    ⚠️ Response too small or failed, retrying...")
+                preview = response.content[:120].decode("utf-8", errors="replace")
+                print(
+                    f"    ⚠️ Response status {response.status_code}, size {content_len} bytes"
+                )
+                if preview.strip():
+                    print(f"    ⚠️ Response preview: {preview}")
+                print("    ⚠️ Response too small or failed, retrying...")
                 time.sleep(5)
         except Exception as e:
             print(f"    ⚠️ Attempt {attempt} failed: {e}")
@@ -388,29 +399,34 @@ def generate_topic_specific_prompts(title: str) -> dict:
     prompts = {
         "featured": {
             "prompt": (
-                f"Professional photograph of {main_subject}, natural lighting, high quality, "
-                f"no text, no watermark, 16:9 aspect ratio, {QUALITY}, {safety_suffix}"
+                f"Ultra clean studio product photo of {main_subject}, centered on a seamless white background, "
+                f"resting on a matte acrylic pedestal, soft diffused lighting, sharp focus, high detail, "
+                f"minimal editorial style, 16:9 aspect ratio, {QUALITY}, {safety_suffix}, "
+                f"no text, no logos, no watermark"
             ),
             "alt": f"{main_subject.title()} - Featured Image",
         },
         "inline1": {
             "prompt": (
-                f"Close-up detailed view of {main_subject} materials and setup, professional photography, "
-                f"soft natural lighting, 4k, no text, no watermark, {QUALITY}, {safety_suffix}"
+                f"Top-down flat lay of {main_subject} items neatly arranged on a neutral textured surface, "
+                f"symmetrical layout, editorial product photography, soft natural light, "
+                f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
             "alt": f"Materials for {main_subject}",
         },
         "inline2": {
             "prompt": (
-                f"Step-by-step process showing {main_subject}, clean composition, professional photography, "
-                f"soft natural lighting, 4k, no text, no watermark, {QUALITY}, {safety_suffix}"
+                f"High-end still life photograph of {main_subject} displayed in a glass showcase like a museum exhibit, "
+                f"controlled soft lighting, centered composition, ultra realistic detail, "
+                f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
             "alt": f"Process of {main_subject}",
         },
         "inline3": {
             "prompt": (
-                f"Final result of {main_subject}, lifestyle setting, natural lighting, 4k, "
-                f"no text, no watermark, {QUALITY}, {safety_suffix}"
+                f"Wide-angle photo of a minimalist interior featuring {main_subject} as the focal object, "
+                f"clean modern lines, morning light through large windows, "
+                f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
             "alt": f"Completed {main_subject}",
         },
@@ -681,11 +697,20 @@ def fix_article_images(
             if cdn_url:
                 cdn_urls.append((cdn_url, prompts[key]["alt"]))
 
-    # Step 3: Add Pinterest image if available
+    # Step 3: Guardrail - require minimum AI images before publishing
+    required_inline = 3
+    required_featured = True
+    if len(cdn_urls) < required_inline or (required_featured and not featured_b64):
+        print("\n❌ Image generation incomplete; skipping publish.")
+        print(f"   AI inline images: {len(cdn_urls)}/{required_inline}")
+        print(f"   Featured image: {'Yes' if featured_b64 else 'No'}")
+        return False
+
+    # Step 4: Add Pinterest image if available
     if pinterest_image_url:
         print(f"\n📌 Adding Pinterest image: {pinterest_image_url[:50]}...")
 
-    # Step 4: Insert images into body
+    # Step 5: Insert images into body
     paragraphs = list(re.finditer(r"</p>", new_html))
     total_paras = len(paragraphs)
 
@@ -740,7 +765,7 @@ def fix_article_images(
             # Re-find paragraphs after insertion
             paragraphs = list(re.finditer(r"</p>", new_html))
 
-    # Step 5: Update article
+    # Step 6: Update article
     update_data = {
         "article": {"id": article_id, "body_html": new_html, "published": True}
     }
@@ -805,6 +830,7 @@ def fix_all_matched_articles(dry_run: bool = False):
     print(f"\n{'='*60}")
     print(f"DONE: {success} success, {failed} failed")
     print(f"{'='*60}")
+    return failed == 0
 
 
 if __name__ == "__main__":
@@ -831,9 +857,11 @@ if __name__ == "__main__":
                     pinterest_url = get_pinterest_image_url(str(pin_id))
                 break
 
-        fix_article_images(args.article_id, pinterest_url, args.dry_run)
+        ok = fix_article_images(args.article_id, pinterest_url, args.dry_run)
+        sys.exit(0 if ok else 1)
     elif args.all:
-        fix_all_matched_articles(args.dry_run)
+        ok = fix_all_matched_articles(args.dry_run)
+        sys.exit(0 if ok else 1)
     else:
         print("Usage: python fix_images_properly.py --article-id ID [--dry-run]")
         print("       python fix_images_properly.py --all [--dry-run]")

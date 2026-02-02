@@ -39,7 +39,6 @@ from dotenv import load_dotenv
 
 # Load environment - check multiple locations
 env_paths = [
-    Path(__file__).parent.parent.parent.parent / ".env",  # Root repo
     Path(__file__).parent.parent.parent / ".env",
     Path(__file__).parent.parent / ".env",
     Path(__file__).parent / ".env",
@@ -1667,7 +1666,7 @@ class AIOrchestrator:
         # HARD BLOCK: Word count must be >= 1600 regardless of gate
         word_count_info = audit.get("details", {}).get("word_count", {})
         current_word_count = word_count_info.get("word_count", 0)
-        HARD_MIN_WORDS = 1600
+        HARD_MIN_WORDS = 1800
         if current_word_count < HARD_MIN_WORDS:
             error_msg = f"HARD_BLOCK: Word count {current_word_count} < {HARD_MIN_WORDS}"
             print(f"[FAIL] {error_msg} - Cannot mark done")

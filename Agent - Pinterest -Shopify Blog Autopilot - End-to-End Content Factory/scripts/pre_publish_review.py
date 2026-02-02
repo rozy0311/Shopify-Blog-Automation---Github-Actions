@@ -17,6 +17,14 @@ import requests
 ROOT_DIR = Path(__file__).parent.parent
 CONFIG_PATH = ROOT_DIR / "SHOPIFY_PUBLISH_CONFIG.json"
 
+STOPWORDS = {
+    "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "have",
+    "how", "in", "is", "it", "of", "on", "or", "that", "the", "this", "to", "was",
+    "what", "when", "where", "which", "why", "with", "your", "you", "we", "our",
+    "their", "they", "them", "these", "those", "into", "over", "under", "about",
+    "without", "within", "between", "across", "guide", "tips", "best", "easy",
+}
+
 
 def load_config() -> dict:
     if CONFIG_PATH.exists():
@@ -56,6 +64,7 @@ REQUIREMENTS = {
     "min_figures": 3,
     "min_blockquotes": 2,
     "min_tables": 1,
+    "min_faq_count": 7,
     "main_image_required": True,
     "main_image_alt_required": True,
     "inline_images_min": 3,
@@ -290,8 +299,8 @@ def review_article(article_id):
         "yes",
     }
     if require_pinterest and not has_pinterest_image:
-        warnings.append(
-            "⚠️ PINTEREST IMAGE: No Pinterest image (i.pinimg.com); required by REQUIRE_PINTEREST_IMAGE"
+        errors.append(
+            "❌ PINTEREST IMAGE: No Pinterest image (i.pinimg.com); required by REQUIRE_PINTEREST_IMAGE"
         )
 
     # 3.5. IMAGE URL VALIDATION - Check all image URLs are accessible
@@ -340,10 +349,27 @@ def review_article(article_id):
             + body.count("overflow-x:auto")
         )
         if responsive_tables < table_count:
-            warnings.append(
-                f"⚠️ TABLES NOT MOBILE RESPONSIVE: {table_count} tables but only {responsive_tables} wrapped in responsive container. "
+            errors.append(
+                f"❌ TABLES NOT MOBILE RESPONSIVE: {table_count} tables but only {responsive_tables} wrapped in responsive container. "
                 'Wrap tables in <div style="overflow-x: auto;"> for mobile compatibility.'
             )
+
+        # META-PROMPT: table styling requirements (header color, padding, line-height, layout)
+        table_style_checks = [
+            "#2d5a27",  # header background color
+            "line-height: 1.6",
+            "table-layout: auto",
+            "word-wrap: break-word",
+        ]
+        missing_style = [s for s in table_style_checks if s not in body]
+        if missing_style:
+            errors.append(
+                "❌ TABLE STYLE: Missing required CSS tokens (header color, line-height, table-layout)."
+            )
+        if "padding: 10px 12px" not in body and "padding: 12px" not in body:
+            errors.append("❌ TABLE STYLE: Missing required cell padding (10px 12px).")
+        if "nth-child(even)" not in body and "zebra" not in body.lower():
+            errors.append("❌ TABLE STYLE: Missing zebra stripes styling (nth-child(even)).")
 
     # ========== SEO CHECKS ==========
     # 7. Title length check
@@ -519,6 +545,26 @@ def review_article(article_id):
             f"❌ IMAGE RELEVANCE: Image alt texts must mention topic keywords (e.g. '{' '.join(list(topic_words)[:3])}')"
         )
 
+    # 16b. Topic focus score (heuristic)
+    title_words_clean = [
+        w for w in re.findall(r"[a-zA-Z]{3,}", title.lower()) if w not in STOPWORDS
+    ]
+    topic_keywords = list(dict.fromkeys(title_words_clean))[:8]
+    if topic_keywords:
+        paragraphs = re.findall(r"<p[^>]*>(.+?)</p>", body, re.IGNORECASE | re.DOTALL)
+        first_para = re.sub(r"<[^>]+>", "", paragraphs[0]) if paragraphs else ""
+        last_two = " ".join(
+            re.sub(r"<[^>]+>", "", p) for p in paragraphs[-2:]
+        ) if len(paragraphs) >= 2 else ""
+        hit_first = sum(1 for k in topic_keywords if k in first_para.lower())
+        hit_last = sum(1 for k in topic_keywords if k in last_two.lower())
+        coverage = (hit_first + hit_last) / max(1, len(topic_keywords))
+        focus_score = round(min(10.0, coverage * 10.0), 1)
+        if focus_score < 8.0:
+            errors.append(
+                f"❌ TOPIC FOCUS SCORE: {focus_score}/10 < 8 (keywords must appear in first + last paragraphs)"
+            )
+
     # ========== META-PROMPT HARD VALIDATIONS ==========
     # Initialize tracking variables
     sources_links_count = 0
@@ -535,9 +581,7 @@ def review_article(article_id):
         if year_in_title:
             errors.append(f"❌ NO YEARS: Found year '{year_in_title.group()}' in title")
         if year_in_body:
-            warnings.append(
-                f"⚠️ NO YEARS: Found year(s) in body content (check if necessary)"
-            )
+            errors.append("❌ NO YEARS: Found year(s) in body content")
 
     # 18. Sources section check - ≥5 citations with proper links
     if META_PROMPT_CHECKS["require_sources_section"]:
@@ -572,6 +616,13 @@ def review_article(article_id):
                 re.IGNORECASE,
             )
             sources_links_count = len(sources_links_tags)
+            hrefs = re.findall(
+                r'<a[^>]+href=["\'](https?://[^"\']+)["\']',
+                sources_content,
+                re.IGNORECASE,
+            )
+            if len(hrefs) != len(set(hrefs)) and hrefs:
+                errors.append("❌ SOURCES: Duplicate source links detected")
             # Extract link text (between > and </a>) for format check
             link_texts = re.findall(
                 r'<a[^>]+href=["\']https?://[^"\']+["\'][^>]*>([^<]+)</a>',
@@ -647,12 +698,12 @@ def review_article(article_id):
         invalid_ids = [h for h in headings_with_id if not KEBAB_PATTERN.match(h)]
 
         if headings_without_id > 0:
-            warnings.append(
-                f"⚠️ HEADING IDS: {headings_without_id} H2/H3 tags missing id attribute"
+            errors.append(
+                f"❌ HEADING IDS: {headings_without_id} H2/H3 tags missing id attribute"
             )
         if invalid_ids:
-            warnings.append(
-                f"⚠️ HEADING IDS: Non-kebab-case ids found: {', '.join(invalid_ids[:3])}"
+            errors.append(
+                f"❌ HEADING IDS: Non-kebab-case ids found: {', '.join(invalid_ids[:3])}"
             )
 
     # 22. Links rel="nofollow noopener" check
@@ -668,8 +719,8 @@ def review_article(article_id):
                 links_without_rel += 1
 
         if links_without_rel > 0:
-            warnings.append(
-                f"⚠️ LINK REL: {links_without_rel} external links missing rel='nofollow noopener'"
+            errors.append(
+                f"❌ LINK REL: {links_without_rel} external links missing rel='nofollow noopener'"
             )
 
     # 23. No schema in body check
@@ -686,12 +737,12 @@ def review_article(article_id):
             intro_text = re.sub(r"<[^>]+>", "", first_p.group(1))
             intro_words = len(intro_text.split())
             if intro_words < 50:
-                warnings.append(
-                    f"⚠️ DIRECT ANSWER: Opening paragraph only {intro_words} words (need 50-70)"
+                errors.append(
+                    f"❌ DIRECT ANSWER: Opening paragraph only {intro_words} words (need 50-70)"
                 )
             elif intro_words > 100:
-                warnings.append(
-                    f"⚠️ DIRECT ANSWER: Opening paragraph {intro_words} words (too long, aim for 50-70)"
+                errors.append(
+                    f"❌ DIRECT ANSWER: Opening paragraph {intro_words} words (too long, aim for 50-70)"
                 )
 
     # 25. Key Terms section check (META-PROMPT: required)
@@ -705,6 +756,22 @@ def review_article(article_id):
             )
         if not key_terms_section:
             errors.append("❌ KEY TERMS: Missing Key Terms section (required)")
+
+    # 25c. FAQ count check (META-PROMPT: 7+ FAQs)
+    faq_section = re.search(r"<h2[^>]*>.*FAQ.*</h2>", body, re.IGNORECASE)
+    if faq_section:
+        faq_pos = faq_section.end()
+        faq_content = body[faq_pos:]
+        next_h2 = re.search(r"<h2", faq_content, re.IGNORECASE)
+        if next_h2:
+            faq_content = faq_content[: next_h2.start()]
+        faq_questions = re.findall(r"<h3[^>]*>.*\?.*</h3>", faq_content, re.IGNORECASE)
+        if len(faq_questions) < REQUIREMENTS["min_faq_count"]:
+            errors.append(
+                f"❌ FAQ COUNT: {len(faq_questions)} < {REQUIREMENTS['min_faq_count']} required"
+            )
+    else:
+        errors.append("❌ FAQ SECTION: Missing FAQ/Frequently Asked Questions section")
 
     # 25b. DUPLICATE PARAGRAPH check (META-PROMPT: no duplicate text)
     paragraphs = re.findall(r"<p[^>]*>(.+?)</p>", body, re.IGNORECASE | re.DOTALL)
@@ -722,24 +789,42 @@ def review_article(article_id):
         )
 
     # 26. 11-section structure (META-PROMPT) - FAIL if too few key sections
-    key_section_patterns = [
-        r"direct answer|key conditions|at a glance",
-        r"understanding\s+\[?topic\]?|understanding\s+\w+",
-        r"step-by-step|complete step",
-        r"types and varieties|troubleshooting",
-        r"pro tips|expert|blockquote",
-        r"faq|frequently asked",
-        r"advanced techniques|comparison table",
-        r"sources\s*&|further reading|references",
-    ]
+    required_sections = {
+        "Direct Answer": r"direct answer|quick answer",
+        "Key Conditions at a Glance": r"key conditions|at a glance",
+        "Understanding": r"understanding\s+\[?topic\]?|understanding\s+\w+",
+        "Complete Step-by-Step Guide": r"step-by-step|step by step|complete step",
+        "Types and Varieties": r"types and varieties|types|varieties",
+        "Troubleshooting Common Issues": r"troubleshooting|common issues|problems",
+        "Pro Tips from Experts": r"pro tips|expert tips|tips from experts|blockquote",
+        "FAQs": r"faq|frequently asked",
+        "Advanced Techniques": r"advanced techniques|advanced",
+        "Comparison Table": r"comparison table|comparison|table",
+        "Sources & Further Reading": r"sources\s*&|further reading|references",
+    }
     body_lower_sections = body.lower()
-    sections_found = sum(
-        1 for p in key_section_patterns if re.search(p, body_lower_sections, re.IGNORECASE)
-    )
-    if sections_found < 8:
+    missing_sections = [
+        name
+        for name, pattern in required_sections.items()
+        if not re.search(pattern, body_lower_sections, re.IGNORECASE)
+    ]
+    if missing_sections:
         errors.append(
-            f"❌ 11-SECTION STRUCTURE: Only ~{sections_found} key sections (need 8+): Direct Answer, Key Conditions, Understanding, Step-by-Step, Types, Troubleshooting, Pro Tips, FAQs, Advanced Techniques, Comparison Table, Sources"
+            f"❌ 11-SECTION STRUCTURE: Missing sections: {', '.join(missing_sections[:5])}"
         )
+
+    # 26b. Key Conditions must be bullets
+    key_conditions_section = re.search(
+        r"<h2[^>]*>.*Key Conditions.*</h2>", body, re.IGNORECASE
+    )
+    if key_conditions_section:
+        kc_pos = key_conditions_section.end()
+        kc_content = body[kc_pos:]
+        next_h2 = re.search(r"<h2", kc_content, re.IGNORECASE)
+        if next_h2:
+            kc_content = kc_content[: next_h2.start()]
+        if "<ul" not in kc_content and "<ol" not in kc_content:
+            errors.append("❌ KEY CONDITIONS: Must use bullet list (<ul>/<ol>)")
 
     # Summary
     passed = len(errors) == 0
