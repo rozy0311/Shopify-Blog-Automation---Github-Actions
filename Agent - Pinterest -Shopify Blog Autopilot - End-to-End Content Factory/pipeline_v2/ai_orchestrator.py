@@ -933,8 +933,8 @@ class AIOrchestrator:
                 "If the result is inconsistent, adjust only one variable and re-test.</p>"
             ),
             (
-                f"<p>A simple checklist helps with {topic}: confirm the surface or item type, "
-                "match the method to that use case, and verify the finish before moving on. "
+                f"<p>A simple checklist helps with {topic}: confirm the goal and inputs, "
+                "match the method to that use case, and verify the result before moving on. "
                 "This prevents drifting into steps that don’t fit the goal.</p>"
             ),
             (
@@ -957,7 +957,7 @@ class AIOrchestrator:
         # Add unique, term-driven paragraphs to reach word count without duplicates.
         for idx, term in enumerate(terms[:6], 1):
             pad_paragraphs.append(
-                f"<p><strong>Note {idx}:</strong> In {topic}, {term} should be checked against the goal and the surface or container type. "
+                f"<p><strong>Note {idx}:</strong> In {topic}, {term} should be checked against the goal and conditions. "
                 "Keep measurements consistent and record results so the next iteration is comparable.</p>"
             )
 
@@ -1033,12 +1033,12 @@ class AIOrchestrator:
 
         key_points = "\n".join(
             [
-                f"<li>Match materials to {focus_phrase} and the surface or item being treated.</li>",
-                f"<li>Set a small test area for {topic} before full use.</li>",
-                f"<li>Use measured amounts and consistent timing for {topic}.</li>",
+                f"<li>Align steps and inputs with {focus_phrase} goals.</li>",
+                f"<li>Start with a small test run for {topic} before scaling.</li>",
+                f"<li>Use measured inputs and consistent timing for {topic}.</li>",
                 f"<li>Keep the process focused on {focus_terms} to avoid off-topic steps.</li>",
-                "<li>Ventilate and protect sensitive materials if needed.</li>",
-                "<li>Record ratios and results so you can repeat them.</li>",
+                "<li>Keep conditions steady (light, temperature, spacing) as needed.</li>",
+                "<li>Record inputs and results so you can repeat them.</li>",
             ]
         )
 
@@ -1056,7 +1056,7 @@ class AIOrchestrator:
         body = f"""
 <article>
 <h2>Direct Answer</h2>
-    <p>{topic} works best when you keep the steps specific to {focus_phrase}, measure ratios carefully, and test a small area before scaling. Use consistent timing, note the surface or material details, and repeat the same sequence until the result is stable. If anything looks off, adjust one variable at a time so you can trace the cause and lock in a reliable routine.</p>
+    <p>{topic} works best when you keep the steps specific to {focus_phrase}, measure inputs carefully, and test a small run before scaling. Use consistent timing, track conditions, and repeat the same sequence until the result is stable. If anything looks off, adjust one variable at a time so you can trace the cause and lock in a reliable routine.</p>
 
 <h2>Key Conditions at a Glance</h2>
 <ul>
@@ -1064,42 +1064,42 @@ class AIOrchestrator:
 </ul>
 
 <h2>Understanding {topic}</h2>
-<p>{topic} is most reliable when the steps match the materials and surface you’re treating. That means selecting the right container, applying the method evenly, and checking the result before repeating.</p>
-<p>Identify the main variables for {topic} (ratio, contact time, and surface type). Keeping those consistent makes the outcome repeatable.</p>
+<p>{topic} is most reliable when the steps match the goal and the inputs you control. That means selecting the right setup, following the method consistently, and checking results before repeating.</p>
+<p>Identify the main variables for {topic} (inputs, timing, and conditions). Keeping those consistent makes the outcome repeatable.</p>
 <p>Work in a stable environment and avoid mixing steps from unrelated tasks. If a step doesn’t directly support {focus_phrase}, skip it.</p>
 <p>Use a short checklist so each pass of {topic} is measured and comparable.</p>
 
 <h2>Complete Step-by-Step Guide</h2>
 <h3>Preparation</h3>
-<p>Set up a clean workspace and gather containers, measuring tools, and cloths or applicators that fit {topic}. Label any bottles or jars so ratios are not confused later.</p>
-<p>Choose a small test surface or a single item first. This keeps {topic} controlled before you scale it to a full batch or larger area.</p>
-<p>Measure the base ingredients and note the ratio so you can repeat the same {topic} mix.</p>
+<p>Set up a clean workspace and gather the tools and materials that fit {topic}. Label any containers so measurements are not confused later.</p>
+<p>Choose a small test run first. This keeps {topic} controlled before you scale it.</p>
+<p>Measure the main inputs and note the amounts so you can repeat the same {topic} process.</p>
 
 <h3>Main Process</h3>
-<p>Apply the mixture or method evenly, using light passes instead of flooding the surface. This helps {topic} work consistently and reduces streaks or residue.</p>
-<p>Allow the recommended contact time, then wipe or rinse as needed. Track the timing for {topic} so you can adjust if the result is too strong or too weak.</p>
-<p>Check the finish or effect immediately. If it’s not right, adjust one variable at a time (ratio, time, or technique) and re-test.</p>
+<p>Apply the method evenly and avoid rushing steps. This helps {topic} work consistently and reduces variability.</p>
+<p>Allow the recommended time window, then evaluate the result. Track the timing for {topic} so you can adjust if the result is too strong or too weak.</p>
+<p>Check the outcome immediately. If it’s not right, adjust one variable at a time (amount, time, or technique) and re-test.</p>
 
 <h3>Finishing</h3>
-<p>Buff or rinse the surface to remove any remaining film. For {topic}, a final clean pass often makes the difference.</p>
-<p>Store the remaining mixture in a labeled container and note the ratio used.</p>
+<p>Complete any final steps required for {topic} and confirm the result meets the goal.</p>
+<p>Store any remaining materials in labeled containers and note the amounts used.</p>
 <p>Record what worked and what didn’t so the next {topic} run is faster and more consistent.</p>
 
 <h2>Types and Varieties</h2>
-<p>{topic} can vary based on surface type, container size, and application method. Choose the option that matches your use case.</p>
+<p>{topic} can vary based on setup, scale, and method. Choose the option that matches your use case.</p>
 <ul>
-    <li>Light-duty use: small batch, gentle application, quick wipe or rinse.</li>
-    <li>Standard use: balanced ratio, even coverage, controlled contact time.</li>
+    <li>Light-duty use: small batch, simple steps, quick checks.</li>
+    <li>Standard use: balanced inputs, consistent timing, repeatable results.</li>
     <li>Detail work: smaller tools for edges, corners, and tight areas.</li>
 </ul>
-<p>For {topic}, the best method is the one that delivers a clean finish without extra residue or rework.</p>
+<p>For {topic}, the best method is the one that delivers reliable results without extra rework.</p>
 
 <h2>Troubleshooting Common Issues</h2>
-<p>If {topic} looks streaky, spotty, or leaves residue, the ratio or contact time likely needs adjustment.</p>
+<p>If {topic} looks inconsistent or underperforms, the input amount or timing likely needs adjustment.</p>
 <ul>
-    <li>Issue: streaks or haze → Fix: reduce mixture strength and buff with a clean cloth.</li>
-    <li>Issue: residue remains → Fix: add a clean rinse or wipe step.</li>
-    <li>Issue: weak results → Fix: increase contact time slightly and re-test.</li>
+    <li>Issue: uneven results → Fix: apply the method more evenly and slow the pace.</li>
+    <li>Issue: no visible improvement → Fix: increase time slightly and re-test.</li>
+    <li>Issue: overcorrection → Fix: reduce inputs and re-test.</li>
 </ul>
 <p>Adjust one variable at a time so you can see what actually improves {topic}.</p>
 
@@ -1111,7 +1111,7 @@ class AIOrchestrator:
 {self._build_faqs(topic)}
 
 <h2>Advanced Techniques</h2>
-<p>Once {topic} is reliable, test small changes in ratio or application method while keeping everything else the same.</p>
+<p>Once {topic} is reliable, test small changes in inputs or method while keeping everything else the same.</p>
 <p>Track each change in a short log so you can identify the best-performing version of {topic}.</p>
 <p>For recurring tasks, pre-label containers and tools so each session starts with the same setup.</p>
 
