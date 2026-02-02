@@ -1,11 +1,17 @@
-# Manual trigger only. Same flow as auto-fix-sequential (queue-run: meta fix → gate → review → cleanup → set featured → publish).
+# Manual trigger. Có thể chọn 1 bài theo ID hoặc chạy queue.
+# Khi nhập article_id: fix đúng bài đó (fix-ids → force-rebuild → fix images → review → cleanup → publish).
+# Khi để trống: chạy queue-run như cũ.
 name: Auto Fix Manual Trigger
 
 on:
     workflow_dispatch:
         inputs:
+            article_id:
+                description: "Chỉ fix 1 bài (để trống = chạy queue)"
+                required: false
+                default: ""
             fix_max_items:
-                description: "Số bài xử lý mỗi run (mặc định 1)"
+                description: "Số bài xử lý mỗi run khi chạy queue (mặc định 1)"
                 required: false
                 default: "1"
 
@@ -92,9 +98,25 @@ jobs:
                       exit 1
                   fi
 
+            - name: Set agent dir
+              id: agent_dir
+              run: |
+                  SUB="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory"
+                  if [ -f "pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=." >> $GITHUB_OUTPUT
+                    echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
+                  elif [ -f "$SUB/pipeline_v2/publish_now_graphql.py" ]; then
+                    echo "dir=$SUB" >> $GITHUB_OUTPUT
+                    echo "pipeline_dir=$SUB/pipeline_v2" >> $GITHUB_OUTPUT
+                  else
+                    echo "dir=." >> $GITHUB_OUTPUT
+                    echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
+                  fi
+
             - name: Check if queue needs refresh
+              if: github.event.inputs.article_id == ''
               id: queue_check
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   python - <<'PY'
                   import json
@@ -130,15 +152,15 @@ jobs:
                   PY
 
             - name: Scan issues (published)
-              if: steps.queue_check.outputs.needs_refresh == 'true'
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              if: github.event.inputs.article_id == '' && steps.queue_check.outputs.needs_refresh == 'true'
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   SCAN_LIMIT=200 python scan_issues_now.py
 
             - name: Ensure articles_to_fix.json exists
-              if: steps.queue_check.outputs.needs_refresh == 'true'
+              if: github.event.inputs.article_id == '' && steps.queue_check.outputs.needs_refresh == 'true'
               id: fix_list
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   python - <<'PY'
                   import json
@@ -164,8 +186,8 @@ jobs:
                   PY
 
             - name: Rotate queue to avoid repeat
-              if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              if: github.event.inputs.article_id == '' && steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   if [ ! -s "articles_to_fix.json" ]; then
                       echo "No items to fix; skipping rotate."
@@ -194,8 +216,8 @@ jobs:
                   PY
 
             - name: Init anti-drift queue
-              if: steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              if: github.event.inputs.article_id == '' && steps.queue_check.outputs.needs_refresh == 'true' && steps.fix_list.outputs.has_items == 'true'
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   if [ ! -s "articles_to_fix.json" ]; then
                       echo "No items to fix; skipping queue init."
@@ -203,9 +225,45 @@ jobs:
                   fi
                   python ai_orchestrator.py queue-init
 
-            # Flow: meta fix → gate → pre_publish_review → cleanup (strip generic + set featured) → set_featured_image_if_missing → publish
+            - name: Fix single article (fix-ids, force-rebuild, fix images)
+              if: github.event.inputs.article_id != ''
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
+              run: |
+                  AID="${{ github.event.inputs.article_id }}"
+                  python ai_orchestrator.py fix-ids "$AID"
+                  python ai_orchestrator.py force-rebuild-ids "$AID"
+                  python fix_images_properly.py --article-id "$AID" || true
+
+            - name: Review single article
+              if: github.event.inputs.article_id != ''
+              id: review_one
+              run: |
+                  set +e
+                  BASE="${{ steps.agent_dir.outputs.dir }}"
+                  python "$BASE/scripts/pre_publish_review.py" "${{ github.event.inputs.article_id }}" | tee review-output-one.txt
+                  REVIEW_EXIT=$?
+                  echo "status=$REVIEW_EXIT" >> $GITHUB_OUTPUT
+              continue-on-error: true
+
+            - name: Cleanup + set featured + publish single article
+              if: github.event.inputs.article_id != '' && steps.review_one.outputs.status == '0'
+              run: |
+                  BASE="${{ steps.agent_dir.outputs.dir }}"
+                  AID="${{ github.event.inputs.article_id }}"
+                  python "$BASE/pipeline_v2/cleanup_before_publish.py" "$AID"
+                  python "$BASE/pipeline_v2/set_featured_image_if_missing.py" "$AID"
+                  python "$BASE/pipeline_v2/publish_now_graphql.py" "$AID"
+
+            - name: Fail when single-article review did not pass
+              if: github.event.inputs.article_id != '' && steps.review_one.outputs.status != '0'
+              run: |
+                  echo "Pre-publish review failed for article ${{ github.event.inputs.article_id }}. Not publishing."
+                  exit 1
+
+            # Flow: meta fix → gate → pre_publish_review → cleanup → set featured → publish (chỉ khi chạy queue)
             - name: "Run queue (meta fix, gate, review, cleanup, set featured image, publish)"
-              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              if: github.event.inputs.article_id == ''
+              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
               run: |
                   set +e
                   if [ ! -f "anti_drift_queue.json" ]; then
