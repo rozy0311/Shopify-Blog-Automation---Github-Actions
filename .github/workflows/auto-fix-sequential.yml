@@ -27,7 +27,7 @@ jobs:
             LEXICA_ONLY_SD15: "1"
             LEXICA_RESULT_LIMIT: "30"
             LEXICA_FALLBACK_ONLY: "1"
-            VISION_REVIEW: "1"
+            VISION_REVIEW: "0"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
             VISION_PROVIDER: ${{ vars.VISION_PROVIDER || '' }}
@@ -80,7 +80,7 @@ jobs:
 
             - name: Verify vision review enabled
               run: |
-                  if [ -z "${VISION_API_KEY:-}" ] && [ -z "${GEMINI_API_KEY:-}" ]; then
+                  if [ "${VISION_REVIEW:-0}" = "1" ] && [ -z "${VISION_API_KEY:-}" ] && [ -z "${GEMINI_API_KEY:-}" ]; then
                       echo "Missing VISION_API_KEY or GEMINI_API_KEY; vision review is required."
                       exit 1
                   fi
@@ -268,9 +268,19 @@ jobs:
                       build_ok=$?
                       if [ "$build_ok" != "0" ]; then echo "[WARN] build_meta_fix_queue exited $build_ok"; fi
                       python "../scripts/run_meta_fix_queue.py"
-                      python "fix_images_properly.py" --article-id "$article_id"
                       run_ok=$?
                       if [ "$run_ok" != "0" ]; then echo "[WARN] run_meta_fix_queue exited $run_ok"; fi
+                      python "fix_images_properly.py" --article-id "$article_id"
+                      fix_images_ok=$?
+                      if [ "$fix_images_ok" != "0" ]; then
+                          echo "[WARN] fix_images_properly failed for $article_id"
+                          python ai_orchestrator.py queue-review "$article_id" fail "IMAGE_FIX_FAILED" || true
+                          if [ "$i" -lt "$max" ]; then
+                              echo "Sleeping ${delay}s before next article..."
+                              sleep "$delay"
+                          fi
+                          continue
+                      fi
                       set -e
 
                       set +e
@@ -282,6 +292,18 @@ jobs:
                           set +e
                           python ai_orchestrator.py force-rebuild-ids "$article_id"
                           python "fix_images_properly.py" --article-id "$article_id"
+                          rebuild_images_ok=$?
+                          set -e
+                          if [ "$rebuild_images_ok" != "0" ]; then
+                              echo "[WARN] fix_images_properly failed after rebuild for $article_id"
+                              python ai_orchestrator.py queue-review "$article_id" fail "IMAGE_FIX_FAILED" || true
+                              if [ "$i" -lt "$max" ]; then
+                                  echo "Sleeping ${delay}s before next article..."
+                                  sleep "$delay"
+                              fi
+                              continue
+                          fi
+                          set +e
                           python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-after-rebuild.txt"
                           review_status_after=${PIPESTATUS[0]}
                           set -e
