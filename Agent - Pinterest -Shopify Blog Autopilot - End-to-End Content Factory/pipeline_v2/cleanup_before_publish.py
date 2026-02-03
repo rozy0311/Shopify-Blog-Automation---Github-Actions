@@ -244,7 +244,7 @@ def first_image_src(html: str, prefer_shopify_cdn: bool = True) -> str | None:
     return first_cdn if (prefer_shopify_cdn and first_cdn) else first_any
 
 def fix_source_link_dashes(html: str) -> str:
-    \"\"\"Convert regular dashes in source link text to em-dashes for meta-prompt compliance.\"\"\"
+    """Convert regular dashes in source link text to em-dashes for meta-prompt compliance."""
     def fix_link(match: re.Match) -> str:
         prefix = match.group(1)
         link_text = match.group(2)
