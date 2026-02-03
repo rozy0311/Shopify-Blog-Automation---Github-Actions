@@ -72,9 +72,27 @@ def get_pinterest_image_url(pin_id: str) -> str:
 def get_pollinations_url(
     prompt: str, width: int = 1200, height: int = 800, seed: int = 42
 ) -> str:
-    """Get Pollinations.ai image URL"""
+    """Get Pollinations.ai image URL.
+    When POLLINATIONS_API_KEY is set: uses gen.pollinations.ai (paid tier) or GET_POLLINATIONS_URL.
+    Otherwise: uses image.pollinations.ai (free tier).
+    """
     encoded_prompt = quote(prompt)
-    return f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={width}&height={height}&seed={seed}&nologo=true"
+    api_key = os.environ.get("POLLINATIONS_API_KEY", "").strip()
+    base = (os.environ.get("GET_POLLINATIONS_URL", "") or "").strip().rstrip("/")
+
+    if api_key and base:
+        # Paid tier: use GET_POLLINATIONS_URL with /image/ path (enter/gen API)
+        # gen.pollinations.ai uses /image/{prompt} and ?key=
+        if "enter.pollinations.ai" in base:
+            base = "https://gen.pollinations.ai"
+        url = f"{base}/image/{encoded_prompt}?width={width}&height={height}&seed={seed}&key={api_key}"
+    elif api_key:
+        # API key set but no custom base: use gen.pollinations.ai (paid tier)
+        url = f"https://gen.pollinations.ai/image/{encoded_prompt}?width={width}&height={height}&seed={seed}&key={api_key}"
+    else:
+        # Free tier: image.pollinations.ai
+        url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={width}&height={height}&seed={seed}&nologo=true"
+    return url
 
 
 def download_image(url: str, max_retries: int = 3) -> bytes:

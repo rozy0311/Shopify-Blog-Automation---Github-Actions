@@ -20,6 +20,7 @@ jobs:
             SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
             SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
             POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+            GET_POLLINATIONS_URL: ${{ secrets.GET_POLLINATIONS_URL }}
             POLLINATIONS_NEGATIVE: "text, watermark, logo, signature"
             USE_LEXICA: "0"
             LEXICA_ONLY_SD15: "1"
