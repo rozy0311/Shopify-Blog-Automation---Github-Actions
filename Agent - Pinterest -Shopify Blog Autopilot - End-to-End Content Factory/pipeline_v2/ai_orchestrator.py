@@ -48,6 +48,59 @@ for env_path in env_paths:
         load_dotenv(env_path)
 BACKOFF_BASE_SECONDS = 120
 BACKOFF_MAX_SECONDS = 600
+
+# ---- Utility: Ensure all H2/H3 have kebab-case id ----
+KEBAB_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def _slugify(text: str) -> str:
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"[^a-zA-Z0-9\\s-]", "", text).strip().lower()
+    text = re.sub(r"[\\s_-]+", "-", text)
+    return text.strip("-") or "section"
+
+
+def ensure_heading_ids(html: str) -> str:
+    """Ensure all H2/H3 headings have unique kebab-case id attributes."""
+    used_ids: set = set()
+
+    def normalize_id(raw_id: str) -> str:
+        base = _slugify(raw_id)
+        candidate = base
+        suffix = 2
+        while candidate in used_ids:
+            candidate = f"{base}-{suffix}"
+            suffix += 1
+        used_ids.add(candidate)
+        return candidate
+
+    def fix_heading(match: re.Match) -> str:
+        level = match.group(1)
+        attrs = match.group(2) or ""
+        inner = match.group(3)
+        text = re.sub(r"<[^>]+>", " ", inner).strip()
+        heading_id = _slugify(text)
+
+        id_match = re.search(r"id=[\"']([^\"']+)[\"']", attrs)
+        if id_match:
+            existing = id_match.group(1)
+            new_id = existing if KEBAB_PATTERN.match(existing) else heading_id
+            new_id = normalize_id(new_id)
+            attrs = re.sub(r"id=[\"'][^\"']+[\"']", f'id="{new_id}"', attrs)
+            return f"<h{level}{attrs}>{inner}</h{level}>"
+
+        new_id = normalize_id(heading_id)
+        attrs = (" " + attrs.strip()) if attrs.strip() else ""
+        return f'<h{level}{attrs} id="{new_id}">{inner}</h{level}>'
+
+    return re.sub(
+        r"<h([23])([^>]*)>(.*?)</h\\1>",
+        fix_heading,
+        html,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+
+
 BACKOFF_JITTER_SECONDS = 30
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
 PIPELINE_DIR = Path(__file__).parent
@@ -105,40 +158,112 @@ META_PROMPT_REQUIREMENTS = {
 
 # Generic phrases to detect - SYNCED with pre_publish_review.py
 GENERIC_PHRASES = [
-    "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
-    "in this guide", "this guide", "this article", "this blog post",
-    "whether you're a beginner", "whether you are a beginner", "whether you are new",
-    "in today's world", "in today's fast-paced", "in our modern world",
-    "you will learn", "by the end", "throughout this article", "in this post",
-    "we'll explore", "let's dive", "let's explore", "without further ado",
-    "in conclusion", "to sum up", "in summary", "to summarize",
-    "thank you for reading", "happy growing", "happy gardening", "happy cooking",
-    "game-changer", "unlock the potential", "master the art", "elevate your",
-    "transform your", "empower yourself", "unlock the secrets", "discover the power",
-    "crucial to understand", "it's essential", "it is essential", "it's important",
-    "thrilled to share", "excited to share", "perfect for anyone",
-    "join thousands who", "one of the best ways", "one of the most important",
-    "first and foremost", "last but not least", "needless to say",
-    "when it comes to", "the bottom line is", "it goes without saying",
-    "as mentioned above", "as stated earlier", "as we have seen",
-    "more often than not", "when all is said and done", "at the end of the day",
-    "here's everything you need", "read on to learn", "read on to discover",
-    "here's everything you need to know", "we'll walk you through", "let's dive in",
-    "in this post we'll", "in this article we'll", "keep in mind",
-    "with the right approach", "on the other hand", "it's worth noting",
+    "comprehensive guide",
+    "ultimate guide",
+    "complete guide",
+    "definitive guide",
+    "in this guide",
+    "this guide",
+    "this article",
+    "this blog post",
+    "whether you're a beginner",
+    "whether you are a beginner",
+    "whether you are new",
+    "in today's world",
+    "in today's fast-paced",
+    "in our modern world",
+    "you will learn",
+    "by the end",
+    "throughout this article",
+    "in this post",
+    "we'll explore",
+    "let's dive",
+    "let's explore",
+    "without further ado",
+    "in conclusion",
+    "to sum up",
+    "in summary",
+    "to summarize",
+    "thank you for reading",
+    "happy growing",
+    "happy gardening",
+    "happy cooking",
+    "game-changer",
+    "unlock the potential",
+    "master the art",
+    "elevate your",
+    "transform your",
+    "empower yourself",
+    "unlock the secrets",
+    "discover the power",
+    "crucial to understand",
+    "it's essential",
+    "it is essential",
+    "it's important",
+    "thrilled to share",
+    "excited to share",
+    "perfect for anyone",
+    "join thousands who",
+    "one of the best ways",
+    "one of the most important",
+    "first and foremost",
+    "last but not least",
+    "needless to say",
+    "when it comes to",
+    "the bottom line is",
+    "it goes without saying",
+    "as mentioned above",
+    "as stated earlier",
+    "as we have seen",
+    "more often than not",
+    "when all is said and done",
+    "at the end of the day",
+    "here's everything you need",
+    "read on to learn",
+    "read on to discover",
+    "here's everything you need to know",
+    "we'll walk you through",
+    "let's dive in",
+    "in this post we'll",
+    "in this article we'll",
+    "keep in mind",
+    "with the right approach",
+    "on the other hand",
+    "it's worth noting",
     # PROMPT meta-prompt: extra AI slop
-    "this guide explains", "you will learn what works", "by the end, you will know",
-    "no one succeeds in isolation", "perfect for anyone looking to improve",
-    "the focus is on", "overall,", "it's important to remember", "it is important to remember",
-    "supporting data", "cited quotes", "advanced techniques for experienced",
-    "practical tips", "maintenance and care", "expert insights", "research highlights",
+    "this guide explains",
+    "you will learn what works",
+    "by the end, you will know",
+    "no one succeeds in isolation",
+    "perfect for anyone looking to improve",
+    "the focus is on",
+    "overall,",
+    "it's important to remember",
+    "it is important to remember",
+    "supporting data",
+    "cited quotes",
+    "advanced techniques for experienced",
+    "practical tips",
+    "maintenance and care",
+    "expert insights",
+    "research highlights",
     # Legacy contamination phrases
-    "natural materials vary throughout", "professional practitioners recommend",
-    "achieving consistent results requires attention", "once you've perfected small batches",
-    "once you have perfected small batches", "scaling up becomes appealing",
-    "making larger batches requires", "heat distribution", "doubling recipes",
-    "this practical guide", "this guide covers practical", "measuring cups",
-    "dry ingredients", "wet ingredients", "shelf life 2-4 weeks", "shelf life 3-6 months",
+    "natural materials vary throughout",
+    "professional practitioners recommend",
+    "achieving consistent results requires attention",
+    "once you've perfected small batches",
+    "once you have perfected small batches",
+    "scaling up becomes appealing",
+    "making larger batches requires",
+    "heat distribution",
+    "doubling recipes",
+    "this practical guide",
+    "this guide covers practical",
+    "measuring cups",
+    "dry ingredients",
+    "wet ingredients",
+    "shelf life 2-4 weeks",
+    "shelf life 3-6 months",
 ]
 
 # Template contamination keywords
@@ -646,6 +771,7 @@ class QualityGate:
 # SHOPIFY API (env or config fallback for GHA)
 # ============================================================================
 
+
 def _shopify_config():
     """SHOP, BLOG_ID, TOKEN, API_VERSION from env; fallback from SHOPIFY_PUBLISH_CONFIG.json"""
     shop = os.getenv("SHOPIFY_SHOP") or os.getenv("SHOPIFY_STORE_DOMAIN")
@@ -927,7 +1053,9 @@ class AIOrchestrator:
 {items}
 """
 
-    def _pad_to_word_count(self, body_html: str, topic: str, target: int = 1850, mode: str | None = None) -> str:
+    def _pad_to_word_count(
+        self, body_html: str, topic: str, target: int = 1850, mode: str | None = None
+    ) -> str:
         soup = BeautifulSoup(body_html, "html.parser")
         current_words = len(soup.get_text(separator=" ", strip=True).split())
         if current_words >= target:
@@ -1084,7 +1212,7 @@ class AIOrchestrator:
                     f"Check one variable at a time to keep {topic} repeatable.</p>\n"
                 )
             soup = BeautifulSoup(body_html, "html.parser")
-            current_words = len(soup.get_text(separator=' ', strip=True).split())
+            current_words = len(soup.get_text(separator=" ", strip=True).split())
             counter += 1
 
         return body_html
@@ -1680,18 +1808,29 @@ class AIOrchestrator:
         current_word_count = word_count_info.get("word_count", 0)
         HARD_MIN_WORDS = 1800
         if current_word_count < HARD_MIN_WORDS:
-            error_msg = f"HARD_BLOCK: Word count {current_word_count} < {HARD_MIN_WORDS}"
+            error_msg = (
+                f"HARD_BLOCK: Word count {current_word_count} < {HARD_MIN_WORDS}"
+            )
             print(f"[FAIL] {error_msg} - Cannot mark done")
-            queue.mark_retry(article_id, error_msg, datetime.now() + timedelta(minutes=30))
+            queue.mark_retry(
+                article_id, error_msg, datetime.now() + timedelta(minutes=30)
+            )
             queue.save()
             self._append_run_log(
-                article_id, audit.get("title", ""), "failed", gate_score, False, error_msg
+                article_id,
+                audit.get("title", ""),
+                "failed",
+                gate_score,
+                False,
+                error_msg,
             )
             return
 
         if gate_pass:
             # META-PROMPT: Pre-publish review then cleanup + publish before mark_done
-            content_factory_dir = PIPELINE_DIR.parent  # repo root for this agent (scripts + pipeline_v2)
+            content_factory_dir = (
+                PIPELINE_DIR.parent
+            )  # repo root for this agent (scripts + pipeline_v2)
             review_script = content_factory_dir / "scripts" / "pre_publish_review.py"
             cleanup_script = PIPELINE_DIR / "cleanup_before_publish.py"
             publish_script = PIPELINE_DIR / "publish_now_graphql.py"
@@ -1708,7 +1847,9 @@ class AIOrchestrator:
                 if not review_ok and r.stderr:
                     print(f"[WARN] pre_publish_review: {r.stderr[:200]}")
             else:
-                print("[FAIL] pre_publish_review.py not found - refusing to publish without review")
+                print(
+                    "[FAIL] pre_publish_review.py not found - refusing to publish without review"
+                )
                 review_ok = False
             if review_ok:
                 if cleanup_script.exists():
@@ -1747,7 +1888,9 @@ class AIOrchestrator:
                     True,
                     "review+cleanup+publish",
                 )
-                print(f"✅ Gate PASS ({gate_score}/10) - Review OK - Cleanup + Publish - Marked DONE")
+                print(
+                    f"✅ Gate PASS ({gate_score}/10) - Review OK - Cleanup + Publish - Marked DONE"
+                )
             else:
                 print(f"⏳ Gate PASS but pre_publish_review FAIL - attempting auto-fix")
                 fix_result = self._auto_fix_article(article_id)
@@ -1771,10 +1914,16 @@ class AIOrchestrator:
                                 capture_output=True,
                                 timeout=90,
                             )
-                        set_featured_script = PIPELINE_DIR / "set_featured_image_if_missing.py"
+                        set_featured_script = (
+                            PIPELINE_DIR / "set_featured_image_if_missing.py"
+                        )
                         if set_featured_script.exists():
                             subprocess.run(
-                                [sys.executable, str(set_featured_script), str(article_id)],
+                                [
+                                    sys.executable,
+                                    str(set_featured_script),
+                                    str(article_id),
+                                ],
                                 cwd=str(content_factory_dir),
                                 capture_output=True,
                                 timeout=60,
@@ -1799,13 +1948,17 @@ class AIOrchestrator:
                             True,
                             "auto_fix+review_pass+cleanup+publish",
                         )
-                        print("✅ Auto-fix + review pass - Cleanup + Publish - Marked DONE")
+                        print(
+                            "✅ Auto-fix + review pass - Cleanup + Publish - Marked DONE"
+                        )
                     else:
                         error_msg = "pre_publish_review_fail_after_fix"
                         if use_backoff and failures < MAX_QUEUE_RETRIES:
                             retry_at = self._next_retry_at(failures + 1)
                             queue.mark_retry(article_id, error_msg, retry_at)
-                            print(f"⏳ Review still FAIL after fix - retry at {retry_at.isoformat()}")
+                            print(
+                                f"⏳ Review still FAIL after fix - retry at {retry_at.isoformat()}"
+                            )
                         else:
                             queue.mark_failed(article_id, error_msg)
                             print(f"❌ Review FAIL after fix - {error_msg}")
@@ -2079,7 +2232,7 @@ class AIOrchestrator:
             print(f"⚠️ Image fix failed: {e}")
 
     def _apply_meta_prompt_patch(self, article_id: str) -> bool:
-        """Inject missing Sources & Further Reading and Key Terms sections (META-PROMPT)."""
+        """Inject missing Sources & Further Reading, Key Terms, and FAQ sections (META-PROMPT)."""
         article = self.api.get_article(article_id)
         if not article:
             return False
@@ -2098,13 +2251,37 @@ class AIOrchestrator:
             "key terms" in body_lower
             and re.search(r"<h2[^>]*>.*Key Terms.*</h2>", body, re.IGNORECASE)
         ) or bool(re.search(r'id=["\']key-terms["\']', body, re.IGNORECASE))
-        if has_sources and has_key_terms:
+        # Check for FAQ section
+        has_faq = bool(
+            re.search(
+                r"<h2[^>]*>.*(?:FAQ|Frequently Asked|Questions).*</h2>",
+                body,
+                re.IGNORECASE,
+            )
+        )
+        # Check if headings already have IDs
+        headings = re.findall(r"<h[23][^>]*>", body, re.IGNORECASE)
+        headings_with_id = [h for h in headings if 'id="' in h or "id='" in h]
+        needs_heading_ids = len(headings_with_id) < len(headings)
+
+        if has_sources and has_key_terms and has_faq and not needs_heading_ids:
             return True
         sections_to_add = []
+        # Add FAQ before Key Terms and Sources (order matters for structure)
+        if not has_faq:
+            sections_to_add.append(self._build_faqs(topic))
+            print("📝 Adding missing FAQ section...")
         if not has_key_terms:
             sections_to_add.append(self._build_key_terms_section(topic))
         if not has_sources:
             sections_to_add.append(self._build_sources_section(topic))
+        # If only heading IDs need fixing (no sections to add)
+        if not sections_to_add and needs_heading_ids:
+            body = ensure_heading_ids(body)
+            updated = self.api.update_article(article_id, {"body_html": body})
+            if updated:
+                print("📝 Added missing heading IDs.")
+            return bool(updated)
         if not sections_to_add:
             return True
         insert_html = "\n".join(sections_to_add)
@@ -2112,9 +2289,13 @@ class AIOrchestrator:
             body = body.replace("</article>", "\n" + insert_html + "\n</article>")
         else:
             body = body.rstrip() + "\n" + insert_html + "\n"
+        # Ensure all H2/H3 have kebab-case id attributes
+        body = ensure_heading_ids(body)
         updated = self.api.update_article(article_id, {"body_html": body})
         if updated:
-            print("📝 Meta-prompt patch applied (Sources / Key Terms).")
+            print(
+                "📝 Meta-prompt patch applied (FAQ / Sources / Key Terms / Heading IDs)."
+            )
         return bool(updated)
 
     def _ensure_meta_description(self, article: dict) -> bool:
