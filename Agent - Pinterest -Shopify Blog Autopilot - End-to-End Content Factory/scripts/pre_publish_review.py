@@ -758,7 +758,7 @@ def review_article(article_id):
             errors.append("❌ KEY TERMS: Missing Key Terms section (required)")
 
     # 25c. FAQ count check (META-PROMPT: 7+ FAQs)
-    faq_section = re.search(r"<h2[^>]*>.*FAQ.*</h2>", body, re.IGNORECASE)
+    faq_section = re.search(r"<h2[^>]*>.*(?:FAQ|Frequently Asked|Questions).*</h2>", body, re.IGNORECASE)
     if faq_section:
         faq_pos = faq_section.end()
         faq_content = body[faq_pos:]
