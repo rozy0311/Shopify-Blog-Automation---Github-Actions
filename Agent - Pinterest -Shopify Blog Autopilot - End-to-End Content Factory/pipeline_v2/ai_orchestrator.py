@@ -575,16 +575,26 @@ class QualityGate:
             if title_count > 3:
                 issues.append(f"Title repeated {title_count}x (max 3)")
 
-            # Check for title words stuffed unnaturally
-            # e.g., "Use containers for unlocking, your, garden"
-            title_words = [w for w in title_lower.split() if len(w) > 3]
+            # Check title fragments (first 4 words) - AI slop often repeats these
+            title_words = [w for w in title_lower.split() if len(w) > 2]
+            if len(title_words) >= 4:
+                first_fragment = " ".join(title_words[:4])
+                fragment_count = text_lower.count(first_fragment)
+                if fragment_count > 5:
+                    issues.append(f"Title fragment '{first_fragment}' repeated {fragment_count}x (max 5)")
+                
+                # Check last 4 words
+                if len(title_words) >= 8:
+                    last_fragment = " ".join(title_words[-4:])
+                    last_count = text_lower.count(last_fragment)
+                    if last_count > 5:
+                        issues.append(f"Title fragment '{last_fragment}' repeated {last_count}x (max 5)")
+
+            # Check for keyword stuffing pattern
             if len(title_words) >= 3:
-                # Check if title words appear comma-separated (keyword stuffing)
                 keyword_stuff_pattern = ", ".join(title_words[:3])
                 if keyword_stuff_pattern in text_lower:
-                    issues.append(
-                        "Keyword stuffing detected (comma-separated title words)"
-                    )
+                    issues.append("Keyword stuffing detected (comma-separated title words)")
 
         return {
             "pass": len(found_phrases) == 0 and len(issues) == 0,

@@ -622,14 +622,35 @@ def review_article(article_id):
     if QUALITY_CHECKS.get("check_title_spam", True):
         title_lower = title.lower().strip()
         body_lower = body.lower()
+        
+        # Check full title repetition
         title_count = body_lower.count(title_lower)
         if title_count > 3:
             errors.append(
                 f"❌ TITLE SPAM: Title repeated {title_count}x in body (max 3 allowed)"
             )
 
+        # Check title fragments (first 4-5 words) - AI slop often repeats these
+        title_words = [w for w in title_lower.split() if len(w) > 2]
+        if len(title_words) >= 4:
+            # Check first 4 words as a phrase
+            first_fragment = " ".join(title_words[:4])
+            fragment_count = body_lower.count(first_fragment)
+            if fragment_count > 5:
+                errors.append(
+                    f"❌ TITLE FRAGMENT SPAM: '{first_fragment}' repeated {fragment_count}x (max 5)"
+                )
+            
+            # Check last 4 words as a phrase (often repeated in AI content)
+            if len(title_words) >= 8:
+                last_fragment = " ".join(title_words[-4:])
+                last_count = body_lower.count(last_fragment)
+                if last_count > 5:
+                    errors.append(
+                        f"❌ TITLE FRAGMENT SPAM: '{last_fragment}' repeated {last_count}x (max 5)"
+                    )
+
         # Check for keyword stuffing pattern: "word1, word2, word3" from title
-        title_words = [w for w in title_lower.split() if len(w) > 3]
         if len(title_words) >= 3:
             keyword_stuff_pattern = ", ".join(title_words[:3])
             if keyword_stuff_pattern in body_lower:
