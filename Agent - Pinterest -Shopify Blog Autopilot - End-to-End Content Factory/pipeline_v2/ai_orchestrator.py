@@ -55,8 +55,8 @@ KEBAB_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 def _slugify(text: str) -> str:
     text = re.sub(r"<[^>]+>", " ", text)
-    text = re.sub(r"[^a-zA-Z0-9\\s-]", "", text).strip().lower()
-    text = re.sub(r"[\\s_-]+", "-", text)
+    text = re.sub(r"[^a-zA-Z0-9\s-]", "", text).strip().lower()
+    text = re.sub(r"[\s_-]+", "-", text)
     return text.strip("-") or "section"
 
 
@@ -94,7 +94,7 @@ def ensure_heading_ids(html: str) -> str:
         return f'<h{level}{attrs} id="{new_id}">{inner}</h{level}>'
 
     return re.sub(
-        r"<h([23])([^>]*)>(.*?)</h\\1>",
+        r"<h([23])([^>]*)>(.*?)</h\1>",
         fix_heading,
         html,
         flags=re.DOTALL | re.IGNORECASE,
