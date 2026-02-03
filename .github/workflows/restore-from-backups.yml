@@ -1,0 +1,526 @@
+name: Restore From Backups
+
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "Optional: comma-separated article IDs to restore"
+        required: false
+        default: ""
+      limit:
+        description: "Max items to restore"
+        required: false
+        default: "10"
+      force:
+        description: "Restore even if current passes review (true/false)"
+        required: false
+        default: "false"
+      keep_failed:
+        description: "Keep backup even if it fails review (true/false)"
+        required: false
+        default: "false"
+      dry_run:
+        description: "Do not write to Shopify (true/false)"
+        required: false
+        default: "false"
+
+concurrency:
+  group: restore-from-backups
+  cancel-in-progress: true
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+      SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+      SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests python-dotenv beautifulsoup4 PyYAML
+
+      - name: Restore from backups
+        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+        run: |
+          args=()
+          if [ -n "${{ inputs.ids }}" ]; then
+            args+=(--ids "${{ inputs.ids }}")
+          fi
+          if [ -n "${{ inputs.limit }}" ]; then
+            args+=(--limit "${{ inputs.limit }}")
+          fi
+          if [ "${{ inputs.force }}" = "true" ]; then
+            args+=(--force)
+          fi
+          if [ "${{ inputs.keep_failed }}" = "true" ]; then
+            args+=(--keep-failed)
+          fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python restore_from_backups.py "${args[@]}"
+name: Restore From Backups
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max articles to restore"
+        required: false
+        default: "5"
+      ids:
+        description: "Optional: comma-separated article IDs"
+        required: false
+        default: ""
+      force:
+        description: "Restore even if current passes review"
+        required: false
+        type: boolean
+        default: false
+      keep_failed:
+        description: "Keep backup even if it fails review"
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: "Do not write to Shopify"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+      SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+      SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests python-dotenv
+
+      - name: Restore from backups
+        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+        env:
+          LIMIT: ${{ inputs.limit }}
+          IDS: ${{ inputs.ids }}
+          FORCE: ${{ inputs.force }}
+          KEEP_FAILED: ${{ inputs.keep_failed }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          args="--limit ${LIMIT:-5}"
+          if [ -n "${IDS}" ]; then args="$args --ids ${IDS}"; fi
+          if [ "${FORCE}" = "true" ]; then args="$args --force"; fi
+          if [ "${KEEP_FAILED}" = "true" ]; then args="$args --keep-failed"; fi
+          if [ "${DRY_RUN}" = "true" ]; then args="$args --dry-run"; fi
+          python restore_from_backups.py $args
+
+      - name: Upload restore log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-from-backups-log
+          path: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/restore_from_backups_log.json
+          if-no-files-found: warn
+name: Restore From Backups
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max items to restore (default 20)"
+        required: false
+        default: "20"
+      ids:
+        description: "Comma-separated article IDs (optional)"
+        required: false
+        default: ""
+      force:
+        description: "Restore even if current passes review (true/false)"
+        required: false
+        default: "false"
+      keep_failed:
+        description: "Keep backup even if it fails review (true/false)"
+        required: false
+        default: "false"
+      dry_run:
+        description: "Dry run only, no Shopify writes (true/false)"
+        required: false
+        default: "false"
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+      SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+      SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests beautifulsoup4 python-dotenv
+
+      - name: Restore from backups
+        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+        run: |
+          args=()
+          if [ -n "${{ inputs.ids }}" ]; then
+            args+=("--ids" "${{ inputs.ids }}")
+          fi
+          if [ -n "${{ inputs.limit }}" ]; then
+            args+=("--limit" "${{ inputs.limit }}")
+          fi
+          if [ "${{ inputs.force }}" = "true" ]; then
+            args+=("--force")
+          fi
+          if [ "${{ inputs.keep_failed }}" = "true" ]; then
+            args+=("--keep-failed")
+          fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=("--dry-run")
+          fi
+          python "restore_from_backups.py" "${args[@]}"
+name: Restore From Backups
+
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "Optional: comma-separated article IDs"
+        required: false
+        default: ""
+      limit:
+        description: "Max items to restore (default 20)"
+        required: false
+        default: "20"
+      force:
+        description: "Restore even if current passes review"
+        required: false
+        default: "false"
+
+concurrency:
+  group: restore-from-backups
+  cancel-in-progress: false
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+      SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+      SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests beautifulsoup4 python-dotenv
+
+      - name: Restore from backups
+        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+        run: |
+          IDS="${{ inputs.ids }}"
+          LIMIT="${{ inputs.limit }}"
+          FORCE="${{ inputs.force }}"
+          if [ -n "$IDS" ]; then
+            ARGS="--ids $IDS"
+          else
+            ARGS="--limit $LIMIT"
+          fi
+          if [ "$FORCE" = "true" ]; then
+            ARGS="$ARGS --force"
+          fi
+          python restore_from_backups.py $ARGS
+
+      - name: Upload restore logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-from-backups
+          path: |
+            Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/backups_restore/*.json
+            Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/restore_from_backups_log.json
+          if-no-files-found: ignore
+name: Restore From Backups
+
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "Optional: comma-separated article IDs to restore"
+        required: false
+        default: ""
+      limit:
+        description: "Max number of articles to restore"
+        required: false
+        default: "10"
+      force:
+        description: "Restore even if current passes review"
+        required: false
+        default: "false"
+      keep_failed:
+        description: "Keep backup even if it fails review"
+        required: false
+        default: "false"
+      dry_run:
+        description: "Do not write to Shopify"
+        required: false
+        default: "false"
+
+concurrency:
+  group: restore-from-backups
+  cancel-in-progress: true
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+      SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+      SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests python-dotenv
+
+      - name: Restore from backups
+        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+        run: |
+          set -euo pipefail
+          args=()
+          if [ -n "${{ inputs.ids }}" ]; then
+            args+=(--ids "${{ inputs.ids }}")
+          fi
+          if [ -n "${{ inputs.limit }}" ]; then
+            args+=(--limit "${{ inputs.limit }}")
+          fi
+          if [ "${{ inputs.force }}" = "true" ]; then
+            args+=(--force)
+          fi
+          if [ "${{ inputs.keep_failed }}" = "true" ]; then
+            args+=(--keep-failed)
+          fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python restore_from_backups.py "${args[@]}"
+
+name: Restore From Backups
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max articles to restore"
+        required: false
+        default: "10"
+      ids:
+        description: "Comma-separated article IDs (optional)"
+        required: false
+        default: ""
+      force:
+        description: "Restore even if current passes review (true/false)"
+        required: false
+        default: "false"
+      keep_failed:
+        description: "Keep backup even if it fails review (true/false)"
+        required: false
+        default: "false"
+      dry_run:
+        description: "Do not write to Shopify (true/false)"
+        required: false
+        default: "false"
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+      SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+      SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests python-dotenv
+
+      - name: Restore from backups
+        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+        run: |
+          set -euo pipefail
+          args=()
+          limit="${{ inputs.limit }}"
+          if [ -n "$limit" ]; then args+=("--limit" "$limit"); fi
+          if [ -n "${{ inputs.ids }}" ]; then args+=("--ids" "${{ inputs.ids }}"); fi
+          if [ "${{ inputs.force }}" = "true" ]; then args+=("--force"); fi
+          if [ "${{ inputs.keep_failed }}" = "true" ]; then args+=("--keep-failed"); fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then args+=("--dry-run"); fi
+          python restore_from_backups.py "${args[@]}"
+
+      - name: Upload restore artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-from-backups
+          path: |
+            Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/restore_from_backups_log.json
+            Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2/backups_restore/*.json
+          if-no-files-found: warn
+
+      - name: Job summary
+        if: always()
+        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+        run: |
+          echo "## Restore From Backups - Summary" >> $GITHUB_STEP_SUMMARY
+          if [ -f "restore_from_backups_log.json" ]; then
+            python - <<'PY' >> $GITHUB_STEP_SUMMARY
+            import json
+            data = json.load(open("restore_from_backups_log.json", "r", encoding="utf-8"))
+            print(f"- Restored: {data.get('restored', 0)}")
+            print(f"- Skipped: {data.get('skipped', 0)}")
+            print(f"- Reviewed: {data.get('reviewed', 0)}")
+            print(f"- Total considered: {data.get('total_considered', 0)}")
+            PY
+          else
+            echo "- No restore log produced." >> $GITHUB_STEP_SUMMARY
+          fi
+name: Restore From Backups
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max number of articles to restore"
+        required: false
+        default: "20"
+      ids:
+        description: "Comma-separated article IDs (optional)"
+        required: false
+        default: ""
+      force:
+        description: "Force restore even if current passes review"
+        required: false
+        default: "false"
+      keep_failed:
+        description: "Keep backup even if it fails review"
+        required: false
+        default: "false"
+
+concurrency:
+  group: restore-from-backups
+  cancel-in-progress: true
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
+      SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+      SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
+      SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests python-dotenv
+
+      - name: Restore from backups
+        working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+        run: |
+          args=()
+          if [ -n "${{ inputs.ids }}" ]; then
+            args+=(--ids "${{ inputs.ids }}")
+          fi
+          if [ "${{ inputs.force }}" = "true" ]; then
+            args+=(--force)
+          fi
+          if [ "${{ inputs.keep_failed }}" = "true" ]; then
+            args+=(--keep-failed)
+          fi
+          python restore_from_backups.py --limit "${{ inputs.limit }}" "${args[@]}"
