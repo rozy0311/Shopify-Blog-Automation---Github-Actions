@@ -557,16 +557,40 @@ class QualityGate:
         }
 
     @staticmethod
-    def check_generic_content(body_html: str) -> dict:
-        """Detect generic phrases"""
+    def check_generic_content(body_html: str, title: str = "") -> dict:
+        """Detect generic phrases and title spam"""
         text_lower = (body_html or "").lower()
         found_phrases = []
+        issues = []
 
         for phrase in GENERIC_PHRASES:
             if phrase in text_lower:
                 found_phrases.append(phrase)
 
-        return {"pass": len(found_phrases) == 0, "found_phrases": found_phrases}
+        # Check for title repetition spam (AI slop pattern)
+        if title:
+            title_lower = title.lower().strip()
+            # Count how many times the full title appears in body
+            title_count = text_lower.count(title_lower)
+            if title_count > 3:
+                issues.append(f"Title repeated {title_count}x (max 3)")
+
+            # Check for title words stuffed unnaturally
+            # e.g., "Use containers for unlocking, your, garden"
+            title_words = [w for w in title_lower.split() if len(w) > 3]
+            if len(title_words) >= 3:
+                # Check if title words appear comma-separated (keyword stuffing)
+                keyword_stuff_pattern = ", ".join(title_words[:3])
+                if keyword_stuff_pattern in text_lower:
+                    issues.append(
+                        "Keyword stuffing detected (comma-separated title words)"
+                    )
+
+        return {
+            "pass": len(found_phrases) == 0 and len(issues) == 0,
+            "found_phrases": found_phrases,
+            "issues": issues,
+        }
 
     @staticmethod
     def check_topic_contamination(body_html: str, title: str) -> dict:
@@ -657,7 +681,7 @@ class QualityGate:
 
         structure = cls.check_structure(body_html)
         word_count = cls.check_word_count(body_html)
-        generic = cls.check_generic_content(body_html)
+        generic = cls.check_generic_content(body_html, title)
         contamination = cls.check_topic_contamination(body_html, title)
         images = cls.check_images(body_html, str(article.get("id", "")))
         sources = cls.check_sources(body_html)
@@ -701,7 +725,7 @@ class QualityGate:
 
         structure = cls.check_structure(body_html)
         word_count = cls.check_word_count(body_html)
-        generic = cls.check_generic_content(body_html)
+        generic = cls.check_generic_content(body_html, title)
         contamination = cls.check_topic_contamination(body_html, title)
         images = cls.check_images(body_html, article_id)
         sources = cls.check_sources(body_html)
@@ -720,8 +744,16 @@ class QualityGate:
                 f"Word count {word_count['word_count']} (need {word_count['min']}-{word_count['max']})"
             )
         if not generic["pass"]:
-            all_issues.append(
-                f"Generic phrases: {', '.join(generic['found_phrases'][:2])}"
+            # Show both generic phrases and title spam issues
+            generic_msgs = []
+            if generic.get("found_phrases"):
+                generic_msgs.append(
+                    f"Generic phrases: {', '.join(generic['found_phrases'][:2])}"
+                )
+            if generic.get("issues"):
+                generic_msgs.extend(generic["issues"][:2])
+            all_issues.extend(
+                generic_msgs if generic_msgs else ["Generic content detected"]
             )
         if not contamination["pass"]:
             all_issues.append(
@@ -2295,10 +2327,21 @@ class AIOrchestrator:
         # Check if table styling is needed (always check, don't skip)
         needs_table_styling = "<table" in body.lower() and not all(
             token in body
-            for token in ["#2d5a27", "line-height: 1.6", "table-layout: auto", "nth-child(even)"]
+            for token in [
+                "#2d5a27",
+                "line-height: 1.6",
+                "table-layout: auto",
+                "nth-child(even)",
+            ]
         )
 
-        if has_sources and has_key_terms and has_faq and not needs_heading_ids and not needs_table_styling:
+        if (
+            has_sources
+            and has_key_terms
+            and has_faq
+            and not needs_heading_ids
+            and not needs_table_styling
+        ):
             return True
         sections_to_add = []
         # Add FAQ before Key Terms and Sources (order matters for structure)
@@ -2309,7 +2352,7 @@ class AIOrchestrator:
             sections_to_add.append(self._build_key_terms_section(topic))
         if not has_sources:
             sections_to_add.append(self._build_sources_section(topic))
-        
+
         # Build the updated body
         if sections_to_add:
             insert_html = "\n".join(sections_to_add)
@@ -2317,15 +2360,15 @@ class AIOrchestrator:
                 body = body.replace("</article>", "\n" + insert_html + "\n</article>")
             else:
                 body = body.rstrip() + "\n" + insert_html + "\n"
-        
+
         # Ensure all H2/H3 have kebab-case id attributes
         if needs_heading_ids:
             body = ensure_heading_ids(body)
-        
+
         # Fix table styling if tables exist (ALWAYS check, never skip)
         if needs_table_styling:
             body = self._ensure_table_styling(body)
-        
+
         # Only update if we made changes
         if sections_to_add or needs_heading_ids or needs_table_styling:
             updated = self.api.update_article(article_id, {"body_html": body})

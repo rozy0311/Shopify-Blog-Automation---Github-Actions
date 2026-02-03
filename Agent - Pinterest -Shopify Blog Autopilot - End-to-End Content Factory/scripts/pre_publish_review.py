@@ -18,11 +18,57 @@ ROOT_DIR = Path(__file__).parent.parent
 CONFIG_PATH = ROOT_DIR / "SHOPIFY_PUBLISH_CONFIG.json"
 
 STOPWORDS = {
-    "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "have",
-    "how", "in", "is", "it", "of", "on", "or", "that", "the", "this", "to", "was",
-    "what", "when", "where", "which", "why", "with", "your", "you", "we", "our",
-    "their", "they", "them", "these", "those", "into", "over", "under", "about",
-    "without", "within", "between", "across", "guide", "tips", "best", "easy",
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "by",
+    "for",
+    "from",
+    "has",
+    "have",
+    "how",
+    "in",
+    "is",
+    "it",
+    "of",
+    "on",
+    "or",
+    "that",
+    "the",
+    "this",
+    "to",
+    "was",
+    "what",
+    "when",
+    "where",
+    "which",
+    "why",
+    "with",
+    "your",
+    "you",
+    "we",
+    "our",
+    "their",
+    "they",
+    "them",
+    "these",
+    "those",
+    "into",
+    "over",
+    "under",
+    "about",
+    "without",
+    "within",
+    "between",
+    "across",
+    "guide",
+    "tips",
+    "best",
+    "easy",
 }
 
 
@@ -110,40 +156,110 @@ QUALITY_CHECKS = {
 
 # GENERIC PHRASES TO DETECT (AI slop / template content) - aligned with PROMPT + meta-prompt
 GENERIC_PHRASES = [
-    "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
-    "in this guide", "this guide", "this article", "this blog post",
-    "whether you're a beginner", "whether you are a beginner", "whether you are new",
-    "in today's world", "in today's fast-paced", "in our modern world",
-    "you will learn", "by the end", "throughout this article", "in this post",
-    "we'll explore", "let's dive", "let's explore", "without further ado",
-    "in conclusion", "to sum up", "in summary", "to summarize",
-    "thank you for reading", "happy growing", "happy gardening", "happy cooking",
-    "game-changer", "unlock the potential", "master the art", "elevate your",
-    "transform your", "empower yourself", "unlock the secrets", "discover the power",
-    "crucial to understand", "it's essential", "it is essential", "it's important",
-    "thrilled to share", "excited to share", "perfect for anyone",
-    "join thousands who", "one of the best ways", "one of the most important",
-    "first and foremost", "last but not least", "needless to say",
-    "when it comes to", "the bottom line is", "it goes without saying",
-    "as mentioned above", "as stated earlier", "as we have seen",
-    "more often than not", "when all is said and done", "at the end of the day",
-    "here's everything you need", "read on to learn", "read on to discover",
-    "here's everything you need to know", "we'll walk you through", "let's dive in",
-    "in this post we'll", "in this article we'll", "keep in mind",
-    "with the right approach", "on the other hand", "it's worth noting",
+    "comprehensive guide",
+    "ultimate guide",
+    "complete guide",
+    "definitive guide",
+    "in this guide",
+    "this guide",
+    "this article",
+    "this blog post",
+    "whether you're a beginner",
+    "whether you are a beginner",
+    "whether you are new",
+    "in today's world",
+    "in today's fast-paced",
+    "in our modern world",
+    "you will learn",
+    "by the end",
+    "throughout this article",
+    "in this post",
+    "we'll explore",
+    "let's dive",
+    "let's explore",
+    "without further ado",
+    "in conclusion",
+    "to sum up",
+    "in summary",
+    "to summarize",
+    "thank you for reading",
+    "happy growing",
+    "happy gardening",
+    "happy cooking",
+    "game-changer",
+    "unlock the potential",
+    "master the art",
+    "elevate your",
+    "transform your",
+    "empower yourself",
+    "unlock the secrets",
+    "discover the power",
+    "crucial to understand",
+    "it's essential",
+    "it is essential",
+    "it's important",
+    "thrilled to share",
+    "excited to share",
+    "perfect for anyone",
+    "join thousands who",
+    "one of the best ways",
+    "one of the most important",
+    "first and foremost",
+    "last but not least",
+    "needless to say",
+    "when it comes to",
+    "the bottom line is",
+    "it goes without saying",
+    "as mentioned above",
+    "as stated earlier",
+    "as we have seen",
+    "more often than not",
+    "when all is said and done",
+    "at the end of the day",
+    "here's everything you need",
+    "read on to learn",
+    "read on to discover",
+    "here's everything you need to know",
+    "we'll walk you through",
+    "let's dive in",
+    "in this post we'll",
+    "in this article we'll",
+    "keep in mind",
+    "with the right approach",
+    "on the other hand",
+    "it's worth noting",
     # PROMPT meta-prompt: extra AI slop
-    "this guide explains", "you will learn what works", "by the end, you will know",
-    "no one succeeds in isolation", "perfect for anyone looking to improve",
-    "the focus is on", "overall,", "it's important to remember", "it is important to remember",
-    "supporting data", "cited quotes", "advanced techniques for experienced",
-    "practical tips", "maintenance and care", "expert insights", "research highlights",
+    "this guide explains",
+    "you will learn what works",
+    "by the end, you will know",
+    "no one succeeds in isolation",
+    "perfect for anyone looking to improve",
+    "the focus is on",
+    "overall,",
+    "it's important to remember",
+    "it is important to remember",
+    "supporting data",
+    "cited quotes",
+    "advanced techniques for experienced",
+    "practical tips",
+    "maintenance and care",
+    "expert insights",
+    "research highlights",
 ]
 
 # TITLE-SPECIFIC GENERIC PHRASES (to strip from title)
 TITLE_GENERIC_PHRASES = [
-    "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
-    "everything you need to know", "the ultimate", "a complete",
-    ": a guide", "- a guide", "the complete", "the definitive",
+    "comprehensive guide",
+    "ultimate guide",
+    "complete guide",
+    "definitive guide",
+    "everything you need to know",
+    "the ultimate",
+    "a complete",
+    ": a guide",
+    "- a guide",
+    "the complete",
+    "the definitive",
 ]
 
 # META-PROMPT HARD VALIDATIONS (from SHOPIFY BLOG META-PROMPT)
@@ -369,7 +485,9 @@ def review_article(article_id):
         if "padding: 10px 12px" not in body and "padding: 12px" not in body:
             errors.append("❌ TABLE STYLE: Missing required cell padding (10px 12px).")
         if "nth-child(even)" not in body and "zebra" not in body.lower():
-            errors.append("❌ TABLE STYLE: Missing zebra stripes styling (nth-child(even)).")
+            errors.append(
+                "❌ TABLE STYLE: Missing zebra stripes styling (nth-child(even))."
+            )
 
     # ========== SEO CHECKS ==========
     # 7. Title length check
@@ -500,6 +618,25 @@ def review_article(article_id):
                 f"GENERIC TITLE: Title contains generic phrase(s): {', '.join(found_title_generic)}"
             )
 
+    # 15d. TITLE SPAM CHECK - detect title repeated excessively in body (AI slop)
+    if QUALITY_CHECKS.get("check_title_spam", True):
+        title_lower = title.lower().strip()
+        body_lower = body.lower()
+        title_count = body_lower.count(title_lower)
+        if title_count > 3:
+            errors.append(
+                f"❌ TITLE SPAM: Title repeated {title_count}x in body (max 3 allowed)"
+            )
+
+        # Check for keyword stuffing pattern: "word1, word2, word3" from title
+        title_words = [w for w in title_lower.split() if len(w) > 3]
+        if len(title_words) >= 3:
+            keyword_stuff_pattern = ", ".join(title_words[:3])
+            if keyword_stuff_pattern in body_lower:
+                errors.append(
+                    f"❌ KEYWORD STUFFING: Title words appear comma-separated in body"
+                )
+
     # 16. Image relevance check (basic keyword matching)
     title_words = set(title.lower().split())
     common_topic_words = {
@@ -553,9 +690,11 @@ def review_article(article_id):
     if topic_keywords:
         paragraphs = re.findall(r"<p[^>]*>(.+?)</p>", body, re.IGNORECASE | re.DOTALL)
         first_para = re.sub(r"<[^>]+>", "", paragraphs[0]) if paragraphs else ""
-        last_two = " ".join(
-            re.sub(r"<[^>]+>", "", p) for p in paragraphs[-2:]
-        ) if len(paragraphs) >= 2 else ""
+        last_two = (
+            " ".join(re.sub(r"<[^>]+>", "", p) for p in paragraphs[-2:])
+            if len(paragraphs) >= 2
+            else ""
+        )
         hit_first = sum(1 for k in topic_keywords if k in first_para.lower())
         hit_last = sum(1 for k in topic_keywords if k in last_two.lower())
         coverage = (hit_first + hit_last) / max(1, len(topic_keywords))
@@ -758,7 +897,9 @@ def review_article(article_id):
             errors.append("❌ KEY TERMS: Missing Key Terms section (required)")
 
     # 25c. FAQ count check (META-PROMPT: 7+ FAQs)
-    faq_section = re.search(r"<h2[^>]*>.*(?:FAQ|Frequently Asked|Questions).*</h2>", body, re.IGNORECASE)
+    faq_section = re.search(
+        r"<h2[^>]*>.*(?:FAQ|Frequently Asked|Questions).*</h2>", body, re.IGNORECASE
+    )
     if faq_section:
         faq_pos = faq_section.end()
         faq_content = body[faq_pos:]
