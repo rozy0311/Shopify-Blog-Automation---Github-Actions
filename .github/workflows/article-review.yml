@@ -24,7 +24,7 @@ jobs:
       SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
       SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
       POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
-      VISION_REVIEW: "1"
+      VISION_REVIEW: "0"
       VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
       MAX_ATTEMPTS_PER_ARTICLE: "3"
     steps:
@@ -62,7 +62,7 @@ jobs:
           SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
           SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
           SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
-          VISION_REVIEW: "1"
+          VISION_REVIEW: "0"
           VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
         run: |
           set +e

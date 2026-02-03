@@ -2284,7 +2284,9 @@ class AIOrchestrator:
         else:
             print("⚠️ No FAQ H2 heading found in body")
         # Debug logging
-        print(f"[DEBUG meta-patch] has_sources={has_sources}, has_key_terms={has_key_terms}, has_faq={has_faq}")
+        print(
+            f"[DEBUG meta-patch] has_sources={has_sources}, has_key_terms={has_key_terms}, has_faq={has_faq}"
+        )
         # Check if headings already have IDs
         headings = re.findall(r"<h[23][^>]*>", body, re.IGNORECASE)
         headings_with_id = [h for h in headings if 'id="' in h or "id='" in h]
@@ -2317,12 +2319,54 @@ class AIOrchestrator:
             body = body.rstrip() + "\n" + insert_html + "\n"
         # Ensure all H2/H3 have kebab-case id attributes
         body = ensure_heading_ids(body)
+        # Fix table styling if tables exist
+        body = self._ensure_table_styling(body)
         updated = self.api.update_article(article_id, {"body_html": body})
         if updated:
             print(
-                "📝 Meta-prompt patch applied (FAQ / Sources / Key Terms / Heading IDs)."
+                "📝 Meta-prompt patch applied (FAQ / Sources / Key Terms / Heading IDs / Table Styling)."
             )
         return bool(updated)
+
+    def _ensure_table_styling(self, body: str) -> str:
+        """Ensure all tables have META-PROMPT required styling."""
+        if "<table" not in body.lower():
+            return body
+        
+        # Required CSS tokens for pre_publish_review.py compliance
+        table_style = '''<style>
+table { width: 100%; border-collapse: collapse; table-layout: auto; margin: 20px 0; }
+th { background-color: #2d5a27; color: #fff; padding: 10px 12px; text-align: left; }
+td { padding: 10px 12px; border-bottom: 1px solid #ddd; word-wrap: break-word; line-height: 1.6; }
+tr:nth-child(even) { background-color: #f9f9f9; }
+</style>'''
+        
+        # Check if table style already exists
+        has_required_style = all(token in body for token in ["#2d5a27", "line-height: 1.6", "table-layout: auto", "nth-child(even)"])
+        if has_required_style:
+            return body
+        
+        # Wrap tables in responsive container if not already
+        if "<table" in body and 'overflow-x: auto' not in body:
+            body = re.sub(
+                r'(<table[^>]*>)',
+                r'<div style="overflow-x: auto;">\1',
+                body,
+                flags=re.IGNORECASE
+            )
+            body = re.sub(
+                r'(</table>)',
+                r'\1</div>',
+                body,
+                flags=re.IGNORECASE
+            )
+        
+        # Insert style at the beginning of body
+        if "<style>" not in body or "#2d5a27" not in body:
+            body = table_style + "\n" + body
+            print("📝 Added table styling (header color, padding, zebra stripes).")
+        
+        return body
 
     def _ensure_meta_description(self, article: dict) -> bool:
         """Ensure summary_html has a 50-160 char meta description."""
