@@ -1017,6 +1017,7 @@ class AIOrchestrator:
 """
 
     def _build_faqs(self, topic: str) -> str:
+        """Build FAQ section with H3 questions (META-PROMPT format for pre_publish_review)."""
         faqs = [
             (
                 f"How long does {topic} take?",
@@ -1047,9 +1048,10 @@ class AIOrchestrator:
                 "Check for the expected look, texture, or function and adjust next time.",
             ),
         ]
-        items = "\n".join([f"<p><strong>{q}</strong><br>{a}</p>" for q, a in faqs])
+        # Use H3 format so pre_publish_review counts them correctly
+        items = "\n".join([f"<h3>{q}</h3>\n<p>{a}</p>" for q, a in faqs])
         return f"""
-<h2>Frequently Asked Questions</h2>
+<h2 id="faq">Frequently Asked Questions</h2>
 {items}
 """
 
@@ -2251,14 +2253,34 @@ class AIOrchestrator:
             "key terms" in body_lower
             and re.search(r"<h2[^>]*>.*Key Terms.*</h2>", body, re.IGNORECASE)
         ) or bool(re.search(r'id=["\']key-terms["\']', body, re.IGNORECASE))
-        # Check for FAQ section
-        has_faq = bool(
-            re.search(
-                r"<h2[^>]*>.*(?:FAQ|Frequently Asked|Questions).*</h2>",
-                body,
-                re.IGNORECASE,
-            )
+        # Check for FAQ section with ACTUAL FAQ items (≥7 H3 questions or <p><strong>Q</strong> format)
+        faq_h2_match = re.search(
+            r"<h2[^>]*>.*(?:FAQ|Frequently Asked|Questions).*</h2>",
+            body,
+            re.IGNORECASE,
         )
+        has_faq = False
+        if faq_h2_match:
+            # Extract FAQ section content (until next H2)
+            faq_pos = faq_h2_match.end()
+            faq_content = body[faq_pos:]
+            next_h2 = re.search(r"<h2", faq_content, re.IGNORECASE)
+            if next_h2:
+                faq_content = faq_content[: next_h2.start()]
+            # Count H3 questions (should have at least 7 for META-PROMPT compliance)
+            h3_questions = re.findall(
+                r"<h3[^>]*>.*\?.*</h3>", faq_content, re.IGNORECASE
+            )
+            # Or <p><strong>Q</strong> format (from _build_faqs)
+            p_questions = re.findall(
+                r"<p><strong>[^<]+\?</strong>", faq_content, re.IGNORECASE
+            )
+            total_questions = len(h3_questions) + len(p_questions)
+            has_faq = total_questions >= 7
+            if not has_faq:
+                print(
+                    f"⚠️ FAQ section exists but only {total_questions}/7 questions found"
+                )
         # Check if headings already have IDs
         headings = re.findall(r"<h[23][^>]*>", body, re.IGNORECASE)
         headings_with_id = [h for h in headings if 'id="' in h or "id='" in h]
