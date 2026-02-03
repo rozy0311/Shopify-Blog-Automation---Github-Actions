@@ -2281,6 +2281,10 @@ class AIOrchestrator:
                 print(
                     f"⚠️ FAQ section exists but only {total_questions}/7 questions found"
                 )
+        else:
+            print("⚠️ No FAQ H2 heading found in body")
+        # Debug logging
+        print(f"[DEBUG meta-patch] has_sources={has_sources}, has_key_terms={has_key_terms}, has_faq={has_faq}")
         # Check if headings already have IDs
         headings = re.findall(r"<h[23][^>]*>", body, re.IGNORECASE)
         headings_with_id = [h for h in headings if 'id="' in h or "id='" in h]
