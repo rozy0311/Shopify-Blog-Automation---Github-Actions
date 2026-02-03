@@ -11,9 +11,13 @@ on:
 permissions:
     contents: read
 
+env:
+    MAX_ATTEMPTS_PER_ARTICLE: 3
+
 jobs:
     review:
         runs-on: ubuntu-latest
+        timeout-minutes: 30
         env:
             SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
             SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
@@ -22,6 +26,7 @@ jobs:
             POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
             VISION_REVIEW: "1"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
+            MAX_ATTEMPTS_PER_ARTICLE: ${{ env.MAX_ATTEMPTS_PER_ARTICLE }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -49,7 +54,8 @@ jobs:
                     echo "pipeline_dir=pipeline_v2" >> $GITHUB_OUTPUT
                   fi
 
-            - name: Run pre-publish review (initial)
+            - name: Review and fix loop (max 3 attempts)
+              id: review_loop
               shell: bash
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
@@ -60,74 +66,57 @@ jobs:
                   VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
               run: |
                   set +e
-                  python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" 2>&1 | tee review-output.txt
-                  EXIT=${PIPESTATUS[0]}
-                  echo "review_status=$EXIT" >> $GITHUB_OUTPUT
-              id: review_initial
-              continue-on-error: true
-
-            - name: Auto-fix on review failure
-              if: ${{ steps.review_initial.outputs.review_status != '0' }}
-              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
-              run: |
-                  python ai_orchestrator.py fix-ids "${{ inputs.article_id }}"
-
-            - name: Run pre-publish review (after fix)
-              if: ${{ steps.review_initial.outputs.review_status != '0' }}
-              shell: bash
-              env:
-                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
-                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
-                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
-                  VISION_REVIEW: "1"
-                  VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
-              run: |
-                  set +e
-                  python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" 2>&1 | tee review-output-after-fix.txt
-                  EXIT=${PIPESTATUS[0]}
-                  echo "review_status_after=$EXIT" >> $GITHUB_OUTPUT
-              id: review_after
-              continue-on-error: true
-
-            - name: Force rebuild on review failure
-              if: ${{ steps.review_after.outputs.review_status_after == '1' }}
-              working-directory: ${{ steps.agent_dir.outputs.pipeline_dir }}
-              run: |
-                  python ai_orchestrator.py force-rebuild-ids "${{ inputs.article_id }}"
-
-            - name: Run pre-publish review (after rebuild)
-              if: ${{ steps.review_after.outputs.review_status_after == '1' }}
-              shell: bash
-              env:
-                  SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
-                  SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
-                  SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
-                  SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
-                  VISION_REVIEW: "1"
-                  VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
-              run: |
-                  set +e
-                  python "${{ steps.agent_dir.outputs.dir }}/scripts/pre_publish_review.py" "${{ inputs.article_id }}" 2>&1 | tee review-output-after-rebuild.txt
-                  EXIT=${PIPESTATUS[0]}
-                  echo "review_status_after_rebuild=$EXIT" >> $GITHUB_OUTPUT
-              id: review_after_rebuild
-              continue-on-error: true
-
-            - name: Set publish-allowed (only when at least one review passed)
-              id: publish_ok
-              run: |
-                  INIT="${{ steps.review_initial.outputs.review_status }}"
-                  AFTER="${{ steps.review_after.outputs.review_status_after }}"
-                  REBUILD="${{ steps.review_after_rebuild.outputs.review_status_after_rebuild }}"
-                  if [ "$INIT" = "0" ] || [ "$AFTER" = "0" ] || [ "$REBUILD" = "0" ]; then
-                    echo "allowed=true" >> $GITHUB_OUTPUT
-                  else
-                    echo "allowed=false" >> $GITHUB_OUTPUT
+                  article_id="${{ inputs.article_id }}"
+                  agent_dir="${{ steps.agent_dir.outputs.dir }}"
+                  pipeline_dir="${{ steps.agent_dir.outputs.pipeline_dir }}"
+                  max_attempts=${MAX_ATTEMPTS_PER_ARTICLE:-3}
+                  attempt=1
+                  review_passed=0
+                  
+                  while [ "$attempt" -le "$max_attempts" ] && [ "$review_passed" -eq 0 ]; do
+                      echo "========================================"
+                      echo "[Attempt $attempt/$max_attempts] Reviewing article $article_id..."
+                      echo "========================================"
+                      
+                      # Run pre-publish review
+                      python "$agent_dir/scripts/pre_publish_review.py" "$article_id" 2>&1 | tee "review-output-attempt-$attempt.txt"
+                      EXIT=${PIPESTATUS[0]}
+                      
+                      if [ "$EXIT" -eq 0 ]; then
+                          echo "✅ Review PASSED on attempt $attempt"
+                          review_passed=1
+                          echo "review_passed=true" >> $GITHUB_OUTPUT
+                          echo "final_attempt=$attempt" >> $GITHUB_OUTPUT
+                          break
+                      fi
+                      
+                      echo "❌ Review failed on attempt $attempt (exit=$EXIT)"
+                      
+                      if [ "$attempt" -lt "$max_attempts" ]; then
+                          echo "Attempting fix..."
+                          if [ "$attempt" -eq 1 ]; then
+                              # First retry: quick fix
+                              python "$pipeline_dir/ai_orchestrator.py" fix-ids "$article_id" 2>&1 | tee "fix-output-attempt-$attempt.txt"
+                          else
+                              # Subsequent retries: force rebuild
+                              python "$pipeline_dir/ai_orchestrator.py" force-rebuild-ids "$article_id" 2>&1 | tee "rebuild-output-attempt-$attempt.txt"
+                          fi
+                          echo "Waiting 30s before next attempt..."
+                          sleep 30
+                      fi
+                      
+                      attempt=$((attempt + 1))
+                  done
+                  
+                  if [ "$review_passed" -eq 0 ]; then
+                      echo "❌ All $max_attempts attempts exhausted. Article $article_id did not pass review."
+                      echo "review_passed=false" >> $GITHUB_OUTPUT
+                      echo "final_attempt=$max_attempts" >> $GITHUB_OUTPUT
                   fi
+              continue-on-error: true
 
             - name: Publish to Shopify (cleanup + set featured + publish)
-              if: steps.publish_ok.outputs.allowed == 'true'
+              if: steps.review_loop.outputs.review_passed == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
@@ -142,7 +131,7 @@ jobs:
                   echo "Publish step finished for ${{ inputs.article_id }}"
 
             - name: Export article body for verification
-              if: steps.publish_ok.outputs.allowed == 'true'
+              if: steps.review_loop.outputs.review_passed == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory
               env:
                   SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
@@ -172,9 +161,9 @@ jobs:
                   PY
 
             - name: Fail if no review passed (block publish when meta-prompt not met)
-              if: steps.publish_ok.outputs.allowed != 'true'
+              if: steps.review_loop.outputs.review_passed != 'true'
               run: |
-                  echo "Pre-publish review did not pass (meta-prompt not met). Not publishing."
+                  echo "Pre-publish review did not pass after ${{ steps.review_loop.outputs.final_attempt }} attempts (meta-prompt not met). Not publishing."
                   exit 1
 
             - name: Upload review output
@@ -183,9 +172,9 @@ jobs:
               with:
                   name: pre-publish-review-${{ inputs.article_id }}
                   path: |
-                      review-output.txt
-                      review-output-after-fix.txt
-                      review-output-after-rebuild.txt
+                      review-output-attempt-*.txt
+                      fix-output-attempt-*.txt
+                      rebuild-output-attempt-*.txt
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/article-body.html
                       Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/article-body.txt
                   if-no-files-found: ignore
@@ -197,13 +186,18 @@ jobs:
                   echo "## Pre-Publish Review" >> $GITHUB_STEP_SUMMARY
                   echo "- Article ID: ${{ inputs.article_id }}" >> $GITHUB_STEP_SUMMARY
                   echo "- Timestamp: $(date -u)" >> $GITHUB_STEP_SUMMARY
-                  echo "- Initial Review Status: ${{ steps.review_initial.outputs.review_status || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
-                  echo "- After Fix Review Status: ${{ steps.review_after.outputs.review_status_after || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
-                  echo "- After Rebuild Review Status: ${{ steps.review_after_rebuild.outputs.review_status_after_rebuild || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- Review Passed: ${{ steps.review_loop.outputs.review_passed || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- Final Attempt: ${{ steps.review_loop.outputs.final_attempt || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- Max Attempts: ${MAX_ATTEMPTS_PER_ARTICLE:-3}" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
-                  echo "### Output (tail)" >> $GITHUB_STEP_SUMMARY
+                  echo "### Output (last attempt)" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
-                  (tail -n 200 review-output-after-rebuild.txt 2>/dev/null || tail -n 200 review-output-after-fix.txt 2>/dev/null || tail -n 200 review-output.txt 2>/dev/null || echo "No review output files found") >> $GITHUB_STEP_SUMMARY
+                  for f in review-output-attempt-*.txt; do
+                    if [ -f "$f" ]; then
+                      echo "#### $f" >> $GITHUB_STEP_SUMMARY
+                      tail -n 100 "$f" >> $GITHUB_STEP_SUMMARY
+                    fi
+                  done
 
             - name: Guardrail check
               if: always()
