@@ -243,6 +243,23 @@ def first_image_src(html: str, prefer_shopify_cdn: bool = True) -> str | None:
                 return first_cdn
     return first_cdn if (prefer_shopify_cdn and first_cdn) else first_any
 
+def fix_source_link_dashes(html: str) -> str:
+    \"\"\"Convert regular dashes in source link text to em-dashes for meta-prompt compliance.\"\"\"
+    def fix_link(match: re.Match) -> str:
+        prefix = match.group(1)
+        link_text = match.group(2)
+        suffix = match.group(3)
+        # Convert - or – to em-dash —
+        fixed_text = link_text.replace(" - ", " — ").replace(" – ", " — ")
+        return f"{prefix}{fixed_text}{suffix}"
+    # Match <a href="...">link text</a>
+    return re.sub(
+        r'(<a[^>]+href=["\']https?://[^"\']+["\'][^>]*>)([^<]+)(</a>)',
+        fix_link,
+        html,
+        flags=re.IGNORECASE
+    )
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python cleanup_before_publish.py <article_id>")
@@ -262,6 +279,7 @@ def main():
     body = strip_generic_phrases(body)
     body = dedupe_paragraphs(body)
     body = ensure_heading_ids(body)
+    body = fix_source_link_dashes(body)  # Fix em-dash format in source links
     blog_handle = (_from_config.get("defaults", {}) or {}).get("blog_handle", "sustainable-living")
     body = ensure_internal_links_and_cta(body, SHOP, blog_handle)
     current_image = article.get("image") or {}

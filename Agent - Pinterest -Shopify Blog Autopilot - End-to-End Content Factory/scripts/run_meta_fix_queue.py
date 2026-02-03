@@ -242,7 +242,29 @@ def _normalize_source_text(name: str, description: str, topic: str) -> str:
     if not safe_desc:
         safe_desc = f"Reference guidance related to {topic}"
     # Enforce "Name — Description" format for meta-prompt.
+    # Convert regular dash/hyphen to em-dash for consistency
+    safe_name = safe_name.replace(" - ", " — ").replace(" – ", " — ")
+    safe_desc = safe_desc.replace(" - ", " — ").replace(" – ", " — ")
     return f"{safe_name} — {safe_desc}"
+
+
+def fix_source_link_dashes(html: str) -> str:
+    """Convert regular dashes in source link text to em-dashes."""
+    import re
+    def fix_link(match: re.Match) -> str:
+        prefix = match.group(1)
+        link_text = match.group(2)
+        suffix = match.group(3)
+        # Convert - or – to em-dash —
+        fixed_text = link_text.replace(" - ", " — ").replace(" – ", " — ")
+        return f"{prefix}{fixed_text}{suffix}"
+    # Match <a href="...">link text</a> in Sources section
+    return re.sub(
+        r'(<a[^>]+href=["\']https?://[^"\'>]+["\'][^>]*>)([^<]+)(</a>)',
+        fix_link,
+        html,
+        flags=re.IGNORECASE
+    )
 
 
 def inject_sources(html: str, sources: list[dict[str, Any]], title: str) -> str:
