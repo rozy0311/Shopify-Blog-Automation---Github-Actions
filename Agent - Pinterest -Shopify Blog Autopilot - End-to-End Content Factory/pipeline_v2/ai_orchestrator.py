@@ -3053,8 +3053,13 @@ class AIOrchestrator:
         if needs_table_styling:
             body = self._ensure_table_styling(body)
 
+        # ALWAYS clean generic phrases from existing content (prevents review failures)
+        original_body = body
+        body = _remove_generic_phrases(body)
+        cleaned_generic = body != original_body
+
         # Only update if we made changes
-        if sections_to_add or needs_heading_ids or needs_table_styling:
+        if sections_to_add or needs_heading_ids or needs_table_styling or cleaned_generic:
             updated = self.api.update_article(article_id, {"body_html": body})
             if updated:
                 changes = []
@@ -3064,6 +3069,8 @@ class AIOrchestrator:
                     changes.append("heading IDs")
                 if needs_table_styling:
                     changes.append("table styling")
+                if cleaned_generic:
+                    changes.append("generic phrases removed")
                 print(f"📝 Meta-prompt patch applied ({', '.join(changes)}).")
             return bool(updated)
         return True
