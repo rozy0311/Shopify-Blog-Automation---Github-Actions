@@ -366,7 +366,7 @@ CRITICAL ANTI-REPETITION RULES:
 - NEVER repeat the exact title phrase more than 3 times
 
 REQUIREMENTS:
-- 2000-2800 words total
+- Target 1900-2400 words total (MUST be between 1800-2500)
 - Write in a natural, authoritative voice - avoid generic filler phrases
 - Include specific, actionable information
 - Use real data, statistics, and expert insights where relevant
@@ -382,22 +382,29 @@ REQUIRED 11 SECTIONS (use exactly these H2 headings in order):
 7. <h2>Pro Tips from Experts</h2> - 2+ blockquotes with expert advice
 8. <h2>Advanced Techniques</h2> - For experienced users, advanced methods
 9. <h2>Comparison Table</h2> - Include a <table> comparing options/methods
-10. <h2>Frequently Asked Questions</h2> - 7+ Q&A pairs using H3 for questions
-11. <h2>Sources & Further Reading</h2> - 3+ authoritative sources as links
+10. <h2>Frequently Asked Questions</h2> - EXACTLY 7 Q&A pairs using H3 for questions
+11. <h2>Sources & Further Reading</h2> - EXACTLY 5 authoritative sources as links
 
 FORMAT REQUIREMENTS:
 - Use proper HTML tags: <h2>, <h3>, <p>, <ul>, <li>, <blockquote>, <table>
 - Key Conditions MUST use <ul> or <ol> bullet list
-- Include at least one <table> in Comparison Table section
+- Include at least one <table> in Comparison Table section with proper <thead> and <tbody>
 - Add 2+ <blockquote> with expert quotes (include <footer> with source)
 - Use <strong> for emphasis on key terms
 - Start directly with <h2>Direct Answer</h2> - NO html/head/body tags
+
+SOURCES SECTION REQUIREMENTS (CRITICAL):
+- Must have EXACTLY 5 sources
+- Use format: <a href="https://example.com/page">Source Name - Description</a>
+- Include authoritative sources like: university extensions (.edu), government sites (.gov), established gardening/health organizations
+- Example sources: USDA, EPA, University Extension Services, Royal Horticultural Society, etc.
+- URLs must be in href attribute, NOT visible as raw text
 
 IMPORTANT:
 - Be specific - include real techniques, measurements, timelines
 - Avoid generic advice that could apply to anything
 - Include at least 3 quantified statistics or measurements
-- Sources section must have actual links in format: <a href="url">Source Name</a>
+- Do NOT use placeholder or template-like phrases
 
 Output ONLY the article HTML content starting with <h2>. No markdown, no code blocks, no explanations."""
 

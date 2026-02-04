@@ -399,9 +399,41 @@ def generate_topic_specific_prompts(title: str) -> dict:
 
     title_lower = title.lower()
 
-    # Extract main subject - more intelligent parsing
+    # Extract REAL topic from title - smarter parsing
+    # If title has ":" take the part with actual topic keywords
     main_subject = title
-    for prefix in [
+    
+    if ":" in title:
+        parts = title.split(":")
+        # Check which part has more topic-relevant words
+        topic_words = ["grow", "plant", "herb", "garden", "diy", "make", "recipe", 
+                       "homemade", "natural", "organic", "seed", "soil", "compost",
+                       "remedy", "health", "tea", "vinegar", "ferment", "preserve",
+                       "vapor", "rub", "salve", "balm", "tincture", "syrup"]
+        
+        # List of specific nouns (plants, ingredients, things)
+        specific_nouns = ["basil", "lavender", "mint", "tomato", "pepper", "bay leaf", 
+                         "bay leaves", "cinnamon", "ginger", "garlic", "honey", "lemon", 
+                         "apple", "fruit", "vegetable", "flower", "tree", "greenhouse",
+                         "walipini", "kombucha", "kefir", "sourdough", "vinegar", "jam",
+                         "vapor rub", "chest rub", "salve", "balm", "candle", "soap",
+                         "elderberry", "chamomile", "calendula", "aloe", "moringa", "neem"]
+        
+        scores = []
+        for part in parts:
+            part_lower = part.lower()
+            score = sum(1 for w in topic_words if w in part_lower)
+            # Also check for specific nouns (plants, ingredients)
+            if any(x in part_lower for x in specific_nouns):
+                score += 3
+            scores.append((score, part.strip()))
+        
+        # Pick the part with highest topic relevance
+        scores.sort(reverse=True)
+        main_subject = scores[0][1] if scores[0][0] > 0 else parts[-1].strip()
+    
+    # Remove common prefixes (loop through ALL matching prefixes)
+    prefixes_to_remove = [
         "how to ",
         "the ",
         "a ",
@@ -409,15 +441,55 @@ def generate_topic_specific_prompts(title: str) -> dict:
         "complete guide to ",
         "guide to ",
         "diy ",
-    ]:
-        if title_lower.startswith(prefix):
-            main_subject = title[len(prefix) :]
+        "unlocking ",
+        "unlock ",
+        "harnessing ",
+        "harness ",
+        "power of ",
+        "the power of ",
+        "benefits of ",
+        "uses of ",
+        "safe ",
+        "easy ",
+        "simple ",
+        "beginner ",
+        "growing ",
+        "making ",
+    ]
+    
+    # Apply multiple prefix removals
+    changed = True
+    while changed:
+        changed = False
+        for prefix in prefixes_to_remove:
+            if main_subject.lower().startswith(prefix):
+                main_subject = main_subject[len(prefix):]
+                changed = True
+                break
+
+    # Clean up trailing words
+    suffixes_to_remove = [" guide", " tutorial", " tips", " ideas", " recipe", 
+                          " comfort", " relief", " remedies", " benefits"]
+    for suffix in suffixes_to_remove:
+        if main_subject.lower().endswith(suffix):
+            main_subject = main_subject[:-len(suffix)]
             break
 
     # Clean up
-    main_subject = main_subject.split(":")[0].split("+")[0].split("|")[0].strip()
+    main_subject = main_subject.split("+")[0].split("|")[0].strip()
     if len(main_subject) > 50:
         main_subject = " ".join(main_subject.split()[:6])
+    
+    # Final cleanup - remove "in Containers" type suffixes for cleaner prompts
+    container_patterns = [" in containers", " in pots", " at home", " indoors", " outdoors"]
+    for pattern in container_patterns:
+        if main_subject.lower().endswith(pattern):
+            # Keep it but simplify for image prompt
+            break
+    
+    # Ensure we have a meaningful subject
+    if len(main_subject) < 3:
+        main_subject = title.split(":")[0].strip() if ":" in title else title
 
     # Topic-specific keywords for better image matching
     topic_keywords = main_subject.lower()
