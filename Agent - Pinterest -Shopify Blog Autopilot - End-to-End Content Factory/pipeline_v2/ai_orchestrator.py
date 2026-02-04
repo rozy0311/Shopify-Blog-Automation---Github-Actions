@@ -3155,6 +3155,16 @@ class AIOrchestrator:
         body = self._remove_years_from_content(body)
         removed_years = body != body_before_years
 
+        # Add internal links to other blog posts (INTERNAL LINKS warning fix)
+        body_before_internal = body
+        body = self._add_internal_links(body, article_id)
+        added_internal_links = body != body_before_internal
+
+        # Add CTA (Call to Action warning fix)
+        body_before_cta = body
+        body = self._add_cta(body)
+        added_cta = body != body_before_cta
+
         # ALWAYS clean generic phrases from existing content (prevents review failures)
         original_body = body
         body = _remove_generic_phrases(body)
@@ -3168,6 +3178,8 @@ class AIOrchestrator:
             or enhanced_topic_focus
             or fixed_links
             or removed_years
+            or added_internal_links
+            or added_cta
             or cleaned_generic
         ):
             updated = self.api.update_article(article_id, {"body_html": body})
@@ -3185,6 +3197,10 @@ class AIOrchestrator:
                     changes.append("external links fixed")
                 if removed_years:
                     changes.append("years removed")
+                if added_internal_links:
+                    changes.append("internal links added")
+                if added_cta:
+                    changes.append("CTA added")
                 if cleaned_generic:
                     changes.append("generic phrases removed")
                 print(f"📝 Meta-prompt patch applied ({', '.join(changes)}).")
@@ -3437,7 +3453,9 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                                 modified = True
 
         if modified:
-            print("✅ Fixed external links (rel='nofollow noopener') and source format (em-dash)")
+            print(
+                "✅ Fixed external links (rel='nofollow noopener') and source format (em-dash)"
+            )
             return str(soup)
 
         return body
@@ -3502,7 +3520,9 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         new_body = re.sub(r"\[\s*\]", "", new_body)  # Empty brackets
 
         if new_body != body:
-            print(f"✅ Removed {replacement_count} year reference(s) from content (keeping evergreen)")
+            print(
+                f"✅ Removed {replacement_count} year reference(s) from content (keeping evergreen)"
+            )
 
         return new_body
 
