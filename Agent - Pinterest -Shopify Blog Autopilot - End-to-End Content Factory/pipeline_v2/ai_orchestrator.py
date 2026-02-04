@@ -419,6 +419,7 @@ def _remove_generic_phrases(content: str) -> str:
         "ultimate guide",
         "complete guide",
         "definitive guide",
+    ]
 
     removed_count = 0
     for phrase in phrases_to_remove:
