@@ -201,7 +201,12 @@ def call_github_models_api(prompt: str, max_tokens: int = 7000) -> str:
 
 
 def call_pollinations_text_api(prompt: str, max_tokens: int = 7000) -> str:
-    """Call Pollinations Text API (free, no key required) as fallback."""
+    """Call Pollinations Text API (free, no key required) as fallback.
+    
+    Includes retry logic with exponential backoff for 502/503 errors.
+    """
+    import time
+    
     # Pollinations text API - free and reliable
     endpoint = "https://text.pollinations.ai/"
 
@@ -221,16 +226,36 @@ def call_pollinations_text_api(prompt: str, max_tokens: int = 7000) -> str:
         "jsonMode": False,
     }
 
-    try:
-        resp = requests.post(endpoint, json=payload, timeout=180)
-        if resp.status_code == 200:
-            # Response is plain text, not JSON
-            content = resp.text.strip()
-            if content and len(content) > 500:
-                return content
-        print(f"⚠️ Pollinations Text API error: {resp.status_code} - {resp.text[:200]}")
-    except Exception as e:
-        print(f"⚠️ Pollinations Text API exception: {e}")
+    max_retries = 3
+    base_delay = 5  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            resp = requests.post(endpoint, json=payload, timeout=180)
+            if resp.status_code == 200:
+                # Response is plain text, not JSON
+                content = resp.text.strip()
+                if content and len(content) > 500:
+                    return content
+                print(f"⚠️ Pollinations response too short ({len(content)} chars), retrying...")
+            elif resp.status_code in (502, 503, 504, 429):
+                # Retry on gateway/rate limit errors with exponential backoff
+                delay = base_delay * (2 ** attempt)
+                print(f"⚠️ Pollinations API {resp.status_code}, retrying in {delay}s (attempt {attempt + 1}/{max_retries})...")
+                time.sleep(delay)
+                continue
+            else:
+                print(f"⚠️ Pollinations Text API error: {resp.status_code} - {resp.text[:200]}")
+                return ""
+        except requests.exceptions.Timeout:
+            delay = base_delay * (2 ** attempt)
+            print(f"⚠️ Pollinations timeout, retrying in {delay}s (attempt {attempt + 1}/{max_retries})...")
+            time.sleep(delay)
+        except Exception as e:
+            print(f"⚠️ Pollinations Text API exception: {e}")
+            return ""
+    
+    print(f"❌ Pollinations API failed after {max_retries} retries")
     return ""
 
 
@@ -3068,7 +3093,12 @@ class AIOrchestrator:
         cleaned_generic = body != original_body
 
         # Only update if we made changes
-        if sections_to_add or needs_heading_ids or needs_table_styling or cleaned_generic:
+        if (
+            sections_to_add
+            or needs_heading_ids
+            or needs_table_styling
+            or cleaned_generic
+        ):
             updated = self.api.update_article(article_id, {"body_html": body})
             if updated:
                 changes = []
