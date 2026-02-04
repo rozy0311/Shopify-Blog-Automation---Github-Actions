@@ -3145,6 +3145,11 @@ class AIOrchestrator:
         body = self._ensure_topic_focus(body, title)
         enhanced_topic_focus = body != body_before_focus
 
+        # Fix external links to have rel="nofollow noopener" (LINK REL check)
+        body_before_links = body
+        body = self._fix_external_links(body)
+        fixed_links = body != body_before_links
+
         # ALWAYS clean generic phrases from existing content (prevents review failures)
         original_body = body
         body = _remove_generic_phrases(body)
@@ -3156,6 +3161,7 @@ class AIOrchestrator:
             or needs_heading_ids
             or needs_table_styling
             or enhanced_topic_focus
+            or fixed_links
             or cleaned_generic
         ):
             updated = self.api.update_article(article_id, {"body_html": body})
@@ -3169,6 +3175,8 @@ class AIOrchestrator:
                     changes.append("table styling")
                 if enhanced_topic_focus:
                     changes.append("topic focus enhanced")
+                if fixed_links:
+                    changes.append("external links fixed")
                 if cleaned_generic:
                     changes.append("generic phrases removed")
                 print(f"📝 Meta-prompt patch applied ({', '.join(changes)}).")
@@ -3220,7 +3228,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
     def _ensure_topic_focus(self, body: str, title: str) -> str:
         """Ensure topic keywords appear in first and last paragraphs for TOPIC FOCUS SCORE >= 8.
-        
+
         The pre_publish_review.py checks that keywords from title appear in:
         - First paragraph
         - Last 2 paragraphs
@@ -3228,58 +3236,112 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         """
         # Extract topic keywords from title (same logic as pre_publish_review.py)
         STOPWORDS = {
-            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
-            "of", "with", "by", "from", "as", "is", "was", "are", "were", "been",
-            "be", "have", "has", "had", "do", "does", "did", "will", "would",
-            "could", "should", "may", "might", "must", "shall", "can", "need",
-            "your", "our", "their", "its", "his", "her", "this", "that", "these",
-            "those", "how", "what", "which", "who", "when", "where", "why"
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "of",
+            "with",
+            "by",
+            "from",
+            "as",
+            "is",
+            "was",
+            "are",
+            "were",
+            "been",
+            "be",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "must",
+            "shall",
+            "can",
+            "need",
+            "your",
+            "our",
+            "their",
+            "its",
+            "his",
+            "her",
+            "this",
+            "that",
+            "these",
+            "those",
+            "how",
+            "what",
+            "which",
+            "who",
+            "when",
+            "where",
+            "why",
         }
         title_words = [
-            w for w in re.findall(r"[a-zA-Z]{3,}", title.lower()) 
-            if w not in STOPWORDS
+            w for w in re.findall(r"[a-zA-Z]{3,}", title.lower()) if w not in STOPWORDS
         ]
         topic_keywords = list(dict.fromkeys(title_words))[:8]
-        
+
         if not topic_keywords:
             return body
-        
+
         # Find all paragraphs
         paragraphs = re.findall(r"<p[^>]*>(.+?)</p>", body, re.IGNORECASE | re.DOTALL)
         if len(paragraphs) < 2:
             return body
-        
+
         # Check current focus score
         first_para_text = re.sub(r"<[^>]+>", "", paragraphs[0]).lower()
-        last_two_text = " ".join(re.sub(r"<[^>]+>", "", p) for p in paragraphs[-2:]).lower()
-        
+        last_two_text = " ".join(
+            re.sub(r"<[^>]+>", "", p) for p in paragraphs[-2:]
+        ).lower()
+
         hit_first = sum(1 for k in topic_keywords if k in first_para_text)
         hit_last = sum(1 for k in topic_keywords if k in last_two_text)
         coverage = (hit_first + hit_last) / max(1, len(topic_keywords))
         current_score = round(min(10.0, coverage * 10.0), 1)
-        
+
         if current_score >= 8.0:
             return body
-        
+
         print(f"⚠️ Topic focus score {current_score}/10 < 8, enhancing paragraphs...")
-        
+
         # Keywords missing from first paragraph
         missing_first = [k for k in topic_keywords if k not in first_para_text]
         # Keywords missing from last paragraphs
         missing_last = [k for k in topic_keywords if k not in last_two_text]
-        
+
         # Create natural keyword phrases
         topic_phrase = " ".join(topic_keywords[:4])
-        
+
         # Enhance first paragraph if needed
         if missing_first and len(missing_first) >= 2:
             # Find first <p> tag and add context sentence
             first_p_match = re.search(r"(<p[^>]*>)", body, re.IGNORECASE)
             if first_p_match:
                 enhancement = f"Understanding {topic_phrase} is essential for achieving optimal results. "
-                body = body[:first_p_match.end()] + enhancement + body[first_p_match.end():]
+                body = (
+                    body[: first_p_match.end()]
+                    + enhancement
+                    + body[first_p_match.end() :]
+                )
                 print(f"   ✅ Enhanced first paragraph with topic keywords")
-        
+
         # Enhance last paragraph if needed (add concluding sentence)
         if missing_last and len(missing_last) >= 2:
             # Find last </p> tag before FAQ/Sources/Key Terms sections
@@ -3287,7 +3349,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             conclusion_match = re.search(
                 r"(</p>)\s*(?=<h2[^>]*>(?:FAQ|Frequently|Sources|Key Terms|Further Reading))",
                 body,
-                re.IGNORECASE
+                re.IGNORECASE,
             )
             if conclusion_match:
                 enhancement = f" By mastering {topic_phrase}, you ensure consistent and reliable outcomes."
@@ -3303,7 +3365,73 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                     enhancement = f" When applying {topic_phrase}, remember these principles for best results."
                     body = body[:insert_pos] + enhancement + body[insert_pos:]
                     print(f"   ✅ Enhanced concluding paragraph with topic keywords")
-        
+
+        return body
+
+    def _fix_external_links(self, body: str) -> str:
+        """Fix external links to have rel='nofollow noopener' and proper source format.
+
+        This addresses two pre_publish_review checks:
+        1. LINK REL: All external <a> tags must have rel='nofollow noopener'
+        2. SOURCE FORMAT: Source links should use 'Name — Description' (em-dash)
+        """
+        if not body:
+            return body
+
+        soup = BeautifulSoup(body, "html.parser")
+        shop_domain = SHOP.lower() if SHOP else ""
+        modified = False
+
+        for a_tag in soup.find_all("a", href=True):
+            href = a_tag["href"]
+
+            # Skip internal links (same domain, anchors, relative URLs)
+            if not href.startswith("http"):
+                continue
+            if shop_domain and shop_domain in href.lower():
+                continue
+
+            # This is an external link - ensure it has proper rel attribute
+            current_rel = a_tag.get("rel", [])
+            if isinstance(current_rel, str):
+                current_rel = current_rel.split()
+
+            needs_nofollow = "nofollow" not in current_rel
+            needs_noopener = "noopener" not in current_rel
+
+            if needs_nofollow or needs_noopener:
+                new_rel = set(current_rel)
+                new_rel.add("nofollow")
+                new_rel.add("noopener")
+                a_tag["rel"] = list(new_rel)
+                modified = True
+
+        # Fix SOURCE FORMAT: Convert hyphens to em-dashes in source section
+        # Look for Sources section and fix format
+        sources_section = soup.find("h2", id="sources")
+        if sources_section:
+            # Find the <ul> or <ol> after the sources heading
+            next_elem = sources_section.find_next_sibling()
+            while next_elem and next_elem.name not in ["ul", "ol", "h2"]:
+                next_elem = next_elem.find_next_sibling()
+
+            if next_elem and next_elem.name in ["ul", "ol"]:
+                for li in next_elem.find_all("li"):
+                    # Get the text content and look for source format issues
+                    li_text = li.get_text()
+                    # Replace hyphen surrounded by spaces with em-dash
+                    if " - " in li_text and " — " not in li_text:
+                        # Reconstruct the li content with em-dash
+                        for text_node in li.find_all(string=True):
+                            if " - " in text_node and " — " not in text_node:
+                                new_text = text_node.replace(" - ", " — ")
+                                text_node.replace_with(new_text)
+                                modified = True
+
+        if modified:
+            print("✅ Fixed external links (rel='nofollow noopener') and source format (em-dash)")
+            return str(soup)
+
         return body
 
     def _ensure_meta_description(self, article: dict) -> bool:
