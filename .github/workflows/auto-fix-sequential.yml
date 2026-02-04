@@ -269,12 +269,12 @@ jobs:
                       python ai_orchestrator.py fix-ids "$article_id"
                       fix_ok=$?
                       if [ "$fix_ok" != "0" ]; then echo "[WARN] fix-ids $article_id exited $fix_ok"; fi
-                      python "../scripts/build_meta_fix_queue.py" "$article_id"
-                      build_ok=$?
-                      if [ "$build_ok" != "0" ]; then echo "[WARN] build_meta_fix_queue exited $build_ok"; fi
-                      python "../scripts/run_meta_fix_queue.py"
-                      run_ok=$?
-                      if [ "$run_ok" != "0" ]; then echo "[WARN] run_meta_fix_queue exited $run_ok"; fi
+                      # NOTE: Removed build_meta_fix_queue.py and run_meta_fix_queue.py
+                      # as ai_orchestrator.py now handles all meta-prompt fixes including:
+                      # - Generic phrase removal
+                      # - Source injection
+                      # - Word count enforcement
+                      # - Featured image counting
                       python "fix_images_properly.py" --article-id "$article_id"
                       fix_images_ok=$?
                       if [ "$fix_images_ok" != "0" ]; then
