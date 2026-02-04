@@ -11,12 +11,14 @@ from pathlib import Path
 
 try:
     from dotenv import load_dotenv
+
     for p in [Path(__file__).parent.parent / ".env", Path(__file__).parent / ".env"]:
         if p.exists():
             load_dotenv(p)
             break
 except Exception:
     pass
+
 
 # Fallback: load from SHOPIFY_PUBLISH_CONFIG.json (repo root)
 def _load_publish_config():
@@ -25,88 +27,177 @@ def _load_publish_config():
         return {}
     try:
         import json
+
         return json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         return {}
+
 
 _from_config = _load_publish_config()
 _shop_cfg = _from_config.get("shop", {})
 
 from bs4 import BeautifulSoup
 
-SHOP = (os.environ.get("SHOPIFY_SHOP") or os.environ.get("SHOPIFY_STORE_DOMAIN") or "").strip()
+SHOP = (
+    os.environ.get("SHOPIFY_SHOP") or os.environ.get("SHOPIFY_STORE_DOMAIN") or ""
+).strip()
 if not SHOP:
     SHOP = (_shop_cfg.get("domain") or "").strip()
 if SHOP and ".myshopify.com" not in SHOP:
     SHOP = f"{SHOP}.myshopify.com"
 BLOG_ID = os.environ.get("SHOPIFY_BLOG_ID") or os.environ.get("BLOG_ID") or ""
-TOKEN = (os.environ.get("SHOPIFY_ACCESS_TOKEN") or _shop_cfg.get("access_token") or "").strip()
-API_VERSION = os.environ.get("SHOPIFY_API_VERSION") or _shop_cfg.get("api_version") or "2025-01"
+TOKEN = (
+    os.environ.get("SHOPIFY_ACCESS_TOKEN") or _shop_cfg.get("access_token") or ""
+).strip()
+API_VERSION = (
+    os.environ.get("SHOPIFY_API_VERSION") or _shop_cfg.get("api_version") or "2025-01"
+)
 
 # Section headings to remove (generic / template contamination)
 GENERIC_HEADINGS = {
-    "practical tips", "maintenance and care", "research highlights", "expert insights",
-    "step-by-step approach", "key terms", "sources & further reading", "sources &amp; further reading",
-    "advanced techniques for experienced practitioners", "customization and personalization",
-    "batch production", "quality enhancement", "creative variations",
-    "supporting data", "cited quotes", "key concept related to this topic",
+    "practical tips",
+    "maintenance and care",
+    "research highlights",
+    "expert insights",
+    "step-by-step approach",
+    "key terms",
+    "sources & further reading",
+    "sources &amp; further reading",
+    "advanced techniques for experienced practitioners",
+    "customization and personalization",
+    "batch production",
+    "quality enhancement",
+    "creative variations",
+    "supporting data",
+    "cited quotes",
+    "key concept related to this topic",
 }
 
 # Generic phrases to strip from body content
 GENERIC_PHRASES = [
-    "comprehensive guide", "ultimate guide", "complete guide", "definitive guide",
-    "in this guide", "this guide", "this article", "this blog post",
-    "whether you're a beginner", "whether you are a beginner", "whether you are new",
-    "in today's world", "in today's fast-paced", "in our modern world",
-    "you will learn", "by the end", "throughout this article", "in this post",
-    "we'll explore", "let's dive", "let's explore", "without further ado",
-    "in conclusion", "to sum up", "in summary", "to summarize",
-    "thank you for reading", "happy growing", "happy gardening", "happy cooking",
-    "game-changer", "unlock the potential", "master the art", "elevate your",
-    "transform your", "empower yourself", "unlock the secrets", "discover the power",
-    "crucial to understand", "it's essential", "it is essential", "it's important",
-    "thrilled to share", "excited to share", "perfect for anyone",
-    "join thousands who", "one of the best ways", "one of the most important",
-    "first and foremost", "last but not least", "needless to say",
-    "when it comes to", "the bottom line is", "it goes without saying",
-    "as mentioned above", "as stated earlier", "as we have seen",
-    "more often than not", "when all is said and done", "at the end of the day",
-    "here's everything you need", "read on to learn", "read on to discover",
-    "here's everything you need to know", "we'll walk you through", "let's dive in",
-    "in this post we'll", "in this article we'll", "keep in mind",
-    "with the right approach", "on the other hand", "it's worth noting",
-    "this guide explains", "you will learn what works", "by the end, you will know",
-    "no one succeeds in isolation", "perfect for anyone looking to improve",
-    "the focus is on", "overall,", "it's important to remember", "it is important to remember",
+    "comprehensive guide",
+    "ultimate guide",
+    "complete guide",
+    "definitive guide",
+    "in this guide",
+    "this guide",
+    "this article",
+    "this blog post",
+    "whether you're a beginner",
+    "whether you are a beginner",
+    "whether you are new",
+    "in today's world",
+    "in today's fast-paced",
+    "in our modern world",
+    "you will learn",
+    "by the end",
+    "throughout this article",
+    "in this post",
+    "we'll explore",
+    "let's dive",
+    "let's explore",
+    "without further ado",
+    "in conclusion",
+    "to sum up",
+    "in summary",
+    "to summarize",
+    "thank you for reading",
+    "happy growing",
+    "happy gardening",
+    "happy cooking",
+    "game-changer",
+    "unlock the potential",
+    "master the art",
+    "elevate your",
+    "transform your",
+    "empower yourself",
+    "unlock the secrets",
+    "discover the power",
+    "crucial to understand",
+    "it's essential",
+    "it is essential",
+    "it's important",
+    "thrilled to share",
+    "excited to share",
+    "perfect for anyone",
+    "join thousands who",
+    "one of the best ways",
+    "one of the most important",
+    "first and foremost",
+    "last but not least",
+    "needless to say",
+    "when it comes to",
+    "the bottom line is",
+    "it goes without saying",
+    "as mentioned above",
+    "as stated earlier",
+    "as we have seen",
+    "more often than not",
+    "when all is said and done",
+    "at the end of the day",
+    "here's everything you need",
+    "read on to learn",
+    "read on to discover",
+    "here's everything you need to know",
+    "we'll walk you through",
+    "let's dive in",
+    "in this post we'll",
+    "in this article we'll",
+    "keep in mind",
+    "with the right approach",
+    "on the other hand",
+    "it's worth noting",
+    "this guide explains",
+    "you will learn what works",
+    "by the end, you will know",
+    "no one succeeds in isolation",
+    "perfect for anyone looking to improve",
+    "the focus is on",
+    "overall,",
+    "it's important to remember",
+    "it is important to remember",
 ]
+
 
 def get_article(article_id: str):
     import requests
+
     url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
-    r = requests.get(url, headers={"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"})
+    r = requests.get(
+        url,
+        headers={"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"},
+    )
     if r.status_code != 200:
         print("GET article failed: %s %s" % (r.status_code, r.text[:300]))
         return None
     return r.json().get("article")
 
+
 def put_article(article_id: str, body_html: str, image_src: str | None = None) -> bool:
     import requests
+
     url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
     payload = {"article": {"body_html": body_html}}
     if image_src:
         payload["article"]["image"] = {"src": image_src}
-    r = requests.put(url, headers={"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}, json=payload)
+    r = requests.put(
+        url,
+        headers={"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"},
+        json=payload,
+    )
     if r.status_code != 200:
         print("PUT article failed: %s %s" % (r.status_code, r.text[:400]))
         return False
     print("PUT article OK (body updated)")
     return True
 
+
 def is_generic_heading(tag) -> bool:
     if tag.name not in ("h2", "h3", "h4"):
         return False
     text = tag.get_text(strip=True).lower()
     return any(gh in text for gh in GENERIC_HEADINGS)
+
 
 def strip_generic_sections(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
@@ -134,6 +225,7 @@ def strip_generic_sections(html: str) -> str:
             pass
     return str(soup)
 
+
 def strip_generic_phrases(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
     phrases = [p.lower() for p in GENERIC_PHRASES]
@@ -153,6 +245,7 @@ def strip_generic_phrases(html: str) -> str:
             tag.decompose()
 
     return str(soup)
+
 
 def dedupe_paragraphs(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
@@ -174,11 +267,13 @@ def dedupe_paragraphs(html: str) -> str:
             pass
     return str(soup)
 
+
 def _slugify(text: str) -> str:
     text = re.sub(r"[^a-zA-Z0-9\s-]", " ", text).strip().lower()
     text = re.sub(r"\s+", "-", text)
     text = re.sub(r"-{2,}", "-", text)
     return text or "section"
+
 
 def ensure_heading_ids(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
@@ -197,6 +292,7 @@ def ensure_heading_ids(html: str) -> str:
         h["id"] = slug
         used.add(slug)
     return str(soup)
+
 
 def ensure_internal_links_and_cta(html: str, shop: str, blog_handle: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
@@ -218,6 +314,7 @@ def ensure_internal_links_and_cta(html: str, shop: str, blog_handle: str) -> str
     soup.append(cta_section)
     soup.append(p)
     return str(soup)
+
 
 def first_image_src(html: str, prefer_shopify_cdn: bool = True) -> str | None:
     """First <img> src in body. If prefer_shopify_cdn, return first cdn.shopify.com src if any."""
@@ -243,8 +340,10 @@ def first_image_src(html: str, prefer_shopify_cdn: bool = True) -> str | None:
                 return first_cdn
     return first_cdn if (prefer_shopify_cdn and first_cdn) else first_any
 
+
 def fix_source_link_dashes(html: str) -> str:
     """Convert regular dashes in source link text to em-dashes for meta-prompt compliance."""
+
     def fix_link(match: re.Match) -> str:
         prefix = match.group(1)
         link_text = match.group(2)
@@ -252,13 +351,15 @@ def fix_source_link_dashes(html: str) -> str:
         # Convert - or – to em-dash —
         fixed_text = link_text.replace(" - ", " — ").replace(" – ", " — ")
         return f"{prefix}{fixed_text}{suffix}"
+
     # Match <a href="...">link text</a>
     return re.sub(
         r'(<a[^>]+href=["\']https?://[^"\']+["\'][^>]*>)([^<]+)(</a>)',
         fix_link,
         html,
-        flags=re.IGNORECASE
+        flags=re.IGNORECASE,
     )
+
 
 def main():
     if len(sys.argv) < 2:
@@ -280,7 +381,9 @@ def main():
     body = dedupe_paragraphs(body)
     body = ensure_heading_ids(body)
     body = fix_source_link_dashes(body)  # Fix em-dash format in source links
-    blog_handle = (_from_config.get("defaults", {}) or {}).get("blog_handle", "sustainable-living")
+    blog_handle = (_from_config.get("defaults", {}) or {}).get(
+        "blog_handle", "sustainable-living"
+    )
     body = ensure_internal_links_and_cta(body, SHOP, blog_handle)
     current_image = article.get("image") or {}
     current_src = (current_image.get("src") or "").strip()
@@ -296,6 +399,7 @@ def main():
     if ok and image_src:
         print("Featured image sent to Shopify (check Admin if not visible)")
     sys.exit(0 if ok else 1)
+
 
 if __name__ == "__main__":
     main()

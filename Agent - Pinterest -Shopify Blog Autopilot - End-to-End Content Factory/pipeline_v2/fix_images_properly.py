@@ -783,15 +783,23 @@ def fix_article_images(
         print(f"\n📌 Uploading Pinterest image to CDN: {pinterest_image_url[:50]}...")
         try:
             # Download Pinterest image
-            pin_resp = requests.get(pinterest_image_url, timeout=15, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            })
+            pin_resp = requests.get(
+                pinterest_image_url,
+                timeout=15,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                },
+            )
             if pin_resp.status_code == 200 and len(pin_resp.content) > 1000:
                 # Upload to Shopify CDN
                 pin_filename = f"pinterest_{article_id}_{int(time.time())}.jpg"
-                pinterest_cdn_url = upload_to_shopify_cdn(pin_resp.content, pin_filename)
+                pinterest_cdn_url = upload_to_shopify_cdn(
+                    pin_resp.content, pin_filename
+                )
                 if pinterest_cdn_url:
-                    print(f"    ✅ Pinterest uploaded to CDN: {pinterest_cdn_url[:60]}...")
+                    print(
+                        f"    ✅ Pinterest uploaded to CDN: {pinterest_cdn_url[:60]}..."
+                    )
                 else:
                     print(f"    ⚠️ Pinterest CDN upload failed, skipping")
             else:
