@@ -236,7 +236,7 @@ def _clean_llm_output(content: str) -> str:
 
 def _remove_title_spam(content: str, title: str) -> str:
     """Remove excessive title repetition from LLM output to pass pre_publish_review.
-    
+
     Rules:
     - Title can appear max 3 times (in headings, first para, conclusion)
     - Remove comma-separated keywords pattern
@@ -244,35 +244,36 @@ def _remove_title_spam(content: str, title: str) -> str:
     """
     if not title or not content:
         return content
-    
+
     title_lower = title.lower().strip()
     content_lower = content.lower()
-    
+
     # Count current occurrences
     count = content_lower.count(title_lower)
     if count <= 3:
         return content  # Already OK
-    
+
     print(f"⚠️ Title spam detected: '{title}' appears {count}x (max 3). Cleaning...")
-    
+
     # Strategy: Keep first 2-3 occurrences (usually in intro/headings), remove rest
     # Use case-insensitive replacement but preserve surrounding context
-    
+
     replacements_made = 0
     max_to_keep = 3
     occurrences_kept = 0
-    
+
     # Split by title (case-insensitive) and rebuild
     import re as re_module
+
     pattern = re_module.compile(re_module.escape(title), re_module.IGNORECASE)
-    
+
     parts = pattern.split(content)
     if len(parts) <= max_to_keep + 1:
         return content  # Not enough parts
-    
+
     # Find all matches to preserve case
     matches = pattern.findall(content)
-    
+
     # Rebuild with only first N occurrences
     result = parts[0]
     for i, match in enumerate(matches):
@@ -285,10 +286,10 @@ def _remove_title_spam(content: str, title: str) -> str:
             replacement = "this topic"
             result += replacement + parts[i + 1]
             replacements_made += 1
-    
+
     if replacements_made > 0:
         print(f"✅ Removed {replacements_made} excessive title mentions")
-    
+
     # Also remove comma-separated keyword stuffing
     title_words = [w for w in title_lower.split() if len(w) > 2]
     if len(title_words) >= 3:
@@ -297,13 +298,13 @@ def _remove_title_spam(content: str, title: str) -> str:
         if keyword_pattern in result.lower():
             # Remove the keyword stuffing pattern
             result = re_module.sub(
-                re_module.escape(keyword_pattern), 
-                "", 
-                result, 
-                flags=re_module.IGNORECASE
+                re_module.escape(keyword_pattern),
+                "",
+                result,
+                flags=re_module.IGNORECASE,
             )
             print(f"✅ Removed keyword stuffing pattern")
-    
+
     return result
 
 
@@ -2773,6 +2774,10 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                 "Word count",
                 "Raw URLs",
                 "Low sources",
+                "TITLE SPAM",
+                "KEYWORD STUFFING",
+                "Title repeated",
+                "keyword stuffing",
             ]
         )
 
