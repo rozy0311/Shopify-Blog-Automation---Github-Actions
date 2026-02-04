@@ -18,3 +18,24 @@ vertex-sa.json
 
 # VS Code local (optional)
 .vscode/settings.json
+
+# Generated/temp files - do not track
+**/auto_fix_*.json
+**/articles_to_fix.json
+**/restore_*.txt
+**/restored_*.txt
+**/*.html.bak
+**/test.js
+**/get_test_articles.py
+**/strip_generic_final.py
+**/local_heartbeat.json
+
+# Cursor AI cache
+**/.cursor/
+
+# Perplexity batch outputs
+pplx-shopify-batch/out/
+pplx-ui-batch/out/
+
+# Local scripts and temp files
+**/need-fix-*.md

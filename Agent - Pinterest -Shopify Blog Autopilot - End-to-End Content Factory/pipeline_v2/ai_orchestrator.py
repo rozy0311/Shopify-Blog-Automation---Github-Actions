@@ -130,7 +130,7 @@ LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
 
 def call_gemini_api(prompt: str, max_tokens: int = 7000, model: str = None) -> str:
     """Call Gemini API to generate content.
-    
+
     Args:
         prompt: The prompt to send
         max_tokens: Maximum output tokens
@@ -159,7 +159,9 @@ def call_gemini_api(prompt: str, max_tokens: int = 7000, model: str = None) -> s
                 parts = candidates[0].get("content", {}).get("parts", [])
                 if parts:
                     return parts[0].get("text", "")
-        print(f"⚠️ Gemini API ({model_to_use}) error: {resp.status_code} - {resp.text[:200]}")
+        print(
+            f"⚠️ Gemini API ({model_to_use}) error: {resp.status_code} - {resp.text[:200]}"
+        )
     except Exception as e:
         print(f"⚠️ Gemini API ({model_to_use}) exception: {e}")
     return ""
