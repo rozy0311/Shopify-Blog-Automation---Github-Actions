@@ -234,6 +234,79 @@ def _clean_llm_output(content: str) -> str:
     return content.strip()
 
 
+def _remove_title_spam(content: str, title: str) -> str:
+    """Remove excessive title repetition from LLM output to pass pre_publish_review.
+    
+    Rules:
+    - Title can appear max 3 times (in headings, first para, conclusion)
+    - Remove comma-separated keywords pattern
+    - Replace extra occurrences with pronouns or synonyms
+    """
+    if not title or not content:
+        return content
+    
+    title_lower = title.lower().strip()
+    content_lower = content.lower()
+    
+    # Count current occurrences
+    count = content_lower.count(title_lower)
+    if count <= 3:
+        return content  # Already OK
+    
+    print(f"⚠️ Title spam detected: '{title}' appears {count}x (max 3). Cleaning...")
+    
+    # Strategy: Keep first 2-3 occurrences (usually in intro/headings), remove rest
+    # Use case-insensitive replacement but preserve surrounding context
+    
+    replacements_made = 0
+    max_to_keep = 3
+    occurrences_kept = 0
+    
+    # Split by title (case-insensitive) and rebuild
+    import re as re_module
+    pattern = re_module.compile(re_module.escape(title), re_module.IGNORECASE)
+    
+    parts = pattern.split(content)
+    if len(parts) <= max_to_keep + 1:
+        return content  # Not enough parts
+    
+    # Find all matches to preserve case
+    matches = pattern.findall(content)
+    
+    # Rebuild with only first N occurrences
+    result = parts[0]
+    for i, match in enumerate(matches):
+        if occurrences_kept < max_to_keep:
+            result += match + parts[i + 1]
+            occurrences_kept += 1
+        else:
+            # Replace with pronoun or skip (depends on context)
+            # For now, use generic "this topic" or "it"
+            replacement = "this topic"
+            result += replacement + parts[i + 1]
+            replacements_made += 1
+    
+    if replacements_made > 0:
+        print(f"✅ Removed {replacements_made} excessive title mentions")
+    
+    # Also remove comma-separated keyword stuffing
+    title_words = [w for w in title_lower.split() if len(w) > 2]
+    if len(title_words) >= 3:
+        # Pattern like "growing, basil, containers"
+        keyword_pattern = ", ".join(title_words[:3])
+        if keyword_pattern in result.lower():
+            # Remove the keyword stuffing pattern
+            result = re_module.sub(
+                re_module.escape(keyword_pattern), 
+                "", 
+                result, 
+                flags=re_module.IGNORECASE
+            )
+            print(f"✅ Removed keyword stuffing pattern")
+    
+    return result
+
+
 def generate_article_with_llm(title: str, topic: str) -> str:
     """Generate high-quality article content using LLM (Gemini first, then GitHub Models)."""
     prompt = f"""Write a comprehensive, expert-level blog article about "{title}" for a sustainable living and homesteading blog.
@@ -284,6 +357,7 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
     content = call_gemini_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
         content = _clean_llm_output(content)
+        content = _remove_title_spam(content, title)
         print(f"✅ Generated {len(content)} chars with Gemini")
         return content
 
@@ -291,6 +365,7 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
     content = call_github_models_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
         content = _clean_llm_output(content)
+        content = _remove_title_spam(content, title)
         print(f"✅ Generated {len(content)} chars with GitHub Models")
         return content
 
@@ -298,6 +373,7 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
     content = call_openai_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
         content = _clean_llm_output(content)
+        content = _remove_title_spam(content, title)
         print(f"✅ Generated {len(content)} chars with OpenAI")
         return content
 
