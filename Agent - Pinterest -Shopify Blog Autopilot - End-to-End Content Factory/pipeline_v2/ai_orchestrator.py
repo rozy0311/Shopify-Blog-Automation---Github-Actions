@@ -601,6 +601,20 @@ GENERIC_PHRASES = [
     "wet ingredients",
     "shelf life 2-4 weeks",
     "shelf life 3-6 months",
+    # Generic Key Terms / Sources patterns (template contamination)
+    "central to .* and used throughout",
+    "used throughout the content below",
+    "general guidance related to",
+    "background information and safety considerations for",
+    "health and safety references that may apply to",
+    "practical how-to resources relevant to",
+    "preservation and handling references when applicable to",
+    "a clean workspace, basic tools",
+    "store in a cool, dry place and label",
+    "check for the expected look, texture, or function",
+    "scale in stages so you can keep quality consistent",
+    "reliable materials are the core needs",
+    "adjust next time",
 ]
 
 # Template contamination keywords
@@ -619,6 +633,151 @@ CONTAMINATION_RULES = {
     "soap": ["germination", "transplanting", "pruning"],
     "candle": ["germination", "transplanting", "compost"],
 }
+
+# Patterns that indicate generic/template content in Key Terms and Sources sections
+GENERIC_SECTION_PATTERNS = [
+    r"Central to .* and used throughout the content below",
+    r"General guidance related to .* and safe household practices",
+    r"Background information and safety considerations for",
+    r"Health and safety references that may apply to",
+    r"Practical how-to resources relevant to",
+    r"Preservation and handling references when applicable to",
+    # Generic FAQ answers
+    r"A clean workspace, basic tools, and reliable materials",
+    r"Store in a cool, dry place and label with dates",
+    r"Check for the expected look, texture, or function",
+    r"scale in stages so you can keep quality consistent",
+    r"Timing depends on materials, environment, and preparation",
+    r"Skipping preparation and using unsuitable materials",
+    r"when you follow basic safety steps and start small",
+]
+
+
+def strip_generic_sections(body_html: str, title: str = "") -> str:
+    """
+    Remove generic Key Terms, Sources, and FAQ sections that were auto-generated
+    from templates. These sections add no value and harm content quality.
+
+    Returns cleaned body_html without the generic sections.
+    """
+    if not body_html:
+        return body_html
+
+    import re
+
+    # Check if body has generic patterns
+    body_lower = body_html.lower()
+    has_generic = False
+    for pattern in GENERIC_SECTION_PATTERNS:
+        if re.search(pattern, body_html, re.IGNORECASE):
+            has_generic = True
+            break
+
+    if not has_generic:
+        return body_html
+
+    soup = BeautifulSoup(body_html, "html.parser")
+    sections_removed = []
+
+    # Find and remove generic Key Terms section
+    key_terms_h2 = soup.find("h2", id="key-terms")
+    if not key_terms_h2:
+        key_terms_h2 = soup.find("h2", string=re.compile(r"Key Terms", re.I))
+
+    if key_terms_h2:
+        # Check if it contains generic content
+        section_content = ""
+        next_elem = key_terms_h2.find_next_sibling()
+        while next_elem and next_elem.name not in ["h2"]:
+            section_content += str(next_elem)
+            next_elem = next_elem.find_next_sibling()
+
+        if re.search(r"Central to .* and used throughout", section_content, re.I):
+            # Remove the h2 and all content until next h2
+            to_remove = [key_terms_h2]
+            next_elem = key_terms_h2.find_next_sibling()
+            while next_elem and next_elem.name not in ["h2"]:
+                to_remove.append(next_elem)
+                next_elem = next_elem.find_next_sibling()
+            for elem in to_remove:
+                elem.decompose()
+            sections_removed.append("Key Terms")
+
+    # Find and remove generic Sources section
+    sources_h2 = soup.find("h2", string=re.compile(r"Sources.*Further Reading", re.I))
+    if not sources_h2:
+        sources_h2 = soup.find("h2", id="sources-further-reading")
+
+    if sources_h2:
+        section_content = ""
+        next_elem = sources_h2.find_next_sibling()
+        while next_elem and next_elem.name not in ["h2"]:
+            section_content += str(next_elem)
+            next_elem = next_elem.find_next_sibling()
+
+        # Check for generic source patterns
+        generic_sources = any(
+            re.search(p, section_content, re.I) for p in [
+                r"General guidance related to",
+                r"Background information and safety considerations",
+                r"Health and safety references that may apply",
+                r"Practical how-to resources relevant to",
+                r"Preservation and handling references when applicable",
+            ]
+        )
+
+        if generic_sources:
+            to_remove = [sources_h2]
+            next_elem = sources_h2.find_next_sibling()
+            while next_elem and next_elem.name not in ["h2"]:
+                to_remove.append(next_elem)
+                next_elem = next_elem.find_next_sibling()
+            for elem in to_remove:
+                elem.decompose()
+            sections_removed.append("Sources")
+
+    # Find and check FAQ section for generic answers
+    faq_h2 = soup.find("h2", id="faq")
+    if not faq_h2:
+        faq_h2 = soup.find("h2", string=re.compile(r"Frequently Asked Questions|FAQ", re.I))
+
+    if faq_h2:
+        section_content = ""
+        next_elem = faq_h2.find_next_sibling()
+        while next_elem and next_elem.name not in ["h2"]:
+            section_content += str(next_elem)
+            next_elem = next_elem.find_next_sibling()
+
+        # Count generic FAQ answers
+        generic_faq_patterns = [
+            r"A clean workspace, basic tools",
+            r"Store in a cool, dry place and label",
+            r"Check for the expected look, texture",
+            r"scale in stages so you can keep quality",
+            r"Timing depends on materials, environment",
+            r"Skipping preparation and using unsuitable",
+            r"when you follow basic safety steps",
+        ]
+        generic_count = sum(
+            1 for p in generic_faq_patterns
+            if re.search(p, section_content, re.I)
+        )
+
+        # If more than 3 generic answers, remove entire FAQ section
+        if generic_count >= 3:
+            to_remove = [faq_h2]
+            next_elem = faq_h2.find_next_sibling()
+            while next_elem and next_elem.name not in ["h2"]:
+                to_remove.append(next_elem)
+                next_elem = next_elem.find_next_sibling()
+            for elem in to_remove:
+                elem.decompose()
+            sections_removed.append("FAQ")
+
+    if sections_removed:
+        print(f"⚠️ Stripped generic sections: {', '.join(sections_removed)}")
+
+    return str(soup)
 
 
 # ============================================================================
@@ -1232,7 +1391,14 @@ class ShopifyAPI:
 
     @staticmethod
     def update_article(article_id: str, data: dict) -> bool:
-        """Update article"""
+        """Update article - auto-strips generic sections before publishing"""
+        # Strip generic template sections from body_html before publishing
+        if "body_html" in data:
+            data["body_html"] = strip_generic_sections(
+                data["body_html"], 
+                data.get("title", "")
+            )
+        
         url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
         resp = requests.put(url, headers=HEADERS, json={"article": data})
         return resp.status_code == 200
