@@ -217,22 +217,44 @@ def call_openai_api(prompt: str, max_tokens: int = 7000) -> str:
     return ""
 
 
+def _clean_llm_output(content: str) -> str:
+    """Clean LLM output - remove markdown code blocks, HTML wrappers, etc."""
+    # Remove markdown code blocks
+    content = re.sub(r"^```html?\s*\n?", "", content, flags=re.MULTILINE)
+    content = re.sub(r"\n?```\s*$", "", content, flags=re.MULTILINE)
+
+    # Remove HTML document wrapper if present
+    content = re.sub(r"<!DOCTYPE[^>]*>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"<html[^>]*>|</html>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"<head>.*?</head>", "", content, flags=re.IGNORECASE | re.DOTALL)
+    content = re.sub(r"<body[^>]*>|</body>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"<meta[^>]*>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"<title>.*?</title>", "", content, flags=re.IGNORECASE)
+
+    return content.strip()
+
+
 def generate_article_with_llm(title: str, topic: str) -> str:
     """Generate high-quality article content using LLM (Gemini first, then GitHub Models)."""
     prompt = f"""Write a comprehensive, expert-level blog article about "{title}" for a sustainable living and homesteading blog.
 
+CRITICAL ANTI-REPETITION RULES:
+- The main topic phrase should appear NO MORE than 10-15 times in the entire article
+- Use pronouns (it, they, this, these) and synonyms instead of repeating the topic
+- Vary your language - don't use the same phrase twice in a paragraph
+- NEVER repeat the exact title phrase more than 3 times
+
 REQUIREMENTS:
 - 1800-2500 words total
 - Write in a natural, authoritative voice - avoid generic filler phrases
-- Include specific, actionable information about {topic}
+- Include specific, actionable information
 - Use real data, statistics, and expert insights where relevant
 - Structure with clear H2 and H3 headings
-- DO NOT repeat the title or topic name excessively (max 3-5 times total)
 
 REQUIRED SECTIONS (use exactly these H2 headings):
 1. <h2>Direct Answer</h2> - Clear, concise answer in 2-3 sentences
 2. <h2>Key Conditions at a Glance</h2> - Bullet list of main factors
-3. <h2>Understanding {topic}</h2> - Background and context
+3. <h2>Understanding the Topic</h2> - Background and context
 4. <h2>Complete Step-by-Step Guide</h2> - Detailed how-to with H3 subsections
 5. <h2>Types and Varieties</h2> - Different options or approaches
 6. <h2>Troubleshooting Common Issues</h2> - Problem/solution format
@@ -244,30 +266,33 @@ FORMAT:
 - Include at least one <table> with useful data
 - Add 2+ <blockquote> with expert quotes (include <footer> with source)
 - Use <strong> for emphasis on key terms
+- Start directly with <h2>Direct Answer</h2> - NO html/head/body tags
 
 IMPORTANT:
-- Be specific to {topic} - include real techniques, measurements, timelines
+- Be specific - include real techniques, measurements, timelines
 - Avoid generic advice that could apply to anything
 - Include at least 3 quantified statistics or measurements
-- Reference at least 3 authoritative sources
 
-Output ONLY the HTML content, no markdown, no explanations."""
+Output ONLY the article HTML content starting with <h2>. No markdown, no code blocks, no explanations."""
 
     # Try Gemini first
     content = call_gemini_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
+        content = _clean_llm_output(content)
         print(f"✅ Generated {len(content)} chars with Gemini")
         return content
 
     # Fallback to GitHub Models
     content = call_github_models_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
+        content = _clean_llm_output(content)
         print(f"✅ Generated {len(content)} chars with GitHub Models")
         return content
 
     # Fallback to OpenAI
     content = call_openai_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
+        content = _clean_llm_output(content)
         print(f"✅ Generated {len(content)} chars with OpenAI")
         return content
 
