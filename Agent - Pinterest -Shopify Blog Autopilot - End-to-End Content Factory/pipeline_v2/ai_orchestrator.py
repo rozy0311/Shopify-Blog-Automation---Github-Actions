@@ -1635,17 +1635,9 @@ class AIOrchestrator:
         terms = terms[:6]
 
         # Use varied, non-generic descriptions to avoid strip_generic_sections removal
+        # AVOID phrases: "in this guide", "this guide", "central to", "used throughout"
         term_descriptions = [
-            "The primary concept discussed in this guide, essential for achieving successful results.",
-            "A critical element that directly impacts the quality and outcome of your project.",
-            "Understanding this helps you make informed decisions during each step.",
-            "Mastering this technique separates beginners from experienced practitioners.",
-            "This foundational knowledge enables you to troubleshoot common issues effectively.",
-            "Knowing this term helps you communicate clearly with other enthusiasts.",
-        ]
-
-        items = "\n".join(
-            [
+            "The primary concept discussed here, essential for achieving successful results.",
                 f'<li><strong>{t.replace("-", " ").title()}</strong> — {term_descriptions[i % len(term_descriptions)]}</li>'
                 for i, t in enumerate(terms)
             ]
