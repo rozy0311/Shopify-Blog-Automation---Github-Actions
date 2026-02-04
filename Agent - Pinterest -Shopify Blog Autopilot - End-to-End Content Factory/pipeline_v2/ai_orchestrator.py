@@ -3150,6 +3150,11 @@ class AIOrchestrator:
         body = self._fix_external_links(body)
         fixed_links = body != body_before_links
 
+        # Remove years from body content (NO YEARS check - keep content evergreen)
+        body_before_years = body
+        body = self._remove_years_from_content(body)
+        removed_years = body != body_before_years
+
         # ALWAYS clean generic phrases from existing content (prevents review failures)
         original_body = body
         body = _remove_generic_phrases(body)
@@ -3162,6 +3167,7 @@ class AIOrchestrator:
             or needs_table_styling
             or enhanced_topic_focus
             or fixed_links
+            or removed_years
             or cleaned_generic
         ):
             updated = self.api.update_article(article_id, {"body_html": body})
@@ -3177,6 +3183,8 @@ class AIOrchestrator:
                     changes.append("topic focus enhanced")
                 if fixed_links:
                     changes.append("external links fixed")
+                if removed_years:
+                    changes.append("years removed")
                 if cleaned_generic:
                     changes.append("generic phrases removed")
                 print(f"📝 Meta-prompt patch applied ({', '.join(changes)}).")
@@ -3433,6 +3441,70 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             return str(soup)
 
         return body
+
+    def _remove_years_from_content(self, body: str) -> str:
+        """Remove years (1900-2099) from body content to keep it evergreen.
+
+        This addresses the NO YEARS pre_publish_review check:
+        Content should not contain specific years like 2024, 2025, etc.
+        Years make content dated and less evergreen.
+        """
+        if not body:
+            return body
+
+        # Pattern to match years 1900-2099
+        YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
+
+        # Find all years in the content
+        years_found = YEAR_PATTERN.findall(body)
+        if not years_found:
+            return body
+
+        # Count replacements for logging
+        replacement_count = len(YEAR_PATTERN.findall(body))
+
+        # Replace years with appropriate evergreen alternatives
+        def replace_year(match):
+            year_str = match.group(0)
+            # Get context around the year to decide replacement
+            start = max(0, match.start() - 30)
+            end = min(len(body), match.end() + 30)
+            context = body[start:end].lower()
+
+            # Common patterns and their replacements
+            if "study" in context or "research" in context:
+                return "a recent study"
+            if "published" in context:
+                return "recently"
+            if "copyright" in context or "©" in context:
+                return ""  # Just remove copyright years
+            if "established" in context or "founded" in context:
+                return "historically"
+            if "updated" in context or "revised" in context:
+                return "recently"
+            if "data from" in context or "statistics" in context:
+                return "current"
+            if "report" in context:
+                return "a recent report"
+            if "as of" in context:
+                return "currently"
+            # Default: just remove the year
+            return ""
+
+        # Apply replacements
+        new_body = YEAR_PATTERN.sub(replace_year, body)
+
+        # Clean up any double spaces left behind
+        new_body = re.sub(r"  +", " ", new_body)
+        # Clean up orphaned punctuation patterns
+        new_body = re.sub(r"\s+,", ",", new_body)
+        new_body = re.sub(r"\(\s*\)", "", new_body)  # Empty parentheses
+        new_body = re.sub(r"\[\s*\]", "", new_body)  # Empty brackets
+
+        if new_body != body:
+            print(f"✅ Removed {replacement_count} year reference(s) from content (keeping evergreen)")
+
+        return new_body
 
     def _ensure_meta_description(self, article: dict) -> bool:
         """Ensure summary_html has a 50-160 char meta description."""
