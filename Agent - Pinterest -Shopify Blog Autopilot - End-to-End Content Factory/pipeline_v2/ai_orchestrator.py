@@ -2783,7 +2783,14 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
         if needs_rebuild:
             title = article.get("title", "")
+            existing_body = article.get("body_html", "")
             body_html = self._build_article_body(title)
+            
+            # If LLM failed and returned empty/short content, clean existing body instead
+            if len(body_html) < 1000 and len(existing_body) > 1000:
+                print("⚠️ LLM failed, cleaning existing content instead")
+                body_html = _remove_title_spam(existing_body, title)
+            
             meta_description = self._build_meta_description(title)
             update_payload = {"body_html": body_html, "summary_html": meta_description}
             updated = self.api.update_article(article_id, update_payload)
@@ -2817,7 +2824,14 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
         title = article.get("title", "")
+        existing_body = article.get("body_html", "")
         body_html = self._build_article_body(title)
+        
+        # If LLM failed and returned empty/short content, clean existing body instead
+        if len(body_html) < 1000 and len(existing_body) > 1000:
+            print("⚠️ LLM failed, cleaning existing content instead")
+            body_html = _remove_title_spam(existing_body, title)
+        
         meta_description = self._build_meta_description(title)
         update_payload = {"body_html": body_html, "summary_html": meta_description}
         updated = self.api.update_article(article_id, update_payload)
