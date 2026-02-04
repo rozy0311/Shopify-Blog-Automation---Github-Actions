@@ -197,6 +197,40 @@ def call_github_models_api(prompt: str, max_tokens: int = 7000) -> str:
     return ""
 
 
+def call_pollinations_text_api(prompt: str, max_tokens: int = 7000) -> str:
+    """Call Pollinations Text API (free, no key required) as fallback."""
+    # Pollinations text API - free and reliable
+    endpoint = "https://text.pollinations.ai/"
+    
+    # Use a more capable model
+    model = os.environ.get("POLLINATIONS_TEXT_MODEL", "openai")
+    
+    payload = {
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a professional SEO content writer. Write high-quality, specific, evidence-based content. Always output HTML format."
+            },
+            {"role": "user", "content": prompt}
+        ],
+        "model": model,
+        "seed": 42,
+        "jsonMode": False,
+    }
+
+    try:
+        resp = requests.post(endpoint, json=payload, timeout=180)
+        if resp.status_code == 200:
+            # Response is plain text, not JSON
+            content = resp.text.strip()
+            if content and len(content) > 500:
+                return content
+        print(f"⚠️ Pollinations Text API error: {resp.status_code} - {resp.text[:200]}")
+    except Exception as e:
+        print(f"⚠️ Pollinations Text API exception: {e}")
+    return ""
+
+
 def call_openai_api(prompt: str, max_tokens: int = 7000) -> str:
     """Call OpenAI API as fallback."""
     if not OPENAI_API_KEY:
@@ -398,6 +432,15 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
         content = _clean_llm_output(content)
         content = _remove_title_spam(content, title)
         print(f"✅ Generated {len(content)} chars with OpenAI")
+        return content
+
+    # Final fallback: Pollinations (free, no key required)
+    print("🔄 Fallback to Pollinations Text API (free)...")
+    content = call_pollinations_text_api(prompt, LLM_MAX_OUTPUT_TOKENS)
+    if content and len(content) > 1000:
+        content = _clean_llm_output(content)
+        content = _remove_title_spam(content, title)
+        print(f"✅ Generated {len(content)} chars with Pollinations")
         return content
 
     print("⚠️ All LLM providers failed, will use template fallback")
