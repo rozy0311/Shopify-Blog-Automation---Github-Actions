@@ -112,6 +112,130 @@ ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done.json"
 ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
 ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 
+# ============================================================================
+# GEMINI / LLM CONFIG
+# ============================================================================
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
+GH_MODELS_API_BASE = os.environ.get(
+    "GH_MODELS_API_BASE", "https://models.github.ai/inference"
+)
+GH_MODELS_MODEL = os.environ.get("GH_MODELS_MODEL", "openai/gpt-4.1")
+LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
+
+
+def call_gemini_api(prompt: str, max_tokens: int = 7000) -> str:
+    """Call Gemini API to generate content."""
+    if not GEMINI_API_KEY:
+        print("⚠️ GEMINI_API_KEY not set, falling back to template")
+        return ""
+
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "maxOutputTokens": max_tokens,
+            "temperature": 0.7,
+        },
+    }
+
+    try:
+        resp = requests.post(endpoint, json=payload, timeout=120)
+        if resp.status_code == 200:
+            data = resp.json()
+            candidates = data.get("candidates", [])
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts", [])
+                if parts:
+                    return parts[0].get("text", "")
+        print(f"⚠️ Gemini API error: {resp.status_code} - {resp.text[:200]}")
+    except Exception as e:
+        print(f"⚠️ Gemini API exception: {e}")
+    return ""
+
+
+def call_github_models_api(prompt: str, max_tokens: int = 7000) -> str:
+    """Call GitHub Models API (OpenAI-compatible) as fallback."""
+    if not GH_MODELS_API_KEY:
+        return ""
+
+    endpoint = f"{GH_MODELS_API_BASE}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {GH_MODELS_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": GH_MODELS_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": max_tokens,
+        "temperature": 0.7,
+    }
+
+    try:
+        resp = requests.post(endpoint, json=payload, headers=headers, timeout=120)
+        if resp.status_code == 200:
+            data = resp.json()
+            choices = data.get("choices", [])
+            if choices:
+                return choices[0].get("message", {}).get("content", "")
+        print(f"⚠️ GitHub Models API error: {resp.status_code}")
+    except Exception as e:
+        print(f"⚠️ GitHub Models API exception: {e}")
+    return ""
+
+
+def generate_article_with_llm(title: str, topic: str) -> str:
+    """Generate high-quality article content using LLM (Gemini first, then GitHub Models)."""
+    prompt = f"""Write a comprehensive, expert-level blog article about "{title}" for a sustainable living and homesteading blog.
+
+REQUIREMENTS:
+- 1800-2500 words total
+- Write in a natural, authoritative voice - avoid generic filler phrases
+- Include specific, actionable information about {topic}
+- Use real data, statistics, and expert insights where relevant
+- Structure with clear H2 and H3 headings
+- DO NOT repeat the title or topic name excessively (max 3-5 times total)
+
+REQUIRED SECTIONS (use exactly these H2 headings):
+1. <h2>Direct Answer</h2> - Clear, concise answer in 2-3 sentences
+2. <h2>Key Conditions at a Glance</h2> - Bullet list of main factors
+3. <h2>Understanding {topic}</h2> - Background and context
+4. <h2>Complete Step-by-Step Guide</h2> - Detailed how-to with H3 subsections
+5. <h2>Types and Varieties</h2> - Different options or approaches
+6. <h2>Troubleshooting Common Issues</h2> - Problem/solution format
+7. <h2>Pro Tips from Experts</h2> - 2 blockquotes with expert advice
+8. <h2>Frequently Asked Questions</h2> - 7+ Q&A pairs using H3 for questions
+
+FORMAT:
+- Use proper HTML tags: <h2>, <h3>, <p>, <ul>, <li>, <blockquote>
+- Include at least one <table> with useful data
+- Add 2+ <blockquote> with expert quotes (include <footer> with source)
+- Use <strong> for emphasis on key terms
+
+IMPORTANT:
+- Be specific to {topic} - include real techniques, measurements, timelines
+- Avoid generic advice that could apply to anything
+- Include at least 3 quantified statistics or measurements
+- Reference at least 3 authoritative sources
+
+Output ONLY the HTML content, no markdown, no explanations."""
+
+    # Try Gemini first
+    content = call_gemini_api(prompt, LLM_MAX_OUTPUT_TOKENS)
+    if content and len(content) > 1000:
+        print(f"✅ Generated {len(content)} chars with Gemini")
+        return content
+
+    # Fallback to GitHub Models
+    content = call_github_models_api(prompt, LLM_MAX_OUTPUT_TOKENS)
+    if content and len(content) > 1000:
+        print(f"✅ Generated {len(content)} chars with GitHub Models")
+        return content
+
+    print("⚠️ LLM generation failed, will use template fallback")
+    return ""
+
 
 # ============================================================================
 # META PROMPT REQUIREMENTS - ENFORCED
@@ -581,20 +705,26 @@ class QualityGate:
                 first_fragment = " ".join(title_words[:4])
                 fragment_count = text_lower.count(first_fragment)
                 if fragment_count > 5:
-                    issues.append(f"Title fragment '{first_fragment}' repeated {fragment_count}x (max 5)")
-                
+                    issues.append(
+                        f"Title fragment '{first_fragment}' repeated {fragment_count}x (max 5)"
+                    )
+
                 # Check last 4 words
                 if len(title_words) >= 8:
                     last_fragment = " ".join(title_words[-4:])
                     last_count = text_lower.count(last_fragment)
                     if last_count > 5:
-                        issues.append(f"Title fragment '{last_fragment}' repeated {last_count}x (max 5)")
+                        issues.append(
+                            f"Title fragment '{last_fragment}' repeated {last_count}x (max 5)"
+                        )
 
             # Check for keyword stuffing pattern
             if len(title_words) >= 3:
                 keyword_stuff_pattern = ", ".join(title_words[:3])
                 if keyword_stuff_pattern in text_lower:
-                    issues.append("Keyword stuffing detected (comma-separated title words)")
+                    issues.append(
+                        "Keyword stuffing detected (comma-separated title words)"
+                    )
 
         return {
             "pass": len(found_phrases) == 0 and len(issues) == 0,
@@ -1263,6 +1393,19 @@ class AIOrchestrator:
 
     def _build_article_body(self, title: str) -> str:
         topic = self._normalize_topic(title)
+        
+        # Try LLM-generated content first
+        print(f"🤖 Generating article content for: {title}")
+        llm_content = generate_article_with_llm(title, topic)
+        if llm_content and len(llm_content) > 1000:
+            # Wrap in article tags if needed
+            if "<article>" not in llm_content.lower():
+                llm_content = f"<article>\n{llm_content}\n</article>"
+            print(f"✅ LLM generated {len(llm_content)} chars for {topic}")
+            return llm_content
+        
+        # Fallback to template-based content
+        print(f"⚠️ Falling back to template for: {title}")
         if self._is_gardening_topic(title):
             return self._build_gardening_body(topic, title)
         terms = self._extract_topic_terms(title)

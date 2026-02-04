@@ -622,7 +622,7 @@ def review_article(article_id):
     if QUALITY_CHECKS.get("check_title_spam", True):
         title_lower = title.lower().strip()
         body_lower = body.lower()
-        
+
         # Check full title repetition
         title_count = body_lower.count(title_lower)
         if title_count > 3:
@@ -640,7 +640,7 @@ def review_article(article_id):
                 errors.append(
                     f"❌ TITLE FRAGMENT SPAM: '{first_fragment}' repeated {fragment_count}x (max 5)"
                 )
-            
+
             # Check last 4 words as a phrase (often repeated in AI content)
             if len(title_words) >= 8:
                 last_fragment = " ".join(title_words[-4:])
