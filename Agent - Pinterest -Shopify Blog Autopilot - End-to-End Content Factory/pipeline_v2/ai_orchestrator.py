@@ -1638,6 +1638,15 @@ class AIOrchestrator:
         # AVOID phrases: "in this guide", "this guide", "central to", "used throughout"
         term_descriptions = [
             "The primary concept discussed here, essential for achieving successful results.",
+            "A critical element that directly impacts the quality and outcome of your project.",
+            "Understanding this helps you make informed decisions during each step.",
+            "Mastering this technique separates beginners from experienced practitioners.",
+            "This foundational knowledge enables you to troubleshoot common issues effectively.",
+            "Knowing this term helps you communicate clearly with other enthusiasts.",
+        ]
+
+        items = "\n".join(
+            [
                 f'<li><strong>{t.replace("-", " ").title()}</strong> — {term_descriptions[i % len(term_descriptions)]}</li>'
                 for i, t in enumerate(terms)
             ]
