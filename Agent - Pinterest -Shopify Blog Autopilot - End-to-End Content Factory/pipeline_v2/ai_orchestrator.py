@@ -116,7 +116,7 @@ ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 # GEMINI / LLM CONFIG
 # ============================================================================
 # Prefer GOOGLE_AI_STUDIO_API_KEY (correct format: AIzaSy...) over GEMINI_API_KEY
-GEMINI_API_KEY = os.environ.get("GOOGLE_AI_StUDIO_API_KEY", "") or os.environ.get(
+GEMINI_API_KEY = os.environ.get("GOOGLE_AI_STUDIO_API_KEY", "") or os.environ.get(
     "GEMINI_API_KEY", ""
 )
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
@@ -717,7 +717,8 @@ def strip_generic_sections(body_html: str, title: str = "") -> str:
 
         # Check for generic source patterns
         generic_sources = any(
-            re.search(p, section_content, re.I) for p in [
+            re.search(p, section_content, re.I)
+            for p in [
                 r"General guidance related to",
                 r"Background information and safety considerations",
                 r"Health and safety references that may apply",
@@ -739,7 +740,9 @@ def strip_generic_sections(body_html: str, title: str = "") -> str:
     # Find and check FAQ section for generic answers
     faq_h2 = soup.find("h2", id="faq")
     if not faq_h2:
-        faq_h2 = soup.find("h2", string=re.compile(r"Frequently Asked Questions|FAQ", re.I))
+        faq_h2 = soup.find(
+            "h2", string=re.compile(r"Frequently Asked Questions|FAQ", re.I)
+        )
 
     if faq_h2:
         section_content = ""
@@ -759,8 +762,7 @@ def strip_generic_sections(body_html: str, title: str = "") -> str:
             r"when you follow basic safety steps",
         ]
         generic_count = sum(
-            1 for p in generic_faq_patterns
-            if re.search(p, section_content, re.I)
+            1 for p in generic_faq_patterns if re.search(p, section_content, re.I)
         )
 
         # If more than 3 generic answers, remove entire FAQ section
@@ -1395,10 +1397,9 @@ class ShopifyAPI:
         # Strip generic template sections from body_html before publishing
         if "body_html" in data:
             data["body_html"] = strip_generic_sections(
-                data["body_html"], 
-                data.get("title", "")
+                data["body_html"], data.get("title", "")
             )
-        
+
         url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
         resp = requests.put(url, headers=HEADERS, json={"article": data})
         return resp.status_code == 200
