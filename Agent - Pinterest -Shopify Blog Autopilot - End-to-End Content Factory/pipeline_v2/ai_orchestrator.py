@@ -245,25 +245,29 @@ CRITICAL ANTI-REPETITION RULES:
 - NEVER repeat the exact title phrase more than 3 times
 
 REQUIREMENTS:
-- 1800-2500 words total
+- 2000-2800 words total
 - Write in a natural, authoritative voice - avoid generic filler phrases
 - Include specific, actionable information
 - Use real data, statistics, and expert insights where relevant
 - Structure with clear H2 and H3 headings
 
-REQUIRED SECTIONS (use exactly these H2 headings):
+REQUIRED 11 SECTIONS (use exactly these H2 headings in order):
 1. <h2>Direct Answer</h2> - Clear, concise answer in 2-3 sentences
-2. <h2>Key Conditions at a Glance</h2> - Bullet list of main factors
-3. <h2>Understanding the Topic</h2> - Background and context
+2. <h2>Key Conditions at a Glance</h2> - Bullet list (<ul>) of 5-7 main factors
+3. <h2>Understanding the Topic</h2> - Background and context (3-4 paragraphs)
 4. <h2>Complete Step-by-Step Guide</h2> - Detailed how-to with H3 subsections
 5. <h2>Types and Varieties</h2> - Different options or approaches
-6. <h2>Troubleshooting Common Issues</h2> - Problem/solution format
-7. <h2>Pro Tips from Experts</h2> - 2 blockquotes with expert advice
-8. <h2>Frequently Asked Questions</h2> - 7+ Q&A pairs using H3 for questions
+6. <h2>Troubleshooting Common Issues</h2> - Problem/solution format with bullet list
+7. <h2>Pro Tips from Experts</h2> - 2+ blockquotes with expert advice
+8. <h2>Advanced Techniques</h2> - For experienced users, advanced methods
+9. <h2>Comparison Table</h2> - Include a <table> comparing options/methods
+10. <h2>Frequently Asked Questions</h2> - 7+ Q&A pairs using H3 for questions
+11. <h2>Sources & Further Reading</h2> - 3+ authoritative sources as links
 
-FORMAT:
-- Use proper HTML tags: <h2>, <h3>, <p>, <ul>, <li>, <blockquote>
-- Include at least one <table> with useful data
+FORMAT REQUIREMENTS:
+- Use proper HTML tags: <h2>, <h3>, <p>, <ul>, <li>, <blockquote>, <table>
+- Key Conditions MUST use <ul> or <ol> bullet list
+- Include at least one <table> in Comparison Table section
 - Add 2+ <blockquote> with expert quotes (include <footer> with source)
 - Use <strong> for emphasis on key terms
 - Start directly with <h2>Direct Answer</h2> - NO html/head/body tags
@@ -272,6 +276,7 @@ IMPORTANT:
 - Be specific - include real techniques, measurements, timelines
 - Avoid generic advice that could apply to anything
 - Include at least 3 quantified statistics or measurements
+- Sources section must have actual links in format: <a href="url">Source Name</a>
 
 Output ONLY the article HTML content starting with <h2>. No markdown, no code blocks, no explanations."""
 
