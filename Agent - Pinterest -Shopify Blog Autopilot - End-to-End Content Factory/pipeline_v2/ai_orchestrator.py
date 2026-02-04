@@ -115,7 +115,8 @@ ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 # ============================================================================
 # GEMINI / LLM CONFIG
 # ============================================================================
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+# Prefer GOOGLE_AI_STUDIO_API_KEY (correct format: AIzaSy...) over GEMINI_API_KEY
+GEMINI_API_KEY = os.environ.get("GOOGLE_AI_StUDIO_API_KEY", "") or os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-pro")
 GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
@@ -201,10 +202,10 @@ def call_pollinations_text_api(prompt: str, max_tokens: int = 7000) -> str:
     """Call Pollinations Text API (free, no key required) as fallback."""
     # Pollinations text API - free and reliable
     endpoint = "https://text.pollinations.ai/"
-    
+
     # Use a more capable model
     model = os.environ.get("POLLINATIONS_TEXT_MODEL", "openai")
-    
+
     payload = {
         "messages": [
             {
