@@ -116,7 +116,9 @@ ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 # GEMINI / LLM CONFIG
 # ============================================================================
 # Prefer GOOGLE_AI_STUDIO_API_KEY (correct format: AIzaSy...) over GEMINI_API_KEY
-GEMINI_API_KEY = os.environ.get("GOOGLE_AI_StUDIO_API_KEY", "") or os.environ.get("GEMINI_API_KEY", "")
+GEMINI_API_KEY = os.environ.get("GOOGLE_AI_StUDIO_API_KEY", "") or os.environ.get(
+    "GEMINI_API_KEY", ""
+)
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-pro")
 GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
@@ -210,9 +212,9 @@ def call_pollinations_text_api(prompt: str, max_tokens: int = 7000) -> str:
         "messages": [
             {
                 "role": "system",
-                "content": "You are a professional SEO content writer. Write high-quality, specific, evidence-based content. Always output HTML format."
+                "content": "You are a professional SEO content writer. Write high-quality, specific, evidence-based content. Always output HTML format.",
             },
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": prompt},
         ],
         "model": model,
         "seed": 42,

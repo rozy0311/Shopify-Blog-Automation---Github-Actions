@@ -341,8 +341,9 @@ async function callOpenAICompatible(
 }
 
 async function callGemini(systemPrompt: string, userPrompt: string, model: string): Promise<LlmPayload> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("Missing GEMINI_API_KEY");
+  // Prefer GOOGLE_AI_STUDIO_API_KEY (correct format: AIzaSy...) over GEMINI_API_KEY
+  const apiKey = process.env.GOOGLE_AI_StUDIO_API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("Missing GEMINI_API_KEY or GOOGLE_AI_STUDIO_API_KEY");
 
   const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || "120000");
   const controller = new AbortController();
