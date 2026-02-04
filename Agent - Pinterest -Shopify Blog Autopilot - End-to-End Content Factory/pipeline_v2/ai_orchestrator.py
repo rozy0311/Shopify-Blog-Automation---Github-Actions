@@ -117,6 +117,7 @@ ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 # ============================================================================
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-pro")
 GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
 GH_MODELS_API_BASE = os.environ.get(
     "GH_MODELS_API_BASE", "https://models.github.ai/inference"
@@ -127,13 +128,20 @@ OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
 
 
-def call_gemini_api(prompt: str, max_tokens: int = 7000) -> str:
-    """Call Gemini API to generate content."""
+def call_gemini_api(prompt: str, max_tokens: int = 7000, model: str = None) -> str:
+    """Call Gemini API to generate content.
+    
+    Args:
+        prompt: The prompt to send
+        max_tokens: Maximum output tokens
+        model: Model to use (defaults to GEMINI_MODEL)
+    """
     if not GEMINI_API_KEY:
         print("⚠️ GEMINI_API_KEY not set, falling back to template")
         return ""
 
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+    model_to_use = model or GEMINI_MODEL
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_to_use}:generateContent?key={GEMINI_API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -143,7 +151,7 @@ def call_gemini_api(prompt: str, max_tokens: int = 7000) -> str:
     }
 
     try:
-        resp = requests.post(endpoint, json=payload, timeout=120)
+        resp = requests.post(endpoint, json=payload, timeout=180)
         if resp.status_code == 200:
             data = resp.json()
             candidates = data.get("candidates", [])
@@ -151,9 +159,9 @@ def call_gemini_api(prompt: str, max_tokens: int = 7000) -> str:
                 parts = candidates[0].get("content", {}).get("parts", [])
                 if parts:
                     return parts[0].get("text", "")
-        print(f"⚠️ Gemini API error: {resp.status_code} - {resp.text[:200]}")
+        print(f"⚠️ Gemini API ({model_to_use}) error: {resp.status_code} - {resp.text[:200]}")
     except Exception as e:
-        print(f"⚠️ Gemini API exception: {e}")
+        print(f"⚠️ Gemini API ({model_to_use}) exception: {e}")
     return ""
 
 
@@ -354,15 +362,26 @@ IMPORTANT:
 
 Output ONLY the article HTML content starting with <h2>. No markdown, no code blocks, no explanations."""
 
-    # Try Gemini first
-    content = call_gemini_api(prompt, LLM_MAX_OUTPUT_TOKENS)
+    # Try Gemini Flash first (fastest)
+    print(f"🔄 Trying Gemini Flash ({GEMINI_MODEL})...")
+    content = call_gemini_api(prompt, LLM_MAX_OUTPUT_TOKENS, GEMINI_MODEL)
     if content and len(content) > 1000:
         content = _clean_llm_output(content)
         content = _remove_title_spam(content, title)
-        print(f"✅ Generated {len(content)} chars with Gemini")
+        print(f"✅ Generated {len(content)} chars with Gemini Flash")
+        return content
+
+    # Fallback to Gemini Pro (higher quality)
+    print(f"🔄 Fallback to Gemini Pro ({GEMINI_MODEL_FALLBACK})...")
+    content = call_gemini_api(prompt, LLM_MAX_OUTPUT_TOKENS, GEMINI_MODEL_FALLBACK)
+    if content and len(content) > 1000:
+        content = _clean_llm_output(content)
+        content = _remove_title_spam(content, title)
+        print(f"✅ Generated {len(content)} chars with Gemini Pro")
         return content
 
     # Fallback to GitHub Models
+    print(f"🔄 Fallback to GitHub Models ({GH_MODELS_MODEL})...")
     content = call_github_models_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
         content = _clean_llm_output(content)
@@ -371,6 +390,7 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
         return content
 
     # Fallback to OpenAI
+    print(f"🔄 Fallback to OpenAI ({OPENAI_MODEL})...")
     content = call_openai_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
         content = _clean_llm_output(content)
@@ -378,7 +398,7 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
         print(f"✅ Generated {len(content)} chars with OpenAI")
         return content
 
-    print("⚠️ LLM generation failed, will use template fallback")
+    print("⚠️ All LLM providers failed, will use template fallback")
     return ""
 
 
@@ -2785,12 +2805,12 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             title = article.get("title", "")
             existing_body = article.get("body_html", "")
             body_html = self._build_article_body(title)
-            
+
             # If LLM failed and returned empty/short content, clean existing body instead
             if len(body_html) < 1000 and len(existing_body) > 1000:
                 print("⚠️ LLM failed, cleaning existing content instead")
                 body_html = _remove_title_spam(existing_body, title)
-            
+
             meta_description = self._build_meta_description(title)
             update_payload = {"body_html": body_html, "summary_html": meta_description}
             updated = self.api.update_article(article_id, update_payload)
@@ -2826,12 +2846,12 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         title = article.get("title", "")
         existing_body = article.get("body_html", "")
         body_html = self._build_article_body(title)
-        
+
         # If LLM failed and returned empty/short content, clean existing body instead
         if len(body_html) < 1000 and len(existing_body) > 1000:
             print("⚠️ LLM failed, cleaning existing content instead")
             body_html = _remove_title_spam(existing_body, title)
-        
+
         meta_description = self._build_meta_description(title)
         update_payload = {"body_html": body_html, "summary_html": meta_description}
         updated = self.api.update_article(article_id, update_payload)
