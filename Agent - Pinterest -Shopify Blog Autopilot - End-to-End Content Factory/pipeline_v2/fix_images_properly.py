@@ -26,6 +26,7 @@ from urllib.parse import quote
 # Load .env from project
 try:
     from dotenv import load_dotenv
+
     for p in [Path(__file__).parent.parent / ".env", Path(__file__).parent / ".env"]:
         if p.exists():
             load_dotenv(p)
@@ -653,7 +654,10 @@ def fix_article_images(
     # Consider featured only if image has a valid src (Shopify CDN or other URL)
     img_obj = article.get("image") or {}
     featured_src = (img_obj.get("src") or "").strip()
-    has_featured = bool(featured_src and ("cdn.shopify.com" in featured_src or featured_src.startswith("http")))
+    has_featured = bool(
+        featured_src
+        and ("cdn.shopify.com" in featured_src or featured_src.startswith("http"))
+    )
 
     print(f"\n{'='*60}")
     print(f"📝 {title}")
@@ -666,7 +670,10 @@ def fix_article_images(
     print(
         f"   Current images: Pinterest={img_counts['pinterest']}, Shopify CDN={img_counts['shopify_cdn']}, Total={img_counts['total']}"
     )
-    print(f"   Featured image: {'Yes' if has_featured else 'No'}" + (f" ({featured_src[:50]}...)" if featured_src else ""))
+    print(
+        f"   Featured image: {'Yes' if has_featured else 'No'}"
+        + (f" ({featured_src[:50]}...)" if featured_src else "")
+    )
 
     # Preserve an existing Pinterest image if none matched
     if not pinterest_image_url:
@@ -681,7 +688,9 @@ def fix_article_images(
         if need_inline == 0 and not need_featured:
             print("\n✅ Already has 3+ inline + featured; nothing to add.")
             return True
-        print(f"   Need: +{need_inline} inline, featured={'Yes' if need_featured else 'No'}")
+        print(
+            f"   Need: +{need_inline} inline, featured={'Yes' if need_featured else 'No'}"
+        )
 
     # Generate topic-specific prompts
     prompts = generate_topic_specific_prompts(title)
@@ -736,7 +745,7 @@ def fix_article_images(
         print("\n  [1/4] Featured image: already present, skip")
 
     # Inline images (only as many as needed; when images_only and need_inline=0, skip)
-    keys_needed = ["inline1", "inline2", "inline3"][: need_inline] if need_inline else []
+    keys_needed = ["inline1", "inline2", "inline3"][:need_inline] if need_inline else []
     for i, key in enumerate(keys_needed, 1):
         print(f"\n  [{i+1}/4] {prompts[key]['alt']}:")
         img_bytes, _, _ = generate_valid_pollinations_image(
@@ -760,15 +769,35 @@ def fix_article_images(
     else:
         required_inline = 3
         required_featured = True
-        if len(cdn_urls) < required_inline or (required_featured and not featured_cdn_url):
+        if len(cdn_urls) < required_inline or (
+            required_featured and not featured_cdn_url
+        ):
             print("\n❌ Image generation incomplete; skipping publish.")
             print(f"   AI inline images: {len(cdn_urls)}/{required_inline}")
             print(f"   Featured image: {'Yes' if featured_cdn_url else 'No'}")
             return False
 
-    # Step 4: Add Pinterest image if available (not in images_only - we preserve existing)
+    # Step 4: Upload Pinterest image to Shopify CDN (hotlink protection bypass)
+    pinterest_cdn_url = None
     if not images_only and pinterest_image_url:
-        print(f"\n📌 Adding Pinterest image: {pinterest_image_url[:50]}...")
+        print(f"\n📌 Uploading Pinterest image to CDN: {pinterest_image_url[:50]}...")
+        try:
+            # Download Pinterest image
+            pin_resp = requests.get(pinterest_image_url, timeout=15, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            })
+            if pin_resp.status_code == 200 and len(pin_resp.content) > 1000:
+                # Upload to Shopify CDN
+                pin_filename = f"pinterest_{article_id}_{int(time.time())}.jpg"
+                pinterest_cdn_url = upload_to_shopify_cdn(pin_resp.content, pin_filename)
+                if pinterest_cdn_url:
+                    print(f"    ✅ Pinterest uploaded to CDN: {pinterest_cdn_url[:60]}...")
+                else:
+                    print(f"    ⚠️ Pinterest CDN upload failed, skipping")
+            else:
+                print(f"    ⚠️ Pinterest download failed: {pin_resp.status_code}")
+        except Exception as e:
+            print(f"    ⚠️ Pinterest upload error: {e}")
 
     # Step 5: Insert images into body
     paragraphs = list(re.finditer(r"</p>", new_html))
@@ -779,12 +808,12 @@ def fix_article_images(
     # Calculate positions for images
     images_to_insert = []
 
-    # Pinterest image (only when full fix - not images_only)
-    if not images_only and pinterest_image_url and total_paras > 2:
+    # Pinterest image (only when full fix - not images_only) - use CDN URL
+    if not images_only and pinterest_cdn_url and total_paras > 2:
         images_to_insert.append(
             {
                 "pos_idx": 1,
-                "url": pinterest_image_url,
+                "url": pinterest_cdn_url,
                 "alt": f"Pinterest: {title}",
                 "source": "pinterest",
             }
@@ -843,9 +872,9 @@ def fix_article_images(
     update_resp = requests.put(update_url, headers=headers, json=update_data)
 
     if update_resp.status_code == 200:
-        pinterest_count = 1 if pinterest_image_url else 0
+        pinterest_count = 1 if pinterest_cdn_url else 0
         print(f"\n✅ SUCCESS!")
-        print(f"   Pinterest images: {pinterest_count}")
+        print(f"   Pinterest images (CDN): {pinterest_count}")
         print(f"   AI inline images: {len(cdn_urls)}")
         print(f"   Featured image: {'Yes' if featured_cdn_url else 'No'}")
         return True
@@ -880,7 +909,9 @@ def fix_all_matched_articles(dry_run: bool = False, images_only: bool = False):
             # Pinterest image URL pattern
             pinterest_url = f"https://i.pinimg.com/736x/{pin_id}.jpg"
 
-        if fix_article_images(article_id, pinterest_url, dry_run, images_only=images_only):
+        if fix_article_images(
+            article_id, pinterest_url, dry_run, images_only=images_only
+        ):
             success += 1
         else:
             failed += 1
@@ -900,7 +931,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Fix article images properly")
     parser.add_argument("--article-id", type=int, help="Single article ID to fix")
-    parser.add_argument("--ids", help="Comma-separated article IDs (e.g. 690329256254,690329289022)")
+    parser.add_argument(
+        "--ids", help="Comma-separated article IDs (e.g. 690329256254,690329289022)"
+    )
     parser.add_argument("--all", action="store_true", help="Fix all matched articles")
     parser.add_argument("--dry-run", action="store_true", help="Don't make changes")
     parser.add_argument(
@@ -951,7 +984,9 @@ if __name__ == "__main__":
                     elif pin_id:
                         pinterest_url = get_pinterest_image_url(str(pin_id))
                     break
-            if fix_article_images(aid_int, pinterest_url, args.dry_run, images_only=args.images_only):
+            if fix_article_images(
+                aid_int, pinterest_url, args.dry_run, images_only=args.images_only
+            ):
                 success += 1
             else:
                 failed += 1
@@ -963,6 +998,10 @@ if __name__ == "__main__":
         ok = fix_all_matched_articles(args.dry_run, images_only=args.images_only)
         sys.exit(0 if ok else 1)
     else:
-        print("Usage: python fix_images_properly.py --article-id ID [--images-only] [--dry-run]")
-        print("       python fix_images_properly.py --ids ID1,ID2,... [--images-only] [--dry-run]")
+        print(
+            "Usage: python fix_images_properly.py --article-id ID [--images-only] [--dry-run]"
+        )
+        print(
+            "       python fix_images_properly.py --ids ID1,ID2,... [--images-only] [--dry-run]"
+        )
         print("       python fix_images_properly.py --all [--images-only] [--dry-run]")
