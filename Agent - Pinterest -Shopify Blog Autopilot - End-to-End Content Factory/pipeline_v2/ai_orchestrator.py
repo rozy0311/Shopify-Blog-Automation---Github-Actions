@@ -122,6 +122,8 @@ GH_MODELS_API_BASE = os.environ.get(
     "GH_MODELS_API_BASE", "https://models.github.ai/inference"
 )
 GH_MODELS_MODEL = os.environ.get("GH_MODELS_MODEL", "openai/gpt-4.1")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
 
 
@@ -185,6 +187,36 @@ def call_github_models_api(prompt: str, max_tokens: int = 7000) -> str:
     return ""
 
 
+def call_openai_api(prompt: str, max_tokens: int = 7000) -> str:
+    """Call OpenAI API as fallback."""
+    if not OPENAI_API_KEY:
+        return ""
+
+    endpoint = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": OPENAI_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": max_tokens,
+        "temperature": 0.7,
+    }
+
+    try:
+        resp = requests.post(endpoint, json=payload, headers=headers, timeout=120)
+        if resp.status_code == 200:
+            data = resp.json()
+            choices = data.get("choices", [])
+            if choices:
+                return choices[0].get("message", {}).get("content", "")
+        print(f"⚠️ OpenAI API error: {resp.status_code} - {resp.text[:200]}")
+    except Exception as e:
+        print(f"⚠️ OpenAI API exception: {e}")
+    return ""
+
+
 def generate_article_with_llm(title: str, topic: str) -> str:
     """Generate high-quality article content using LLM (Gemini first, then GitHub Models)."""
     prompt = f"""Write a comprehensive, expert-level blog article about "{title}" for a sustainable living and homesteading blog.
@@ -231,6 +263,12 @@ Output ONLY the HTML content, no markdown, no explanations."""
     content = call_github_models_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
         print(f"✅ Generated {len(content)} chars with GitHub Models")
+        return content
+
+    # Fallback to OpenAI
+    content = call_openai_api(prompt, LLM_MAX_OUTPUT_TOKENS)
+    if content and len(content) > 1000:
+        print(f"✅ Generated {len(content)} chars with OpenAI")
         return content
 
     print("⚠️ LLM generation failed, will use template fallback")
@@ -1393,7 +1431,7 @@ class AIOrchestrator:
 
     def _build_article_body(self, title: str) -> str:
         topic = self._normalize_topic(title)
-        
+
         # Try LLM-generated content first
         print(f"🤖 Generating article content for: {title}")
         llm_content = generate_article_with_llm(title, topic)
@@ -1403,7 +1441,7 @@ class AIOrchestrator:
                 llm_content = f"<article>\n{llm_content}\n</article>"
             print(f"✅ LLM generated {len(llm_content)} chars for {topic}")
             return llm_content
-        
+
         # Fallback to template-based content
         print(f"⚠️ Falling back to template for: {title}")
         if self._is_gardening_topic(title):
