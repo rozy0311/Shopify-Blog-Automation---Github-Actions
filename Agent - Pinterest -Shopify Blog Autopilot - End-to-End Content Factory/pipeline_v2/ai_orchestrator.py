@@ -3384,12 +3384,14 @@ class AIOrchestrator:
             body,
             re.IGNORECASE,
         )
-        
+
         # Check for Key Terms section - also check if it has GENERIC content
-        key_terms_match = re.search(r'<h2[^>]*>.*Key Terms.*</h2>', body, re.IGNORECASE)
-        has_key_terms = bool(key_terms_match) or bool(re.search(r'id=["\']key-terms["\']', body, re.IGNORECASE))
+        key_terms_match = re.search(r"<h2[^>]*>.*Key Terms.*</h2>", body, re.IGNORECASE)
+        has_key_terms = bool(key_terms_match) or bool(
+            re.search(r'id=["\']key-terms["\']', body, re.IGNORECASE)
+        )
         needs_key_terms_replacement = False
-        
+
         if has_key_terms and key_terms_match:
             # Extract Key Terms content to check for generic phrases
             kt_pos = key_terms_match.end()
@@ -3397,7 +3399,7 @@ class AIOrchestrator:
             next_h2 = re.search(r"<h2", kt_content, re.IGNORECASE)
             if next_h2:
                 kt_content = kt_content[: next_h2.start()]
-            
+
             # Generic phrases that indicate bad Key Terms
             generic_indicators = [
                 "a key component in",
@@ -3407,22 +3409,63 @@ class AIOrchestrator:
                 "relates to",
             ]
             # Also check for meaningless terms like "Actionable", "Ways", "Use" as term names
-            bad_term_names = ["actionable</strong>", "ways</strong>", "use</strong>", "your</strong>"]
-            
+            bad_term_names = [
+                "actionable</strong>",
+                "ways</strong>",
+                "use</strong>",
+                "your</strong>",
+            ]
+            # Default fallback terms that should be replaced with topic-specific ones
+            default_fallback_terms = [
+                "preparation steps</strong>",
+                "required materials</strong>",
+                "expected results</strong>",
+                "material selection</strong>",
+                "quality indicators</strong>",
+            ]
+
             kt_lower = kt_content.lower()
             has_generic = any(phrase in kt_lower for phrase in generic_indicators)
             has_bad_terms = any(term in kt_lower for term in bad_term_names)
-            
-            if has_generic or has_bad_terms:
-                print(f"⚠️ Key Terms section has generic content - will replace")
+            has_default_fallbacks = any(
+                term in kt_lower for term in default_fallback_terms
+            )
+
+            # Also check if topic keywords are missing from Key Terms
+            # Extract main topic term from title
+            topic_terms = self._extract_topic_terms(title)
+            topic_in_key_terms = any(
+                term.lower() in kt_lower for term in topic_terms[:2]
+            )
+
+            if (
+                has_generic
+                or has_bad_terms
+                or has_default_fallbacks
+                or not topic_in_key_terms
+            ):
+                reason = []
+                if has_generic:
+                    reason.append("generic phrases")
+                if has_bad_terms:
+                    reason.append("bad term names")
+                if has_default_fallbacks:
+                    reason.append("default fallback terms")
+                if not topic_in_key_terms:
+                    reason.append(f"missing topic terms ({topic_terms[:2]})")
+                print(
+                    f"⚠️ Key Terms section has issues: {', '.join(reason)} - will replace"
+                )
                 needs_key_terms_replacement = True
                 # REMOVE the bad Key Terms section before adding new one
                 kt_start = key_terms_match.start()
-                kt_end = key_terms_match.end() + (next_h2.start() if next_h2 else len(kt_content))
+                kt_end = key_terms_match.end() + (
+                    next_h2.start() if next_h2 else len(kt_content)
+                )
                 body = body[:kt_start] + body[kt_end:]
                 has_key_terms = False  # Mark as needing new section
-                print(f"🗑️ Removed generic Key Terms section")
-        
+                print(f"🗑️ Removed inadequate Key Terms section")
+
         # Check for FAQ section with ACTUAL FAQ items (≥7 H3 questions or <p><strong>Q</strong> format)
         faq_h2_match = re.search(
             r"<h2[^>]*>.*(?:FAQ|Frequently Asked|Questions).*</h2>",
