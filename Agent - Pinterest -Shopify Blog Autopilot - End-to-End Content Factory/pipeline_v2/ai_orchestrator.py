@@ -3170,6 +3170,9 @@ class AIOrchestrator:
         body = _remove_generic_phrases(body)
         cleaned_generic = body != original_body
 
+        # FINAL: Ensure ALL H2/H3 headings have id attributes (some may have been added by other functions)
+        body = ensure_heading_ids(body)
+
         # Only update if we made changes
         if (
             sections_to_add
@@ -3431,8 +3434,24 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                 modified = True
 
         # Fix SOURCE FORMAT: Convert hyphens to em-dashes in source section
-        # Look for Sources section and fix format
-        sources_section = soup.find("h2", id="sources")
+        # Look for Sources section using multiple strategies (same as pre_publish_review.py)
+        sources_section = None
+        
+        # Strategy 1: Find by id containing "sources"
+        for h2 in soup.find_all("h2"):
+            h2_id = h2.get("id", "") or ""
+            if "sources" in h2_id.lower():
+                sources_section = h2
+                break
+        
+        # Strategy 2: Find by text content
+        if not sources_section:
+            for h2 in soup.find_all("h2"):
+                h2_text = h2.get_text().lower()
+                if any(kw in h2_text for kw in ["sources", "further reading", "references"]):
+                    sources_section = h2
+                    break
+        
         if sources_section:
             # Find the <ul> or <ol> after the sources heading
             next_elem = sources_section.find_next_sibling()
@@ -3441,12 +3460,33 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
             if next_elem and next_elem.name in ["ul", "ol"]:
                 for li in next_elem.find_all("li"):
-                    # Get the text content and look for source format issues
-                    li_text = li.get_text()
-                    # Replace hyphen surrounded by spaces with em-dash
-                    if " - " in li_text and " — " not in li_text:
-                        # Reconstruct the li content with em-dash
-                        for text_node in li.find_all(string=True):
+                    # Fix link text to have em-dash format: "Name — Description"
+                    for a_tag in li.find_all("a"):
+                        link_text = a_tag.get_text().strip()
+                        # Check if missing em-dash and not just a simple name
+                        if "—" not in link_text and "–" not in link_text and len(link_text) > 5:
+                            # Check if it looks like raw URL in text
+                            if re.search(r"\.(com|org|edu|gov)\b", link_text, re.IGNORECASE):
+                                # Replace raw URL with proper format
+                                # Try to extract domain name for display
+                                href = a_tag.get("href", "")
+                                try:
+                                    from urllib.parse import urlparse
+                                    parsed = urlparse(href)
+                                    domain = parsed.netloc.replace("www.", "").split(".")[0].title()
+                                    a_tag.string = f"{domain} — Trusted Source"
+                                    modified = True
+                                except:
+                                    pass
+                            elif " - " in link_text:
+                                # Simple hyphen to em-dash conversion
+                                new_text = link_text.replace(" - ", " — ")
+                                a_tag.string = new_text
+                                modified = True
+                    
+                    # Also fix text nodes outside links
+                    for text_node in li.find_all(string=True):
+                        if text_node.parent.name != "a":  # Skip if inside <a> tag
                             if " - " in text_node and " — " not in text_node:
                                 new_text = text_node.replace(" - ", " — ")
                                 text_node.replace_with(new_text)
