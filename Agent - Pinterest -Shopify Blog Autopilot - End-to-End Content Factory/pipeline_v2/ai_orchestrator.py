@@ -1627,7 +1627,7 @@ class AIOrchestrator:
 
     def _normalize_topic(self, title: str) -> str:
         """Convert long title to SHORT, natural topic phrase.
-        
+
         Examples:
         - "3 Actionable Ways to Use Bay Leaves in Your Garden" -> "using bay leaves"
         - "How to Make Apple Cider Vinegar at Home" -> "making apple cider vinegar"
@@ -1636,10 +1636,10 @@ class AIOrchestrator:
         # Clean special characters first
         cleaned = re.sub(r"\s+", " ", re.sub(r"[^A-Za-z0-9\s\-]", " ", title))
         cleaned = cleaned.strip().lower()
-        
+
         if not cleaned:
             return "this topic"
-        
+
         # Remove common title prefixes (numbers, action words, etc.)
         prefixes_to_remove = [
             r"^\d+\s*(actionable\s*)?(easy\s*)?(simple\s*)?(best\s*)?(proven\s*)?(ways?|steps?|tips?|tricks?|methods?|ideas?|reasons?)\s*(to\s*)?",
@@ -1648,44 +1648,65 @@ class AIOrchestrator:
             r"^(diy|homemade|natural|organic|simple|easy)\s+",
             r"^(a|an|the)\s+",
         ]
-        
+
         for pattern in prefixes_to_remove:
             cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE)
-        
+
         # Remove common suffixes
         suffixes_to_remove = [
             r"\s+(at\s+home|for\s+beginners?|step\s+by\s+step|from\s+scratch)$",
             r"\s+(guide|tutorial|tips?|ideas?|recipe)$",
             r"\s+in\s+(your\s+)?(home|house|kitchen|garden|yard|backyard)$",
         ]
-        
+
         for pattern in suffixes_to_remove:
             cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE)
-        
+
         # Clean up extra whitespace
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
-        
+
         # If still too long (>40 chars), take first meaningful part
         if len(cleaned) > 40:
             # Try to find key noun phrase (usually the real topic)
             words = cleaned.split()
             # Take up to 4 words or until we hit a preposition
             result_words = []
-            prepositions = {"in", "on", "at", "for", "with", "without", "from", "to", "of"}
+            prepositions = {
+                "in",
+                "on",
+                "at",
+                "for",
+                "with",
+                "without",
+                "from",
+                "to",
+                "of",
+            }
             for i, word in enumerate(words[:6]):
                 if word in prepositions and i > 1:
                     break
                 result_words.append(word)
             cleaned = " ".join(result_words[:4])
-        
+
         # Ensure we have something meaningful
         if len(cleaned) < 3:
             # Fallback: extract nouns from original title
             nouns = re.findall(r"\b[A-Za-z]{4,}\b", title.lower())
-            stopwords = {"ways", "tips", "ideas", "guide", "make", "home", "easy", "best", "your", "actionable"}
+            stopwords = {
+                "ways",
+                "tips",
+                "ideas",
+                "guide",
+                "make",
+                "home",
+                "easy",
+                "best",
+                "your",
+                "actionable",
+            }
             nouns = [n for n in nouns if n not in stopwords]
             cleaned = " ".join(nouns[:3]) if nouns else "this topic"
-        
+
         return cleaned
 
     def _extract_topic_terms(self, title: str) -> list[str]:
@@ -3363,10 +3384,45 @@ class AIOrchestrator:
             body,
             re.IGNORECASE,
         )
-        has_key_terms = (
-            "key terms" in body_lower
-            and re.search(r"<h2[^>]*>.*Key Terms.*</h2>", body, re.IGNORECASE)
-        ) or bool(re.search(r'id=["\']key-terms["\']', body, re.IGNORECASE))
+        
+        # Check for Key Terms section - also check if it has GENERIC content
+        key_terms_match = re.search(r'<h2[^>]*>.*Key Terms.*</h2>', body, re.IGNORECASE)
+        has_key_terms = bool(key_terms_match) or bool(re.search(r'id=["\']key-terms["\']', body, re.IGNORECASE))
+        needs_key_terms_replacement = False
+        
+        if has_key_terms and key_terms_match:
+            # Extract Key Terms content to check for generic phrases
+            kt_pos = key_terms_match.end()
+            kt_content = body[kt_pos:]
+            next_h2 = re.search(r"<h2", kt_content, re.IGNORECASE)
+            if next_h2:
+                kt_content = kt_content[: next_h2.start()]
+            
+            # Generic phrases that indicate bad Key Terms
+            generic_indicators = [
+                "a key component in",
+                "directly affects the final outcome",
+                "quality and consistency",
+                "refers to the specific",
+                "relates to",
+            ]
+            # Also check for meaningless terms like "Actionable", "Ways", "Use" as term names
+            bad_term_names = ["actionable</strong>", "ways</strong>", "use</strong>", "your</strong>"]
+            
+            kt_lower = kt_content.lower()
+            has_generic = any(phrase in kt_lower for phrase in generic_indicators)
+            has_bad_terms = any(term in kt_lower for term in bad_term_names)
+            
+            if has_generic or has_bad_terms:
+                print(f"⚠️ Key Terms section has generic content - will replace")
+                needs_key_terms_replacement = True
+                # REMOVE the bad Key Terms section before adding new one
+                kt_start = key_terms_match.start()
+                kt_end = key_terms_match.end() + (next_h2.start() if next_h2 else len(kt_content))
+                body = body[:kt_start] + body[kt_end:]
+                has_key_terms = False  # Mark as needing new section
+                print(f"🗑️ Removed generic Key Terms section")
+        
         # Check for FAQ section with ACTUAL FAQ items (≥7 H3 questions or <p><strong>Q</strong> format)
         faq_h2_match = re.search(
             r"<h2[^>]*>.*(?:FAQ|Frequently Asked|Questions).*</h2>",
