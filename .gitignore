@@ -36,6 +36,32 @@ vertex-sa.json
 **/backups_featured_images/
 **/backups/
 
+# Local progress/queue files - runtime data
+**/progress.json
+**/anti_drift_*.json
+**/anti_drift_*.csv
+**/article_classification.json
+**/articles_need*.json
+**/articles_need*.txt
+**/auto_complete_progress.json
+**/scan_results.json
+**/blog_titles.txt
+**/*_queue*.json
+**/*_log.json
+**/*_log.csv
+
+# Local scripts and personal notes
+**/Export Transcript/
+artifact-downloads/
+add_missing_functions.py
+push_changes.py
+LATEST_CHANGES_SUMMARY.md
+**/Rosie note*.txt
+**/Danh*.txt
+**/*prompt*.txt
+**/deleted_*.txt
+**/new_batch_ids.txt
+
 # Cursor AI cache
 **/.cursor/
 
