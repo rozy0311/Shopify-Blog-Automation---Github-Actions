@@ -3526,6 +3526,127 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
         return new_body
 
+    def _add_internal_links(self, body: str, current_article_id: str) -> str:
+        """Add internal links to other blog posts (INTERNAL LINKS warning fix).
+
+        Fetches related articles from the blog and adds links to them
+        within the content to improve SEO and user engagement.
+        """
+        if not body:
+            return body
+
+        # Check if already has internal links
+        internal_links_pattern = r'href=["\'][^"\']*(?:the-rike|/blogs/)[^"\']*["\']'
+        existing_links = re.findall(internal_links_pattern, body, re.IGNORECASE)
+        if len(existing_links) >= 2:
+            return body  # Already has enough internal links
+
+        try:
+            # Get other published articles to link to
+            articles = self.api.get_all_articles(status="published", limit=50)
+            if not articles:
+                return body
+
+            # Filter out current article and get potential links
+            other_articles = [
+                a for a in articles
+                if str(a.get("id")) != str(current_article_id)
+                and a.get("handle")
+                and a.get("title")
+            ]
+
+            if len(other_articles) < 2:
+                return body
+
+            # Select 2-3 random related articles
+            import random
+            selected = random.sample(other_articles, min(3, len(other_articles)))
+
+            # Build the internal links section
+            links_html = '\n<div class="related-articles" style="margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2d5a27;">\n'
+            links_html += '<h3 style="margin-top: 0; color: #2d5a27;">Related Articles You Might Enjoy</h3>\n<ul style="margin-bottom: 0;">\n'
+
+            for article in selected:
+                handle = article.get("handle", "")
+                title = article.get("title", "")
+                # Build the internal link URL
+                link_url = f"/blogs/the-rike-s-blog/{handle}"
+                links_html += f'<li><a href="{link_url}">{title}</a></li>\n'
+
+            links_html += '</ul>\n</div>\n'
+
+            # Find a good place to insert - before FAQ section or at the end
+            faq_match = re.search(r'<h2[^>]*id=["\']?faq', body, re.IGNORECASE)
+            if faq_match:
+                insert_pos = faq_match.start()
+                body = body[:insert_pos] + links_html + body[insert_pos:]
+            else:
+                # Insert before Sources section
+                sources_match = re.search(r'<h2[^>]*id=["\']?sources', body, re.IGNORECASE)
+                if sources_match:
+                    insert_pos = sources_match.start()
+                    body = body[:insert_pos] + links_html + body[insert_pos:]
+                else:
+                    # Append before closing article or at end
+                    if "</article>" in body:
+                        body = body.replace("</article>", links_html + "</article>")
+                    else:
+                        body = body.rstrip() + "\n" + links_html
+
+            print(f"✅ Added {len(selected)} internal links to related articles")
+
+        except Exception as e:
+            print(f"⚠️ Could not add internal links: {e}")
+
+        return body
+
+    def _add_cta(self, body: str) -> str:
+        """Add Call to Action (CTA warning fix).
+
+        Adds a natural CTA to encourage user engagement.
+        """
+        if not body:
+            return body
+
+        # Check if already has CTA
+        cta_patterns = [
+            r"shop now", r"buy now", r"get started", r"learn more",
+            r"try it", r"order now", r"add to cart", r"subscribe",
+            r"sign up", r"download", r"check out", r"explore",
+            r"discover", r"start today"
+        ]
+        has_cta = any(re.search(p, body, re.IGNORECASE) for p in cta_patterns)
+        if has_cta:
+            return body
+
+        # Build a natural CTA section
+        cta_html = '''
+<div class="cta-section" style="margin: 2rem 0; padding: 1.5rem; background: linear-gradient(135deg, #2d5a27 0%, #4a7c43 100%); border-radius: 8px; text-align: center;">
+<p style="color: white; font-size: 1.1rem; margin-bottom: 1rem;">Ready to put these tips into practice? Explore our collection of quality gardening tools and supplies.</p>
+<a href="/collections/all" style="display: inline-block; background: white; color: #2d5a27; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: bold;">Shop Now</a>
+</div>
+'''
+
+        # Find best place to insert CTA - before FAQ or Sources
+        faq_match = re.search(r'<h2[^>]*id=["\']?faq', body, re.IGNORECASE)
+        sources_match = re.search(r'<h2[^>]*id=["\']?sources', body, re.IGNORECASE)
+
+        if faq_match:
+            insert_pos = faq_match.start()
+            body = body[:insert_pos] + cta_html + body[insert_pos:]
+        elif sources_match:
+            insert_pos = sources_match.start()
+            body = body[:insert_pos] + cta_html + body[insert_pos:]
+        else:
+            # Append before closing article or at end
+            if "</article>" in body:
+                body = body.replace("</article>", cta_html + "</article>")
+            else:
+                body = body.rstrip() + "\n" + cta_html
+
+        print("✅ Added Call to Action (CTA) section")
+        return body
+
     def _ensure_meta_description(self, article: dict) -> bool:
         """Ensure summary_html has a 50-160 char meta description."""
         summary_html = (article.get("summary_html") or "").strip()
