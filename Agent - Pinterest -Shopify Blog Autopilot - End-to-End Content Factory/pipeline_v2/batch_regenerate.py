@@ -33,12 +33,10 @@ try:
 except ImportError:
     pass
 
-# API Keys
-API_KEY = (
-    os.getenv("GOOGLE_AI_STUDIO_API_KEY")
-    or os.getenv("GEMINI_API_KEY")
-    or "***REDACTED***"
-)
+# API Keys - NEVER hardcode keys, always use environment variables
+API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY") or os.getenv("GEMINI_API_KEY") or ""
+if not API_KEY:
+    raise ValueError("GEMINI_API_KEY or GOOGLE_AI_STUDIO_API_KEY must be set in environment")
 
 SHOPIFY_STORE = "https://" + os.getenv("SHOPIFY_STORE_DOMAIN", "").strip()
 SHOPIFY_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")
