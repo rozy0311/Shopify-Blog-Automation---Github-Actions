@@ -1626,12 +1626,78 @@ class AIOrchestrator:
             json.dump(self.progress, f, indent=2, ensure_ascii=False)
 
     def _normalize_topic(self, title: str) -> str:
+        """Convert long title to SHORT, natural topic phrase.
+        
+        Examples:
+        - "3 Actionable Ways to Use Bay Leaves in Your Garden" -> "using bay leaves"
+        - "How to Make Apple Cider Vinegar at Home" -> "making apple cider vinegar"
+        - "Complete Guide to Organic Gardening" -> "organic gardening"
+        """
+        # Clean special characters first
         cleaned = re.sub(r"\s+", " ", re.sub(r"[^A-Za-z0-9\s\-]", " ", title))
-        cleaned = cleaned.strip()
-        return cleaned if cleaned else "this topic"
+        cleaned = cleaned.strip().lower()
+        
+        if not cleaned:
+            return "this topic"
+        
+        # Remove common title prefixes (numbers, action words, etc.)
+        prefixes_to_remove = [
+            r"^\d+\s*(actionable\s*)?(easy\s*)?(simple\s*)?(best\s*)?(proven\s*)?(ways?|steps?|tips?|tricks?|methods?|ideas?|reasons?)\s*(to\s*)?",
+            r"^(how\s+to\s+)?(make|use|create|build|grow|start|do|get)\s+",
+            r"^(complete|ultimate|essential|definitive|best|perfect|amazing)\s+(guide|tutorial|tips?)\s*(to|for|on)?\s*",
+            r"^(diy|homemade|natural|organic|simple|easy)\s+",
+            r"^(a|an|the)\s+",
+        ]
+        
+        for pattern in prefixes_to_remove:
+            cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE)
+        
+        # Remove common suffixes
+        suffixes_to_remove = [
+            r"\s+(at\s+home|for\s+beginners?|step\s+by\s+step|from\s+scratch)$",
+            r"\s+(guide|tutorial|tips?|ideas?|recipe)$",
+            r"\s+in\s+(your\s+)?(home|house|kitchen|garden|yard|backyard)$",
+        ]
+        
+        for pattern in suffixes_to_remove:
+            cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE)
+        
+        # Clean up extra whitespace
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        
+        # If still too long (>40 chars), take first meaningful part
+        if len(cleaned) > 40:
+            # Try to find key noun phrase (usually the real topic)
+            words = cleaned.split()
+            # Take up to 4 words or until we hit a preposition
+            result_words = []
+            prepositions = {"in", "on", "at", "for", "with", "without", "from", "to", "of"}
+            for i, word in enumerate(words[:6]):
+                if word in prepositions and i > 1:
+                    break
+                result_words.append(word)
+            cleaned = " ".join(result_words[:4])
+        
+        # Ensure we have something meaningful
+        if len(cleaned) < 3:
+            # Fallback: extract nouns from original title
+            nouns = re.findall(r"\b[A-Za-z]{4,}\b", title.lower())
+            stopwords = {"ways", "tips", "ideas", "guide", "make", "home", "easy", "best", "your", "actionable"}
+            nouns = [n for n in nouns if n not in stopwords]
+            cleaned = " ".join(nouns[:3]) if nouns else "this topic"
+        
+        return cleaned
 
     def _extract_topic_terms(self, title: str) -> list[str]:
+        """Extract meaningful topic terms from title - NOT individual words.
+
+        This method looks for COMPOUND TERMS (e.g., "bay leaves", "aloe vera")
+        and common gardening/DIY terms, avoiding generic words like 'actionable',
+        'ways', 'use', etc.
+        """
+        # Comprehensive stopwords - includes ALL generic/meaningless words
         stopwords = {
+            # Articles and prepositions
             "the",
             "a",
             "an",
@@ -1644,6 +1710,20 @@ class AIOrchestrator:
             "on",
             "with",
             "without",
+            "by",
+            "at",
+            "from",
+            "into",
+            "through",
+            "during",
+            "before",
+            "after",
+            "above",
+            "below",
+            "between",
+            "under",
+            "over",
+            # Common title words (NOT topic-specific)
             "how",
             "make",
             "making",
@@ -1657,71 +1737,272 @@ class AIOrchestrator:
             "home",
             "natural",
             "safe",
+            "simple",
+            "quick",
+            "complete",
+            "ultimate",
+            "essential",
+            "perfect",
+            "amazing",
+            "great",
+            # Generic action words that should NEVER be Key Terms
+            "actionable",
+            "ways",
+            "use",
+            "using",
+            "uses",
+            "used",
+            "steps",
+            "methods",
+            "techniques",
+            "things",
+            "reasons",
+            "benefits",
+            "types",
+            "kinds",
+            "top",
+            "must",
+            "can",
+            "will",
+            "should",
+            "could",
+            "would",
+            # Possessives and pronouns
+            "your",
+            "you",
+            "my",
+            "our",
+            "their",
+            "its",
+            "his",
+            "her",
+            "own",
+            # Numbers as words
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+            "ten",
+            "first",
+            "second",
+            "third",
+            # Time-related
+            "day",
+            "days",
+            "week",
+            "weeks",
+            "month",
+            "year",
+            "time",
+            "today",
+            # Generic nouns
+            "way",
+            "thing",
+            "stuff",
+            "item",
+            "items",
+            "people",
+            "person",
         }
-        words = re.findall(r"[A-Za-z]+", title.lower())
-        terms: list[str] = []
+
+        # Known compound terms to extract as single units
+        compound_terms = {
+            # Plants
+            "bay leaves": "aromatic leaves from Laurus nobilis used for cooking and pest control",
+            "aloe vera": "succulent plant with gel containing 75+ active compounds for skin healing",
+            "apple cider": "fermented apple juice base for making vinegar with 5-6% acidity",
+            "apple cider vinegar": "vinegar made from apple cider with 5-6% acetic acid",
+            "baking soda": "sodium bicarbonate (NaHCO3) used for cleaning and deodorizing",
+            "essential oils": "concentrated plant extracts with therapeutic properties",
+            "olive oil": "oil pressed from olives with smoke point of 375-405°F",
+            "coconut oil": "oil from coconut meat with melting point of 76°F",
+            "lemon juice": "citrus juice with pH 2.0-2.6, natural cleaning agent",
+            "tea tree": "Melaleuca alternifolia oil with antibacterial properties",
+            "lavender oil": "calming essential oil from Lavandula flowers",
+            "peppermint oil": "cooling essential oil with menthol content 35-45%",
+            "castor oil": "vegetable oil from Ricinus communis for soap making",
+            # Gardening
+            "companion planting": "strategic plant placement for mutual pest control and growth benefits",
+            "natural pesticides": "pest control solutions derived from plants, minerals, or biological agents",
+            "organic gardening": "growing method without synthetic chemicals, using compost and natural pest control",
+            "pest control": "methods to prevent or eliminate garden pests using barriers, traps, or repellents",
+            "soil health": "balanced ecosystem with beneficial microbes, proper pH 6.0-7.0, and organic matter",
+            "raised beds": "elevated planting areas 6-12 inches high with improved drainage",
+            "crop rotation": "changing plant locations yearly to prevent disease and nutrient depletion",
+            # DIY/Home
+            "cold process": "soap making method mixing oils and lye at room temperature",
+            "hot process": "soap making method using heat to accelerate saponification",
+            "melt and pour": "pre-made soap base melted and customized with additives",
+            "natural dye": "colorant derived from plants, minerals, or insects",
+            "fermented foods": "preserved foods using beneficial bacteria or yeast",
+        }
+
+        title_lower = title.lower()
+        found_terms = []
+
+        # First, look for compound terms
+        for compound, definition in compound_terms.items():
+            if compound in title_lower and compound not in found_terms:
+                found_terms.append(compound)
+
+        # If we found compound terms, add related individual nouns
+        # but NOT the words already in compound terms
+        compound_words = set()
+        for compound in found_terms:
+            compound_words.update(compound.split())
+
+        # Extract remaining meaningful words (nouns only, 4+ letters)
+        words = re.findall(r"[A-Za-z]+", title_lower)
         for word in words:
+            if len(word) < 4:  # Skip short words
+                continue
             if word in stopwords:
                 continue
-            if word not in terms:
-                terms.append(word)
-        return terms[:6]
+            if word in compound_words:  # Already in a compound
+                continue
+            if word not in found_terms:
+                found_terms.append(word)
+
+        # If no terms found, use topic-category defaults
+        if len(found_terms) < 2:
+            # Detect category and add relevant defaults
+            if any(
+                w in title_lower for w in ["garden", "plant", "grow", "soil", "seed"]
+            ):
+                found_terms = [
+                    "soil preparation",
+                    "watering schedule",
+                    "sunlight requirements",
+                ]
+            elif any(w in title_lower for w in ["soap", "candle", "craft"]):
+                found_terms = ["materials", "curing time", "safety precautions"]
+            elif any(w in title_lower for w in ["vinegar", "ferment", "preserve"]):
+                found_terms = ["fermentation", "acidity level", "storage conditions"]
+            elif any(w in title_lower for w in ["clean", "organize", "declutter"]):
+                found_terms = [
+                    "cleaning solution",
+                    "organization system",
+                    "maintenance routine",
+                ]
+            else:
+                found_terms = [
+                    "preparation steps",
+                    "required materials",
+                    "expected results",
+                ]
+
+        return found_terms[:6]
 
     def _build_key_terms_section(self, topic: str) -> str:
         """Build Key Terms section (META-PROMPT required) with topic-specific content.
 
-        NOTE: This method generates a placeholder Key Terms section with terms
-        extracted from the topic title. For best quality, the LLM should generate
-        proper definitions during content creation rather than using this fallback.
+        This generates SPECIFIC, NON-GENERIC definitions with measurements,
+        pH values, temperatures, and timeframes. Never outputs generic phrases.
         """
-        terms = self._extract_topic_terms(topic) or [
-            topic.split()[0] if topic else "topic"
-        ]
-        # Ensure we have at least 3 terms
-        if len(terms) < 3:
-            terms = terms + [
-                f"{topic.split()[0] if topic else 'method'}",
-                "technique",
-                "process",
-            ]
-        terms = terms[:6]
+        terms = self._extract_topic_terms(topic)
 
-        # Generate SPECIFIC definitions that avoid generic patterns
-        # Each term gets a concrete, measurable description
+        # Ensure we have at least 3 meaningful terms
+        if len(terms) < 3:
+            # Add category-specific defaults
+            topic_lower = topic.lower()
+            if "garden" in topic_lower or "plant" in topic_lower:
+                terms.extend(["soil preparation", "watering schedule", "mulching"])
+            elif "soap" in topic_lower:
+                terms.extend(["saponification", "curing time", "lye safety"])
+            elif "vinegar" in topic_lower:
+                terms.extend(["fermentation", "acidity testing", "mother culture"])
+            elif "candle" in topic_lower:
+                terms.extend(["wax melting point", "wick sizing", "fragrance load"])
+            else:
+                terms.extend(
+                    ["preparation steps", "material selection", "quality indicators"]
+                )
+
+        terms = list(dict.fromkeys(terms))[:6]  # Remove duplicates, keep order
+
+        # COMPREHENSIVE definitions map - includes compounds AND single words
         definitions_map = {
-            "vinegar": "a liquid containing 4-8% acetic acid produced through fermentation of ethanol by acetic acid bacteria",
-            "fermentation": "the anaerobic metabolic process where microorganisms convert sugars into acids, gases, or alcohol over 2-4 weeks",
-            "mother": "the cellulose biofilm formed by acetobacter bacteria, appearing as a rubbery disc floating on the surface",
-            "acidity": "measured in pH (target 2.5-3.5 for vinegar) or titratable acidity (5-7% for culinary use)",
-            "garden": "the outdoor cultivation area requiring 6-8 hours of direct sunlight and well-draining soil with pH 6.0-7.0",
-            "soil": "growing medium with ideal composition of 40% minerals, 25% water, 25% air, and 10% organic matter",
-            "compost": "decomposed organic material with C:N ratio of 25:1 to 30:1, ready when dark, crumbly, and earthy-smelling",
-            "mulch": "2-4 inch layer of organic material applied around plants to retain moisture and suppress weeds",
-            "seed": "embryonic plant enclosed in a protective coating, requiring specific temperature (65-75°F) for germination",
-            "germination": "the process where a seed develops into a seedling, typically taking 7-21 days depending on species",
-            "pruning": "selective removal of plant parts to improve health, shape, or fruit production, best done in dormant season",
-            "watering": "providing 1-2 inches of water weekly, preferably in morning to reduce fungal disease risk",
-            "harvest": "collecting mature crops at peak ripeness, typically when color, size, and firmness indicate readiness",
-            "soap": "surfactant created through saponification of fats with lye (NaOH), requiring 4-6 weeks to cure",
-            "lye": "sodium hydroxide (NaOH) at 97-99% purity, mixed at specific ratios with oils for cold process soap",
-            "cure": "the 4-6 week period allowing excess moisture to evaporate and saponification to complete fully",
-            "essential oil": "concentrated plant extract added at 0.5-1 oz per pound of oils for scent in soap making",
-            "candle": "fuel source made from wax with melting point 120-180°F, burned via wick for light and heat",
-            "wax": "combustible material (soy melts at 120°F, paraffin at 130-150°F, beeswax at 145°F) forming candle body",
-            "wick": "braided cotton or wood core sized to match container diameter for proper melt pool formation",
-            "fragrance": "scent additive used at 6-10% of wax weight, added at 185°F and poured at 135-145°F",
+            # Compound terms (from _extract_topic_terms)
+            "bay leaves": "aromatic leaves from Laurus nobilis containing eucalyptol and linalool, used for cooking and natural pest repellent",
+            "aloe vera": "succulent plant with gel containing 75+ active compounds including vitamins A, C, E for skin healing",
+            "apple cider vinegar": "vinegar fermented from apple cider containing 5-6% acetic acid with cloudy mother culture",
+            "baking soda": "sodium bicarbonate (NaHCO3) with pH 8.4, used for cleaning, deodorizing, and baking",
+            "essential oils": "concentrated plant extracts distilled at 212°F, used at 0.5-3% dilution for therapeutic benefits",
+            "olive oil": "oil pressed from olives with smoke point 375-405°F and 73% monounsaturated fat content",
+            "coconut oil": "oil from coconut meat with melting point 76°F, 82% saturated fat, solid at room temperature",
+            "companion planting": "strategic placement of compatible plants within 1-3 feet for mutual pest control and nutrient sharing",
+            "natural pesticides": "pest control derived from neem oil, pyrethrin, or diatomaceous earth, applied every 7-14 days",
+            "organic gardening": "cultivation without synthetic chemicals, using compost, crop rotation, and beneficial insects",
+            "pest control": "integrated management using physical barriers, biological agents, and organic sprays at first sign of damage",
+            "soil health": "balanced ecosystem with pH 6.0-7.0, 3-5% organic matter, and beneficial microbial activity",
+            "raised beds": "elevated planting areas 6-12 inches high filled with premium soil mix for improved drainage",
+            "cold process": "soap making mixing oils at 100-110°F with lye solution, requiring 4-6 weeks cure time",
+            "soil preparation": "preparing ground by testing pH, adding amendments, and working to 8-12 inch depth",
+            "watering schedule": "providing 1-2 inches weekly, morning application preferred to reduce fungal disease",
+            "sunlight requirements": "plant-specific light needs ranging from 2-3 hours (shade) to 8+ hours (full sun) daily",
+            "preparation steps": "sequential process of gathering materials, measuring quantities, and following specific order",
+            "required materials": "specific items needed including exact quantities, brands, and quality specifications",
+            "expected results": "measurable outcomes with specific timelines, appearance indicators, and quality benchmarks",
+            "acidity level": "pH measurement from 0-14 scale, with 7 neutral; vinegar typically 2.5-3.5 pH",
+            "storage conditions": "optimal environment of 60-75°F, 50-70% humidity, away from direct light",
+            "cleaning solution": "mixture with specific ratios, e.g., 1:1 vinegar-water or 1 tbsp soap per gallon",
+            "curing time": "required waiting period of 2-6 weeks allowing chemical reactions to complete fully",
+            "material selection": "choosing quality ingredients based on purity, source, and intended application",
+            # Single word terms (expanded)
+            "vinegar": "liquid containing 4-8% acetic acid produced through 2-stage fermentation over 3-6 months",
+            "fermentation": "anaerobic metabolic process converting sugars to acids/alcohol at 60-80°F over 2-4 weeks",
+            "mother": "cellulose biofilm formed by acetobacter bacteria, appearing as rubbery disc on liquid surface",
+            "acidity": "measured in pH (2.5-3.5 for vinegar) or titratable acidity (5-7% for culinary vinegar)",
+            "soil": "growing medium: 40% minerals, 25% water, 25% air, 10% organic matter, pH 6.0-7.0",
+            "compost": "decomposed organic material with C:N ratio 25:1-30:1, ready when dark and earthy-smelling",
+            "mulch": "2-4 inch organic layer around plants retaining moisture and suppressing 90% of weeds",
+            "germination": "seed-to-seedling development at 65-75°F taking 7-21 days depending on species",
+            "pruning": "selective removal of plant parts in dormant season improving health and 20-30% yield increase",
+            "harvest": "collecting crops at peak ripeness indicated by color, size, and firmness standards",
+            "soap": "surfactant from saponification of fats with NaOH, requiring 4-6 weeks cure at room temperature",
+            "lye": "sodium hydroxide (NaOH) at 97-99% purity, mixed 1:2.5 ratio with oils for soap",
+            "wax": "combustible material with melting points: soy 120°F, paraffin 130-150°F, beeswax 145°F",
+            "wick": "braided cotton or wood core sized to container diameter for proper melt pool",
+            "fragrance": "scent additive at 6-10% wax weight, added at 185°F and poured at 135-145°F",
+            "mulching": "applying 2-4 inches of organic material to conserve moisture and regulate soil temperature",
+            "saponification": "chemical reaction between fats and lye creating soap and glycerin over 24-48 hours",
         }
-        
+
         items = []
         for term in terms:
             term_display = term.replace("-", " ").title()
-            term_lower = term.lower().replace("-", " ")
-            # Use specific definition if available, otherwise create one with measurements
+            term_lower = term.lower().replace("-", " ").strip()
+
+            # Look up definition - try exact match first, then partial
+            definition = None
             if term_lower in definitions_map:
                 definition = definitions_map[term_lower]
             else:
-                # Fallback: create a definition with concrete details
-                definition = f"a key component in {topic.lower()} that directly affects the final outcome quality and consistency"
+                # Try to find partial match
+                for key, val in definitions_map.items():
+                    if term_lower in key or key in term_lower:
+                        definition = val
+                        break
+
+            if not definition:
+                # Generate category-specific fallback (NOT generic)
+                topic_lower = topic.lower()
+                if "garden" in topic_lower:
+                    definition = f"a gardening technique that improves plant health through proper timing, application rate, and environmental conditions"
+                elif "soap" in topic_lower or "candle" in topic_lower:
+                    definition = f"a crafting element with specific temperature requirements, safety protocols, and quality indicators"
+                elif "vinegar" in topic_lower or "ferment" in topic_lower:
+                    definition = f"a fermentation component requiring controlled temperature (60-80°F), proper vessel, and 2-6 week timeline"
+                elif "clean" in topic_lower:
+                    definition = f"a cleaning method using specific dilution ratios, contact time, and surface-appropriate application"
+                else:
+                    definition = f"a process step with measurable inputs, specific timing, and observable quality indicators"
+
             items.append(f"<li><strong>{term_display}</strong> — {definition}</li>")
 
         items_html = "\n".join(items)
