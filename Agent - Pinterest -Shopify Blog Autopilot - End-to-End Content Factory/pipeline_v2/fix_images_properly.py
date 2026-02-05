@@ -574,11 +574,62 @@ def generate_topic_specific_prompts(title: str) -> dict:
     safety_suffix = "no people visible, no hands, no fingers, still life composition"
 
     # AUTO-SELECT best scene based on topic keywords
-    outdoor_keywords = ["garden", "plant", "grow", "soil", "seed", "compost", "outdoor", "yard", "lawn", "tree", "flower", "vegetable", "fruit", "harvest"]
-    kitchen_keywords = ["cook", "recipe", "tea", "soup", "food", "honey", "vinegar", "ferment", "preserve", "jam", "syrup", "bake", "bread"]
-    craft_keywords = ["diy", "make", "craft", "build", "sew", "knit", "paint", "upcycle", "recycle", "homemade"]
-    wellness_keywords = ["remedy", "herb", "medicine", "health", "natural", "essential", "oil", "balm", "salve", "tincture"]
-    
+    outdoor_keywords = [
+        "garden",
+        "plant",
+        "grow",
+        "soil",
+        "seed",
+        "compost",
+        "outdoor",
+        "yard",
+        "lawn",
+        "tree",
+        "flower",
+        "vegetable",
+        "fruit",
+        "harvest",
+    ]
+    kitchen_keywords = [
+        "cook",
+        "recipe",
+        "tea",
+        "soup",
+        "food",
+        "honey",
+        "vinegar",
+        "ferment",
+        "preserve",
+        "jam",
+        "syrup",
+        "bake",
+        "bread",
+    ]
+    craft_keywords = [
+        "diy",
+        "make",
+        "craft",
+        "build",
+        "sew",
+        "knit",
+        "paint",
+        "upcycle",
+        "recycle",
+        "homemade",
+    ]
+    wellness_keywords = [
+        "remedy",
+        "herb",
+        "medicine",
+        "health",
+        "natural",
+        "essential",
+        "oil",
+        "balm",
+        "salve",
+        "tincture",
+    ]
+
     # Determine best scene for this topic
     if any(kw in topic_keywords for kw in outdoor_keywords):
         primary_scene = SCENE_GARDEN

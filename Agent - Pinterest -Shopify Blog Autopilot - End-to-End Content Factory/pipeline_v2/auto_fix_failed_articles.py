@@ -129,18 +129,22 @@ def restore_pinterest_image(body_html, pinterest_data):
 
 
 def generate_ai_image_url(topic, index):
-    """Generate AI image URL tß╗½ Pollinations.ai"""
-    # Tß║ío prompt tß╗½ topic
+    """Generate AI image URL từ Pollinations.ai với CINEMATIC style"""
+    # CINEMATIC QUALITY settings
+    quality = "hyper realistic, photorealistic, cinematic lighting, golden hour, shallow depth of field, bokeh, 8K"
+    safety = "no people visible, no hands, no fingers, still life composition"
+
+    # Tạo prompt từ topic với cinematic style
     prompts = [
-        f"Beautiful professional photo of {topic}, natural lighting, high quality, detailed",
-        f"{topic} step by step process, clear demonstration, professional photography",
-        f"Close-up detailed shot of {topic}, beautiful composition, soft natural light",
+        f"Stunning hero shot of {topic} beautifully styled like a magazine cover, dramatic rim lighting, {quality}, {safety}",
+        f"Overhead cinematic shot showing {topic} step by step process, artfully arranged on rustic wooden table, morning light, {quality}, {safety}",
+        f"Close-up macro photography of {topic}, dramatic depth of field, beautiful details visible, moody atmospheric lighting, {quality}, {safety}",
     ]
 
     prompt = prompts[index % len(prompts)]
     # URL encode prompt
     encoded_prompt = requests.utils.quote(prompt)
-    return f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=800&height=600&seed={index}"
+    return f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1200&height=800&seed={index}&nologo=true"
 
 
 def fix_broken_images(body_html, title):

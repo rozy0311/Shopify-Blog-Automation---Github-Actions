@@ -44,20 +44,32 @@ def fix_broken_images(article_id):
 
     print(f"Found {broken_count} broken images")
 
-    # Generate topic-specific prompt
+    # CINEMATIC QUALITY settings
+    quality = "hyper realistic, photorealistic, cinematic lighting, golden hour, shallow depth of field, bokeh, 8K, shot on Sony A7R IV"
+    safety = "no people visible, no hands, no fingers, still life composition"
+
+    # Generate topic-specific CINEMATIC prompts
     topic = title.lower()
-    if "ginger" in topic and "nausea" in topic:
+    topic_clean = title.split(":")[0].strip() if ":" in title else title
+
+    if "ginger" in topic or "tea" in topic:
         prompts = [
-            "Fresh ginger root and ginger tea on wooden table, natural remedy setup, warm lighting, high quality photo",
-            "Hands preparing ginger tea in clear glass cup, steam rising, cozy kitchen setting, professional photography",
-            "Ginger slices and fresh ginger root with mortar and pestle, herbal medicine preparation, top view, natural lighting",
+            f"Steaming cup of fresh ginger tea on cozy wooden table, cinnamon sticks and honey jar nearby, soft morning light, {quality}, {safety}",
+            f"Overhead shot of fresh ginger root, lemon wedges, and local honey on marble cutting board, wellness aesthetic, {quality}, {safety}",
+            f"Close-up of ginger slices simmering in copper pot, steam rising dramatically, aromatic kitchen moment, {quality}, {safety}",
+        ]
+    elif "garden" in topic or "plant" in topic or "grow" in topic:
+        prompts = [
+            f"Lush organic garden at golden hour with {topic_clean}, morning dew on leaves, rustic wooden raised beds, {quality}, {safety}",
+            f"Overhead shot of seeds, soil, and gardening tools arranged on weathered potting bench, {quality}, {safety}",
+            f"Thriving plants in beautiful garden setting, abundant harvest scene, sustainable living aesthetic, {quality}, {safety}",
         ]
     else:
-        # Generic herbal remedy prompts
+        # Default cinematic prompts for any topic
         prompts = [
-            f"{title.split(':')[0]} preparation setup, natural ingredients, warm lighting, high quality photo",
-            f"Hands preparing {title.split(':')[0]}, herbal medicine, cozy setting, professional photography",
-            f"{title.split(':')[0]} ingredients and tools, natural remedy, top view, natural lighting",
+            f"Stunning hero shot of {topic_clean} beautifully styled like a magazine cover, dramatic golden hour lighting, {quality}, {safety}",
+            f"Overhead cinematic shot showing all elements for {topic_clean} artfully arranged on rustic wooden table, morning light creating soft shadows, {quality}, {safety}",
+            f"Close-up macro photography capturing the essence of {topic_clean}, dramatic depth of field, beautiful details visible, {quality}, {safety}",
         ]
 
     # Generate and upload images

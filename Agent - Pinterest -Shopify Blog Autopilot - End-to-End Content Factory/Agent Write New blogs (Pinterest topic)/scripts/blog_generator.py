@@ -212,16 +212,19 @@ class BlogContentGenerator:
         return topics
 
     def generate_ai_images(self, topic, num_images=4):
-        """Generate AI images using Pollinations.ai"""
+        """Generate AI images using Pollinations.ai with CINEMATIC style"""
         self.log(f"Generating {num_images} AI images for: {topic}", "IMAGE")
 
         images = []
-        no_hands = "no hands, no fingers, no people"
+        # CINEMATIC QUALITY settings
+        quality = "hyper realistic, photorealistic, cinematic lighting, golden hour, shallow depth of field, bokeh, 8K, shot on Sony A7R IV, National Geographic quality"
+        safety = "no people visible, no hands, no fingers, still life composition"
+
         prompts = [
-            f"{topic}, natural ingredients, rustic kitchen setting, warm lighting, professional food photography, 8k, detailed, {no_hands}",
-            f"{topic} step by step guide, herbs and natural ingredients arranged for a tutorial, clean background, {no_hands}",
-            f"{topic} ingredients and supplies, flat lay photography, organized arrangement, natural wooden background, {no_hands}",
-            f"finished {topic} product in glass jar, aesthetic presentation, soft natural light, botanical elements, {no_hands}",
+            f"Stunning hero shot of {topic} in cozy farmhouse kitchen, beautifully styled like a magazine cover, dramatic rim lighting, {quality}, {safety}",
+            f"Overhead cinematic shot of fresh ingredients for {topic} artfully arranged on rustic wooden table, morning light creating soft shadows, {quality}, {safety}",
+            f"Close-up macro photography of {topic} preparation, dramatic depth of field, droplets of moisture visible, moody atmospheric lighting, {quality}, {safety}",
+            f"Beautiful final presentation of {topic} in natural outdoor setting, Pinterest-worthy lifestyle photo, warm inviting atmosphere, {quality}, {safety}",
         ]
 
         for i, prompt in enumerate(prompts[:num_images]):
