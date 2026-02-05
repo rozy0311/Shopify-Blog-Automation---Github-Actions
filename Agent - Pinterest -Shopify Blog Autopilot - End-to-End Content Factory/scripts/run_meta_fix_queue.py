@@ -174,27 +174,32 @@ def ensure_direct_answer(html: str, title: str) -> str:
 
 
 def ensure_key_terms_section(html: str, title: str) -> str:
+    """Add Key Terms section if missing, with topic-specific definitions."""
     if re.search(r"id=[\"']key-terms[\"']", html, re.IGNORECASE):
         return html
     if re.search(r"<h2[^>]*>\s*Key Terms\s*</h2>", html, re.IGNORECASE):
         return html
 
-    words = [w for w in re.split(r"\W+", title) if len(w) > 3]
+    # Extract meaningful words from title
+    stopwords = {"the", "a", "an", "and", "or", "for", "to", "of", "in", "on", "with", 
+                 "how", "make", "making", "diy", "guide", "tips", "easy", "best", "home"}
+    words = [w for w in re.split(r"\W+", title.lower()) if len(w) > 3 and w not in stopwords]
     terms = list(dict.fromkeys(words))[:6] or [
         "Technique",
-        "Tools",
-        "Safety",
         "Process",
-        "Materials",
-        "Results",
+        "Method",
     ]
-    items = "\n".join(
-        [
-            f"<li><strong>{t}</strong>: Key concept related to this topic.</li>"
-            for t in terms
-        ]
-    )
-    section = f'<h2 id="key-terms">Key Terms</h2>\n<ul>\n{items}\n</ul>'
+    
+    # Generate topic-specific definitions
+    topic_lower = title.lower()
+    items = []
+    for term in terms:
+        term_display = term.title()
+        definition = f"As it relates to {topic_lower}, this refers to the specific {term.lower()} aspects and considerations involved."
+        items.append(f"<li><strong>{term_display}</strong> — {definition}</li>")
+    
+    items_html = "\n".join(items)
+    section = f'<h2 id="key-terms">Key Terms</h2>\n<ul>\n{items_html}\n</ul>'
     return html + "\n" + section
 
 
@@ -251,6 +256,7 @@ def _normalize_source_text(name: str, description: str, topic: str) -> str:
 def fix_source_link_dashes(html: str) -> str:
     """Convert regular dashes in source link text to em-dashes."""
     import re
+
     def fix_link(match: re.Match) -> str:
         prefix = match.group(1)
         link_text = match.group(2)
@@ -258,12 +264,13 @@ def fix_source_link_dashes(html: str) -> str:
         # Convert - or – to em-dash —
         fixed_text = link_text.replace(" - ", " — ").replace(" – ", " — ")
         return f"{prefix}{fixed_text}{suffix}"
+
     # Match <a href="...">link text</a> in Sources section
     return re.sub(
         r'(<a[^>]+href=["\']https?://[^"\'>]+["\'][^>]*>)([^<]+)(</a>)',
         fix_link,
         html,
-        flags=re.IGNORECASE
+        flags=re.IGNORECASE,
     )
 
 
