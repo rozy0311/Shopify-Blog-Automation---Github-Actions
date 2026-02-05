@@ -75,6 +75,14 @@ def get_articles_needing_fix() -> list:
             "and used throughout the content below",
             "A clean workspace, basic tools, and reliable materials",
             "provides guidelines and best practices",
+            # New generic Key Terms patterns
+            "The primary concept discussed here, essential for achieving",
+            "A critical element that directly impacts the quality and outcome",
+            "Understanding this helps you make informed decisions during each step",
+            "Mastering this technique separates beginners from experienced",
+            "This foundational knowledge enables you to troubleshoot",
+            "Knowing this term helps you communicate clearly with other",
+            "Key concept related to this topic",
         ]
         for p in generic_patterns:
             if p.lower() in body.lower():
