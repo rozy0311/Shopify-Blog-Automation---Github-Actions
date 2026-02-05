@@ -30,6 +30,12 @@ vertex-sa.json
 **/strip_generic_final.py
 **/local_heartbeat.json
 
+# Backup folders - keep local, don't push to repo
+**/backups_auto_fix/
+**/backups_restore/
+**/backups_featured_images/
+**/backups/
+
 # Cursor AI cache
 **/.cursor/
 
