@@ -52,7 +52,7 @@ jobs:
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             REQUIRE_PINTEREST_IMAGE: "0"
             FIX_MAX_ITEMS: "1"
-            FIX_DELAY_SECONDS: "600"
+            FIX_DELAY_SECONDS: "60"
             PASS_RATE_ENFORCE: "1"
             MIN_PASS_RATE: "0.95"
             PASS_RATE_WINDOW: "20"
