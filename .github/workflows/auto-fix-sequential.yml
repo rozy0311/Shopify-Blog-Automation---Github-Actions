@@ -1,8 +1,16 @@
-name: Auto Fix Sequential (1 article)
-# noop: re-register workflow dispatch
+name: Auto Fix Sequential (Continuous Loop)
+# Runs every 12 minutes to process 1 article at a time continuously
 
 on:
-    workflow_dispatch: {}
+    schedule:
+        # Every 12 minutes (5 runs/hour, safe for rate limits)
+        - cron: "*/12 * * * *"
+    workflow_dispatch:
+        inputs:
+            fix_max_items:
+                description: "Number of articles per run (default 1)"
+                required: false
+                default: "1"
 
 concurrency:
     group: auto-fix-sequential
@@ -47,8 +55,8 @@ jobs:
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             REQUIRE_PINTEREST_IMAGE: "0"
-            FIX_MAX_ITEMS: "1"
-            FIX_DELAY_SECONDS: "600"
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '1' }}
+            FIX_DELAY_SECONDS: "60"
             MAX_ATTEMPTS_PER_ARTICLE: "3"
             PASS_RATE_ENFORCE: "1"
             MIN_PASS_RATE: "0.95"
