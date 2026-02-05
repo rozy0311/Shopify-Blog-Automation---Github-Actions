@@ -181,15 +181,37 @@ def ensure_key_terms_section(html: str, title: str) -> str:
         return html
 
     # Extract meaningful words from title
-    stopwords = {"the", "a", "an", "and", "or", "for", "to", "of", "in", "on", "with", 
-                 "how", "make", "making", "diy", "guide", "tips", "easy", "best", "home"}
-    words = [w for w in re.split(r"\W+", title.lower()) if len(w) > 3 and w not in stopwords]
+    stopwords = {
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "for",
+        "to",
+        "of",
+        "in",
+        "on",
+        "with",
+        "how",
+        "make",
+        "making",
+        "diy",
+        "guide",
+        "tips",
+        "easy",
+        "best",
+        "home",
+    }
+    words = [
+        w for w in re.split(r"\W+", title.lower()) if len(w) > 3 and w not in stopwords
+    ]
     terms = list(dict.fromkeys(words))[:6] or [
         "Technique",
         "Process",
         "Method",
     ]
-    
+
     # Generate topic-specific definitions
     topic_lower = title.lower()
     items = []
@@ -197,7 +219,7 @@ def ensure_key_terms_section(html: str, title: str) -> str:
         term_display = term.title()
         definition = f"As it relates to {topic_lower}, this refers to the specific {term.lower()} aspects and considerations involved."
         items.append(f"<li><strong>{term_display}</strong> — {definition}</li>")
-    
+
     items_html = "\n".join(items)
     section = f'<h2 id="key-terms">Key Terms</h2>\n<ul>\n{items_html}\n</ul>'
     return html + "\n" + section

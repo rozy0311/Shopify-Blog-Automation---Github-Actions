@@ -26,7 +26,7 @@ scattered_patterns = [
     'In this section, we will',
     'As mentioned above',
     'As discussed earlier',
-    # Template source patterns  
+    # Template source patterns
     'Example: EPA or FDA guidelines',
     'manufacturer instructions, official guidelines',
     # Generic advice

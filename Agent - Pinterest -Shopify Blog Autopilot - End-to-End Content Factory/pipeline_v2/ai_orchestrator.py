@@ -1669,15 +1669,21 @@ class AIOrchestrator:
 
     def _build_key_terms_section(self, topic: str) -> str:
         """Build Key Terms section (META-PROMPT required) with topic-specific content.
-        
+
         NOTE: This method generates a placeholder Key Terms section with terms
         extracted from the topic title. For best quality, the LLM should generate
         proper definitions during content creation rather than using this fallback.
         """
-        terms = self._extract_topic_terms(topic) or [topic.split()[0] if topic else "topic"]
+        terms = self._extract_topic_terms(topic) or [
+            topic.split()[0] if topic else "topic"
+        ]
         # Ensure we have at least 3 terms
         if len(terms) < 3:
-            terms = terms + [f"{topic.split()[0] if topic else 'method'}", "technique", "process"]
+            terms = terms + [
+                f"{topic.split()[0] if topic else 'method'}",
+                "technique",
+                "process",
+            ]
         terms = terms[:6]
 
         # Generate topic-specific definitions based on actual term meaning
@@ -1687,8 +1693,8 @@ class AIOrchestrator:
             term_display = term.replace("-", " ").title()
             # Create a definition that references both the term AND the topic
             definition = f"As it relates to {topic.lower()}, this refers to the specific {term_display.lower()} aspects and considerations involved in the process."
-            items.append(f'<li><strong>{term_display}</strong> — {definition}</li>')
-        
+            items.append(f"<li><strong>{term_display}</strong> — {definition}</li>")
+
         items_html = "\n".join(items)
         return f"""
 <h2 id="key-terms">Key Terms</h2>

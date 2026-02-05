@@ -46,8 +46,14 @@ if not TOKEN:
 # Pinterest matched data
 MATCHED_DATA_FILE = "../scripts/matched_drafts_pinterest.json"
 
-# Quality settings for Pollinations
-QUALITY = "professional photography, high resolution, 8K, detailed, sharp focus, beautiful lighting"
+# Quality settings for Pollinations - CINEMATIC REALISTIC STYLE
+QUALITY = "hyper realistic, photorealistic, cinematic lighting, golden hour, shallow depth of field, bokeh, 8K resolution, shot on Sony A7R IV, 85mm f/1.4 lens, National Geographic quality"
+
+# Realistic scene settings
+SCENE_KITCHEN = "cozy farmhouse kitchen, wooden countertops, morning sunlight streaming through window, warm atmosphere, lived-in feel"
+SCENE_GARDEN = "lush organic garden at golden hour, morning dew on leaves, rustic wooden raised beds, natural setting"
+SCENE_TABLE = "rustic wooden farm table, vintage ceramic bowls, natural linen cloth, soft window light, hygge aesthetic"
+SCENE_OUTDOOR = "beautiful outdoor setting, natural environment, soft diffused sunlight, authentic atmosphere"
 
 # Optional vision review (disable by default)
 VISION_REVIEW = os.environ.get("VISION_REVIEW", "").lower() in {
@@ -402,23 +408,78 @@ def generate_topic_specific_prompts(title: str) -> dict:
     # Extract REAL topic from title - smarter parsing
     # If title has ":" take the part with actual topic keywords
     main_subject = title
-    
+
     if ":" in title:
         parts = title.split(":")
         # Check which part has more topic-relevant words
-        topic_words = ["grow", "plant", "herb", "garden", "diy", "make", "recipe", 
-                       "homemade", "natural", "organic", "seed", "soil", "compost",
-                       "remedy", "health", "tea", "vinegar", "ferment", "preserve",
-                       "vapor", "rub", "salve", "balm", "tincture", "syrup"]
-        
+        topic_words = [
+            "grow",
+            "plant",
+            "herb",
+            "garden",
+            "diy",
+            "make",
+            "recipe",
+            "homemade",
+            "natural",
+            "organic",
+            "seed",
+            "soil",
+            "compost",
+            "remedy",
+            "health",
+            "tea",
+            "vinegar",
+            "ferment",
+            "preserve",
+            "vapor",
+            "rub",
+            "salve",
+            "balm",
+            "tincture",
+            "syrup",
+        ]
+
         # List of specific nouns (plants, ingredients, things)
-        specific_nouns = ["basil", "lavender", "mint", "tomato", "pepper", "bay leaf", 
-                         "bay leaves", "cinnamon", "ginger", "garlic", "honey", "lemon", 
-                         "apple", "fruit", "vegetable", "flower", "tree", "greenhouse",
-                         "walipini", "kombucha", "kefir", "sourdough", "vinegar", "jam",
-                         "vapor rub", "chest rub", "salve", "balm", "candle", "soap",
-                         "elderberry", "chamomile", "calendula", "aloe", "moringa", "neem"]
-        
+        specific_nouns = [
+            "basil",
+            "lavender",
+            "mint",
+            "tomato",
+            "pepper",
+            "bay leaf",
+            "bay leaves",
+            "cinnamon",
+            "ginger",
+            "garlic",
+            "honey",
+            "lemon",
+            "apple",
+            "fruit",
+            "vegetable",
+            "flower",
+            "tree",
+            "greenhouse",
+            "walipini",
+            "kombucha",
+            "kefir",
+            "sourdough",
+            "vinegar",
+            "jam",
+            "vapor rub",
+            "chest rub",
+            "salve",
+            "balm",
+            "candle",
+            "soap",
+            "elderberry",
+            "chamomile",
+            "calendula",
+            "aloe",
+            "moringa",
+            "neem",
+        ]
+
         scores = []
         for part in parts:
             part_lower = part.lower()
@@ -427,11 +488,11 @@ def generate_topic_specific_prompts(title: str) -> dict:
             if any(x in part_lower for x in specific_nouns):
                 score += 3
             scores.append((score, part.strip()))
-        
+
         # Pick the part with highest topic relevance
         scores.sort(reverse=True)
         main_subject = scores[0][1] if scores[0][0] > 0 else parts[-1].strip()
-    
+
     # Remove common prefixes (loop through ALL matching prefixes)
     prefixes_to_remove = [
         "how to ",
@@ -456,37 +517,52 @@ def generate_topic_specific_prompts(title: str) -> dict:
         "growing ",
         "making ",
     ]
-    
+
     # Apply multiple prefix removals
     changed = True
     while changed:
         changed = False
         for prefix in prefixes_to_remove:
             if main_subject.lower().startswith(prefix):
-                main_subject = main_subject[len(prefix):]
+                main_subject = main_subject[len(prefix) :]
                 changed = True
                 break
 
     # Clean up trailing words
-    suffixes_to_remove = [" guide", " tutorial", " tips", " ideas", " recipe", 
-                          " comfort", " relief", " remedies", " benefits"]
+    suffixes_to_remove = [
+        " guide",
+        " tutorial",
+        " tips",
+        " ideas",
+        " recipe",
+        " comfort",
+        " relief",
+        " remedies",
+        " benefits",
+    ]
     for suffix in suffixes_to_remove:
         if main_subject.lower().endswith(suffix):
-            main_subject = main_subject[:-len(suffix)]
+            main_subject = main_subject[: -len(suffix)]
             break
 
     # Clean up
     main_subject = main_subject.split("+")[0].split("|")[0].strip()
     if len(main_subject) > 50:
         main_subject = " ".join(main_subject.split()[:6])
-    
+
     # Final cleanup - remove "in Containers" type suffixes for cleaner prompts
-    container_patterns = [" in containers", " in pots", " at home", " indoors", " outdoors"]
+    container_patterns = [
+        " in containers",
+        " in pots",
+        " at home",
+        " indoors",
+        " outdoors",
+    ]
     for pattern in container_patterns:
         if main_subject.lower().endswith(pattern):
             # Keep it but simplify for image prompt
             break
-    
+
     # Ensure we have a meaningful subject
     if len(main_subject) < 3:
         main_subject = title.split(":")[0].strip() if ":" in title else title
@@ -495,58 +571,61 @@ def generate_topic_specific_prompts(title: str) -> dict:
     topic_keywords = main_subject.lower()
 
     # Positive constraints to reduce hands/people without explicit bans
-    safety_suffix = "object-only frame, static composition, empty scene, no interaction"
+    safety_suffix = "no people visible, no hands, no fingers, still life composition"
 
-    # Generate SPECIFIC prompts based on the topic
+    # Generate CINEMATIC REALISTIC prompts based on the topic
     prompts = {
         "featured": {
             "prompt": (
-                f"Ultra clean studio product photo of {main_subject}, centered on a seamless white background, "
-                f"resting on a matte acrylic pedestal, soft diffused lighting, sharp focus, high detail, "
-                f"minimal editorial style, 16:9 aspect ratio, {QUALITY}, {safety_suffix}, "
-                f"no text, no logos, no watermark"
+                f"Stunning hero shot of {main_subject} in a {SCENE_KITCHEN}, beautifully styled like a food magazine cover, "
+                f"steam rising gently, fresh ingredients scattered around, dramatic rim lighting from behind, "
+                f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
             "alt": f"{main_subject.title()} - Featured Image",
         },
         "inline1": {
             "prompt": (
-                f"Top-down flat lay of {main_subject} items neatly arranged on a neutral textured surface, "
-                f"symmetrical layout, editorial product photography, soft natural light, "
+                f"Overhead cinematic shot of fresh ingredients for {main_subject} artfully arranged on {SCENE_TABLE}, "
+                f"organic textures, morning light creating soft shadows, rustic ceramic plates, fresh herbs as garnish, "
                 f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"Materials for {main_subject}",
+            "alt": f"Fresh ingredients for {main_subject}",
         },
         "inline2": {
             "prompt": (
-                f"High-end still life photograph of {main_subject} displayed in a glass showcase like a museum exhibit, "
-                f"controlled soft lighting, centered composition, ultra realistic detail, "
-                f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
+                f"Close-up macro photography of {main_subject} preparation, dramatic depth of field, "
+                f"droplets of moisture visible, steam or mist in background, moody kitchen atmosphere, "
+                f"raw authentic moment captured, {QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"Process of {main_subject}",
+            "alt": f"Process of making {main_subject}",
         },
         "inline3": {
             "prompt": (
-                f"Wide-angle photo of a minimalist interior featuring {main_subject} as the focal object, "
-                f"clean modern lines, morning light through large windows, "
-                f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
+                f"Beautiful final presentation of {main_subject} in a {SCENE_OUTDOOR}, "
+                f"styled like a Pinterest-worthy lifestyle photo, natural props like wooden boards and fresh plants, "
+                f"warm inviting atmosphere, aspirational aesthetic, {QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"Completed {main_subject}",
+            "alt": f"Finished {main_subject} ready to enjoy",
         },
     }
 
-    # Make prompts even MORE specific based on keywords
+    # Make prompts CINEMATIC and REALISTIC based on keywords
     if "vinegar" in topic_keywords or "ferment" in topic_keywords:
+        prompts["featured"]["prompt"] = (
+            f"Hero shot of homemade fruit vinegar bottles on rustic farmhouse shelf, golden amber liquid glowing in sunlight, "
+            f"vintage glass bottles with handwritten labels, morning rays through dusty window, {QUALITY}, {safety_suffix}"
+        )
         prompts["inline1"]["prompt"] = (
-            f"Fresh fruit scraps, apple peels, glass jars for making homemade vinegar, rustic kitchen setting, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Overhead cinematic shot of fresh apple peels and fruit scraps with glass mason jars on aged wooden table, "
+            f"natural kitchen light, scattered fresh herbs, artisanal preparation scene, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"Fruit scraps arranged in a glass jar with water for vinegar fermentation, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Close-up macro of fruit scraps fermenting in glass jar, beautiful bubbles rising, amber liquid, "
+            f"dramatic side lighting creating depth, scientific yet beautiful, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
-            f"Homemade fruit vinegar in glass bottles, amber color, rustic labels, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Stunning presentation of finished homemade vinegar collection in vintage bottles, "
+            f"rustic wooden pantry shelf, soft warm lighting, cozy homestead aesthetic, {QUALITY}, {safety_suffix}"
         )
 
     elif (
@@ -554,95 +633,119 @@ def generate_topic_specific_prompts(title: str) -> dict:
         or "rope" in topic_keywords
         or "fiber" in topic_keywords
     ):
+        prompts["featured"]["prompt"] = (
+            f"Cinematic shot of natural handmade cordage coiled on weathered driftwood, forest background with soft focus, "
+            f"golden hour light filtering through trees, bushcraft wilderness aesthetic, {QUALITY}, {safety_suffix}"
+        )
         prompts["inline1"]["prompt"] = (
-            f"Natural plant fibers for making cordage, bark strips, dried leaves, bushcraft materials, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Close-up of natural plant fibers, bark strips and dried leaves arranged on moss-covered log, "
+            f"morning dew droplets visible, enchanted forest atmosphere, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"Natural plant fibers arranged into rope strands using reverse wrap technique, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Artistic shot of natural fibers mid-twist into rope strands, soft bokeh background of forest, "
+            f"sunlight catching individual fiber strands, craftsman aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
-            f"Finished natural cordage and handmade rope coiled neatly, rustic outdoor setting, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Beautiful finished natural cordage rope coiled elegantly next to campfire, wilderness survival scene, "
+            f"warm firelight glow, rustic outdoor adventure aesthetic, {QUALITY}, {safety_suffix}"
         )
 
     elif "cactus" in topic_keywords or "propagat" in topic_keywords:
+        prompts["featured"]["prompt"] = (
+            f"Stunning hero shot of blooming Christmas cactus in terracotta pot, soft pink flowers in focus, "
+            f"bright window light, modern boho home interior, lifestyle magazine quality, {QUALITY}, {safety_suffix}"
+        )
         prompts["inline1"]["prompt"] = (
-            f"Christmas cactus cuttings, small pots, potting soil, propagation supplies on table, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Overhead shot of cactus cuttings with tiny terracotta pots and fresh soil on marble surface, "
+            f"morning light creating soft shadows, minimalist plant parent aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"Christmas cactus segments arranged for propagation, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Macro close-up of Christmas cactus segment showing root nodes, moisture droplets visible, "
+            f"dramatic shallow depth of field, botanical photography style, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
-            f"Rooted christmas cactus cuttings in small pots, new growth, healthy plants, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Row of successfully propagated cactus babies in small pots on sunny windowsill, "
+            f"new growth visible, cozy plant corner aesthetic, aspirational home decor, {QUALITY}, {safety_suffix}"
         )
 
     elif (
         "drip" in topic_keywords
+        or "irrigation" in topic_keywords
         or "water" in topic_keywords
-        or "bottle" in topic_keywords
     ):
+        prompts["featured"]["prompt"] = (
+            f"Beautiful DIY drip irrigation system in lush vegetable garden, water droplets catching sunlight, "
+            f"healthy green plants, sustainable gardening scene, golden hour, {QUALITY}, {safety_suffix}"
+        )
         prompts["inline1"]["prompt"] = (
-            f"Plastic soda bottles, scissors, drill, garden supplies for DIY drip irrigation, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Overhead flat lay of upcycled bottles and garden tools for DIY irrigation on weathered potting bench, "
+            f"garden gloves, seeds packets, vintage gardening aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"Plastic bottle prepared for drip feeder system, tools arranged nearby, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Close-up of water droplet falling from homemade bottle dripper onto plant root, "
+            f"slow motion frozen moment, crystal clear water, satisfying detail, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
-            f"Completed bottle drip feeder placed in garden soil, sustainable irrigation, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Thriving vegetable garden row with bottle drip feeders working, tomatoes ripening, "
+            f"morning dew, abundant harvest scene, sustainable living aesthetic, {QUALITY}, {safety_suffix}"
         )
 
     elif (
         "survival" in topic_keywords
-        or "garden" in topic_keywords
-        or "medicine" in topic_keywords
+        or "medicinal" in topic_keywords
+        or "herb" in topic_keywords
     ):
+        prompts["featured"]["prompt"] = (
+            f"Breathtaking survival medicine garden at golden hour, rows of medicinal herbs in full bloom, "
+            f"rustic wooden markers, mountain backdrop, homesteading dream scene, {QUALITY}, {safety_suffix}"
+        )
         prompts["inline1"]["prompt"] = (
-            f"Seeds, medicinal herbs, garden tools for survival garden planning, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Overhead shot of heirloom seed packets and medicinal herb bundles on aged wooden table, "
+            f"vintage garden journal, dried lavender, apothecary aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"Medicinal herbs and vegetables arranged in a survival garden bed, soil and tools, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Close-up of hands-free shot of fresh medicinal herbs like chamomile and calendula in woven basket, "
+            f"dew drops on petals, morning garden harvest aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
-            f"Thriving survival garden with medicinal plants and vegetables, abundant harvest, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Abundant medicinal herb garden in full glory, butterflies and bees, rustic fence background, "
+            f"cottage garden dream, peaceful homestead vibes, {QUALITY}, {safety_suffix}"
         )
 
     elif "pot" in topic_keywords or "planter" in topic_keywords:
+        prompts["featured"]["prompt"] = (
+            f"Gorgeous collection of DIY upcycled planters on sunny balcony, succulents and trailing plants, "
+            f"urban jungle aesthetic, creative recycled containers, lifestyle photo quality, {QUALITY}, {safety_suffix}"
+        )
         prompts["inline1"]["prompt"] = (
-            f"Upcycled materials for DIY plant pots, cans, bottles, paint, crafting supplies, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Overhead craft setup with paint cans, brushes, and recycled containers ready for transformation, "
+            f"colorful artistic scene, creative workshop aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"DIY plant pots made from recycled materials, arranged neatly, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Close-up of beautifully painted upcycled tin can planter with trailing succulent, "
+            f"artistic brush strokes visible, handmade craft aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
-            f"Collection of handmade DIY plant pots with succulents and plants, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Stunning vertical garden of DIY planters on rustic wooden pallet, various plants thriving, "
+            f"small space gardening inspiration, Pinterest-worthy scene, {QUALITY}, {safety_suffix}"
         )
 
-    elif "ginger" in topic_keywords or "nausea" in topic_keywords:
+    elif "ginger" in topic_keywords or "nausea" in topic_keywords or "tea" in topic_keywords:
+        prompts["featured"]["prompt"] = (
+            f"Steaming cup of fresh ginger tea on cozy wooden table, cinnamon sticks and honey jar nearby, "
+            f"soft morning light, warm comfort scene, hygge aesthetic, {QUALITY}, {safety_suffix}"
+        )
         prompts["inline1"]["prompt"] = (
-            f"Fresh ginger root, lemon slices, honey, and a ceramic mug for ginger tea, clean kitchen counter, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Overhead shot of fresh ginger root, lemon wedges, and local honey on marble cutting board, "
+            f"natural remedy ingredients, wellness aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"Ginger tea preparation setup with sliced ginger simmering in a small pot, steam rising, close-up, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Close-up of ginger slices simmering in small copper pot, steam rising dramatically, "
+            f"bubbles visible, aromatic kitchen moment, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
-            f"Finished ginger tea in a mug with sliced ginger beside it, calming setting, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Cozy scene of finished ginger tea in ceramic mug with knitted cozy, reading nook setting, "
+            f"rainy window background, ultimate comfort aesthetic, {QUALITY}, {safety_suffix}"
         )
 
     elif (
@@ -650,17 +753,21 @@ def generate_topic_specific_prompts(title: str) -> dict:
         or "block" in topic_keywords
         or "outdoor" in topic_keywords
     ):
+        prompts["featured"]["prompt"] = (
+            f"Stunning cinder block garden furniture set in dreamy backyard, string lights overhead, "
+            f"cushions and plants, outdoor living room aesthetic, sunset golden hour, {QUALITY}, {safety_suffix}"
+        )
         prompts["inline1"]["prompt"] = (
-            f"Cinder blocks, paint, brushes, and outdoor decor materials for DIY garden projects, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Flat lay of cinder blocks, outdoor paint colors, and gardening tools on concrete patio, "
+            f"DIY project preparation, creative outdoor workspace, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"Cinder blocks arranged for outdoor garden decoration, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Close-up of painted cinder block planter with cascading flowers, texture detail visible, "
+            f"upcycled garden decor aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
-            f"Cinder block garden furniture and planters in backyard, styled outdoor space, "
-            f"{QUALITY}, {safety_suffix}"
+            f"Complete cinder block garden transformation with bench, planters and raised beds, "
+            f"lush plants, string lights, magical outdoor oasis, {QUALITY}, {safety_suffix}"
         )
 
     for value in prompts.values():
