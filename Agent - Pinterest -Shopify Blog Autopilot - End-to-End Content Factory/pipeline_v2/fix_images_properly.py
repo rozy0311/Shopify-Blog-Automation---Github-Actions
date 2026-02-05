@@ -573,37 +573,66 @@ def generate_topic_specific_prompts(title: str) -> dict:
     # Positive constraints to reduce hands/people without explicit bans
     safety_suffix = "no people visible, no hands, no fingers, still life composition"
 
-    # Generate CINEMATIC REALISTIC prompts based on the topic
+    # AUTO-SELECT best scene based on topic keywords
+    outdoor_keywords = ["garden", "plant", "grow", "soil", "seed", "compost", "outdoor", "yard", "lawn", "tree", "flower", "vegetable", "fruit", "harvest"]
+    kitchen_keywords = ["cook", "recipe", "tea", "soup", "food", "honey", "vinegar", "ferment", "preserve", "jam", "syrup", "bake", "bread"]
+    craft_keywords = ["diy", "make", "craft", "build", "sew", "knit", "paint", "upcycle", "recycle", "homemade"]
+    wellness_keywords = ["remedy", "herb", "medicine", "health", "natural", "essential", "oil", "balm", "salve", "tincture"]
+    
+    # Determine best scene for this topic
+    if any(kw in topic_keywords for kw in outdoor_keywords):
+        primary_scene = SCENE_GARDEN
+        secondary_scene = SCENE_OUTDOOR
+        scene_type = "garden"
+    elif any(kw in topic_keywords for kw in kitchen_keywords):
+        primary_scene = SCENE_KITCHEN
+        secondary_scene = SCENE_TABLE
+        scene_type = "kitchen"
+    elif any(kw in topic_keywords for kw in craft_keywords):
+        primary_scene = "bright creative workshop with natural light, craft supplies organized neatly, maker space aesthetic"
+        secondary_scene = SCENE_TABLE
+        scene_type = "craft"
+    elif any(kw in topic_keywords for kw in wellness_keywords):
+        primary_scene = "serene apothecary setting, dried herbs hanging, amber glass bottles, natural wellness sanctuary"
+        secondary_scene = SCENE_TABLE
+        scene_type = "wellness"
+    else:
+        # Smart default based on common sustainable living topics
+        primary_scene = SCENE_TABLE
+        secondary_scene = SCENE_OUTDOOR
+        scene_type = "lifestyle"
+
+    # Generate CINEMATIC REALISTIC prompts with AUTO-SELECTED scenes
     prompts = {
         "featured": {
             "prompt": (
-                f"Stunning hero shot of {main_subject} in a {SCENE_KITCHEN}, beautifully styled like a food magazine cover, "
-                f"steam rising gently, fresh ingredients scattered around, dramatic rim lighting from behind, "
+                f"Stunning hero shot of {main_subject} in {primary_scene}, beautifully styled like a magazine cover, "
+                f"dramatic golden hour lighting from behind, shallow depth of field with creamy bokeh, "
                 f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
             "alt": f"{main_subject.title()} - Featured Image",
         },
         "inline1": {
             "prompt": (
-                f"Overhead cinematic shot of fresh ingredients for {main_subject} artfully arranged on {SCENE_TABLE}, "
-                f"organic textures, morning light creating soft shadows, rustic ceramic plates, fresh herbs as garnish, "
+                f"Overhead cinematic shot showing all elements for {main_subject} artfully arranged on {SCENE_TABLE}, "
+                f"organic textures, morning light creating soft shadows, natural props like wooden boards and fresh greenery, "
                 f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"Fresh ingredients for {main_subject}",
+            "alt": f"Everything you need for {main_subject}",
         },
         "inline2": {
             "prompt": (
-                f"Close-up macro photography of {main_subject} preparation, dramatic depth of field, "
-                f"droplets of moisture visible, steam or mist in background, moody kitchen atmosphere, "
+                f"Close-up macro photography capturing the essence of {main_subject}, dramatic depth of field, "
+                f"beautiful details visible, natural moisture or texture, moody atmospheric lighting, "
                 f"raw authentic moment captured, {QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"Process of making {main_subject}",
+            "alt": f"Beautiful details of {main_subject}",
         },
         "inline3": {
             "prompt": (
-                f"Beautiful final presentation of {main_subject} in a {SCENE_OUTDOOR}, "
-                f"styled like a Pinterest-worthy lifestyle photo, natural props like wooden boards and fresh plants, "
-                f"warm inviting atmosphere, aspirational aesthetic, {QUALITY}, {safety_suffix}, no text, no logos, no watermark"
+                f"Breathtaking final result of {main_subject} in {secondary_scene}, "
+                f"styled like a Pinterest-worthy lifestyle photo, warm inviting atmosphere, "
+                f"aspirational aesthetic that inspires action, {QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
             "alt": f"Finished {main_subject} ready to enjoy",
         },
@@ -730,7 +759,11 @@ def generate_topic_specific_prompts(title: str) -> dict:
             f"small space gardening inspiration, Pinterest-worthy scene, {QUALITY}, {safety_suffix}"
         )
 
-    elif "ginger" in topic_keywords or "nausea" in topic_keywords or "tea" in topic_keywords:
+    elif (
+        "ginger" in topic_keywords
+        or "nausea" in topic_keywords
+        or "tea" in topic_keywords
+    ):
         prompts["featured"]["prompt"] = (
             f"Steaming cup of fresh ginger tea on cozy wooden table, cinnamon sticks and honey jar nearby, "
             f"soft morning light, warm comfort scene, hygge aesthetic, {QUALITY}, {safety_suffix}"
