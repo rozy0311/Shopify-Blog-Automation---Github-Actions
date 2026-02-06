@@ -364,16 +364,22 @@ jobs:
                   git config user.email "github-actions[bot]@users.noreply.github.com"
                   QUEUE_DIR="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2"
                   if [ -f "$QUEUE_DIR/anti_drift_queue.json" ]; then
-                      git add "$QUEUE_DIR/anti_drift_queue.json" "$QUEUE_DIR/anti_drift_run_log.csv" "$QUEUE_DIR/anti_drift_done_blacklist.json" "$QUEUE_DIR/orchestrator_progress.json" 2>/dev/null || true
+                      # Use --force to add files that are in .gitignore
+                      git add --force "$QUEUE_DIR/anti_drift_queue.json" || echo "add queue failed"
+                      git add --force "$QUEUE_DIR/anti_drift_run_log.csv" 2>/dev/null || true
+                      git add --force "$QUEUE_DIR/anti_drift_done_blacklist.json" 2>/dev/null || true
+                      git add --force "$QUEUE_DIR/orchestrator_progress.json" 2>/dev/null || true
+                      echo "Files staged:"
+                      git diff --cached --name-only || true
                       if ! git diff --cached --quiet; then
                           git commit -m "chore: Update queue state after run ${{ github.run_number }} [skip ci]"
                           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
                           git push origin HEAD:${{ github.ref_name }} && echo "✅ Queue changes pushed successfully" || echo "❌ Push failed"
                       else
-                          echo "No queue changes to commit"
+                          echo "No queue changes to commit (git diff --cached is empty)"
                       fi
                   else
-                      echo "Queue file not found"
+                      echo "Queue file not found at $QUEUE_DIR/anti_drift_queue.json"
                   fi
 
             - name: Upload fix artifacts
