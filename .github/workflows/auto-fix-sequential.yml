@@ -1,17 +1,17 @@
 name: Auto Fix Sequential (Continuous Loop)
-# Runs every 15 minutes to process 1 article at a time continuously
+# Runs every 20 minutes to process 3 articles at a time
 # cancel-in-progress: false = runs queue instead of canceling each other
 
 on:
     schedule:
-        # Every 15 minutes (4 runs/hour, gives time for completion)
-        - cron: "*/15 * * * *"
+        # Every 20 minutes (3 runs/hour × 3 articles = 9 articles/hour)
+        - cron: "*/20 * * * *"
     workflow_dispatch:
         inputs:
             fix_max_items:
-                description: "Number of articles per run (default 1)"
+                description: "Number of articles per run (default 3)"
                 required: false
-                default: "1"
+                default: "3"
 
 concurrency:
     group: auto-fix-sequential
@@ -56,7 +56,7 @@ jobs:
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             REQUIRE_PINTEREST_IMAGE: "0"
-            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '1' }}
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '3' }}
             FIX_DELAY_SECONDS: "60"
             MAX_ATTEMPTS_PER_ARTICLE: "3"
             PASS_RATE_ENFORCE: "1"
