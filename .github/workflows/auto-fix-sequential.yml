@@ -20,6 +20,7 @@ concurrency:
 jobs:
     auto-fix-one:
         runs-on: ubuntu-latest
+        timeout-minutes: 45
         permissions:
             contents: read
         env:
@@ -275,8 +276,9 @@ jobs:
                       echo "Processing $article_id ($i/$max)"
                       echo "$article_id" >> "$processed_file"
                       set +e
-                      python ai_orchestrator.py fix-ids "$article_id"
+                      timeout 300 python ai_orchestrator.py fix-ids "$article_id"
                       fix_ok=$?
+                      if [ "$fix_ok" = "124" ]; then echo "[WARN] fix-ids $article_id TIMED OUT after 5 min"; fi
                       if [ "$fix_ok" != "0" ]; then echo "[WARN] fix-ids $article_id exited $fix_ok"; fi
                       # NOTE: Removed build_meta_fix_queue.py and run_meta_fix_queue.py
                       # as ai_orchestrator.py now handles all meta-prompt fixes including:
@@ -284,11 +286,11 @@ jobs:
                       # - Source injection
                       # - Word count enforcement
                       # - Featured image counting
-                      python "fix_images_properly.py" --article-id "$article_id"
+                      timeout 600 python "fix_images_properly.py" --article-id "$article_id"
                       fix_images_ok=$?
-                      if [ "$fix_images_ok" != "0" ]; then
-                          echo "[WARN] fix_images_properly failed for $article_id"
-                          python ai_orchestrator.py queue-review "$article_id" fail "IMAGE_FIX_FAILED" || true
+                      if [ "$fix_images_ok" = "124" ]; then
+                          echo "[WARN] fix_images_properly TIMED OUT after 10 min for $article_id"
+                          python ai_orchestrator.py queue-review "$article_id" fail "IMAGE_FIX_TIMEOUT" || true
                           if [ "$i" -lt "$max" ]; then
                               echo "Sleeping ${delay}s before next article..."
                               sleep "$delay"
@@ -298,7 +300,7 @@ jobs:
                       set -e
 
                       set +e
-                      python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
+                      timeout 180 python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
                       review_status=${PIPESTATUS[0]}
                       set -e
 
@@ -310,8 +312,8 @@ jobs:
                           while [ "$attempt" -le "$max_attempts" ] && [ "$review_passed" -eq 0 ]; do
                               echo "[Attempt $attempt/$max_attempts] Rebuilding $article_id..."
                               set +e
-                              python ai_orchestrator.py force-rebuild-ids "$article_id"
-                              python "fix_images_properly.py" --article-id "$article_id"
+                              timeout 300 python ai_orchestrator.py force-rebuild-ids "$article_id"
+                              timeout 600 python "fix_images_properly.py" --article-id "$article_id"
                               rebuild_images_ok=$?
                               set -e
                               if [ "$rebuild_images_ok" != "0" ]; then
@@ -321,7 +323,7 @@ jobs:
                                   continue
                               fi
                               set +e
-                              python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-attempt-${attempt}.txt"
+                              timeout 180 python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-attempt-${attempt}.txt"
                               review_status_attempt=${PIPESTATUS[0]}
                               set -e
                               if [ "$review_status_attempt" == "0" ]; then
