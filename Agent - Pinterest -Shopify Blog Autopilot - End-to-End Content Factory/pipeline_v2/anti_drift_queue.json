@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-06T09:51:56.843670",
+  "updated_at": "2026-02-06T10:16:22.378790",
   "items": [
     {
       "id": "691791921470",
@@ -69,29 +69,29 @@
     {
       "id": "690770870590",
       "title": "Ginger Remedies Nausea Relief: Simple Natural Meth",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "done",
+      "attempts": 3,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-02T16:37:57.343380"
+      "updated_at": "2026-02-06T10:01:41.124740"
     },
     {
       "id": "690770805054",
       "title": "Lavender Uses Home Remedies: Simple Everyday Care ",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "done",
+      "attempts": 3,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-02T16:39:27.939764"
+      "updated_at": "2026-02-06T10:05:01.146975"
     },
     {
       "id": "690770772286",
       "title": "Calendula Salve Skin Healing: Uses and Application",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "failed",
+      "attempts": 6,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-02T16:40:53.745828"
+      "updated_at": "2026-02-06T10:16:22.378781"
     },
     {
       "id": "690770739518",
