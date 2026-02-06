@@ -346,14 +346,23 @@ jobs:
 
             - name: Commit queue changes
               if: always()
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
-                  cd "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2"
-                  if [ -f "anti_drift_queue.json" ]; then
-                      git add anti_drift_queue.json anti_drift_run_log.csv anti_drift_done_blacklist.json orchestrator_progress.json 2>/dev/null || true
-                      git diff --cached --quiet || git commit -m "chore: Update queue state after manual run [skip ci]"
-                      git push origin HEAD:${{ github.ref_name }} || echo "Push failed - will retry next run"
+                  QUEUE_DIR="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2"
+                  if [ -f "$QUEUE_DIR/anti_drift_queue.json" ]; then
+                      git add "$QUEUE_DIR/anti_drift_queue.json" "$QUEUE_DIR/anti_drift_run_log.csv" "$QUEUE_DIR/anti_drift_done_blacklist.json" "$QUEUE_DIR/orchestrator_progress.json" 2>/dev/null || true
+                      if ! git diff --cached --quiet; then
+                          git commit -m "chore: Update queue state after manual run [skip ci]"
+                          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+                          git push origin HEAD:${{ github.ref_name }} && echo "✅ Queue changes pushed successfully" || echo "❌ Push failed"
+                      else
+                          echo "No queue changes to commit"
+                      fi
+                  else
+                      echo "Queue file not found"
                   fi
 
             - name: Upload fix artifacts
