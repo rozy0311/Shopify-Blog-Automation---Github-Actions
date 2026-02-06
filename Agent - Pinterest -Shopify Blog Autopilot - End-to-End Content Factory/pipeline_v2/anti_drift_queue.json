@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-06T14:33:43.994145",
+  "updated_at": "2026-02-06T15:41:08.958754",
   "items": [
     {
       "id": "691791921470",
@@ -141,11 +141,11 @@
     {
       "id": "690770542910",
       "title": "Natural Sleep Remedies: Calming Herbal Options for",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "done",
+      "attempts": 3,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-02T16:48:41.063118"
+      "updated_at": "2026-02-06T15:24:48.860787"
     },
     {
       "id": "690770510142",
@@ -159,20 +159,20 @@
     {
       "id": "690770477374",
       "title": "Muscle Rub Homemade Relief: Warming Herbal Recipe ",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "failed",
+      "attempts": 6,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-02T16:58:37.687134"
+      "updated_at": "2026-02-06T15:37:04.650672"
     },
     {
       "id": "690770444606",
       "title": "Headache Relief Natural Remedies: Simple Herbal Op",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "done",
+      "attempts": 3,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-02T16:59:36.266750"
+      "updated_at": "2026-02-06T15:41:08.958746"
     },
     {
       "id": "690770379070",
