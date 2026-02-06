@@ -1,10 +1,11 @@
 name: Auto Fix Sequential (Continuous Loop)
-# Runs every 12 minutes to process 1 article at a time continuously
+# Runs every 15 minutes to process 1 article at a time continuously
+# cancel-in-progress: false = runs queue instead of canceling each other
 
 on:
     schedule:
-        # Every 12 minutes (5 runs/hour, safe for rate limits)
-        - cron: "*/12 * * * *"
+        # Every 15 minutes (4 runs/hour, gives time for completion)
+        - cron: "*/15 * * * *"
     workflow_dispatch:
         inputs:
             fix_max_items:
@@ -14,7 +15,7 @@ on:
 
 concurrency:
     group: auto-fix-sequential
-    cancel-in-progress: true
+    cancel-in-progress: false
 
 jobs:
     auto-fix-one:
