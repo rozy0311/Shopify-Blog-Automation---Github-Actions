@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-06T19:51:30.309349",
+  "updated_at": "2026-02-06T21:00:29.585679",
   "items": [
     {
       "id": "691791921470",
@@ -222,11 +222,11 @@
     {
       "id": "690525012286",
       "title": "Pumpkin Diseases Common Issues: Identification and",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "failed",
+      "attempts": 2,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-02T17:22:22.668583"
+      "updated_at": "2026-02-06T21:00:29.585670"
     },
     {
       "id": "690524946750",
