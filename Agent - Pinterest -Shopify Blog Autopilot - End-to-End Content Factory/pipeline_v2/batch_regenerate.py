@@ -271,8 +271,8 @@ def main():
     parser.add_argument(
         "--interval",
         type=int,
-        default=600,
-        help="Seconds between articles (default: 600 = 10 min)",
+        default=300,
+        help="Seconds between articles (default: 300 = 5 min)",
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="Print what would be done"

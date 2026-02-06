@@ -6,7 +6,7 @@ This triggers the GitHub Actions workflow for each article with a configurable i
 Usage:
   python run_sequential_10min.py                    # Run for next articles in queue
   python run_sequential_10min.py --max 5            # Run max 5 articles
-  python run_sequential_10min.py --interval 600    # 10 minute intervals (default)
+  python run_sequential_10min.py --interval 900    # 15 minute intervals (default)
   python run_sequential_10min.py --dry-run          # Print what would run
 """
 
