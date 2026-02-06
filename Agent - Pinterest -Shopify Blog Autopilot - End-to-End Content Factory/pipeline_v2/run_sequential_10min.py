@@ -144,8 +144,8 @@ def main():
     parser.add_argument(
         "--interval",
         type=int,
-        default=600,
-        help="Seconds between articles (default: 600 = 10 min)",
+        default=900,
+        help="Seconds between articles (default: 900 = 15 min, matches GHA schedule)",
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="Print what would run without executing"

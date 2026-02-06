@@ -10,7 +10,7 @@ on:
 
 concurrency:
     group: auto-fix-manual
-    cancel-in-progress: true
+    cancel-in-progress: false
 
 jobs:
     auto-fix-one:
