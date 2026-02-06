@@ -15,8 +15,9 @@ concurrency:
 jobs:
     auto-fix-one:
         runs-on: ubuntu-latest
+        timeout-minutes: 45
         permissions:
-            contents: read
+            contents: write
         env:
             SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
             SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
@@ -342,6 +343,18 @@ jobs:
                           sleep "$delay"
                       fi
                   done
+
+            - name: Commit queue changes
+              if: always()
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  cd "Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2"
+                  if [ -f "anti_drift_queue.json" ]; then
+                      git add anti_drift_queue.json anti_drift_run_log.csv anti_drift_done_blacklist.json orchestrator_progress.json 2>/dev/null || true
+                      git diff --cached --quiet || git commit -m "chore: Update queue state after manual run [skip ci]"
+                      git push origin HEAD:${{ github.ref_name }} || echo "Push failed - will retry next run"
+                  fi
 
             - name: Upload fix artifacts
               uses: actions/upload-artifact@v4
