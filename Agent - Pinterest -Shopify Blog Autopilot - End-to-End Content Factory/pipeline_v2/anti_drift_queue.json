@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-07T02:59:14.245053",
+  "updated_at": "2026-02-07T03:57:16.197125",
   "items": [
     {
       "id": "691791921470",
@@ -330,11 +330,11 @@
     {
       "id": "690524586302",
       "title": "Neem Leaves Health Benefits: Medicinal Uses and Sa",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "failed",
+      "attempts": 2,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-02T17:44:40.569041"
+      "updated_at": "2026-02-07T03:57:16.197118"
     },
     {
       "id": "690524553534",
