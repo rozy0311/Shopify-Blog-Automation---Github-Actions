@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-07T16:35:21.036801",
+  "updated_at": "2026-02-07T17:39:18.520603",
   "items": [
     {
       "id": "691791921470",
@@ -337,11 +337,12 @@
     {
       "id": "690524586302",
       "title": "Neem Leaves Health Benefits: Medicinal Uses and Sa",
-      "status": "failed",
-      "attempts": 2,
-      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "status": "skipped",
+      "attempts": 5,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-07T03:57:16.197118"
+      "updated_at": "2026-02-07T17:26:44.386745",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": "690524553534",
@@ -355,11 +356,11 @@
     {
       "id": "690524520766",
       "title": "Grow Cinnamon Trees from Seed: Complete Home Guide",
-      "status": "done",
-      "attempts": 2,
-      "last_error": null,
+      "status": "failed",
+      "attempts": 7,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-02T17:58:29.336794"
+      "updated_at": "2026-02-07T17:39:18.520596"
     },
     {
       "id": "690524487998",
@@ -505,14 +506,15 @@
     {
       "id": 690524586302,
       "title": "Neem Leaves Health Benefits: Medicinal Uses and Sa",
-      "status": "pending",
+      "status": "skipped",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396232",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": 690524520766,
