@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-07T13:13:02.772007",
+  "updated_at": "2026-02-07T14:30:30.789572",
   "items": [
     {
       "id": "691791921470",
@@ -262,20 +262,21 @@
     {
       "id": "690524848446",
       "title": "Aloe Vera Benefits Care: Safe Uses and Growing Tip",
-      "status": "failed",
-      "attempts": 2,
+      "status": "skipped",
+      "attempts": 5,
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-07T01:06:10.962138"
+      "updated_at": "2026-02-07T14:18:44.396529",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": "690524815678",
       "title": "Moringa Benefits Uses Safety: Practical Daily Guid",
       "status": "done",
-      "attempts": 3,
+      "attempts": 5,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-07T01:18:04.213044"
+      "updated_at": "2026-02-07T14:30:30.789563"
     },
     {
       "id": "690524782910",
@@ -463,14 +464,15 @@
     {
       "id": 690524848446,
       "title": "Aloe Vera Benefits Care: Safe Uses and Growing Tip",
-      "status": "pending",
+      "status": "skipped",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396223",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": 690524815678,
