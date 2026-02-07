@@ -53,3 +53,7 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-07T09:28:12.373830,690770870590,,failed,0,False,REFETCH_FAILED,,
 2026-02-07T09:30:32.050154,690770870590,,failed,0,False,REFETCH_FAILED,,
 2026-02-07T09:32:59.848523,690770870590,,failed,0,False,REFETCH_FAILED,,
+2026-02-07T12:56:49.945493,690770444606,Headache Relief Natural Remedies: Simple Herbal Options Guide,failed,8,False,GATE_FAIL,,
+2026-02-07T13:01:12.794817,690770444606,,failed,0,False,REFETCH_FAILED,,
+2026-02-07T13:06:48.665747,690770444606,,failed,0,False,REFETCH_FAILED,,
+2026-02-07T13:12:59.004126,690524979518,Bitter Melon Growing in Containers: Home Care Tips,done,9,True,manual_review_fix,,
