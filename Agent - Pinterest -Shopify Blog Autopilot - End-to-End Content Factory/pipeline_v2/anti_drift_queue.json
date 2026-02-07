@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-07T09:33:24.555914",
+  "updated_at": "2026-02-07T10:43:21.912579",
   "items": [
     {
       "id": "691791921470",
@@ -79,11 +79,12 @@
     {
       "id": "690770805054",
       "title": "Lavender Uses Home Remedies: Simple Everyday Care ",
-      "status": "done",
-      "attempts": 3,
-      "last_error": null,
+      "status": "skipped",
+      "attempts": 4,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-06T10:05:01.146975"
+      "updated_at": "2026-02-07T10:43:21.912571",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": "690770772286",
@@ -407,14 +408,15 @@
     {
       "id": 690770805054,
       "title": "Lavender Uses Home Remedies: Simple Everyday Care ",
-      "status": "pending",
+      "status": "skipped",
       "issues": [
         "GENERIC_CONTENT"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396208",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": 690770641214,
