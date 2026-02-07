@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-07T18:23:05.357582",
+  "updated_at": "2026-02-07T19:29:32.476181",
   "items": [
     {
       "id": "691791921470",
@@ -375,11 +375,12 @@
     {
       "id": "690524455230",
       "title": "Grow Turmeric in Containers: Complete Guide for An",
-      "status": "failed",
-      "attempts": 7,
+      "status": "skipped",
+      "attempts": 8,
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-07T18:23:05.357573"
+      "updated_at": "2026-02-07T19:29:32.476173",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": "690524094782",
@@ -533,14 +534,15 @@
     {
       "id": 690524455230,
       "title": "Grow Turmeric in Containers: Complete Guide for An",
-      "status": "pending",
+      "status": "skipped",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396237",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": 690524094782,
