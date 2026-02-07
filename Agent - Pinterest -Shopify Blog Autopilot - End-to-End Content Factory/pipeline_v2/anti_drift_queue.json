@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-07T02:21:55.942266",
+  "updated_at": "2026-02-07T02:59:14.245053",
   "items": [
     {
       "id": "691791921470",
@@ -303,29 +303,29 @@
     {
       "id": "690524684606",
       "title": "Composting Trench Step-by-Step: How to Make a Comp",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "done",
+      "attempts": 4,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-02T17:39:19.505224"
+      "updated_at": "2026-02-07T02:44:14.194109"
     },
     {
       "id": "690524651838",
       "title": "Bitter Leaf Health Benefits Uses: Safe Herbal Guid",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "done",
+      "attempts": 3,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-02T17:42:36.545831"
+      "updated_at": "2026-02-07T02:47:26.271106"
     },
     {
       "id": "690524619070",
       "title": "Tree Stump Removal Easy Ways: Safe Methods for Sma",
-      "status": "pending",
-      "attempts": 1,
-      "last_error": "RESET_FROM_STUCK",
+      "status": "failed",
+      "attempts": 6,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-02T17:43:30.755954"
+      "updated_at": "2026-02-07T02:59:14.245042"
     },
     {
       "id": "690524586302",
