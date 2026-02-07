@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-07T20:33:43.571668",
+  "updated_at": "2026-02-07T22:04:33.182800",
   "items": [
     {
       "id": "691791921470",
@@ -395,11 +395,12 @@
     {
       "id": "690524062014",
       "title": "Natural Cleaning Products Vinegar Recipes: Easy DI",
-      "status": "failed",
-      "attempts": 6,
+      "status": "skipped",
+      "attempts": 7,
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-07T09:25:22.302843"
+      "updated_at": "2026-02-07T22:04:33.182793",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": 690770870590,
@@ -561,14 +562,15 @@
     {
       "id": 690524062014,
       "title": "Natural Cleaning Products Vinegar Recipes: Easy DI",
-      "status": "pending",
+      "status": "skipped",
       "issues": [
         "GENERIC_CONTENT"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396243",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "error": "DUP_IN_RUN"
     },
     {
       "id": 690523963710,
