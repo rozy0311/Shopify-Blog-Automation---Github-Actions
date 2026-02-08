@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-08T12:25:58.031377",
+  "updated_at": "2026-02-08T13:53:16.592227",
   "items": [
     {
       "id": "691791921470",
@@ -883,38 +883,44 @@
     {
       "id": 690513281342,
       "title": "DIY Fabric Refresher Spray Recipe: Natural Odor El",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 2,
       "added_at": "2026-02-05T19:39:25.396324",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-08T13:36:21.189048"
     },
     {
       "id": 690513248574,
       "title": "Laundry Booster Natural Formula: Without Harsh Che",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 5,
       "added_at": "2026-02-05T19:39:25.396327",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-08T13:48:41.814988"
     },
     {
       "id": 690513215806,
       "title": "Castile Soap Dilution Ratios: Safe Uses for Every ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 2,
       "added_at": "2026-02-05T19:39:25.396331",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-08T13:53:16.592218"
     },
     {
       "id": 690513183038,
