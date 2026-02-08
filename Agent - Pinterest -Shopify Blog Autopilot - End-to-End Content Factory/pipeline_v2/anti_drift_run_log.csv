@@ -120,3 +120,4 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-08T10:53:21.398926,690513379646,,failed,0,False,REFETCH_FAILED,,
 2026-02-08T11:10:53.048124,690513346878,,failed,0,False,REFETCH_FAILED,,
 2026-02-08T11:15:58.746828,690513346878,,failed,0,False,REFETCH_FAILED,,
+2026-02-08T12:13:07.779639,690513314110,Baking Soda Deodorizer Sachets for Closets: Easy DIY,failed,7,False,GATE_FAIL,,
