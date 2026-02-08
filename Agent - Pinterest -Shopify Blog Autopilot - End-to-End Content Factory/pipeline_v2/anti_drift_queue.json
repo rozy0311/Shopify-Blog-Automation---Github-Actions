@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-08T13:53:16.592227",
+  "updated_at": "2026-02-08T14:45:40.040576",
   "items": [
     {
       "id": "691791921470",
@@ -925,38 +925,44 @@
     {
       "id": 690513183038,
       "title": "Baking Soda Scrub Kitchen Sink: Natural Clean Rout",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 5,
       "added_at": "2026-02-05T19:39:25.396334",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-08T14:20:05.772696"
     },
     {
       "id": 690513150270,
       "title": "Natural Glass Cleaner Without Streaks: Homemade Re",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 5,
       "added_at": "2026-02-05T19:39:25.396337",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-08T14:33:17.947738"
     },
     {
       "id": 690513117502,
       "title": "Citrus Vinegar Cleaner Recipe: Complete Guide for ",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 5,
       "added_at": "2026-02-05T19:39:25.396344",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-08T14:45:40.040569"
     },
     {
       "id": 690504499518,
