@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-09T16:21:59.181339",
+  "updated_at": "2026-02-09T17:32:57.166880",
   "items": [
     {
       "id": "691791921470",
@@ -1362,14 +1362,16 @@
     {
       "id": 690497880382,
       "title": "Making Natural Candles at Home: Simple Wax and Wic",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396398",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-09T17:32:57.166873"
     },
     {
       "id": 690497814846,
