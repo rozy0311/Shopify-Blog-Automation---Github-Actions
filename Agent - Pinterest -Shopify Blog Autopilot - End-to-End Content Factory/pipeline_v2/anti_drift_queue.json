@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-10T21:29:14.621954",
+  "updated_at": "2026-02-10T22:33:49.930040",
   "items": [
     {
       "id": "691791921470",
@@ -1924,14 +1924,16 @@
     {
       "id": 690328731966,
       "title": "Upcycled Birdbath Ideas: 17 Projects for Any Garde",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396471",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-10T22:33:49.930033"
     },
     {
       "id": 690326798654,
