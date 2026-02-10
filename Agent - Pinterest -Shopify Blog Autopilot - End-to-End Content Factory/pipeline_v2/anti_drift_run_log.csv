@@ -230,3 +230,5 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-10T11:58:06.353353,690495717694,,failed,0,False,REFETCH_FAILED,,
 2026-02-10T12:04:20.274381,690495652158,Calming Herbal Tea Blends: Better Sleep Nighttime Guide,done,9,True,manual_review_fix,,
 2026-02-10T12:06:23.859281,690495652158,,failed,0,False,REFETCH_FAILED,,
+2026-02-10T13:13:48.951941,690495390014,Granola Easy Recipe Oats: Natural Sweeteners and Crunch,failed,7,False,GATE_FAIL,,
+2026-02-10T13:15:48.025264,690495324478,Herb-Infused Oils Cooking and Skincare: Safe Infusion Guide,done,10,True,manual_review_fix,,
