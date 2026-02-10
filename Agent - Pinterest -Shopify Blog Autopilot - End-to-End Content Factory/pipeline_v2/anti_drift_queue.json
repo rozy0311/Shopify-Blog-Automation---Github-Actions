@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-10T10:58:27.474818",
+  "updated_at": "2026-02-10T12:06:48.506456",
   "items": [
     {
       "id": "691791921470",
@@ -1686,38 +1686,44 @@
     {
       "id": 690495815998,
       "title": "Lacto-Fermented Hot Sauce Recipe Probiotic: Ultima",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 5,
       "added_at": "2026-02-05T19:39:25.396440",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-10T11:52:22.795649"
     },
     {
       "id": 690495717694,
       "title": "Herbal Infusions vs Decoctions: When to Use Each M",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 3,
       "added_at": "2026-02-05T19:39:25.396442",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-10T11:58:30.301993"
     },
     {
       "id": 690495652158,
       "title": "Calming Herbal Tea Blends: Better Sleep Nighttime ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 3,
       "added_at": "2026-02-05T19:39:25.396443",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-10T12:06:48.506448"
     },
     {
       "id": 690495390014,
