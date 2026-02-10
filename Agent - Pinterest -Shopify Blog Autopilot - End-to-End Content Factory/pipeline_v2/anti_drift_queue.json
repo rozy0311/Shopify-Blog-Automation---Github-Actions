@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-10T18:25:38.825351",
+  "updated_at": "2026-02-10T19:56:23.116741",
   "items": [
     {
       "id": "691791921470",
@@ -1882,14 +1882,16 @@
     {
       "id": 690329747774,
       "title": "DIY Headboard Ideas: Easy Step-by-Step for Bedroom",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396466",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-10T19:56:23.116733"
     },
     {
       "id": 690329616702,
