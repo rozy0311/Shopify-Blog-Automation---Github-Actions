@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-12T05:40:12.589191",
+  "updated_at": "2026-02-12T06:09:49.367741",
   "items": [
     {
       "id": "691791921470",
@@ -2456,38 +2456,44 @@
     {
       "id": 690211422526,
       "title": "Herbal Tea Storage: Humidity Control and Light‑Saf",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 2,
       "added_at": "2026-02-05T19:39:25.396540",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-12T05:52:04.428858"
     },
     {
       "id": 690211389758,
       "title": "Floral Tea Blends: Gomphrena, Dandelion, and Panda",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 5,
       "added_at": "2026-02-05T19:39:25.396542",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-12T06:04:56.905556"
     },
     {
       "id": 690211324222,
       "title": "Forget-Me-Not Floral Infusion: Gentle Flavor Witho",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 2,
       "added_at": "2026-02-05T19:39:25.396543",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-12T06:09:49.367732"
     },
     {
       "id": 690211291454,
