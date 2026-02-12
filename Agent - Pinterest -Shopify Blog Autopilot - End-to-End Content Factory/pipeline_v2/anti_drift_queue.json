@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-12T03:34:48.251499",
+  "updated_at": "2026-02-12T04:33:51.361080",
   "items": [
     {
       "id": "691791921470",
@@ -2400,14 +2400,16 @@
     {
       "id": 690211586366,
       "title": "Honey Buying Guide: Floral Sources, Crystallizatio",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396533",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-12T04:33:51.361070"
     },
     {
       "id": 690211553598,
