@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-13T20:25:50.103728",
+  "updated_at": "2026-02-13T22:07:29.327766",
   "items": [
     {
       "id": "691791921470",
@@ -3128,26 +3128,30 @@
     {
       "id": 690199560510,
       "title": "Baby Mustard Greens: 30-Day Seed to Salad Plan",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 2,
       "added_at": "2026-02-05T19:39:25.396659",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-13T21:43:08.723839"
     },
     {
       "id": 690199527742,
       "title": "Bitter Melon Trellis Ideas: Space-Saving Designs f",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396662",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-13T22:07:29.327756"
     },
     {
       "id": 690199494974,
