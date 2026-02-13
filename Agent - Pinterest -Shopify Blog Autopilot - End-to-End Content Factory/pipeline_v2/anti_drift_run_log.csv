@@ -358,3 +358,4 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-13T03:27:49.542050,690210177342,Shade Cloth 30–50%: Keeping Bok Choy and Mustard from,done,9,True,force_rebuild,,
 2026-02-13T03:29:19.766913,690210177342,,failed,0,False,REFETCH_FAILED,,
 2026-02-13T04:22:53.654869,690210144574,Balcony Garden Irrigation: Wicking Buckets for Water,done,9,True,force_rebuild,,
+2026-02-13T05:01:55.442695,690210079038,"Green Amaranth Seed-Saving: Drying, Winnowing, and Storage",done,10,True,manual_review_fix,,
