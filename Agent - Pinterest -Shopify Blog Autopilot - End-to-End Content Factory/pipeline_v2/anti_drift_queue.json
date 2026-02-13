@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-13T12:55:00.230564",
+  "updated_at": "2026-02-13T14:25:40.704647",
   "items": [
     {
       "id": "691791921470",
@@ -3002,14 +3002,16 @@
     {
       "id": 690200641854,
       "title": "Red Maple from Seed: Cold Stratification, Mold",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396644",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-13T14:25:40.704637"
     },
     {
       "id": 690200609086,
