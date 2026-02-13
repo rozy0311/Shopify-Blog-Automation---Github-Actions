@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-13T11:10:45.197296",
+  "updated_at": "2026-02-13T11:46:15.895329",
   "items": [
     {
       "id": "691791921470",
@@ -2946,38 +2946,44 @@
     {
       "id": 690200871230,
       "title": "Cold Stratification at Home: A Practical Fridge Pr",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 4,
       "added_at": "2026-02-05T19:39:25.396636",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": null,
+      "updated_at": "2026-02-13T11:27:33.040089"
     },
     {
       "id": 690200740158,
       "title": "Saluyot/Molokhia from Seed: Heat-Loving Greens Mad",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 5,
       "added_at": "2026-02-05T19:39:25.396638",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-13T11:37:10.302946"
     },
     {
       "id": 690200707390,
       "title": "Growing Eastern Persimmon from Seed: Cold Stratifi",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 5,
       "added_at": "2026-02-05T19:39:25.396639",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-13T11:46:15.895320"
     },
     {
       "id": 690200674622,
