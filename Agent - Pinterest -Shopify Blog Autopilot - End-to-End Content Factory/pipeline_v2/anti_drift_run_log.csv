@@ -401,3 +401,7 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-14T12:55:34.494156,682730684734,,failed,0,False,REFETCH_FAILED,,
 2026-02-14T12:57:25.248582,682730684734,,failed,0,False,REFETCH_FAILED,,
 2026-02-14T13:00:56.340714,682730651966,The Rise of Sustainable Agritourism,done,10,True,manual_review_fix,,
+2026-02-14T14:17:53.740901,682730586430,The Concept of Holistic Permaculture,done,10,True,manual_review_fix,,
+2026-02-14T14:19:40.799600,682730586430,The Concept of Holistic Permaculture,done,10,True,force_rebuild,,
+2026-02-14T14:21:55.879151,682730586430,The Concept of Holistic Permaculture,done,10,True,force_rebuild,,
+2026-02-14T14:24:13.450426,682730586430,The Concept of Holistic Permaculture,done,10,True,force_rebuild,,
