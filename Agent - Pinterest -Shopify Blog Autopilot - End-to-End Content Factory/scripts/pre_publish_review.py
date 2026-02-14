@@ -315,8 +315,8 @@ def review_article(article_id):
 
     # Extract visible text (strip HTML tags) for content quality checks
     # This prevents false positives from matching inside alt=, href=, style=, id= attributes
-    visible_text = re.sub(r'<[^>]+>', ' ', body)
-    visible_text = re.sub(r'\s+', ' ', visible_text).strip()
+    visible_text = re.sub(r"<[^>]+>", " ", body)
+    visible_text = re.sub(r"\s+", " ", visible_text).strip()
     visible_text_lower = visible_text.lower()
 
     errors = []
