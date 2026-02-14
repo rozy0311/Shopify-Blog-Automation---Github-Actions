@@ -1,18 +1,18 @@
 name: Auto Fix Sequential (Continuous Loop)
-# Runs every 20 minutes to process up to 20 articles at a time
+# Runs every 10 minutes, processes 1 article per run
 # Fast-path: already-published articles that pass review are skipped in ~5s
 # cancel-in-progress: false = runs queue instead of canceling each other
 
 on:
     schedule:
-        # Every 20 minutes (3 runs/hour × 3 articles = 9 articles/hour)
-        - cron: "*/20 * * * *"
+        # Every 10 minutes — 1 article/run, natural 10-min gap between articles
+        - cron: "*/10 * * * *"
     workflow_dispatch:
         inputs:
             fix_max_items:
-                description: "Number of articles per run (default 20)"
+                description: "Number of articles per run (default 1)"
                 required: false
-                default: "20"
+                default: "1"
 
 concurrency:
     group: auto-fix-sequential
@@ -60,7 +60,7 @@ jobs:
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             REQUIRE_PINTEREST_IMAGE: "0"
-            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '20' }}
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '1' }}
             FIX_DELAY_SECONDS: "60"
             MAX_ATTEMPTS_PER_ARTICLE: "3"
             PASS_RATE_ENFORCE: "1"
@@ -226,7 +226,7 @@ jobs:
                       echo "No queue found; skipping fix loop."
                       exit 0
                   fi
-                  max=${FIX_MAX_ITEMS:-50}
+                  max=${FIX_MAX_ITEMS:-1}
                   delay=${FIX_DELAY_SECONDS:-600}
                   processed_file=".processed_ids"
                   : > "$processed_file"
