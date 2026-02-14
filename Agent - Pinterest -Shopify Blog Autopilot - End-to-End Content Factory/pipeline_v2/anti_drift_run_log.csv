@@ -417,3 +417,4 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-14T15:09:47.954944,682730488126,,failed,0,False,LLM_GENERATION_FAILED,,
 2026-02-14T15:12:07.391879,682730488126,,failed,0,False,LLM_GENERATION_FAILED,,
 2026-02-14T15:14:26.532157,682730488126,,failed,0,False,LLM_GENERATION_FAILED,,
+2026-02-14T19:01:53.350035,690770805054,Lavender Uses Home Remedies: Simple Everyday Care Guide,failed,8,False,GATE_FAIL,,
