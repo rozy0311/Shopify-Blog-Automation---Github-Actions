@@ -121,7 +121,9 @@ GEMINI_API_KEY = os.environ.get("GOOGLE_AI_STUDIO_API_KEY", "") or os.environ.ge
     "GEMINI_API_KEY", ""
 )
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
-GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-pro")
+GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.0-flash-lite")
+# Third fallback: if both flash models fail, try gemini-1.5-flash (very high rate limits)
+GEMINI_MODEL_FALLBACK_2 = os.environ.get("GEMINI_MODEL_FALLBACK_2", "gemini-1.5-flash")
 GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
 GH_MODELS_API_BASE = os.environ.get(
     "GH_MODELS_API_BASE", "https://models.github.ai/inference"
@@ -131,9 +133,28 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
 
+# Startup diagnostic: show LLM chain configuration
+print("🔧 LLM Provider Chain:")
+print(
+    f"   1. Gemini Flash: {GEMINI_MODEL} (key: {'✅' if GEMINI_API_KEY else '❌ MISSING'})"
+)
+print(
+    f"   2. Gemini Fallback: {GEMINI_MODEL_FALLBACK} (key: {'✅' if GEMINI_API_KEY else '❌ MISSING'})"
+)
+print(
+    f"   3. Gemini Fallback 2: {GEMINI_MODEL_FALLBACK_2} (key: {'✅' if GEMINI_API_KEY else '❌ MISSING'})"
+)
+print(
+    f"   4. GitHub Models: {GH_MODELS_MODEL} (key: {'✅' if GH_MODELS_API_KEY else '❌ MISSING'})"
+)
+print(f"   5. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})")
+print(f"   6. Pollinations: free (no key needed)")
+if not GEMINI_API_KEY and not GH_MODELS_API_KEY and not OPENAI_API_KEY:
+    print("⚠️ WARNING: No LLM API keys configured! All LLM generation will fail.")
+
 
 def call_gemini_api(
-    prompt: str, max_tokens: int = 7000, model: str = None, max_retries: int = 3
+    prompt: str, max_tokens: int = 7000, model: str = None, max_retries: int = 5
 ) -> str:
     """Call Gemini API to generate content with retry logic for rate limits.
 
@@ -141,7 +162,7 @@ def call_gemini_api(
         prompt: The prompt to send
         max_tokens: Maximum output tokens
         model: Model to use (defaults to GEMINI_MODEL)
-        max_retries: Number of retries for 429/5xx errors (default: 3)
+        max_retries: Number of retries for 429/5xx errors (default: 5)
     """
     if not GEMINI_API_KEY:
         print("⚠️ GEMINI_API_KEY not set, falling back to next provider")
@@ -168,8 +189,8 @@ def call_gemini_api(
                     if parts:
                         return parts[0].get("text", "")
             elif resp.status_code == 429:
-                # Rate limit - exponential backoff
-                wait_time = (2 ** attempt) * 5 + random.uniform(1, 3)
+                # Rate limit - exponential backoff with longer waits
+                wait_time = (2**attempt) * 10 + random.uniform(2, 8)
                 print(
                     f"⚠️ Gemini API ({model_to_use}) rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})"
                 )
@@ -177,7 +198,7 @@ def call_gemini_api(
                 continue
             elif resp.status_code >= 500:
                 # Server error - retry with backoff
-                wait_time = (2 ** attempt) * 2
+                wait_time = (2**attempt) * 2
                 print(
                     f"⚠️ Gemini API ({model_to_use}) server error ({resp.status_code}), retrying in {wait_time}s..."
                 )
@@ -189,7 +210,9 @@ def call_gemini_api(
                 )
                 return ""
         except requests.exceptions.Timeout:
-            print(f"⚠️ Gemini API ({model_to_use}) timeout (attempt {attempt + 1}/{max_retries})")
+            print(
+                f"⚠️ Gemini API ({model_to_use}) timeout (attempt {attempt + 1}/{max_retries})"
+            )
             if attempt < max_retries - 1:
                 time.sleep(5)
                 continue
@@ -204,6 +227,17 @@ def call_gemini_api(
 def call_github_models_api(prompt: str, max_tokens: int = 7000) -> str:
     """Call GitHub Models API (OpenAI-compatible) as fallback."""
     if not GH_MODELS_API_KEY:
+        print("⚠️ GH_MODELS_API_KEY not set, skipping GitHub Models")
+        return ""
+
+    # Validate key format - must be ASCII-only, no newlines
+    try:
+        GH_MODELS_API_KEY.encode("ascii")
+    except (UnicodeEncodeError, ValueError):
+        print("⚠️ GH_MODELS_API_KEY contains invalid characters, skipping")
+        return ""
+    if "\n" in GH_MODELS_API_KEY or "\r" in GH_MODELS_API_KEY:
+        print("⚠️ GH_MODELS_API_KEY contains newlines, skipping")
         return ""
 
     endpoint = f"{GH_MODELS_API_BASE}/chat/completions"
@@ -630,6 +664,19 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
         content = _remove_generic_phrases(content)
         print(f"✅ Generated {len(content)} chars with Gemini Pro")
         return content
+
+    # Fallback to Gemini 1.5 Flash (very high rate limits)
+    if GEMINI_MODEL_FALLBACK_2 and GEMINI_MODEL_FALLBACK_2 != GEMINI_MODEL_FALLBACK:
+        print(f"🔄 Fallback to Gemini 1.5 Flash ({GEMINI_MODEL_FALLBACK_2})...")
+        content = call_gemini_api(
+            prompt, LLM_MAX_OUTPUT_TOKENS, GEMINI_MODEL_FALLBACK_2
+        )
+        if content and len(content) > 1000:
+            content = _clean_llm_output(content)
+            content = _remove_title_spam(content, title)
+            content = _remove_generic_phrases(content)
+            print(f"✅ Generated {len(content)} chars with Gemini 1.5 Flash")
+            return content
 
     # Fallback to GitHub Models
     print(f"🔄 Fallback to GitHub Models ({GH_MODELS_MODEL})...")
@@ -2457,7 +2504,9 @@ class AIOrchestrator:
 
         # BLOCK TEMPLATE FALLBACK - Templates produce generic content!
         # Instead of falling back to template, return empty and mark for manual review
-        print(f"❌ LLM FAILED for: {title} - NO template fallback (would produce generic content)")
+        print(
+            f"❌ LLM FAILED for: {title} - NO template fallback (would produce generic content)"
+        )
         print(f"   ➡️  Article will be marked for manual review or retry later")
         return ""
 
@@ -2742,7 +2791,7 @@ class AIOrchestrator:
 
         title = article.get("title", "")
         body_html = self._build_article_body(title)
-        
+
         # If LLM failed (returned empty/short content), return error
         if len(body_html) < 1000:
             print(f"❌ LLM failed for {article_id} - no content to update")
@@ -2751,7 +2800,7 @@ class AIOrchestrator:
             if existing_audit.get("deterministic_gate", {}).get("pass", False):
                 return {"status": "done", "audit": existing_audit}
             return {"status": "error", "error": "LLM_GENERATION_FAILED"}
-        
+
         meta_description = self._build_meta_description(title)
 
         update_payload = {"body_html": body_html, "summary_html": meta_description}
@@ -4331,6 +4380,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             if len(body_html) < 1000 and len(existing_body) > 1000:
                 print("⚠️ LLM failed, cleaning existing content instead")
                 body_html = _remove_title_spam(existing_body, title)
+                body_html = _remove_generic_phrases(body_html)
 
             meta_description = self._build_meta_description(title)
             update_payload = {"body_html": body_html, "summary_html": meta_description}
@@ -4372,14 +4422,31 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         # because existing might have generic content. Return error for retry.
         if len(body_html) < 1000:
             if len(existing_body) > 1000:
-                # Check if existing body passes quality gate first
-                print("⚠️ LLM failed, checking if existing content is acceptable...")
+                # Clean title spam from existing content first
+                print("⚠️ LLM failed, cleaning existing content and checking quality...")
+                cleaned_body = _remove_title_spam(existing_body, title)
+                cleaned_body = _remove_generic_phrases(cleaned_body)
+
+                # If we actually cleaned something, update the article
+                if cleaned_body != existing_body:
+                    print("🔧 Applied title spam + generic phrase cleanup to existing content")
+                    meta_description = self._build_meta_description(title)
+                    update_payload = {"body_html": cleaned_body, "summary_html": meta_description}
+                    self.api.update_article(article_id, update_payload)
+                    # Refetch after update
+                    article = self.api.get_article(article_id)
+                    if not article:
+                        return {"status": "failed", "error": "REFETCH_FAILED"}
+
+                # Check if content (now cleaned) passes quality gate
                 temp_audit = self.quality_gate.full_audit(article)
                 if temp_audit.get("deterministic_gate", {}).get("pass", False):
-                    print("✅ Existing content passes gate, no rebuild needed")
+                    print("✅ Existing content passes gate after cleanup")
                     return {"status": "done", "audit": temp_audit}
                 # Existing content doesn't pass - schedule retry
-                print("❌ LLM failed AND existing content has issues - scheduling retry")
+                print(
+                    "❌ LLM failed AND existing content has issues - scheduling retry"
+                )
             return {"status": "failed", "error": "LLM_GENERATION_FAILED"}
 
         meta_description = self._build_meta_description(title)

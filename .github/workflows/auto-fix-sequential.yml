@@ -40,7 +40,9 @@ jobs:
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GOOGLE_AI_STUDIO_API_KEY: ${{ secrets.GOOGLE_AI_STUDIO_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-            GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}
+            GEMINI_MODEL: gemini-2.0-flash
+            GEMINI_MODEL_FALLBACK: gemini-2.0-flash-lite
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
             GH_MODELS_API_KEY: ${{ secrets.GH_MODELS_API_KEY }}
             GH_MODELS_MODEL: ${{ vars.GH_MODELS_MODEL || 'openai/gpt-4.1' }}
             VISION_PROVIDER: ${{ vars.VISION_PROVIDER || '' }}
