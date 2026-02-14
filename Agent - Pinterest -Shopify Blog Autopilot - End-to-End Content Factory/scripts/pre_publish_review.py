@@ -313,6 +313,12 @@ def review_article(article_id):
     body = article.get("body_html", "")
     title = article.get("title", "Unknown")
 
+    # Extract visible text (strip HTML tags) for content quality checks
+    # This prevents false positives from matching inside alt=, href=, style=, id= attributes
+    visible_text = re.sub(r'<[^>]+>', ' ', body)
+    visible_text = re.sub(r'\s+', ' ', visible_text).strip()
+    visible_text_lower = visible_text.lower()
+
     errors = []
     warnings = []
     empty_fields = []
@@ -358,8 +364,8 @@ def review_article(article_id):
                 warnings.append(f"⚠️ EMPTY FIELD: '{field}' recommended")
                 empty_fields.append(field)
 
-    # 1. Word count check
-    word_count = len(body.split())
+    # 1. Word count check (use visible text, not raw HTML)
+    word_count = len(visible_text.split())
     if word_count < REQUIREMENTS["min_words"]:
         errors.append(f"❌ WORDS: {word_count} < {REQUIREMENTS['min_words']} minimum")
     elif word_count > REQUIREMENTS["max_words"]:
@@ -594,16 +600,19 @@ def review_article(article_id):
                     f"⚠️ INTRO PARAGRAPH: Only {intro_words} words (should be 20+ for engagement)"
                 )
 
-    # 15b. GENERIC CONTENT CHECK - detect AI slop phrases
+    # 15b. GENERIC CONTENT CHECK - detect AI slop phrases (use visible text to avoid matching in HTML attributes)
     if QUALITY_CHECKS.get("check_generic_content", True):
-        body_lower = body.lower()
         found_generic = []
         for phrase in GENERIC_PHRASES:
-            if phrase.lower() in body_lower:
+            if phrase.lower() in visible_text_lower:
                 found_generic.append(phrase)
-        if found_generic:
+        if len(found_generic) >= 3:
             errors.append(
-                f"GENERIC CONTENT: Found {len(found_generic)} generic phrase(s): {', '.join(found_generic[:5])}"
+                f"❌ GENERIC CONTENT: Found {len(found_generic)} generic phrase(s): {', '.join(found_generic[:5])}"
+            )
+        elif found_generic:
+            warnings.append(
+                f"⚠️ GENERIC CONTENT: Found {len(found_generic)} generic phrase(s): {', '.join(found_generic[:5])}"
             )
 
     # 15c. TITLE GENERIC CHECK - detect generic title patterns
@@ -619,32 +628,34 @@ def review_article(article_id):
             )
 
     # 15d. TITLE SPAM CHECK - detect title repeated excessively in body (AI slop)
+    # Use visible text to avoid counting title inside alt=, figcaption, href= etc.
     if QUALITY_CHECKS.get("check_title_spam", True):
         title_lower = title.lower().strip()
-        body_lower = body.lower()
 
-        # Check full title repetition
-        title_count = body_lower.count(title_lower)
+        # Check full title repetition in visible text only
+        title_count = visible_text_lower.count(title_lower)
         if title_count > 3:
             errors.append(
                 f"❌ TITLE SPAM: Title repeated {title_count}x in body (max 3 allowed)"
             )
 
         # Check title fragments (first 4-5 words) - AI slop often repeats these
+        # Keep stopwords for better substring matching
+        title_words_raw = [w for w in title_lower.split() if len(w) > 1]
         title_words = [w for w in title_lower.split() if len(w) > 2]
-        if len(title_words) >= 4:
-            # Check first 4 words as a phrase
-            first_fragment = " ".join(title_words[:4])
-            fragment_count = body_lower.count(first_fragment)
+        if len(title_words_raw) >= 4:
+            # Check first 4 words as a phrase (keep stopwords for accurate matching)
+            first_fragment = " ".join(title_words_raw[:4])
+            fragment_count = visible_text_lower.count(first_fragment)
             if fragment_count > 5:
                 errors.append(
                     f"❌ TITLE FRAGMENT SPAM: '{first_fragment}' repeated {fragment_count}x (max 5)"
                 )
 
             # Check last 4 words as a phrase (often repeated in AI content)
-            if len(title_words) >= 8:
-                last_fragment = " ".join(title_words[-4:])
-                last_count = body_lower.count(last_fragment)
+            if len(title_words_raw) >= 8:
+                last_fragment = " ".join(title_words_raw[-4:])
+                last_count = visible_text_lower.count(last_fragment)
                 if last_count > 5:
                     errors.append(
                         f"❌ TITLE FRAGMENT SPAM: '{last_fragment}' repeated {last_count}x (max 5)"
@@ -653,7 +664,7 @@ def review_article(article_id):
         # Check for keyword stuffing pattern: "word1, word2, word3" from title
         if len(title_words) >= 3:
             keyword_stuff_pattern = ", ".join(title_words[:3])
-            if keyword_stuff_pattern in body_lower:
+            if keyword_stuff_pattern in visible_text_lower:
                 errors.append(
                     f"❌ KEYWORD STUFFING: Title words appear comma-separated in body"
                 )
@@ -734,10 +745,11 @@ def review_article(article_id):
     headings_without_id = 0
 
     # 17. STRICT NO YEARS check - ban \b(19|20)\d{2}\b in all fields
+    # Use visible text to avoid matching years inside URLs (e.g. .edu/2023/guide)
     if META_PROMPT_CHECKS["strict_no_years"]:
-        # Check title, body, alt texts
+        # Check title and visible body text (not URLs/attributes)
         year_in_title = YEAR_PATTERN.search(title)
-        year_in_body = YEAR_PATTERN.search(body)
+        year_in_body = YEAR_PATTERN.search(visible_text)
         if year_in_title:
             errors.append(f"❌ NO YEARS: Found year '{year_in_title.group()}' in title")
         if year_in_body:
@@ -821,7 +833,8 @@ def review_article(article_id):
         for bq in blockquotes:
             # Check for pattern: "Quote" — Name, Title, Org  OR  <cite>— Dr. Name
             # Pattern matches: "— Dr. Name", "— Name Title", "— First Last"
-            if re.search(r"[—–-]\s*(?:Dr\.?\s+)?[A-Z][a-z]+", bq):  # Has name pattern
+            # Only em-dash and en-dash (not plain hyphen, which matches bullet lists)
+            if re.search(r"[—–]\s*(?:Dr\.?\s+)?[A-Z][a-z]+", bq):  # Has name pattern
                 valid_quotes += 1
 
         if valid_quotes < META_PROMPT_CHECKS["min_expert_quotes"]:
@@ -829,9 +842,9 @@ def review_article(article_id):
                 f"❌ EXPERT QUOTES: {valid_quotes} < {META_PROMPT_CHECKS['min_expert_quotes']} required (use '— Name, Title' in blockquotes)"
             )
 
-    # 20. Stats check - ≥3 quantified stats
+    # 20. Stats check - ≥3 quantified stats (use visible text to avoid counting CSS percentages)
     if META_PROMPT_CHECKS["min_stats"] > 0:
-        # Look for numeric patterns with units/percentages
+        # Look for numeric patterns with units/percentages in visible text only
         stat_patterns = [
             r"\d+(?:\.\d+)?%",  # Percentages
             r"\d+(?:,\d{3})+",  # Large numbers with commas
@@ -839,7 +852,7 @@ def review_article(article_id):
         ]
         stats_found = 0
         for pattern in stat_patterns:
-            stats_found += len(re.findall(pattern, body, re.IGNORECASE))
+            stats_found += len(re.findall(pattern, visible_text, re.IGNORECASE))
 
         if stats_found < META_PROMPT_CHECKS["min_stats"]:
             errors.append(
