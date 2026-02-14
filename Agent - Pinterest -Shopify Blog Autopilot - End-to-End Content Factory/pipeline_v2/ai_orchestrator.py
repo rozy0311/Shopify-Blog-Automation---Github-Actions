@@ -102,6 +102,7 @@ def ensure_heading_ids(html: str) -> str:
 
 
 BACKOFF_JITTER_SECONDS = 30
+MAX_QUEUE_RETRIES = 3  # Max retries for queue items before marking as manual_review
 PROGRESS_FILE = Path(__file__).parent / "progress.json"
 PIPELINE_DIR = Path(__file__).parent
 ROOT_DIR = PIPELINE_DIR.parent.parent
@@ -131,16 +132,19 @@ OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
 
 
-def call_gemini_api(prompt: str, max_tokens: int = 7000, model: str = None) -> str:
-    """Call Gemini API to generate content.
+def call_gemini_api(
+    prompt: str, max_tokens: int = 7000, model: str = None, max_retries: int = 3
+) -> str:
+    """Call Gemini API to generate content with retry logic for rate limits.
 
     Args:
         prompt: The prompt to send
         max_tokens: Maximum output tokens
         model: Model to use (defaults to GEMINI_MODEL)
+        max_retries: Number of retries for 429/5xx errors (default: 3)
     """
     if not GEMINI_API_KEY:
-        print("⚠️ GEMINI_API_KEY not set, falling back to template")
+        print("⚠️ GEMINI_API_KEY not set, falling back to next provider")
         return ""
 
     model_to_use = model or GEMINI_MODEL
@@ -153,20 +157,47 @@ def call_gemini_api(prompt: str, max_tokens: int = 7000, model: str = None) -> s
         },
     }
 
-    try:
-        resp = requests.post(endpoint, json=payload, timeout=180)
-        if resp.status_code == 200:
-            data = resp.json()
-            candidates = data.get("candidates", [])
-            if candidates:
-                parts = candidates[0].get("content", {}).get("parts", [])
-                if parts:
-                    return parts[0].get("text", "")
-        print(
-            f"⚠️ Gemini API ({model_to_use}) error: {resp.status_code} - {resp.text[:200]}"
-        )
-    except Exception as e:
-        print(f"⚠️ Gemini API ({model_to_use}) exception: {e}")
+    for attempt in range(max_retries):
+        try:
+            resp = requests.post(endpoint, json=payload, timeout=180)
+            if resp.status_code == 200:
+                data = resp.json()
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        return parts[0].get("text", "")
+            elif resp.status_code == 429:
+                # Rate limit - exponential backoff
+                wait_time = (2 ** attempt) * 5 + random.uniform(1, 3)
+                print(
+                    f"⚠️ Gemini API ({model_to_use}) rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})"
+                )
+                time.sleep(wait_time)
+                continue
+            elif resp.status_code >= 500:
+                # Server error - retry with backoff
+                wait_time = (2 ** attempt) * 2
+                print(
+                    f"⚠️ Gemini API ({model_to_use}) server error ({resp.status_code}), retrying in {wait_time}s..."
+                )
+                time.sleep(wait_time)
+                continue
+            else:
+                print(
+                    f"⚠️ Gemini API ({model_to_use}) error: {resp.status_code} - {resp.text[:200]}"
+                )
+                return ""
+        except requests.exceptions.Timeout:
+            print(f"⚠️ Gemini API ({model_to_use}) timeout (attempt {attempt + 1}/{max_retries})")
+            if attempt < max_retries - 1:
+                time.sleep(5)
+                continue
+        except Exception as e:
+            print(f"⚠️ Gemini API ({model_to_use}) exception: {e}")
+            return ""
+
+    print(f"⚠️ Gemini API ({model_to_use}) failed after {max_retries} retries")
     return ""
 
 
@@ -2424,8 +2455,15 @@ class AIOrchestrator:
             print(f"✅ LLM generated {len(llm_content)} chars for {topic}")
             return llm_content
 
+        # BLOCK TEMPLATE FALLBACK - Templates produce generic content!
+        # Instead of falling back to template, return empty and mark for manual review
+        print(f"❌ LLM FAILED for: {title} - NO template fallback (would produce generic content)")
+        print(f"   ➡️  Article will be marked for manual review or retry later")
+        return ""
+
+        # OLD CODE - TEMPLATE FALLBACK DISABLED
         # Fallback to template-based content
-        print(f"⚠️ Falling back to template for: {title}")
+        # print(f"⚠️ Falling back to template for: {title}")
         if self._is_gardening_topic(title):
             return self._build_gardening_body(topic, title)
         terms = self._extract_topic_terms(title)
@@ -2704,6 +2742,16 @@ class AIOrchestrator:
 
         title = article.get("title", "")
         body_html = self._build_article_body(title)
+        
+        # If LLM failed (returned empty/short content), return error
+        if len(body_html) < 1000:
+            print(f"❌ LLM failed for {article_id} - no content to update")
+            # Check if existing content might already be acceptable
+            existing_audit = self.quality_gate.full_audit(article)
+            if existing_audit.get("deterministic_gate", {}).get("pass", False):
+                return {"status": "done", "audit": existing_audit}
+            return {"status": "error", "error": "LLM_GENERATION_FAILED"}
+        
         meta_description = self._build_meta_description(title)
 
         update_payload = {"body_html": body_html, "summary_html": meta_description}
@@ -4320,10 +4368,19 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         existing_body = article.get("body_html", "")
         body_html = self._build_article_body(title)
 
-        # If LLM failed and returned empty/short content, clean existing body instead
-        if len(body_html) < 1000 and len(existing_body) > 1000:
-            print("⚠️ LLM failed, cleaning existing content instead")
-            body_html = _remove_title_spam(existing_body, title)
+        # If LLM failed and returned empty/short content, DON'T just clean existing
+        # because existing might have generic content. Return error for retry.
+        if len(body_html) < 1000:
+            if len(existing_body) > 1000:
+                # Check if existing body passes quality gate first
+                print("⚠️ LLM failed, checking if existing content is acceptable...")
+                temp_audit = self.quality_gate.full_audit(article)
+                if temp_audit.get("deterministic_gate", {}).get("pass", False):
+                    print("✅ Existing content passes gate, no rebuild needed")
+                    return {"status": "done", "audit": temp_audit}
+                # Existing content doesn't pass - schedule retry
+                print("❌ LLM failed AND existing content has issues - scheduling retry")
+            return {"status": "failed", "error": "LLM_GENERATION_FAILED"}
 
         meta_description = self._build_meta_description(title)
         update_payload = {"body_html": body_html, "summary_html": meta_description}
