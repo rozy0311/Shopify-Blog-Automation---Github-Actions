@@ -564,7 +564,7 @@ def _remove_generic_phrases(content: str) -> str:
 
     removed_count = 0
     for phrase in phrases_to_remove:
-        # Case insensitive removal with word boundaries
+        # Case insensitive substring removal (matches pre_publish_review.py logic)
         pattern = re.compile(re.escape(phrase), re.IGNORECASE)
         if pattern.search(content):
             # Remove the phrase (and cleanup extra spaces/punctuation)
@@ -4429,9 +4429,14 @@ tr:nth-child(even) { background-color: #f9f9f9; }
 
                 # If we actually cleaned something, update the article
                 if cleaned_body != existing_body:
-                    print("🔧 Applied title spam + generic phrase cleanup to existing content")
+                    print(
+                        "🔧 Applied title spam + generic phrase cleanup to existing content"
+                    )
                     meta_description = self._build_meta_description(title)
-                    update_payload = {"body_html": cleaned_body, "summary_html": meta_description}
+                    update_payload = {
+                        "body_html": cleaned_body,
+                        "summary_html": meta_description,
+                    }
                     self.api.update_article(article_id, update_payload)
                     # Refetch after update
                     article = self.api.get_article(article_id)
