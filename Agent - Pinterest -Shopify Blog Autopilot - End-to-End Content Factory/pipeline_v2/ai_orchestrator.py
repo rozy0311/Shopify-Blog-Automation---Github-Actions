@@ -1202,6 +1202,13 @@ class AntiDriftQueue:
 
     def mark_done(self, article_id: str, shopify_url: str | None = None):
         self._update_status(article_id, "done", shopify_url=shopify_url)
+        # Always sync to blacklist so queue-init never re-queues done articles
+        try:
+            done_ids = _load_done_blacklist()
+            done_ids.add(str(article_id))
+            _save_done_blacklist(done_ids)
+        except Exception:
+            pass  # best-effort; callers may also update blacklist
 
     def mark_failed(self, article_id: str, error: str):
         self._update_status(article_id, "failed", last_error=error)
