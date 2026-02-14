@@ -115,9 +115,16 @@ def main():
     if not article:
         print("Article not found. Check BLOG_ID=%s and article id." % BLOG_ID)
         sys.exit(1)
+
+    existing_pub = article.get("published_at")
     print("Article: id=%s title=%s published_at=%s handle=%s" % (
-        article.get("id"), (article.get("title") or "")[:50], article.get("published_at"), article.get("handle")
+        article.get("id"), (article.get("title") or "")[:50], existing_pub, article.get("handle")
     ))
+
+    # If already published, preserve original date to avoid bumping to top of feed
+    if existing_pub:
+        print("[SKIP] Article already published at %s — keeping original date (no re-publish)." % existing_pub)
+        sys.exit(0)
 
     rest_ok = update_rest(article_id, published_at_now)
     gql_ok = update_graphql(article_id, True, published_at_now)
