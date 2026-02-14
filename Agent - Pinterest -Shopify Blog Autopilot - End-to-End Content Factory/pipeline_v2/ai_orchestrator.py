@@ -390,34 +390,62 @@ def _remove_title_spam(content: str, title: str) -> str:
 
 def _remove_generic_phrases(content: str) -> str:
     """Remove generic filler phrases that trigger the quality gate.
-    Uses the full GENERIC_PHRASES list defined later in the file."""
-    # Import the full list from later in the module - for now use inline list
-    # that matches the most common gate failures
+    SYNCED with pre_publish_review.py GENERIC_PHRASES list (88 phrases)."""
+    # FULL list matching pre_publish_review.py GENERIC_PHRASES exactly
     phrases_to_remove = [
-        "crucial to understand",
-        "it's essential",
-        "it is essential",
-        "it's important",
-        "it is important",
+        # Guide/article references
+        "comprehensive guide",
+        "ultimate guide",
+        "complete guide",
+        "definitive guide",
         "in this guide",
         "this guide",
-        "in this article",
         "this article",
-        "in this post",
         "this blog post",
+        "in this article",
+        "in this post",
+        "in this post we'll",
+        "in this article we'll",
+        "this guide explains",
+        # Beginner/audience targeting
+        "whether you're a beginner",
+        "whether you are a beginner",
+        "whether you are new",
+        "perfect for anyone",
+        "perfect for anyone looking to improve",
+        "join thousands who",
+        # Time/context references
+        "in today's world",
+        "in today's fast-paced",
+        "in our modern world",
+        # Learning promises
+        "you will learn",
+        "you will learn what works",
+        "by the end",
+        "by the end, you will know",
+        "throughout this article",
+        # Transition phrases
         "we'll explore",
         "let's dive",
         "let's dive in",
         "let's explore",
         "without further ado",
+        "we'll walk you through",
+        "read on to learn",
+        "read on to discover",
+        "here's everything you need",
+        "here's everything you need to know",
+        # Conclusion phrases
         "in conclusion",
         "to sum up",
         "in summary",
         "to summarize",
         "thank you for reading",
+        # Category-specific closings
         "happy growing",
         "happy gardening",
         "happy cooking",
+        # Marketing/hype phrases
         "game-changer",
         "unlock the potential",
         "unlock the secrets",
@@ -428,30 +456,45 @@ def _remove_generic_phrases(content: str) -> str:
         "empower yourself",
         "thrilled to share",
         "excited to share",
-        "perfect for anyone",
-        "join thousands who",
-        # Additional common AI slop phrases
-        "when it comes to",
-        "at the end of the day",
-        "the bottom line is",
-        "it goes without saying",
+        # Importance/essential phrases
+        "crucial to understand",
+        "it's essential",
+        "it is essential",
+        "it's important",
+        "it is important",
+        "it's important to remember",
+        "it is important to remember",
+        "it's worth noting",
+        # Common filler phrases
         "one of the best ways",
         "one of the most important",
         "first and foremost",
         "last but not least",
         "needless to say",
+        "when it comes to",
+        "the bottom line is",
+        "it goes without saying",
         "more often than not",
-        "here's everything you need",
-        "read on to learn",
-        "read on to discover",
-        "we'll walk you through",
+        "when all is said and done",
+        "at the end of the day",
         "keep in mind",
         "with the right approach",
-        "it's worth noting",
-        "comprehensive guide",
-        "ultimate guide",
-        "complete guide",
-        "definitive guide",
+        # Reference phrases
+        "as mentioned above",
+        "as stated earlier",
+        "as we have seen",
+        "on the other hand",
+        # Content structure indicators (AI slop)
+        "the focus is on",
+        "overall,",
+        "no one succeeds in isolation",
+        "supporting data",
+        "cited quotes",
+        "advanced techniques for experienced",
+        "practical tips",
+        "maintenance and care",
+        "expert insights",
+        "research highlights",
     ]
 
     removed_count = 0
