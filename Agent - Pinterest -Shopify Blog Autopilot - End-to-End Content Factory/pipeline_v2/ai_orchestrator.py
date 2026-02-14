@@ -565,7 +565,7 @@ def _remove_generic_phrases(content: str) -> str:
     removed_count = 0
     for phrase in phrases_to_remove:
         # Case insensitive removal with word boundaries
-        pattern = re.compile(r"\b" + re.escape(phrase) + r"\b", re.IGNORECASE)
+        pattern = re.compile(re.escape(phrase), re.IGNORECASE)
         if pattern.search(content):
             # Remove the phrase (and cleanup extra spaces/punctuation)
             content = pattern.sub("", content)

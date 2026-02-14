@@ -661,7 +661,7 @@ def generate_topic_specific_prompts(title: str) -> dict:
                 f"dramatic golden hour lighting from behind, shallow depth of field with creamy bokeh, "
                 f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"{main_subject.title()} - Featured Image",
+            "alt": "Hero image for this sustainable living project",
         },
         "inline1": {
             "prompt": (
@@ -669,7 +669,7 @@ def generate_topic_specific_prompts(title: str) -> dict:
                 f"organic textures, morning light creating soft shadows, natural props like wooden boards and fresh greenery, "
                 f"{QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"Everything you need for {main_subject}",
+            "alt": "Essential materials and ingredients laid out",
         },
         "inline2": {
             "prompt": (
@@ -677,7 +677,7 @@ def generate_topic_specific_prompts(title: str) -> dict:
                 f"beautiful details visible, natural moisture or texture, moody atmospheric lighting, "
                 f"raw authentic moment captured, {QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"Beautiful details of {main_subject}",
+            "alt": "Close-up detail showing craftsmanship and texture",
         },
         "inline3": {
             "prompt": (
@@ -685,7 +685,7 @@ def generate_topic_specific_prompts(title: str) -> dict:
                 f"styled like a Pinterest-worthy lifestyle photo, warm inviting atmosphere, "
                 f"aspirational aesthetic that inspires action, {QUALITY}, {safety_suffix}, no text, no logos, no watermark"
             ),
-            "alt": f"Finished {main_subject} ready to enjoy",
+            "alt": "Beautiful finished result ready to enjoy",
         },
     }
 
@@ -1085,7 +1085,7 @@ def fix_article_images(
             {
                 "pos_idx": 1,
                 "url": pinterest_cdn_url,
-                "alt": f"Pinterest: {title}",
+                "alt": "Pinterest inspiration for this project",
                 "source": "pinterest",
             }
         )

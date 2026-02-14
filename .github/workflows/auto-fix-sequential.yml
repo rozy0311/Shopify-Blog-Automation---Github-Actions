@@ -299,6 +299,9 @@ jobs:
                           fi
                           continue
                       fi
+
+                      # Post-image cleanup: remove title spam reintroduced by fix_images alt/figcaption
+                      timeout 60 python post_image_cleanup.py "$article_id" || echo "[WARN] Post-image cleanup failed (non-critical)"
                       set -e
 
                       set +e
@@ -324,6 +327,10 @@ jobs:
                                   sleep 30
                                   continue
                               fi
+                              # Post-image cleanup (retry): remove title spam reintroduced by images
+                              set +e
+                              timeout 60 python post_image_cleanup.py "$article_id" || echo "[WARN] Post-image cleanup failed (non-critical)"
+                              set -e
                               set +e
                               timeout 180 python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-attempt-${attempt}.txt"
                               review_status_attempt=${PIPESTATUS[0]}
