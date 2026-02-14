@@ -1,5 +1,6 @@
 name: Auto Fix Sequential (Continuous Loop)
-# Runs every 20 minutes to process 3 articles at a time
+# Runs every 20 minutes to process up to 20 articles at a time
+# Fast-path: already-published articles that pass review are skipped in ~5s
 # cancel-in-progress: false = runs queue instead of canceling each other
 
 on:
@@ -9,9 +10,9 @@ on:
     workflow_dispatch:
         inputs:
             fix_max_items:
-                description: "Number of articles per run (default 3)"
+                description: "Number of articles per run (default 20)"
                 required: false
-                default: "3"
+                default: "20"
 
 concurrency:
     group: auto-fix-sequential
@@ -59,7 +60,7 @@ jobs:
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             REQUIRE_PINTEREST_IMAGE: "0"
-            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '3' }}
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '20' }}
             FIX_DELAY_SECONDS: "60"
             MAX_ATTEMPTS_PER_ARTICLE: "3"
             PASS_RATE_ENFORCE: "1"
@@ -277,6 +278,39 @@ jobs:
                       fi
                       echo "Processing $article_id ($i/$max)"
                       echo "$article_id" >> "$processed_file"
+
+                      # ── FAST-PATH: skip fix chain for already-published articles that pass review ──
+                      set +e
+                      timeout 180 python "../scripts/pre_publish_review.py" "$article_id" > "review-precheck-$article_id.txt" 2>&1
+                      precheck_rc=$?
+                      set -e
+                      if [ "$precheck_rc" == "0" ]; then
+                          # Review passes as-is. Check if article is already published on Shopify.
+                          is_published=$(python - "$article_id" <<'PYCHECK'
+                  import os, sys, requests
+                  aid = sys.argv[1]
+                  SHOP = os.environ.get('SHOPIFY_SHOP') or os.environ.get('SHOPIFY_STORE_DOMAIN') or ''
+                  if SHOP and '.myshopify.com' not in SHOP:
+                      SHOP = SHOP + '.myshopify.com'
+                  BLOG_ID = os.environ.get('SHOPIFY_BLOG_ID') or os.environ.get('BLOG_ID') or ''
+                  TOKEN = os.environ.get('SHOPIFY_ACCESS_TOKEN') or ''
+                  API_VERSION = os.environ.get('SHOPIFY_API_VERSION') or '2025-01'
+                  url = f'https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{aid}.json'
+                  r = requests.get(url, headers={'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json'})
+                  a = r.json().get('article', {}) if r.status_code == 200 else {}
+                  pub = a.get('published_at') or ''
+                  print(pub)
+                  PYCHECK
+                          )
+                          if [ -n "$is_published" ]; then
+                              echo "[FAST-SKIP] $article_id already published ($is_published) and passes review. Marking done."
+                              python ai_orchestrator.py queue-review "$article_id" done "ALREADY_OK" || true
+                              if [ "$i" -lt "$max" ]; then sleep 5; fi
+                              continue
+                          fi
+                      fi
+                      # ── END FAST-PATH ──
+
                       set +e
                       timeout 300 python ai_orchestrator.py fix-ids "$article_id"
                       fix_ok=$?
