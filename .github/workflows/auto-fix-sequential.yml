@@ -373,6 +373,17 @@ jobs:
                   git config user.email "github-actions[bot]@users.noreply.github.com"
                   QUEUE_DIR="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2"
                   if [ -f "$QUEUE_DIR/anti_drift_queue.json" ]; then
+                      # Stash queue changes, pull latest remote, then re-apply
+                      git stash --include-untracked || true
+                      git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+                      git pull --rebase origin ${{ github.ref_name }} || {
+                          echo "[WARN] git pull --rebase failed; trying reset to remote"
+                          git rebase --abort 2>/dev/null || true
+                          git fetch origin ${{ github.ref_name }}
+                          git reset --hard origin/${{ github.ref_name }}
+                      }
+                      git stash pop || true
+
                       # Use --force to add files that are in .gitignore
                       git add --force "$QUEUE_DIR/anti_drift_queue.json" || echo "add queue failed"
                       git add --force "$QUEUE_DIR/anti_drift_run_log.csv" 2>/dev/null || true
@@ -382,8 +393,7 @@ jobs:
                       git diff --cached --name-only || true
                       if ! git diff --cached --quiet; then
                           git commit -m "chore: Update queue state after run ${{ github.run_number }} [skip ci]"
-                          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-                          git push origin HEAD:${{ github.ref_name }} && echo "✅ Queue changes pushed successfully" || echo "❌ Push failed"
+                          git push origin HEAD:${{ github.ref_name }} && echo "✅ Queue changes pushed successfully" || echo "❌ Push failed (will retry next run)"
                       else
                           echo "No queue changes to commit (git diff --cached is empty)"
                       fi
