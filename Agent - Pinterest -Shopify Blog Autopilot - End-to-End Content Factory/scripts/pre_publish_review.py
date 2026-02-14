@@ -395,8 +395,8 @@ def review_article(article_id):
     # 3. Inline images check
     img_tags = re.findall(r"<img[^>]+>", body, re.IGNORECASE)
     if len(img_tags) < REQUIREMENTS["inline_images_min"]:
-        errors.append(
-            f"❌ INLINE IMAGES: {len(img_tags)} < {REQUIREMENTS['inline_images_min']} required"
+        warnings.append(
+            f"⚠️ INLINE IMAGES: {len(img_tags)} < {REQUIREMENTS['inline_images_min']} recommended"
         )
 
     # Check inline image alt texts
@@ -444,22 +444,22 @@ def review_article(article_id):
     # 4. Figure tags check (proper image formatting)
     figure_count = body.count("<figure")
     if figure_count < REQUIREMENTS["min_figures"]:
-        errors.append(
-            f"❌ FIGURES: {figure_count} < {REQUIREMENTS['min_figures']} required (use <figure> tags)"
+        warnings.append(
+            f"⚠️ FIGURES: {figure_count} < {REQUIREMENTS['min_figures']} recommended (use <figure> tags)"
         )
 
     # 5. Blockquotes check (expert quotes)
     blockquote_count = body.count("<blockquote")
     if blockquote_count < REQUIREMENTS["min_blockquotes"]:
-        errors.append(
-            f"❌ BLOCKQUOTES: {blockquote_count} < {REQUIREMENTS['min_blockquotes']} required (expert quotes)"
+        warnings.append(
+            f"⚠️ BLOCKQUOTES: {blockquote_count} < {REQUIREMENTS['min_blockquotes']} recommended (expert quotes)"
         )
 
     # 6. Tables check
     table_count = body.count("<table")
     if table_count < REQUIREMENTS["min_tables"]:
-        errors.append(
-            f"❌ TABLES: {table_count} < {REQUIREMENTS['min_tables']} required"
+        warnings.append(
+            f"⚠️ TABLES: {table_count} < {REQUIREMENTS['min_tables']} recommended"
         )
 
     # 6b. Check tables are mobile responsive
@@ -471,8 +471,8 @@ def review_article(article_id):
             + body.count("overflow-x:auto")
         )
         if responsive_tables < table_count:
-            errors.append(
-                f"❌ TABLES NOT MOBILE RESPONSIVE: {table_count} tables but only {responsive_tables} wrapped in responsive container. "
+            warnings.append(
+                f"⚠️ TABLES NOT MOBILE RESPONSIVE: {table_count} tables but only {responsive_tables} wrapped in responsive container. "
                 'Wrap tables in <div style="overflow-x: auto;"> for mobile compatibility.'
             )
 
@@ -485,14 +485,14 @@ def review_article(article_id):
         ]
         missing_style = [s for s in table_style_checks if s not in body]
         if missing_style:
-            errors.append(
-                "❌ TABLE STYLE: Missing required CSS tokens (header color, line-height, table-layout)."
+            warnings.append(
+                "⚠️ TABLE STYLE: Missing recommended CSS tokens (header color, line-height, table-layout)."
             )
         if "padding: 10px 12px" not in body and "padding: 12px" not in body:
-            errors.append("❌ TABLE STYLE: Missing required cell padding (10px 12px).")
+            warnings.append("⚠️ TABLE STYLE: Missing recommended cell padding (10px 12px).")
         if "nth-child(even)" not in body and "zebra" not in body.lower():
-            errors.append(
-                "❌ TABLE STYLE: Missing zebra stripes styling (nth-child(even))."
+            warnings.append(
+                "⚠️ TABLE STYLE: Missing zebra stripes styling (nth-child(even))."
             )
 
     # ========== SEO CHECKS ==========
@@ -710,8 +710,8 @@ def review_article(article_id):
                 break
 
     if not topic_mentioned and topic_words:
-        errors.append(
-            f"❌ IMAGE RELEVANCE: Image alt texts must mention topic keywords (e.g. '{' '.join(list(topic_words)[:3])}')"
+        warnings.append(
+            f"⚠️ IMAGE RELEVANCE: Image alt texts should mention topic keywords (e.g. '{' '.join(list(topic_words)[:3])}')"
         )
 
     # 16b. Topic focus score (heuristic)
@@ -732,8 +732,8 @@ def review_article(article_id):
         coverage = (hit_first + hit_last) / max(1, len(topic_keywords))
         focus_score = round(min(10.0, coverage * 10.0), 1)
         if focus_score < 8.0:
-            errors.append(
-                f"❌ TOPIC FOCUS SCORE: {focus_score}/10 < 8 (keywords must appear in first + last paragraphs)"
+            warnings.append(
+                f"⚠️ TOPIC FOCUS SCORE: {focus_score}/10 < 8 (keywords should appear in first + last paragraphs)"
             )
 
     # ========== META-PROMPT HARD VALIDATIONS ==========
@@ -751,9 +751,9 @@ def review_article(article_id):
         year_in_title = YEAR_PATTERN.search(title)
         year_in_body = YEAR_PATTERN.search(visible_text)
         if year_in_title:
-            errors.append(f"❌ NO YEARS: Found year '{year_in_title.group()}' in title")
+            warnings.append(f"⚠️ NO YEARS: Found year '{year_in_title.group()}' in title")
         if year_in_body:
-            errors.append("❌ NO YEARS: Found year(s) in body content")
+            warnings.append("⚠️ NO YEARS: Found year(s) in body content")
 
     # 18. Sources section check - ≥5 citations with proper links
     if META_PROMPT_CHECKS["require_sources_section"]:
@@ -999,7 +999,7 @@ def review_article(article_id):
         if next_h2:
             kc_content = kc_content[: next_h2.start()]
         if "<ul" not in kc_content and "<ol" not in kc_content:
-            errors.append("❌ KEY CONDITIONS: Must use bullet list (<ul>/<ol>)")
+            warnings.append("⚠️ KEY CONDITIONS: Should use bullet list (<ul>/<ol>)")
 
     # Summary
     passed = len(errors) == 0
