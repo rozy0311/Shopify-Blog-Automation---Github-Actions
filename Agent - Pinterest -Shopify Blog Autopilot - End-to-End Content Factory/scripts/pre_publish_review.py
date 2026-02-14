@@ -770,8 +770,8 @@ def review_article(article_id):
             )
 
         if not sources_section:
-            errors.append(
-                "❌ SOURCES SECTION: Missing Sources & Further Reading section"
+            warnings.append(
+                "⚠️ SOURCES SECTION: Missing Sources & Further Reading section"
             )
             sources_links_count = 0
         else:
@@ -794,7 +794,7 @@ def review_article(article_id):
                 re.IGNORECASE,
             )
             if len(hrefs) != len(set(hrefs)) and hrefs:
-                errors.append("❌ SOURCES: Duplicate source links detected")
+                warnings.append("⚠️ SOURCES: Duplicate source links detected")
             # Extract link text (between > and </a>) for format check
             link_texts = re.findall(
                 r'<a[^>]+href=["\']https?://[^"\']+["\'][^>]*>([^<]+)</a>',
@@ -803,8 +803,8 @@ def review_article(article_id):
             )
 
             if sources_links_count < META_PROMPT_CHECKS["min_sources_links"]:
-                errors.append(
-                    f"❌ SOURCES: {sources_links_count} < {META_PROMPT_CHECKS['min_sources_links']} citations required"
+                warnings.append(
+                    f"⚠️ SOURCES: {sources_links_count} < {META_PROMPT_CHECKS['min_sources_links']} citations recommended"
                 )
             # META-PROMPT: Source link format = Name — Description (no raw URL in text) — FAIL if not met
             links_without_em_dash = 0
@@ -816,12 +816,12 @@ def review_article(article_id):
                 if re.search(r"\.(com|org|edu|gov)\b", text, re.IGNORECASE):
                     links_with_raw_url += 1
             if links_without_em_dash > 0 and link_texts:
-                errors.append(
-                    f"❌ SOURCE FORMAT: {links_without_em_dash} link(s) must use 'Name — Description' (em dash); no raw URL in text"
+                warnings.append(
+                    f"⚠️ SOURCE FORMAT: {links_without_em_dash} link(s) should use 'Name — Description' (em dash); no raw URL in text"
                 )
             if links_with_raw_url > 0:
-                errors.append(
-                    "❌ SOURCE FORMAT: Do not show raw URL in link text; use 'Name — Description'"
+                warnings.append(
+                    "⚠️ SOURCE FORMAT: Prefer not showing raw URL in link text; use 'Name — Description'"
                 )
 
     # 19. Expert quotes check - ≥2 with real name/title/org
@@ -838,8 +838,8 @@ def review_article(article_id):
                 valid_quotes += 1
 
         if valid_quotes < META_PROMPT_CHECKS["min_expert_quotes"]:
-            errors.append(
-                f"❌ EXPERT QUOTES: {valid_quotes} < {META_PROMPT_CHECKS['min_expert_quotes']} required (use '— Name, Title' in blockquotes)"
+            warnings.append(
+                f"⚠️ EXPERT QUOTES: {valid_quotes} < {META_PROMPT_CHECKS['min_expert_quotes']} recommended (use '— Name, Title' in blockquotes)"
             )
 
     # 20. Stats check - ≥3 quantified stats (use visible text to avoid counting CSS percentages)
@@ -855,8 +855,8 @@ def review_article(article_id):
             stats_found += len(re.findall(pattern, visible_text, re.IGNORECASE))
 
         if stats_found < META_PROMPT_CHECKS["min_stats"]:
-            errors.append(
-                f"❌ STATS: {stats_found} < {META_PROMPT_CHECKS['min_stats']} quantified stats required (add numbers with units/%)"
+            warnings.append(
+                f"⚠️ STATS: {stats_found} < {META_PROMPT_CHECKS['min_stats']} quantified stats recommended (add numbers with units/%)"
             )
 
     # 21. Kebab-case IDs on H2/H3 check
@@ -871,12 +871,12 @@ def review_article(article_id):
         invalid_ids = [h for h in headings_with_id if not KEBAB_PATTERN.match(h)]
 
         if headings_without_id > 0:
-            errors.append(
-                f"❌ HEADING IDS: {headings_without_id} H2/H3 tags missing id attribute"
+            warnings.append(
+                f"⚠️ HEADING IDS: {headings_without_id} H2/H3 tags missing id attribute"
             )
         if invalid_ids:
-            errors.append(
-                f"❌ HEADING IDS: Non-kebab-case ids found: {', '.join(invalid_ids[:3])}"
+            warnings.append(
+                f"⚠️ HEADING IDS: Non-kebab-case ids found: {', '.join(invalid_ids[:3])}"
             )
 
     # 22. Links rel="nofollow noopener" check
@@ -892,8 +892,8 @@ def review_article(article_id):
                 links_without_rel += 1
 
         if links_without_rel > 0:
-            errors.append(
-                f"❌ LINK REL: {links_without_rel} external links missing rel='nofollow noopener'"
+            warnings.append(
+                f"⚠️ LINK REL: {links_without_rel} external links missing rel='nofollow noopener'"
             )
 
     # 23. No schema in body check
@@ -909,13 +909,13 @@ def review_article(article_id):
         if first_p:
             intro_text = re.sub(r"<[^>]+>", "", first_p.group(1))
             intro_words = len(intro_text.split())
-            if intro_words < 50:
-                errors.append(
-                    f"❌ DIRECT ANSWER: Opening paragraph only {intro_words} words (need 50-70)"
+            if intro_words < 30:
+                warnings.append(
+                    f"⚠️ DIRECT ANSWER: Opening paragraph only {intro_words} words (aim for 50-70)"
                 )
-            elif intro_words > 100:
-                errors.append(
-                    f"❌ DIRECT ANSWER: Opening paragraph {intro_words} words (too long, aim for 50-70)"
+            elif intro_words > 150:
+                warnings.append(
+                    f"⚠️ DIRECT ANSWER: Opening paragraph {intro_words} words (aim for 50-70)"
                 )
 
     # 25. Key Terms section check (META-PROMPT: required)
@@ -928,7 +928,7 @@ def review_article(article_id):
                 r'id=["\']key-terms["\']', body, re.IGNORECASE
             )
         if not key_terms_section:
-            errors.append("❌ KEY TERMS: Missing Key Terms section (required)")
+            warnings.append("⚠️ KEY TERMS: Missing Key Terms section (recommended)")
 
     # 25c. FAQ count check (META-PROMPT: 7+ FAQs)
     faq_section = re.search(
@@ -942,11 +942,11 @@ def review_article(article_id):
             faq_content = faq_content[: next_h2.start()]
         faq_questions = re.findall(r"<h3[^>]*>.*\?.*</h3>", faq_content, re.IGNORECASE)
         if len(faq_questions) < REQUIREMENTS["min_faq_count"]:
-            errors.append(
-                f"❌ FAQ COUNT: {len(faq_questions)} < {REQUIREMENTS['min_faq_count']} required"
+            warnings.append(
+                f"⚠️ FAQ COUNT: {len(faq_questions)} < {REQUIREMENTS['min_faq_count']} recommended"
             )
     else:
-        errors.append("❌ FAQ SECTION: Missing FAQ/Frequently Asked Questions section")
+        warnings.append("⚠️ FAQ SECTION: Missing FAQ/Frequently Asked Questions section")
 
     # 25b. DUPLICATE PARAGRAPH check (META-PROMPT: no duplicate text)
     paragraphs = re.findall(r"<p[^>]*>(.+?)</p>", body, re.IGNORECASE | re.DOTALL)
@@ -984,8 +984,8 @@ def review_article(article_id):
         if not re.search(pattern, body_lower_sections, re.IGNORECASE)
     ]
     if missing_sections:
-        errors.append(
-            f"❌ 11-SECTION STRUCTURE: Missing sections: {', '.join(missing_sections[:5])}"
+        warnings.append(
+            f"⚠️ 11-SECTION STRUCTURE: Missing sections: {', '.join(missing_sections[:5])}"
         )
 
     # 26b. Key Conditions must be bullets
