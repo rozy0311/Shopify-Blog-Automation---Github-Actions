@@ -352,13 +352,15 @@ async function callGemini(systemPrompt: string, userPrompt: string, model: strin
     Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 120000,
   );
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  // Use header-based auth instead of URL query param for security
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   let response: Response;
   try {
     response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
       },
       body: JSON.stringify({
         systemInstruction: {

@@ -30,7 +30,8 @@ ARTICLE_ID = 690525110590
 
 def call_gemini(prompt: str, max_tokens: int = 8000) -> str:
     """Call Gemini API with the given prompt."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+    # Use header-based auth instead of URL query param for security
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -41,7 +42,10 @@ def call_gemini(prompt: str, max_tokens: int = 8000) -> str:
         },
     }
 
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": API_KEY,
+    }
 
     print("Calling Gemini API...")
     response = requests.post(url, headers=headers, json=payload, timeout=120)

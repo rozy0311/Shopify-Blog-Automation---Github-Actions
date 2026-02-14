@@ -113,6 +113,32 @@ ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done.json"
 ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
 ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 
+
+# ============================================================================
+# SECURITY: API Key masking to prevent exposure in logs
+# ============================================================================
+def mask_secrets(text: str) -> str:
+    """Mask API keys and secrets in text to prevent log exposure.
+
+    Patterns masked:
+    - AIza... (Google API keys)
+    - sk-... (OpenAI keys)
+    - ghp_/ghu_/gho_ (GitHub tokens)
+    - key=... in URLs
+    """
+    if not text:
+        return text
+    # Google AI API keys (AIza prefix)
+    text = re.sub(r"AIza[A-Za-z0-9_-]{30,}", "AIza***MASKED***", text)
+    # OpenAI keys
+    text = re.sub(r"sk-[A-Za-z0-9]{20,}", "sk-***MASKED***", text)
+    # GitHub tokens
+    text = re.sub(r"gh[puo]_[A-Za-z0-9]{20,}", "gh*_***MASKED***", text)
+    # URL query param key=...
+    text = re.sub(r"key=[A-Za-z0-9_-]{20,}", "key=***MASKED***", text)
+    return text
+
+
 # ============================================================================
 # GEMINI / LLM CONFIG
 # ============================================================================
@@ -153,6 +179,10 @@ if not GEMINI_API_KEY and not GH_MODELS_API_KEY and not OPENAI_API_KEY:
     print("⚠️ WARNING: No LLM API keys configured! All LLM generation will fail.")
 
 
+# Rate limiting delay between API calls (prevents Google from detecting abuse)
+GEMINI_DELAY_SECONDS = float(os.environ.get("GEMINI_DELAY_SECONDS", "2.0"))
+
+
 def call_gemini_api(
     prompt: str, max_tokens: int = 7000, model: str = None, max_retries: int = 5
 ) -> str:
@@ -163,13 +193,22 @@ def call_gemini_api(
         max_tokens: Maximum output tokens
         model: Model to use (defaults to GEMINI_MODEL)
         max_retries: Number of retries for 429/5xx errors (default: 5)
+
+    Security:
+        - Uses x-goog-api-key header instead of URL query param (prevents key exposure in logs)
+        - All error responses are masked with mask_secrets()
     """
     if not GEMINI_API_KEY:
         print("⚠️ GEMINI_API_KEY not set, falling back to next provider")
         return ""
 
     model_to_use = model or GEMINI_MODEL
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_to_use}:generateContent?key={GEMINI_API_KEY}"
+    # Use header-based auth instead of URL query param for security
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_to_use}:generateContent"
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": GEMINI_API_KEY,
+    }
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -178,9 +217,13 @@ def call_gemini_api(
         },
     }
 
+    # Pre-call delay to prevent rate limit detection
+    if GEMINI_DELAY_SECONDS > 0:
+        time.sleep(GEMINI_DELAY_SECONDS + random.uniform(0, 1))
+
     for attempt in range(max_retries):
         try:
-            resp = requests.post(endpoint, json=payload, timeout=180)
+            resp = requests.post(endpoint, json=payload, headers=headers, timeout=180)
             if resp.status_code == 200:
                 data = resp.json()
                 candidates = data.get("candidates", [])
@@ -190,7 +233,7 @@ def call_gemini_api(
                         return parts[0].get("text", "")
             elif resp.status_code == 429:
                 # Rate limit - exponential backoff with longer waits
-                wait_time = (2**attempt) * 10 + random.uniform(2, 8)
+                wait_time = (2**attempt) * 15 + random.uniform(5, 15)
                 print(
                     f"⚠️ Gemini API ({model_to_use}) rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})"
                 )
@@ -205,8 +248,10 @@ def call_gemini_api(
                 time.sleep(wait_time)
                 continue
             else:
+                # Mask secrets in error response to prevent key exposure
+                safe_text = mask_secrets(resp.text[:300])
                 print(
-                    f"⚠️ Gemini API ({model_to_use}) error: {resp.status_code} - {resp.text[:200]}"
+                    f"⚠️ Gemini API ({model_to_use}) error: {resp.status_code} - {safe_text}"
                 )
                 return ""
         except requests.exceptions.Timeout:
@@ -217,7 +262,9 @@ def call_gemini_api(
                 time.sleep(5)
                 continue
         except Exception as e:
-            print(f"⚠️ Gemini API ({model_to_use}) exception: {e}")
+            # Mask secrets in exception message
+            safe_error = mask_secrets(str(e))
+            print(f"⚠️ Gemini API ({model_to_use}) exception: {safe_error}")
             return ""
 
     print(f"⚠️ Gemini API ({model_to_use}) failed after {max_retries} retries")

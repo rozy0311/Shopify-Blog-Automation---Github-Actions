@@ -52,7 +52,8 @@ def log(msg: str):
 
 def call_gemini(prompt: str, max_tokens: int = 8000) -> str:
     """Call Gemini API."""
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+    # Use header-based auth instead of URL query param for security
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -63,7 +64,12 @@ def call_gemini(prompt: str, max_tokens: int = 8000) -> str:
         },
     }
 
-    response = requests.post(url, json=payload, timeout=120)
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": API_KEY,
+    }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=120)
 
     if response.status_code != 200:
         log(f"Gemini error: {response.status_code}")
