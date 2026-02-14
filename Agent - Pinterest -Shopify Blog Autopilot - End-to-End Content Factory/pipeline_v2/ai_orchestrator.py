@@ -1588,13 +1588,40 @@ class ShopifyAPI:
     """Shopify API wrapper"""
 
     @staticmethod
-    def get_article(article_id: str) -> dict:
-        """Fetch single article"""
+    def get_article(
+        article_id: str, max_retries: int = 3, base_delay: float = 2.0
+    ) -> dict:
+        """Fetch single article with retry and exponential backoff.
+
+        Args:
+            article_id: The article ID to fetch
+            max_retries: Maximum retry attempts (default 3)
+            base_delay: Base delay in seconds between retries (default 2s)
+        """
         url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
-        resp = requests.get(url, headers=HEADERS)
-        if resp.status_code == 200:
-            return resp.json().get("article")
-        return None
+
+        for attempt in range(max_retries):
+            try:
+                resp = requests.get(url, headers=HEADERS, timeout=30)
+                if resp.status_code == 200:
+                    return resp.json().get("article")
+                elif resp.status_code == 429:  # Rate limited
+                    delay = base_delay * (2**attempt)
+                    print(
+                        f"⏳ Rate limited, waiting {delay}s (attempt {attempt + 1}/{max_retries})"
+                    )
+                    time.sleep(delay)
+                    continue
+                elif resp.status_code == 404:
+                    return None  # Article doesn't exist
+                else:
+                    print(f"⚠️ API error {resp.status_code}, retrying...")
+                    time.sleep(base_delay)
+            except requests.RequestException as e:
+                print(f"⚠️ Request failed: {e}, retrying...")
+                time.sleep(base_delay * (2**attempt))
+
+        return None  # All retries failed
 
     @staticmethod
     def get_all_articles(status: str = "any", limit: int = 250) -> list:
@@ -3254,9 +3281,22 @@ class AIOrchestrator:
             # Fix images if needed
             if "Low images" in issues_text or "Duplicate images" in issues_text:
                 self._run_fix_images(article_id)
+                # Wait for Shopify API to propagate changes (eventual consistency)
+                print("⏳ Waiting 3s for Shopify API to propagate...")
+                time.sleep(3)
 
-            # Re-fetch after fixes
-            updated_article = self.api.get_article(article_id)
+            # Re-fetch after fixes with retry logic
+            updated_article = self.api.get_article(
+                article_id, max_retries=3, base_delay=2.0
+            )
+            if not updated_article:
+                # One more attempt with longer delay
+                print("⏳ Retrying with extended delay...")
+                time.sleep(5)
+                updated_article = self.api.get_article(
+                    article_id, max_retries=2, base_delay=3.0
+                )
+
             if not updated_article:
                 queue.mark_failed(article_id, "REFETCH_FAILED")
                 queue.save()
