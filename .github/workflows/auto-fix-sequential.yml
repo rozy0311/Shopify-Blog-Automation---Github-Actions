@@ -407,16 +407,37 @@ jobs:
                   git config user.email "github-actions[bot]@users.noreply.github.com"
                   QUEUE_DIR="Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2"
                   if [ -f "$QUEUE_DIR/anti_drift_queue.json" ]; then
-                      # Stash queue changes, pull latest remote, then re-apply
-                      git stash --include-untracked || true
+                      # Save our queue state before any git operations
+                      cp "$QUEUE_DIR/anti_drift_queue.json" /tmp/queue_ours.json
+                      cp "$QUEUE_DIR/anti_drift_done_blacklist.json" /tmp/blacklist_ours.json 2>/dev/null || true
+
                       git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+                      git stash --include-untracked || true
                       git pull --rebase origin ${{ github.ref_name }} || {
-                          echo "[WARN] git pull --rebase failed; trying reset to remote"
+                          echo "[WARN] git pull --rebase failed; resetting to remote"
                           git rebase --abort 2>/dev/null || true
                           git fetch origin ${{ github.ref_name }}
                           git reset --hard origin/${{ github.ref_name }}
                       }
-                      git stash pop || true
+                      git stash pop || {
+                          echo "[WARN] git stash pop had conflicts; using our saved queue"
+                          git checkout --theirs -- "$QUEUE_DIR/anti_drift_queue.json" 2>/dev/null || true
+                          git reset HEAD 2>/dev/null || true
+                      }
+
+                      # Auto-resolve: if queue has conflict markers, restore our clean copy
+                      if grep -q '<<<<<<<' "$QUEUE_DIR/anti_drift_queue.json" 2>/dev/null; then
+                          echo "[WARN] Merge conflict detected in queue — restoring our version"
+                          cp /tmp/queue_ours.json "$QUEUE_DIR/anti_drift_queue.json"
+                      fi
+                      # Validate JSON; if corrupt, restore our clean copy
+                      python -c "import json; json.load(open('$QUEUE_DIR/anti_drift_queue.json'))" 2>/dev/null || {
+                          echo "[WARN] Queue JSON invalid — restoring our version"
+                          cp /tmp/queue_ours.json "$QUEUE_DIR/anti_drift_queue.json"
+                      }
+                      if [ -f /tmp/blacklist_ours.json ]; then
+                          cp /tmp/blacklist_ours.json "$QUEUE_DIR/anti_drift_done_blacklist.json" 2>/dev/null || true
+                      fi
 
                       # Use --force to add files that are in .gitignore
                       git add --force "$QUEUE_DIR/anti_drift_queue.json" || echo "add queue failed"
