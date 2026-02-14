@@ -13,8 +13,18 @@ headers = {
     "X-Shopify-Access-Token": shop["access_token"],
 }
 
-url = f"https://{shop['domain']}/admin/api/{shop['api_version']}/articles/690495095102.json"
-data = {"article": {"id": 690495095102, "published": True}}
+article_id = 690495095102
+url = f"https://{shop['domain']}/admin/api/{shop['api_version']}/articles/{article_id}.json"
+
+# Guard: skip if already published to avoid resetting published_at
+check = requests.get(url, headers=headers, timeout=30)
+if check.status_code == 200:
+    existing_pub = check.json().get("article", {}).get("published_at")
+    if existing_pub:
+        print(f"[SKIP] Already published at {existing_pub} — no re-publish.")
+        raise SystemExit(0)
+
+data = {"article": {"id": article_id, "published": True}}
 resp = requests.put(url, headers=headers, json=data)
 result = resp.json()
 article = result.get("article", {})

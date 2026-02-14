@@ -1125,9 +1125,9 @@ def fix_article_images(
             # Re-find paragraphs after insertion
             paragraphs = list(re.finditer(r"</p>", new_html))
 
-    # Step 6: Update article
+    # Step 6: Update article (do NOT set "published": True — it can reset published_at to NOW)
     update_data = {
-        "article": {"id": article_id, "body_html": new_html, "published": True}
+        "article": {"id": article_id, "body_html": new_html}
     }
 
     # Add featured image if we have one (use src=CDN URL - more reliable than base64)

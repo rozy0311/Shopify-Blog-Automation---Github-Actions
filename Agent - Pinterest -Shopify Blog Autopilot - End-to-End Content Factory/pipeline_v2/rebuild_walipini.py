@@ -172,6 +172,15 @@ def publish_article() -> bool:
         "Content-Type": "application/json",
     }
 
+    # Fetch current article to check if already published
+    get_resp = requests.get(url, headers=headers, timeout=30)
+    if get_resp.status_code == 200:
+        existing = get_resp.json().get("article", {})
+        existing_pub = existing.get("published_at")
+        if existing_pub:
+            print(f"[SKIP] Article already published at {existing_pub} — keeping original date.")
+            return True
+
     from datetime import datetime
 
     data = {
@@ -181,7 +190,7 @@ def publish_article() -> bool:
         }
     }
 
-    print("Publishing article...")
+    print("Publishing article (first time)...")
     response = requests.put(url, headers=headers, json=data)
 
     if response.status_code == 200:
