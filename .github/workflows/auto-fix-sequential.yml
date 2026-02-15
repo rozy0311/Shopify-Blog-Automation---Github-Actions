@@ -1,6 +1,7 @@
 name: Auto Fix Sequential (Continuous Loop)
-# Runs every 10 minutes, processes 1 article per run
-# Fast-path: already-published articles that pass review are skipped in ~5s
+# Runs every 10 minutes
+# Batch FAST-SKIP: marks ALL already-published + passing articles as done in one pass
+# Then processes up to 5 truly broken articles per run
 # cancel-in-progress: false = runs queue instead of canceling each other
 
 on:
@@ -61,7 +62,7 @@ jobs:
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             REQUIRE_PINTEREST_IMAGE: "0"
-            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '1' }}
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '5' }}
             FIX_DELAY_SECONDS: "60"
             MAX_ATTEMPTS_PER_ARTICLE: "3"
             PASS_RATE_ENFORCE: "1"
@@ -215,6 +216,117 @@ jobs:
                   fi
                   python ai_orchestrator.py queue-init
 
+            - name: Batch FAST-SKIP already-OK articles
+              working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              run: |
+                  set -uo pipefail
+                  if [ ! -f "anti_drift_queue.json" ]; then
+                      echo "No queue file; skipping batch FAST-SKIP."
+                      exit 0
+                  fi
+                  echo "=== BATCH FAST-SKIP: Checking all pending articles ==="
+                  python - <<'BATCH_SKIP'
+                  import json, os, sys, subprocess, requests, time
+                  from pathlib import Path
+
+                  queue_path = Path('anti_drift_queue.json')
+                  data = json.loads(queue_path.read_text(encoding='utf-8'))
+                  items = data.get('items', [])
+                  pending = [i for i in items if i.get('status') in ('pending',)]
+
+                  if not pending:
+                      print("No pending items to check.")
+                      sys.exit(0)
+
+                  print(f"Checking {len(pending)} pending articles for FAST-SKIP...")
+
+                  SHOP = os.environ.get('SHOPIFY_SHOP') or os.environ.get('SHOPIFY_STORE_DOMAIN') or ''
+                  if SHOP and '.myshopify.com' not in SHOP:
+                      SHOP = SHOP + '.myshopify.com'
+                  BLOG_ID = os.environ.get('SHOPIFY_BLOG_ID') or os.environ.get('BLOG_ID') or ''
+                  TOKEN = os.environ.get('SHOPIFY_ACCESS_TOKEN') or ''
+                  API_VERSION = os.environ.get('SHOPIFY_API_VERSION') or '2025-01'
+
+                  skipped = 0
+                  failed_review = 0
+                  not_published = 0
+                  errors = 0
+
+                  # Load blacklist for syncing
+                  bl_path = Path('anti_drift_done_blacklist.json')
+                  done_ids = set()
+                  if bl_path.exists():
+                      try:
+                          bl = json.loads(bl_path.read_text(encoding='utf-8'))
+                          done_ids = set(str(x) for x in bl.get('done_ids', []))
+                      except Exception:
+                          pass
+
+                  for idx, item in enumerate(pending):
+                      aid = str(item.get('id'))
+                      title = (item.get('title') or '')[:40]
+                      if (idx + 1) % 20 == 0:
+                          print(f"  ... checked {idx + 1}/{len(pending)}")
+
+                      # Step 1: Run pre_publish_review
+                      try:
+                          result = subprocess.run(
+                              ['python', '../scripts/pre_publish_review.py', aid],
+                              capture_output=True, text=True, timeout=120
+                          )
+                          if result.returncode != 0:
+                              failed_review += 1
+                              continue
+                      except Exception as e:
+                          errors += 1
+                          continue
+
+                      # Step 2: Check if published on Shopify
+                      try:
+                          url = f'https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{aid}.json'
+                          r = requests.get(url, headers={'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json'}, timeout=15)
+                          if r.status_code != 200:
+                              not_published += 1
+                              continue
+                          pub = r.json().get('article', {}).get('published_at', '')
+                          if not pub:
+                              not_published += 1
+                              continue
+                      except Exception:
+                          errors += 1
+                          continue
+
+                      # Both checks pass → mark done
+                      item['status'] = 'done'
+                      item['last_error'] = 'ALREADY_OK_BATCH'
+                      item['updated_at'] = __import__('datetime').datetime.now().isoformat()
+                      done_ids.add(aid)
+                      skipped += 1
+
+                      # Rate limit: small delay every 10 articles to avoid Shopify throttle
+                      if skipped % 10 == 0:
+                          time.sleep(1)
+
+                  # Save queue
+                  data['items'] = items
+                  queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+
+                  # Save blacklist
+                  from datetime import datetime as dt
+                  bl_path.write_text(json.dumps({
+                      'updated_at': dt.now().isoformat(),
+                      'done_ids': sorted(done_ids)
+                  }, ensure_ascii=False, indent=2), encoding='utf-8')
+
+                  remaining = len([i for i in items if i.get('status') in ('pending', 'failed', 'retrying', 'manual_review')])
+                  print(f"\n=== BATCH FAST-SKIP RESULTS ===")
+                  print(f"  Skipped (already OK): {skipped}")
+                  print(f"  Failed review (need fix): {failed_review}")
+                  print(f"  Not published: {not_published}")
+                  print(f"  Errors: {errors}")
+                  print(f"  Remaining to fix: {remaining}")
+                  BATCH_SKIP
+
             - name: Fix up to 50 articles sequentially (no batch)
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
@@ -227,8 +339,8 @@ jobs:
                       echo "No queue found; skipping fix loop."
                       exit 0
                   fi
-                  max=${FIX_MAX_ITEMS:-1}
-                  delay=${FIX_DELAY_SECONDS:-600}
+                  max=${FIX_MAX_ITEMS:-5}
+                  delay=${FIX_DELAY_SECONDS:-60}
                   processed_file=".processed_ids"
                   : > "$processed_file"
                   for i in $(seq 1 "$max"); do
@@ -279,38 +391,6 @@ jobs:
                       fi
                       echo "Processing $article_id ($i/$max)"
                       echo "$article_id" >> "$processed_file"
-
-                      # ── FAST-PATH: skip fix chain for already-published articles that pass review ──
-                      set +e
-                      timeout 180 python "../scripts/pre_publish_review.py" "$article_id" > "review-precheck-$article_id.txt" 2>&1
-                      precheck_rc=$?
-                      set -e
-                      if [ "$precheck_rc" == "0" ]; then
-                          # Review passes as-is. Check if article is already published on Shopify.
-                          is_published=$(python - "$article_id" <<'PYCHECK'
-                  import os, sys, requests
-                  aid = sys.argv[1]
-                  SHOP = os.environ.get('SHOPIFY_SHOP') or os.environ.get('SHOPIFY_STORE_DOMAIN') or ''
-                  if SHOP and '.myshopify.com' not in SHOP:
-                      SHOP = SHOP + '.myshopify.com'
-                  BLOG_ID = os.environ.get('SHOPIFY_BLOG_ID') or os.environ.get('BLOG_ID') or ''
-                  TOKEN = os.environ.get('SHOPIFY_ACCESS_TOKEN') or ''
-                  API_VERSION = os.environ.get('SHOPIFY_API_VERSION') or '2025-01'
-                  url = f'https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{aid}.json'
-                  r = requests.get(url, headers={'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json'})
-                  a = r.json().get('article', {}) if r.status_code == 200 else {}
-                  pub = a.get('published_at') or ''
-                  print(pub)
-                  PYCHECK
-                          )
-                          if [ -n "$is_published" ]; then
-                              echo "[FAST-SKIP] $article_id already published ($is_published) and passes review. Marking done."
-                              python ai_orchestrator.py queue-review "$article_id" done "ALREADY_OK" || true
-                              if [ "$i" -lt "$max" ]; then sleep 5; fi
-                              continue
-                          fi
-                      fi
-                      # ── END FAST-PATH ──
 
                       set +e
                       timeout 300 python ai_orchestrator.py fix-ids "$article_id"
