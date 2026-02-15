@@ -1,8 +1,8 @@
 name: Auto Fix Sequential (Continuous Loop)
 # Runs every 10 minutes
 # Batch FAST-SKIP: marks ALL already-published + passing articles as done in one pass
-# Then processes up to 5 truly broken articles per run
-# cancel-in-progress: false = runs queue instead of canceling each other
+# Then processes up to 2 truly broken articles per run (within 45-min budget)
+# cancel-in-progress: true = prevent stacking of scheduled runs
 
 on:
     schedule:
@@ -11,13 +11,13 @@ on:
     workflow_dispatch:
         inputs:
             fix_max_items:
-                description: "Number of articles per run (default 1)"
+                description: "Number of articles per run (default 2)"
                 required: false
-                default: "1"
+                default: "2"
 
 concurrency:
     group: auto-fix-sequential
-    cancel-in-progress: false
+    cancel-in-progress: true
 
 jobs:
     auto-fix-one:
@@ -62,9 +62,9 @@ jobs:
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             REQUIRE_PINTEREST_IMAGE: "0"
-            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '5' }}
-            FIX_DELAY_SECONDS: "60"
-            MAX_ATTEMPTS_PER_ARTICLE: "3"
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '2' }}
+            FIX_DELAY_SECONDS: "10"
+            MAX_ATTEMPTS_PER_ARTICLE: "1"
             PASS_RATE_ENFORCE: "1"
             MIN_PASS_RATE: "0.95"
             PASS_RATE_WINDOW: "20"
@@ -339,11 +339,21 @@ jobs:
                       echo "No queue found; skipping fix loop."
                       exit 0
                   fi
-                  max=${FIX_MAX_ITEMS:-5}
-                  delay=${FIX_DELAY_SECONDS:-60}
+                  max=${FIX_MAX_ITEMS:-2}
+                  delay=${FIX_DELAY_SECONDS:-10}
                   processed_file=".processed_ids"
+                  start_time=$(date +%s)
+                  time_budget=1800  # 30 min budget for fix loop (leaves ~15 min for commit + batch skip)
                   : > "$processed_file"
                   for i in $(seq 1 "$max"); do
+                      # Time budget check — stop early so commit step can run
+                      elapsed=$(( $(date +%s) - start_time ))
+                      if [ "$elapsed" -ge "$time_budget" ]; then
+                          echo "[TIME] Budget exhausted (${elapsed}s >= ${time_budget}s). Stopping to allow commit."
+                          break
+                      fi
+                      remaining_time=$(( time_budget - elapsed ))
+                      echo "[TIME] ${elapsed}s elapsed, ${remaining_time}s remaining"
                       article_id=$(python - <<'PY'
                   import json
                   from pathlib import Path
@@ -403,10 +413,10 @@ jobs:
                       # - Source injection
                       # - Word count enforcement
                       # - Featured image counting
-                      timeout 600 python "fix_images_properly.py" --article-id "$article_id"
+                      timeout 300 python "fix_images_properly.py" --article-id "$article_id"
                       fix_images_ok=$?
                       if [ "$fix_images_ok" = "124" ]; then
-                          echo "[WARN] fix_images_properly TIMED OUT after 10 min for $article_id"
+                          echo "[WARN] fix_images_properly TIMED OUT after 5 min for $article_id"
                           python ai_orchestrator.py queue-review "$article_id" fail "IMAGE_FIX_TIMEOUT" || true
                           if [ "$i" -lt "$max" ]; then
                               echo "Sleeping ${delay}s before next article..."
@@ -433,7 +443,7 @@ jobs:
                               echo "[Attempt $attempt/$max_attempts] Rebuilding $article_id..."
                               set +e
                               timeout 300 python ai_orchestrator.py force-rebuild-ids "$article_id"
-                              timeout 600 python "fix_images_properly.py" --article-id "$article_id"
+                              timeout 300 python "fix_images_properly.py" --article-id "$article_id"
                               rebuild_images_ok=$?
                               set -e
                               if [ "$rebuild_images_ok" != "0" ]; then
