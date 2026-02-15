@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-15T09:15:54.756927",
+  "updated_at": "2026-02-15T09:35:17.184876",
   "items": [
     {
       "id": "691791921470",
@@ -1571,7 +1571,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T08:21:09.240153",
+      "updated_at": "2026-02-15T08:01:06.860951",
       "failures": 0
     },
     {
@@ -1586,7 +1586,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
-      "updated_at": "2026-02-15T08:36:06.813350",
+      "updated_at": "2026-02-15T08:15:58.978445",
       "failures": 0
     },
     {
@@ -1601,7 +1601,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
-      "updated_at": "2026-02-15T09:15:54.756916",
+      "updated_at": "2026-02-15T09:01:08.587593",
       "failures": 0
     },
     {
@@ -1877,16 +1877,16 @@
     {
       "id": 690211094846,
       "title": "Dandelion Tea Blend: Roasted Roots vs Leafy Notes ",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396570",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T12:58:57.402861",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
+      "updated_at": "2026-02-15T09:35:17.184866",
       "failures": 0
     },
     {
