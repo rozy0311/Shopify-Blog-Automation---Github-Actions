@@ -109,7 +109,7 @@ ROOT_DIR = PIPELINE_DIR.parent.parent
 # Queue and log in pipeline_v2 so GHA (working-directory pipeline_v2) finds them
 ANTI_DRIFT_QUEUE_FILE = PIPELINE_DIR / "anti_drift_queue.json"
 ANTI_DRIFT_RUN_LOG_FILE = PIPELINE_DIR / "anti_drift_run_log.csv"
-ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done.json"
+ANTI_DRIFT_DONE_FILE = PIPELINE_DIR / "anti_drift_done_blacklist.json"
 ANTI_DRIFT_SPEC_FILE = PIPELINE_DIR / "anti_drift_spec_v1.md"
 ANTI_DRIFT_GOLDENS_FILE = PIPELINE_DIR / "anti_drift_goldens_12.json"
 
