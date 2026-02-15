@@ -500,6 +500,47 @@ def _remove_title_spam(content: str, title: str) -> str:
     return result
 
 
+# TITLE-SPECIFIC GENERIC PHRASES — synced with pre_publish_review.py TITLE_GENERIC_PHRASES
+TITLE_GENERIC_PHRASES = [
+    "comprehensive guide",
+    "ultimate guide",
+    "complete guide",
+    "definitive guide",
+    "everything you need to know",
+    "the ultimate",
+    "a complete",
+    ": a guide",
+    "- a guide",
+    "the complete",
+    "the definitive",
+]
+
+
+def _clean_title_generic_phrases(title: str) -> str:
+    """Strip TITLE_GENERIC_PHRASES from title so it passes pre_publish_review.
+    Returns cleaned title. If cleaning makes the title too short, returns original."""
+    if not title:
+        return title
+    original = title
+    cleaned = title
+    for phrase in TITLE_GENERIC_PHRASES:
+        pattern = re.compile(re.escape(phrase), re.IGNORECASE)
+        cleaned = pattern.sub("", cleaned)
+    # Tidy up: collapse multiple spaces, strip leading/trailing punctuation noise
+    cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+    cleaned = re.sub(r"^[\s:\-–—,]+|[\s:\-–—,]+$", "", cleaned).strip()
+    # Title-case the first letter if needed
+    if cleaned and cleaned[0].islower():
+        cleaned = cleaned[0].upper() + cleaned[1:]
+    if len(cleaned) < 10:
+        # Cleaning gutted the title — keep original (review will still flag it
+        # but at least the article isn't broken).
+        return original
+    if cleaned != original:
+        print(f"🔧 Cleaned generic title: '{original}' → '{cleaned}'")
+    return cleaned
+
+
 def _remove_generic_phrases(content: str) -> str:
     """Remove generic filler phrases that trigger the quality gate.
     SYNCED with pre_publish_review.py GENERIC_PHRASES list (88 phrases)."""
@@ -4422,11 +4463,19 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                 "KEYWORD STUFFING",
                 "Title repeated",
                 "keyword stuffing",
+                "GENERIC TITLE",
             ]
         )
 
+        # --- FIX GENERIC TITLE before body rebuild ---
+        title = article.get("title", "")
+        if "GENERIC TITLE" in issues_text:
+            cleaned_title = _clean_title_generic_phrases(title)
+            if cleaned_title != title:
+                self.api.update_article(article_id, {"title": cleaned_title})
+                title = cleaned_title  # Use cleaned title for body rebuild
+
         if needs_rebuild:
-            title = article.get("title", "")
             existing_body = article.get("body_html", "")
             body_html = self._build_article_body(title)
 
@@ -4469,6 +4518,12 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
         title = article.get("title", "")
+        # --- FIX GENERIC TITLE before body rebuild ---
+        cleaned_title = _clean_title_generic_phrases(title)
+        if cleaned_title != title:
+            self.api.update_article(article_id, {"title": cleaned_title})
+            title = cleaned_title
+
         existing_body = article.get("body_html", "")
         body_html = self._build_article_body(title)
 
