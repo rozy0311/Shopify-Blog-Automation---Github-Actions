@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-15T16:12:01.431508",
+  "updated_at": "2026-02-15T16:26:21.610124",
   "items": [
     {
       "id": "691791921470",
@@ -2036,7 +2036,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
-      "updated_at": "2026-02-15T14:27:35.752629",
+      "updated_at": "2026-02-15T14:09:34.393614",
       "failures": 0
     },
     {
@@ -2051,7 +2051,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
-      "updated_at": "2026-02-15T15:05:25.585710",
+      "updated_at": "2026-02-15T14:48:22.607751",
       "failures": 0
     },
     {
@@ -2066,7 +2066,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
-      "updated_at": "2026-02-15T15:40:32.538545",
+      "updated_at": "2026-02-15T15:23:57.042109",
       "failures": 0
     },
     {
@@ -2081,7 +2081,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
-      "updated_at": "2026-02-15T16:12:01.431499",
+      "updated_at": "2026-02-15T15:56:28.921383",
       "failures": 0
     },
     {
@@ -2582,16 +2582,16 @@
     {
       "id": 682730520894,
       "title": "The Rise of Sustainable Permaculture: The Rise of ",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396704",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T15:04:19.350675",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
+      "updated_at": "2026-02-15T16:26:21.610117",
       "failures": 0
     },
     {
