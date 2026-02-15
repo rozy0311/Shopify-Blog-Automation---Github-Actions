@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-15T17:11:01.489779",
-  "updated_at": "2026-02-15T19:32:08.927521",
+  "updated_at": "2026-02-15T20:10:28.748713",
   "items": [
     {
       "id": "690524029246",
@@ -96,11 +96,11 @@
     {
       "id": "690496733502",
       "title": "Natural Air Fresheners DIY Recipes: Chemical-Free ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "failed",
+      "attempts": 1,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-15T17:11:01.489690"
+      "updated_at": "2026-02-15T20:10:28.748707"
     },
     {
       "id": "690496602430",
