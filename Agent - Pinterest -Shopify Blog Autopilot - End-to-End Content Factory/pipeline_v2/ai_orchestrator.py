@@ -147,9 +147,10 @@ GEMINI_API_KEY = os.environ.get("GOOGLE_AI_STUDIO_API_KEY", "") or os.environ.ge
     "GEMINI_API_KEY", ""
 )
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
-GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.0-flash-lite")
-# Third fallback: if both flash models fail, try gemini-1.5-flash (very high rate limits)
-GEMINI_MODEL_FALLBACK_2 = os.environ.get("GEMINI_MODEL_FALLBACK_2", "gemini-1.5-flash")
+GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-flash-lite")
+# Extra fallbacks: smart text/image models
+GEMINI_MODEL_FALLBACK_2 = os.environ.get("GEMINI_MODEL_FALLBACK_2", "gemini-2.5-flash")
+GEMINI_MODEL_FALLBACK_3 = os.environ.get("GEMINI_MODEL_FALLBACK_3", "gemini-2.0-flash-lite")
 GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
 GH_MODELS_API_BASE = os.environ.get(
     "GH_MODELS_API_BASE", "https://models.github.ai/inference"
@@ -171,10 +172,13 @@ print(
     f"   3. Gemini Fallback 2: {GEMINI_MODEL_FALLBACK_2} (key: {'✅' if GEMINI_API_KEY else '❌ MISSING'})"
 )
 print(
-    f"   4. GitHub Models: {GH_MODELS_MODEL} (key: {'✅' if GH_MODELS_API_KEY else '❌ MISSING'})"
+    f"   4. Gemini Fallback 3: {GEMINI_MODEL_FALLBACK_3} (key: {'✅' if GEMINI_API_KEY else '❌ MISSING'})"
 )
-print(f"   5. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})")
-print(f"   6. Pollinations: free (no key needed)")
+print(
+    f"   5. GitHub Models: {GH_MODELS_MODEL} (key: {'✅' if GH_MODELS_API_KEY else '❌ MISSING'})"
+)
+print(f"   6. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})")
+print(f"   7. Pollinations: free (no key needed)")
 if not GEMINI_API_KEY and not GH_MODELS_API_KEY and not OPENAI_API_KEY:
     print("⚠️ WARNING: No LLM API keys configured! All LLM generation will fail.")
 
@@ -786,9 +790,9 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
         print(f"✅ Generated {len(content)} chars with Gemini Pro")
         return content
 
-    # Fallback to Gemini 1.5 Flash (very high rate limits)
+    # Fallback to Gemini 2.5 Flash (smart, text/image capable)
     if GEMINI_MODEL_FALLBACK_2 and GEMINI_MODEL_FALLBACK_2 != GEMINI_MODEL_FALLBACK:
-        print(f"🔄 Fallback to Gemini 1.5 Flash ({GEMINI_MODEL_FALLBACK_2})...")
+        print(f"🔄 Fallback to {GEMINI_MODEL_FALLBACK_2}...")
         content = call_gemini_api(
             prompt, LLM_MAX_OUTPUT_TOKENS, GEMINI_MODEL_FALLBACK_2
         )
@@ -796,7 +800,20 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
             content = _clean_llm_output(content)
             content = _remove_title_spam(content, title)
             content = _remove_generic_phrases(content)
-            print(f"✅ Generated {len(content)} chars with Gemini 1.5 Flash")
+            print(f"✅ Generated {len(content)} chars with {GEMINI_MODEL_FALLBACK_2}")
+            return content
+
+    # Fallback to Gemini 2.0 Flash Lite (lightweight)
+    if GEMINI_MODEL_FALLBACK_3 and GEMINI_MODEL_FALLBACK_3 not in (GEMINI_MODEL_FALLBACK, GEMINI_MODEL_FALLBACK_2):
+        print(f"🔄 Fallback to {GEMINI_MODEL_FALLBACK_3}...")
+        content = call_gemini_api(
+            prompt, LLM_MAX_OUTPUT_TOKENS, GEMINI_MODEL_FALLBACK_3
+        )
+        if content and len(content) > 1000:
+            content = _clean_llm_output(content)
+            content = _remove_title_spam(content, title)
+            content = _remove_generic_phrases(content)
+            print(f"✅ Generated {len(content)} chars with {GEMINI_MODEL_FALLBACK_3}")
             return content
 
     # Fallback to GitHub Models
