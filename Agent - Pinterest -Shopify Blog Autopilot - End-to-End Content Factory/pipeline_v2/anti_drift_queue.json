@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-15T12:25:41.306562",
+  "updated_at": "2026-02-15T12:29:53.876974",
   "items": [
     {
       "id": "691791921470",
@@ -1412,16 +1412,16 @@
     {
       "id": 690314871102,
       "title": "Chamomile for Digestive Health: Complete Guide + F",
-      "status": "pending",
+      "status": "done",
       "issues": [
-        "GENERIC_TITLE"
+        "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396474",
       "last_attempt": null,
-      "notes": "Validated by cleanup script | reopened: still broken",
+      "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-15T07:01:48.327849",
       "failures": 0
     },
     {
@@ -1937,46 +1937,46 @@
     {
       "id": 690210931006,
       "title": "Glutinous Corn Kitchen Guide: Sticky Rice Corn Des",
-      "status": "pending",
+      "status": "done",
       "issues": [
-        "LOW_WORDS"
+        "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396591",
       "last_attempt": null,
-      "notes": "Added by full scan | reopened: still broken",
+      "notes": "Added by full scan",
       "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-15T12:00:11.868743",
       "failures": 0
     },
     {
       "id": 690210865470,
       "title": "Bitter Melon Recipes: Stir-Fry, Stuffed, and Tea",
-      "status": "pending",
+      "status": "done",
       "issues": [
-        "LOW_WORDS"
+        "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396593",
       "last_attempt": null,
-      "notes": "Added by full scan | reopened: still broken",
+      "notes": "Added by full scan",
       "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-15T12:05:47.813324",
       "failures": 0
     },
     {
       "id": 690210832702,
       "title": "Low-Light Strategies: Reflective Surfaces for Shad",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "BROKEN_IMAGES"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396595",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T17:37:11.037706",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
+      "updated_at": "2026-02-15T12:29:53.876966",
       "failures": 0
     },
     {
@@ -2222,16 +2222,16 @@
     {
       "id": 690200707390,
       "title": "Growing Eastern Persimmon from Seed: Cold Stratifi",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396639",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
+      "notes": "Added by full scan",
       "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-13T11:46:15.895320",
       "failures": 0
     },
     {
@@ -2357,16 +2357,16 @@
     {
       "id": 690199527742,
       "title": "Bitter Melon Trellis Ideas: Space-Saving Designs f",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396662",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
+      "notes": "Added by full scan",
       "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-13T22:07:29.327756",
       "failures": 0
     },
     {
@@ -2417,16 +2417,16 @@
     {
       "id": 689559208254,
       "title": "The Ultimate Guide to Herbal Teas Benefits: Openin",
-      "status": "pending",
+      "status": "done",
       "issues": [
-        "GENERIC_TITLE"
+        "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396678",
       "last_attempt": null,
-      "notes": "Added by full scan | reopened: still broken",
+      "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-15T07:01:58.745545",
       "failures": 0
     },
     {
@@ -2462,16 +2462,16 @@
     {
       "id": 682731602238,
       "title": "Exploring Zero-Waste Living in Permaculture Commun",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396687",
       "last_attempt": null,
-      "notes": "Validated manually - passes quality checks | auto-done: scan says OK",
+      "notes": "Validated manually - passes quality checks",
       "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-14T07:36:30.754274",
       "failures": 0
     },
     {
@@ -2522,31 +2522,31 @@
     {
       "id": 682731471166,
       "title": "Tourism Industry Adapts to Environmental Awareness",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396693",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
+      "notes": "Added by full scan",
       "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-14T11:41:31.398099",
       "failures": 0
     },
     {
       "id": 682730684734,
       "title": "Promoting Eco-Friendly Living Through Sustainable ",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396698",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
+      "notes": "Added by full scan",
       "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
+      "updated_at": "2026-02-14T12:58:18.091815",
       "failures": 0
     },
     {
@@ -2624,16 +2624,16 @@
     {
       "id": 682730389822,
       "title": "The Role of Renewable Energy in Regenerative Desig",
-      "status": "pending",
+      "status": "done",
       "issues": [
-        "TITLE_REPEATS"
+        "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396709",
       "last_attempt": null,
-      "notes": "Added by full scan | reopened: still broken",
+      "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "updated_at": "2026-02-15T03:14:04.460755"
     },
     {
       "id": 682730291518,
@@ -2722,15 +2722,14 @@
     {
       "id": 682729865534,
       "title": "Community permaculture that feeds cities: a practi",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396724",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682729832766,
@@ -2747,15 +2746,14 @@
     {
       "id": 682729767230,
       "title": "Blockchain for fair labor in agriculture: a practi",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396728",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682729734462,
@@ -2772,15 +2770,14 @@
     {
       "id": 682729701694,
       "title": "Blockchain: Boosting Consumer Confidence in Organi",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396732",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682729636158,
@@ -2821,15 +2818,14 @@
     {
       "id": 682729537854,
       "title": "Composting: The Importance of Composting in Permac",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396738",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682706829630,
@@ -2870,15 +2866,14 @@
     {
       "id": 682706469182,
       "title": "Permaculture Farming: A Solution for Water Conserv",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396745",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682706239806,
@@ -2907,15 +2902,14 @@
     {
       "id": 682705715518,
       "title": "Environmental Education: Why It Matters and How to",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396750",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682705617214,
@@ -2956,15 +2950,14 @@
     {
       "id": 682694082878,
       "title": "Advanced water harvesting in permaculture: design ",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396758",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682693886270,
@@ -3017,15 +3010,14 @@
     {
       "id": 682692935998,
       "title": "The Need for Sustainable Food Systems: The Need fo",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396767",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682692739390,
@@ -3090,15 +3082,14 @@
     {
       "id": 682651648318,
       "title": "Achieving balance with permaculture gardens: a gro",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396777",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682651582782,
@@ -3175,15 +3166,14 @@
     {
       "id": 682578411838,
       "title": "Revolutionizing Construction with Hempcrete Soluti",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396789",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682578346302,
@@ -3200,15 +3190,14 @@
     {
       "id": 682578313534,
       "title": "Algae-based materials: what they are, where they f",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396792",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682563043646,
@@ -3225,15 +3214,14 @@
     {
       "id": 682562978110,
       "title": "Global Average Carbon Footprint: 4 Tons vs. US Ave",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396795",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682562322750,
@@ -3346,15 +3334,14 @@
     {
       "id": 682446487870,
       "title": "Land Use Planning for Biodiversity: Bridging the G",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396814",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682446455102,
@@ -3395,28 +3382,26 @@
     {
       "id": 682446324030,
       "title": "Cultivating a Community Garden: The Transformative",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396821",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682444390718,
       "title": "The Sustainable Shift: Embracing the Green Revolut",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396822",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682444357950,
@@ -3433,15 +3418,14 @@
     {
       "id": 682444325182,
       "title": "Independent Living: Reducing Dependency on Public ",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396825",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682444292414,
@@ -3470,15 +3454,14 @@
     {
       "id": 682442162494,
       "title": "The Allure of Homesteading: Why Sustainable Living",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396830",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682441572670,
@@ -3495,41 +3478,38 @@
     {
       "id": 682441539902,
       "title": "Ocean Diversity: A Reflection by Aaron Peirsol",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396835",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682437443902,
       "title": "The Power of Herbs: Boosting Immunity Naturally",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396836",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682428203326,
       "title": "Sustainable, healthy built environments: a practic",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396838",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682428170558,
@@ -3570,15 +3550,14 @@
     {
       "id": 682427941182,
       "title": "Electric Scooter: A Modern Chivalrous Commute",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396845",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682427089214,
@@ -3691,15 +3670,14 @@
     {
       "id": 682425975102,
       "title": "Build a Swale: Read Your Landâ€™s Water and Move It ",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396861",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682425909566,
@@ -3728,15 +3706,14 @@
     {
       "id": 682425221438,
       "title": "Make Your Dog Chicken-Friendly: A Practical, Kind",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396869",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682425155902,
@@ -3849,28 +3826,26 @@
     {
       "id": 682423517502,
       "title": "Navigating Ethical Consumerism in Grocery Shopping",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396885",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682423484734,
       "title": "Eco-Friendly Holidays: Low-Waste Traditions and Gi",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396886",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682423419198,
@@ -3911,15 +3886,14 @@
     {
       "id": 682379051326,
       "title": "Reducing Carbon Footprint: A Sustainable Journey",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396894",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682378953022,
@@ -3972,41 +3946,38 @@
     {
       "id": 682378559806,
       "title": "Conservation forestry, demystified: a practical gu",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396904",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682378395966,
       "title": "Tree-Planting Journey: From One Sapling to a Green",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396906",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682378363198,
       "title": "Embracing Sustainability: A Personal Journey",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396908",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 682378264894,
@@ -4143,15 +4114,14 @@
     {
       "id": 671677153598,
       "title": "Urban Air Quality: Practical Steps for Cleaner Nei",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396928",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 670834000190,
@@ -4168,15 +4138,14 @@
     {
       "id": 670262952254,
       "title": "Sustainable Tourism: Responsible Travel in Real Li",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396931",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 670047699262,
@@ -4193,15 +4162,14 @@
     {
       "id": 655251603774,
       "title": "Maximizing Value: The Circular Economy Model",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396935",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 655028027710,
@@ -4290,28 +4258,26 @@
     {
       "id": 653049725246,
       "title": "Living in Harmony: A Spiritual Awakening",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396949",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 652639240510,
       "title": "Harmony in Concrete: Crafting Sustainable Cities T",
-      "status": "done",
+      "status": "pending",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396950",
       "last_attempt": null,
-      "notes": "Added by full scan | auto-done: scan says OK",
-      "updated_at": "2026-02-15T12:25:36.729112"
+      "notes": "Added by full scan"
     },
     {
       "id": 652474024254,
@@ -4336,951 +4302,6 @@
       "added_at": "2026-02-05T19:39:25.396953",
       "last_attempt": null,
       "notes": "Added by full scan"
-    },
-    {
-      "id": 682446553406,
-      "title": "The Benefits of Agroforestry for Sustainable Living: The Ben",
-      "status": "pending",
-      "issues": [
-        "TITLE_REPEATS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 682578379070,
-      "title": "Eco-Friendly Safari Cruise Packages: Eco-Friendly Safari Cru",
-      "status": "pending",
-      "issues": [
-        "TITLE_REPEATS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 682578575678,
-      "title": "The Power of Eco-Friendly Living: The Power of Eco-Friendly",
-      "status": "pending",
-      "issues": [
-        "TITLE_REPEATS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690283315518,
-      "title": "Magnolia Seedling Success: First Year Care & Winterizing",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690287804734,
-      "title": "Bitter Melon Tea: Salt-Rinse vs Hot-Steep for Better",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690295177534,
-      "title": "Pandan Tea Syrup: Ultimate Guide to Iced Drinks,",
-      "status": "pending",
-      "issues": [
-        "GENERIC_TITLE"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690319753534,
-      "title": "Medical Uses of Neem Leaves: Complete Guide + FAQs",
-      "status": "pending",
-      "issues": [
-        "GENERIC_TITLE"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690322440510,
-      "title": "Aloe Vera for Hair Health: Complete Guide + FAQs",
-      "status": "pending",
-      "issues": [
-        "GENERIC_TITLE"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690322473278,
-      "title": "Milkweed for Treating Diarrhea: Complete Guide + FAQs",
-      "status": "pending",
-      "issues": [
-        "GENERIC_TITLE"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690322669886,
-      "title": "Papaya Leaf for Battling Dengue Fever: Complete Guide + FAQs",
-      "status": "pending",
-      "issues": [
-        "GENERIC_TITLE"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690326405438,
-      "title": "24 Recycled Glass Bottle Ideas",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690326700350,
-      "title": "DIY Pinecone Crafts",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690327290174,
-      "title": "DIY Nature Leaf Hanging Ornaments",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690327421246,
-      "title": "Houseplant Alternatives to Christmas Trees",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690327683390,
-      "title": "Pressed Flower Bookmarks: DIY Keepsake Ideas for Cozy Reader",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690327716158,
-      "title": "Halloween Mason Jar Ideas: 27 Spooky Decor Projects for Cozy",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690327912766,
-      "title": "Outdoor Table Retreat Ideas: 24 Cozy Outdoor Table Styling I",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690328011070,
-      "title": "Christmas Rock Painting: 28 Easy Ideas and Tips",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690328338750,
-      "title": "Crabgrass Benefits: Uses, Dosage, Side Effects, and Safety",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690328404286,
-      "title": "Recycled Buttons: Easy Craft Ideas and Uses at Home",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690328437054,
-      "title": "Fall Porch Decor: 24 Warm Ideas and Tips",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690328633662,
-      "title": "Repurposed Old Wine Barrels",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690328666430,
-      "title": "Scarecrow Ideas: DIY Lady Scarecrow Projects and Tips",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690328797502,
-      "title": "Upcycled Tree Trunks: 22 Easy Ideas and Tips",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690329092414,
-      "title": "Mini Rock Gardens: Easy Design Ideas for Small Yards",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690329190718,
-      "title": "Vintage Bathroom Decor: Timeless Styling Ideas for Small Spa",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690329321790,
-      "title": "Boho Bathroom Decor: Warm Styling Ideas for a Relaxed Retrea",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690329452862,
-      "title": "Book Page Ghost Garland: DIY Halloween Craft for Parties",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690329649470,
-      "title": "Lavender Candles: DIY Tutorial and Tips for Relaxation",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690329780542,
-      "title": "Upcycled Tin Can Projects: Garden Decor",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690330304830,
-      "title": "Wood Hexagon Shelves: DIY Wall Decor for Plants",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690330435902,
-      "title": "Fall Lantern Decor: 24 Cozy Ideas for Entryways",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690330665278,
-      "title": "Repurpose Old Garage Items: Home Projects",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690330730814,
-      "title": "Pistachio Trees How to Grow: Container Care and Harvest Tips",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690330763582,
-      "title": "Garden Borders: Creative Ideas for Neat, Low-Maintenance Edg",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331025726,
-      "title": "DIY Fall Gnome Wreath: Easy Craft for Front Door",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331287870,
-      "title": "Halloween Fence Decoration: Yards and Gates",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331451710,
-      "title": "Backyard Landscaping: Small-Space Ideas for Low-Maintenance",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331484478,
-      "title": "Garden Decorations DIY: Ideas for Outdoor Spaces on a Budget",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331615550,
-      "title": "Tire Garden Upcycled Planter Ideas: Easy Projects for Yards",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331779390,
-      "title": "Hanging Flowers Blooming All Summer: Simple Care Guide",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331812158,
-      "title": "Rose Propagation Grow Roses: Simple Calyx Method Guide",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331910462,
-      "title": "Healing Bedroom Plants: Tips, Mistakes, and Easy Fixes",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690331943230,
-      "title": "Black Houseplants: Best Varieties and Care Guide Indoors",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690332008766,
-      "title": "Snake Plant Bloom: How to Make It Flower Indoors",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690332041534,
-      "title": "Lavender Leaves Uses: Benefits, How to Use, Safety Tips",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690332139838,
-      "title": "DIY Outdoor Sink Ideas: Easy Step-by-Step Build Guide",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690332172606,
-      "title": "Dwarf Fruit Trees: Small Spaces",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690332238142,
-      "title": "Cinder Blocks DIY Outdoor Decorations: Budget Garden Project",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690332336446,
-      "title": "Survival Garden Food and Medicine: Practical Plan for Famili",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690332533054,
-      "title": "Celery in Pots How to Grow: Container Care Guide",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690348097854,
-      "title": "Natural Cordage Making: Strong Rope from Plants Guide",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690495291710,
-      "title": "Vanilla Extract DIY: Simple Ingredients and Timing Guide",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690495357246,
-      "title": "Taco Seasoning Homemade Blend: No-Preservative Mix Guide at",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690495422782,
-      "title": "Nut Butter How to Make: Easy Homemade Spread Guide",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690495488318,
-      "title": "Quick Pickles vs Fermented Pickles: What's the Difference?",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690495521086,
-      "title": "Herbal Simple Syrups: Drinks and Desserts Guide with Recipes",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690495619390,
-      "title": "Herbal Tea Collection Build: Blend, Store, and Enjoy",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690495783230,
-      "title": "Plant-Based Milks Homemade Guide: Easy Dairy-Free Basics at",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690496405822,
-      "title": "Preserving Lemons and Citrus: Moroccan Salt-Cured Techniques",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690524553534,
-      "title": "Hoop House Build: Heated Hinged Frame for Winter Growing",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690524881214,
-      "title": "Lasagna Garden No-Dig Bed: Cheap and Easy Soil Layers",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
-    },
-    {
-      "id": 690525176126,
-      "title": "Lasagna Garden No-Dig Bed: Complete Step-by-Step Build Guide",
-      "status": "pending",
-      "issues": [
-        "LOW_WORDS"
-      ],
-      "attempts": 0,
-      "added_at": "2026-02-15T12:25:36.729112",
-      "last_attempt": null,
-      "notes": "Added by queue fix script",
-      "last_error": null,
-      "updated_at": "2026-02-15T12:25:36.729112",
-      "failures": []
     }
   ],
   "last_scan": "2026-02-05T19:39:25.396956",
