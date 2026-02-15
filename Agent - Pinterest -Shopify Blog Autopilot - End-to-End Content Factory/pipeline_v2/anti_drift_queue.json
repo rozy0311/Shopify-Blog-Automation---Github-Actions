@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-15T17:11:01.489779",
-  "updated_at": "2026-02-15T17:24:15.663806",
+  "updated_at": "2026-02-15T17:44:52.702712",
   "items": [
     {
       "id": "690524029246",
@@ -33,11 +33,11 @@
     {
       "id": "690504466750",
       "title": "Microgreens on Your Windowsill Seven-Day: Complete",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "failed",
+      "attempts": 1,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-15T17:11:01.489640"
+      "updated_at": "2026-02-15T17:44:52.702706"
     },
     {
       "id": "690503188798",
