@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-15T00:16:06.821575",
+  "updated_at": "2026-02-15T01:15:51.334397",
   "items": [
     {
       "id": "691791921470",
@@ -15,11 +15,11 @@
     {
       "id": "690770379070",
       "title": "Healing Salve Cuts and Scrapes: Gentle Herbal Care",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "",
+      "status": "failed",
+      "attempts": 1,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-14T20:34:55.217723",
+      "updated_at": "2026-02-15T01:15:51.334391",
       "notes": "Validated by cleanup script",
       "failures": 0
     },
