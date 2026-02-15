@@ -489,7 +489,9 @@ def review_article(article_id):
                 "⚠️ TABLE STYLE: Missing recommended CSS tokens (header color, line-height, table-layout)."
             )
         if "padding: 10px 12px" not in body and "padding: 12px" not in body:
-            warnings.append("⚠️ TABLE STYLE: Missing recommended cell padding (10px 12px).")
+            warnings.append(
+                "⚠️ TABLE STYLE: Missing recommended cell padding (10px 12px)."
+            )
         if "nth-child(even)" not in body and "zebra" not in body.lower():
             warnings.append(
                 "⚠️ TABLE STYLE: Missing zebra stripes styling (nth-child(even))."
@@ -627,6 +629,38 @@ def review_article(article_id):
                 f"GENERIC TITLE: Title contains generic phrase(s): {', '.join(found_title_generic)}"
             )
 
+    # 15c2. TITLE REPEATS CHECK — subtitle duplicates main title
+    # Pattern: "Topic: Topic..." or "Topic - Topic..." where part B repeats part A
+    if QUALITY_CHECKS.get("check_title_generic", True):
+        _title_has_repeat = False
+        for sep in [": ", " : ", " - ", " – ", " — "]:
+            if sep in title:
+                _sep_idx = title.index(sep)
+                _part_a = title[:_sep_idx].strip().lower()
+                _part_b = title[_sep_idx + len(sep) :].strip().lower()
+                if _part_a and _part_b:
+                    # Check if part B starts with same words as part A
+                    _a_words = _part_a.split()
+                    _b_words = _part_b.split()
+                    if len(_a_words) >= 3 and len(_b_words) >= 3:
+                        _overlap = sum(
+                            1 for aw, bw in zip(_a_words, _b_words) if aw == bw
+                        )
+                        if _overlap >= 3 and _overlap >= len(_b_words) * 0.5:
+                            _title_has_repeat = True
+                            break
+                    # Also check substring match for truncated repeats
+                    if len(_part_a) >= 20 and _part_b.startswith(_part_a[:20]):
+                        _title_has_repeat = True
+                        break
+                    if _part_a == _part_b:
+                        _title_has_repeat = True
+                        break
+        if _title_has_repeat:
+            errors.append(
+                f"❌ TITLE REPEATS: Subtitle duplicates main title — '{title}'"
+            )
+
     # 15d. TITLE SPAM CHECK - detect title repeated excessively in body (AI slop)
     # Use visible text to avoid counting title inside alt=, figcaption, href= etc.
     if QUALITY_CHECKS.get("check_title_spam", True):
@@ -751,7 +785,9 @@ def review_article(article_id):
         year_in_title = YEAR_PATTERN.search(title)
         year_in_body = YEAR_PATTERN.search(visible_text)
         if year_in_title:
-            warnings.append(f"⚠️ NO YEARS: Found year '{year_in_title.group()}' in title")
+            warnings.append(
+                f"⚠️ NO YEARS: Found year '{year_in_title.group()}' in title"
+            )
         if year_in_body:
             warnings.append("⚠️ NO YEARS: Found year(s) in body content")
 

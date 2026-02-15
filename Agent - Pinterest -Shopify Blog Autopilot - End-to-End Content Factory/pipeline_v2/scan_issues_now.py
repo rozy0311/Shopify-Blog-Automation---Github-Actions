@@ -99,7 +99,11 @@ if response.status_code == 200:
         # Sources section and link format
         sources_h2 = None
         for h2 in soup.find_all("h2"):
-            if re.search(r"sources|further reading|references", h2.get_text(" ", strip=True), re.IGNORECASE):
+            if re.search(
+                r"sources|further reading|references",
+                h2.get_text(" ", strip=True),
+                re.IGNORECASE,
+            ):
                 sources_h2 = h2
                 break
         sources_links = []
@@ -109,14 +113,22 @@ if response.status_code == 200:
                     break
                 sources_links.extend(sib.find_all("a", href=True))
         source_links_text = [a.get_text(" ", strip=True) for a in sources_links]
-        links_without_em_dash = [t for t in source_links_text if "—" not in t and "–" not in t]
-        links_with_raw_url = [t for t in source_links_text if re.search(r"\.(com|org|edu|gov)\b", t, re.IGNORECASE)]
+        links_without_em_dash = [
+            t for t in source_links_text if "—" not in t and "–" not in t
+        ]
+        links_with_raw_url = [
+            t
+            for t in source_links_text
+            if re.search(r"\.(com|org|edu|gov)\b", t, re.IGNORECASE)
+        ]
 
         # Expert quotes check
         blockquotes = soup.find_all("blockquote")
         valid_quotes = 0
         for bq in blockquotes:
-            if re.search(r"[—–-]\s*(?:Dr\.?\s+)?[A-Z][a-z]+", bq.get_text(" ", strip=True)):
+            if re.search(
+                r"[—–-]\s*(?:Dr\.?\s+)?[A-Z][a-z]+", bq.get_text(" ", strip=True)
+            ):
                 valid_quotes += 1
 
         # Stats check
@@ -125,24 +137,27 @@ if response.status_code == 200:
             r"\d+(?:,\d{3})+",
             r"\d+(?:\.\d+)?\s*(?:ml|g|oz|lb|kg|cm|inch|hours?|minutes?|days?|weeks?|months?)",
         ]
-        stats_found = sum(len(re.findall(p, text, re.IGNORECASE)) for p in stat_patterns)
+        stats_found = sum(
+            len(re.findall(p, text, re.IGNORECASE)) for p in stat_patterns
+        )
 
         # Heading IDs (kebab-case) check
         headings_without_id = len(
             [h for h in soup.find_all(["h2", "h3"]) if not h.get("id")]
         )
         invalid_heading_ids = [
-            h.get("id") for h in soup.find_all(["h2", "h3"])
+            h.get("id")
+            for h in soup.find_all(["h2", "h3"])
             if h.get("id") and not KEBAB_PATTERN.match(h.get("id"))
         ]
 
         # External link rel check
         external_links = [
-            a for a in links
-            if "the-rike" not in a.get("href", "").lower()
+            a for a in links if "the-rike" not in a.get("href", "").lower()
         ]
         links_missing_rel = [
-            a for a in external_links
+            a
+            for a in external_links
             if "rel" not in a.attrs or "nofollow" not in (a.get("rel") or [])
         ]
 
@@ -211,6 +226,28 @@ if response.status_code == 200:
             issues.append("SCHEMA_IN_BODY")
         if sections_found < 8:
             issues.append(f"LOW_SECTIONS:{sections_found}")
+
+        # TITLE_REPEATS: subtitle duplicates main title ("Topic: Topic...")
+        full_title = art.get("title", "")
+        for sep in [": ", " : ", " - ", " – ", " — "]:
+            if sep in full_title:
+                _idx = full_title.index(sep)
+                _pa = full_title[:_idx].strip().lower()
+                _pb = full_title[_idx + len(sep) :].strip().lower()
+                if _pa and _pb:
+                    _aw = _pa.split()
+                    _bw = _pb.split()
+                    if len(_aw) >= 3 and len(_bw) >= 3:
+                        _ov = sum(1 for a, b in zip(_aw, _bw) if a == b)
+                        if _ov >= 3 and _ov >= len(_bw) * 0.5:
+                            issues.append("TITLE_REPEATS")
+                            break
+                    if len(_pa) >= 20 and _pb.startswith(_pa[:20]):
+                        issues.append("TITLE_REPEATS")
+                        break
+                    if _pa == _pb:
+                        issues.append("TITLE_REPEATS")
+                        break
 
         if issues:
             all_issues.append({"id": art_id, "title": title, "issues": issues})

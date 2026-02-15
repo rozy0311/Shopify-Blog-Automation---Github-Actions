@@ -117,6 +117,7 @@ jobs:
                   from pathlib import Path
 
                   output_path = os.environ.get('GITHUB_OUTPUT')
+                  run_number = int(os.environ.get('GITHUB_RUN_NUMBER', '0'))
 
                   queue_path = Path('anti_drift_queue.json')
                   if not queue_path.exists():
@@ -138,7 +139,14 @@ jobs:
                       i for i in items
                       if i.get('status') in {'pending', 'failed', 'retrying', 'manual_review'}
                   ]
-                  needs_refresh = 'false' if pending_like else 'true'
+
+                  # Periodic re-scan: every 50 runs, force refresh to catch NEW broken articles
+                  # (title repeats, low words, regressions from other changes)
+                  force_periodic = (run_number % 50 == 0) and run_number > 0
+                  if force_periodic:
+                      print(f"[PERIODIC RESCAN] Run #{run_number} — forcing queue refresh")
+
+                  needs_refresh = 'true' if (not pending_like or force_periodic) else 'false'
                   if output_path:
                       with open(output_path, 'a', encoding='utf-8') as f:
                           f.write(f'needs_refresh={needs_refresh}\n')
@@ -481,7 +489,19 @@ jobs:
                           echo "Review passed for $article_id. Cleanup then publish..."
                           python cleanup_before_publish.py "$article_id" || true
                           python publish_now_graphql.py "$article_id" || true
-                          python ai_orchestrator.py queue-review "$article_id" done "PUBLISHED" || true
+
+                          # POST-PUBLISH VALIDATION: Re-check the article after publish
+                          # Catches any issues introduced by cleanup_before_publish or missed by review
+                          set +e
+                          timeout 120 python "../scripts/pre_publish_review.py" "$article_id" > /dev/null 2>&1
+                          post_pub_status=$?
+                          set -e
+                          if [ "$post_pub_status" != "0" ]; then
+                              echo "⚠️ POST-PUBLISH WARNING: Article $article_id failed validation after publish. Will be re-queued on next rescan."
+                              python ai_orchestrator.py queue-review "$article_id" done "PUBLISHED_WITH_WARNINGS" || true
+                          else
+                              python ai_orchestrator.py queue-review "$article_id" done "PUBLISHED" || true
+                          fi
                           echo "Published and marked done: $article_id"
                       fi
                       if [ "$i" -lt "$max" ]; then

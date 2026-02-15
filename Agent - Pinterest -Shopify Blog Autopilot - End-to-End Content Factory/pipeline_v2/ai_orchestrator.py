@@ -150,7 +150,9 @@ GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-flash-lite")
 # Extra fallbacks: smart text/image models
 GEMINI_MODEL_FALLBACK_2 = os.environ.get("GEMINI_MODEL_FALLBACK_2", "gemini-2.5-flash")
-GEMINI_MODEL_FALLBACK_3 = os.environ.get("GEMINI_MODEL_FALLBACK_3", "gemini-2.0-flash-lite")
+GEMINI_MODEL_FALLBACK_3 = os.environ.get(
+    "GEMINI_MODEL_FALLBACK_3", "gemini-2.0-flash-lite"
+)
 GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
 GH_MODELS_API_BASE = os.environ.get(
     "GH_MODELS_API_BASE", "https://models.github.ai/inference"
@@ -578,6 +580,71 @@ def _clean_title_generic_phrases(title: str) -> str:
     return cleaned
 
 
+def _fix_title_repeats(title: str) -> str:
+    """Fix TITLE_REPEATS pattern: 'Topic: Topic...' or 'Topic - Topic...'
+
+    Detects when the text after a colon/dash repeats the text before it.
+    Example: 'The Rise of Sustainable Permaculture: The Rise of Sustainabl...'
+    → 'The Rise of Sustainable Permaculture'
+
+    Returns cleaned title. If cleaning makes title too short, returns original.
+    """
+    if not title:
+        return title
+
+    original = title
+
+    # Try splitting by common separators: ' : ', ': ', ' - ', ' – ', ' — '
+    for sep in [": ", " : ", " - ", " – ", " — "]:
+        if sep not in title:
+            continue
+        idx = title.index(sep)
+        part_a = title[:idx].strip()
+        part_b = title[idx + len(sep) :].strip()
+
+        if not part_a or not part_b:
+            continue
+
+        # Normalize for comparison
+        a_lower = part_a.lower()
+        b_lower = part_b.lower()
+
+        # Case 1: Part B starts with Part A (truncated repeat)
+        # "The Rise of Sustainable Permaculture: The Rise of Sustainabl"
+        if b_lower.startswith(a_lower[:20]) and len(a_lower) >= 20:
+            print(f"🔧 Title repeats (B starts with A): '{original}' → '{part_a}'")
+            return part_a if len(part_a) >= 10 else original
+
+        # Case 2: Part A starts with Part B (reverse)
+        if a_lower.startswith(b_lower[:20]) and len(b_lower) >= 20:
+            print(f"🔧 Title repeats (A starts with B): '{original}' → '{part_a}'")
+            return part_a if len(part_a) >= 10 else original
+
+        # Case 3: First N words match (at least 3 words overlap)
+        a_words = a_lower.split()
+        b_words = b_lower.split()
+        if len(a_words) >= 3 and len(b_words) >= 3:
+            overlap = 0
+            for aw, bw in zip(a_words, b_words):
+                if aw == bw:
+                    overlap += 1
+                else:
+                    break
+            # If 60%+ of part_b words match part_a start → it's a repeat
+            if overlap >= 3 and overlap >= len(b_words) * 0.5:
+                print(
+                    f"🔧 Title repeats ({overlap} word overlap): '{original}' → '{part_a}'"
+                )
+                return part_a if len(part_a) >= 10 else original
+
+        # Case 4: Exact match (after lowering)
+        if a_lower == b_lower:
+            print(f"🔧 Title repeats (exact): '{original}' → '{part_a}'")
+            return part_a if len(part_a) >= 10 else original
+
+    return title
+
+
 def _remove_generic_phrases(content: str) -> str:
     """Remove generic filler phrases that trigger the quality gate.
     SYNCED with pre_publish_review.py GENERIC_PHRASES list (88 phrases)."""
@@ -804,7 +871,10 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
             return content
 
     # Fallback to Gemini 2.0 Flash Lite (lightweight)
-    if GEMINI_MODEL_FALLBACK_3 and GEMINI_MODEL_FALLBACK_3 not in (GEMINI_MODEL_FALLBACK, GEMINI_MODEL_FALLBACK_2):
+    if GEMINI_MODEL_FALLBACK_3 and GEMINI_MODEL_FALLBACK_3 not in (
+        GEMINI_MODEL_FALLBACK,
+        GEMINI_MODEL_FALLBACK_2,
+    ):
         print(f"🔄 Fallback to {GEMINI_MODEL_FALLBACK_3}...")
         content = call_gemini_api(
             prompt, LLM_MAX_OUTPUT_TOKENS, GEMINI_MODEL_FALLBACK_3
@@ -4515,11 +4585,20 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                 "Title repeated",
                 "keyword stuffing",
                 "GENERIC TITLE",
+                "TITLE REPEATS",
             ]
         )
 
-        # --- FIX GENERIC TITLE before body rebuild ---
+        # --- FIX TITLE ISSUES before body rebuild ---
         title = article.get("title", "")
+
+        # Fix TITLE_REPEATS: "Topic: Topic..." → "Topic"
+        fixed_title = _fix_title_repeats(title)
+        if fixed_title != title:
+            self.api.update_article(article_id, {"title": fixed_title})
+            title = fixed_title
+
+        # Fix GENERIC TITLE: strip "Complete Guide" etc.
         if "GENERIC TITLE" in issues_text:
             cleaned_title = _clean_title_generic_phrases(title)
             if cleaned_title != title:
@@ -4569,7 +4648,15 @@ tr:nth-child(even) { background-color: #f9f9f9; }
             return {"status": "failed", "error": "ARTICLE_NOT_FOUND"}
 
         title = article.get("title", "")
-        # --- FIX GENERIC TITLE before body rebuild ---
+
+        # --- FIX TITLE ISSUES before body rebuild ---
+        # Fix TITLE_REPEATS: "Topic: Topic..." → "Topic"
+        fixed_title = _fix_title_repeats(title)
+        if fixed_title != title:
+            self.api.update_article(article_id, {"title": fixed_title})
+            title = fixed_title
+
+        # Fix GENERIC TITLE: strip "Complete Guide" etc.
         cleaned_title = _clean_title_generic_phrases(title)
         if cleaned_title != title:
             self.api.update_article(article_id, {"title": cleaned_title})
