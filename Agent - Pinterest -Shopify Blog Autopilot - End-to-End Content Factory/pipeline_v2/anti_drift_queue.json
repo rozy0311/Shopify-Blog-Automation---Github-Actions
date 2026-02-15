@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-15T00:15:49.802199",
+  "updated_at": "2026-02-15T00:16:06.821575",
   "items": [
     {
       "id": "691791921470",
@@ -406,7 +406,7 @@
       "attempts": 1,
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-14T23:29:06.397343",
+      "updated_at": "2026-02-14T23:05:53.424333",
       "notes": "Validated by cleanup script",
       "failures": 0
     },
@@ -417,18 +417,18 @@
       "attempts": 1,
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-15T00:15:49.802190",
+      "updated_at": "2026-02-14T23:52:33.762603",
       "error": "DUP_IN_RUN",
       "failures": 0
     },
     {
       "id": "690524094782",
       "title": "Soy Candles: Homemade Recipe with Essential Oils a",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-07T20:33:43.571660",
+      "updated_at": "2026-02-15T00:16:06.821402",
       "error": "DUP_IN_RUN",
       "failures": 0
     },
