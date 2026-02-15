@@ -429,75 +429,108 @@ def _clean_llm_output(content: str) -> str:
 def _remove_title_spam(content: str, title: str) -> str:
     """Remove excessive title repetition from LLM output to pass pre_publish_review.
 
-    Rules:
-    - Title can appear max 3 times (in headings, first para, conclusion)
-    - Remove comma-separated keywords pattern
-    - Replace extra occurrences with pronouns or synonyms
+    Synced with pre_publish_review.py checks (lines 632-675):
+    - Full title: max 3 occurrences in visible text
+    - Title fragment (first 4 words): max 5 occurrences
+    - Title fragment (last 4 words if title ≥8 words): max 5 occurrences
+    - Keyword stuffing: comma-separated title words removed
     """
     if not title or not content:
         return content
 
-    title_lower = title.lower().strip()
-    content_lower = content.lower()
-
-    # Count current occurrences
-    count = content_lower.count(title_lower)
-    if count <= 3:
-        return content  # Already OK
-
-    print(f"⚠️ Title spam detected: '{title}' appears {count}x (max 3). Cleaning...")
-
-    # Strategy: Keep first 2-3 occurrences (usually in intro/headings), remove rest
-    # Use case-insensitive replacement but preserve surrounding context
-
-    replacements_made = 0
-    max_to_keep = 3
-    occurrences_kept = 0
-
-    # Split by title (case-insensitive) and rebuild
     import re as re_module
 
-    pattern = re_module.compile(re_module.escape(title), re_module.IGNORECASE)
+    title_lower = title.lower().strip()
 
-    parts = pattern.split(content)
-    if len(parts) <= max_to_keep + 1:
-        return content  # Not enough parts
+    # ── 1. Full title repetition (max 3) ──────────────────────────
+    content_lower = content.lower()
+    full_count = content_lower.count(title_lower)
+    if full_count > 3:
+        print(
+            f"⚠️ Title spam detected: '{title}' appears {full_count}x (max 3). Cleaning..."
+        )
+        pattern = re_module.compile(re_module.escape(title), re_module.IGNORECASE)
+        parts = pattern.split(content)
+        matches = pattern.findall(content)
+        if len(parts) > 4:  # enough parts to trim
+            result = parts[0]
+            kept = 0
+            removed = 0
+            for i, match in enumerate(matches):
+                if kept < 3:
+                    result += match + parts[i + 1]
+                    kept += 1
+                else:
+                    result += "this topic" + parts[i + 1]
+                    removed += 1
+            content = result
+            if removed:
+                print(f"✅ Removed {removed} excessive full-title mentions")
 
-    # Find all matches to preserve case
-    matches = pattern.findall(content)
+    # ── 2. Title fragment spam — first 4 words (max 5) ────────────
+    # Matches pre_publish_review.py logic: words > 1 char, first 4
+    title_words_raw = [w for w in title_lower.split() if len(w) > 1]
+    if len(title_words_raw) >= 4:
+        first_fragment = " ".join(title_words_raw[:4])
+        content = _reduce_fragment_spam(content, first_fragment, max_allowed=5)
 
-    # Rebuild with only first N occurrences
-    result = parts[0]
-    for i, match in enumerate(matches):
-        if occurrences_kept < max_to_keep:
-            result += match + parts[i + 1]
-            occurrences_kept += 1
-        else:
-            # Replace with pronoun or skip (depends on context)
-            # For now, use generic "this topic" or "it"
-            replacement = "this topic"
-            result += replacement + parts[i + 1]
-            replacements_made += 1
+        # ── 3. Title fragment spam — last 4 words (max 5) ────────
+        if len(title_words_raw) >= 8:
+            last_fragment = " ".join(title_words_raw[-4:])
+            content = _reduce_fragment_spam(content, last_fragment, max_allowed=5)
 
-    if replacements_made > 0:
-        print(f"✅ Removed {replacements_made} excessive title mentions")
-
-    # Also remove comma-separated keyword stuffing
+    # ── 4. Keyword stuffing: "word1, word2, word3" ────────────────
     title_words = [w for w in title_lower.split() if len(w) > 2]
     if len(title_words) >= 3:
-        # Pattern like "growing, basil, containers"
         keyword_pattern = ", ".join(title_words[:3])
-        if keyword_pattern in result.lower():
-            # Remove the keyword stuffing pattern
-            result = re_module.sub(
+        if keyword_pattern in content.lower():
+            content = re_module.sub(
                 re_module.escape(keyword_pattern),
                 "",
-                result,
+                content,
                 flags=re_module.IGNORECASE,
             )
             print(f"✅ Removed keyword stuffing pattern")
 
-    return result
+    return content
+
+
+def _reduce_fragment_spam(content: str, fragment: str, max_allowed: int = 5) -> str:
+    """Reduce occurrences of *fragment* in content to ≤ max_allowed.
+
+    Strategy: keep the first `max_allowed` occurrences intact and replace
+    the rest with an empty string (the surrounding sentence still reads
+    fine because the fragment is usually a noun-phrase embedded in a
+    longer clause).
+    """
+    import re as re_module
+
+    fragment_pattern = re_module.compile(
+        re_module.escape(fragment), re_module.IGNORECASE
+    )
+    matches = list(fragment_pattern.finditer(content))
+    if len(matches) <= max_allowed:
+        return content
+
+    excess = len(matches) - max_allowed
+    print(
+        f"⚠️ Fragment spam: '{fragment}' appears {len(matches)}x (max {max_allowed}). Removing {excess} extra..."
+    )
+
+    # Remove from the END so earlier indices stay valid
+    for m in reversed(matches[max_allowed:]):
+        start, end = m.start(), m.end()
+        # Try to also remove a leading/trailing space to avoid double-spaces
+        if start > 0 and content[start - 1] == " ":
+            start -= 1
+        elif end < len(content) and content[end] == " ":
+            end += 1
+        content = content[:start] + content[end:]
+
+    # Clean up any double/triple spaces left behind
+    content = re_module.sub(r"  +", " ", content)
+    print(f"✅ Reduced '{fragment}' to ≤{max_allowed} occurrences")
+    return content
 
 
 # TITLE-SPECIFIC GENERIC PHRASES — synced with pre_publish_review.py TITLE_GENERIC_PHRASES
@@ -4460,6 +4493,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                 "Raw URLs",
                 "Low sources",
                 "TITLE SPAM",
+                "TITLE FRAGMENT SPAM",
                 "KEYWORD STUFFING",
                 "Title repeated",
                 "keyword stuffing",
