@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-15T04:32:26.035516",
+  "updated_at": "2026-02-15T05:09:29.506397",
   "items": [
     {
       "id": "691791921470",
@@ -47,22 +47,23 @@
       "id": "690524487998",
       "title": "Grow Vanilla Beans: Complete Guide from Planting t",
       "status": "done",
-      "attempts": 0,
-      "last_error": "ALREADY_OK_BATCH",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-15T03:55:25.057633",
+      "updated_at": "2026-02-15T03:29:17.524828",
       "notes": "Validated by cleanup script",
       "failures": 0
     },
     {
       "id": "690524455230",
       "title": "Grow Turmeric in Containers: Complete Guide for An",
-      "status": "done",
-      "attempts": 0,
-      "last_error": "ALREADY_OK_BATCH",
+      "status": "skipped",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-15T03:55:26.328183",
-      "failures": 0
+      "updated_at": "2026-02-15T03:41:00.236850",
+      "failures": 0,
+      "error": "DUP_IN_RUN"
     },
     {
       "id": "690524062014",
@@ -71,7 +72,7 @@
       "attempts": 0,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-15T03:55:27.271258",
+      "updated_at": "2026-02-15T03:10:10.550320",
       "error": "DUP_IN_RUN",
       "failures": 0
     },
@@ -89,7 +90,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:28.553947"
+      "updated_at": "2026-02-15T03:10:11.304086"
     },
     {
       "id": 690770805054,
@@ -105,7 +106,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:29.947481"
+      "updated_at": "2026-02-15T03:10:12.047171"
     },
     {
       "id": 690770641214,
@@ -121,7 +122,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:31.531661"
+      "updated_at": "2026-02-15T03:10:12.764197"
     },
     {
       "id": 690770444606,
@@ -137,7 +138,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:32.579334"
+      "updated_at": "2026-02-15T03:10:13.447620"
     },
     {
       "id": 690524848446,
@@ -153,7 +154,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:33.619509"
+      "updated_at": "2026-02-15T03:10:14.245440"
     },
     {
       "id": 690524815678,
@@ -169,7 +170,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:34.748613"
+      "updated_at": "2026-02-15T03:10:14.974898"
     },
     {
       "id": 690524717374,
@@ -185,7 +186,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:36.366536"
+      "updated_at": "2026-02-15T03:10:15.696921"
     },
     {
       "id": 690524586302,
@@ -201,7 +202,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:39.092555"
+      "updated_at": "2026-02-15T03:10:16.522613"
     },
     {
       "id": 690524520766,
@@ -217,12 +218,12 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:40.083993"
+      "updated_at": "2026-02-15T03:10:17.394014"
     },
     {
       "id": 690524455230,
       "title": "Grow Turmeric in Containers: Complete Guide for An",
-      "status": "done",
+      "status": "skipped",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -232,8 +233,7 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:41.101510"
+      "last_error": null
     },
     {
       "id": 690524094782,
@@ -249,7 +249,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:42.623500"
+      "updated_at": "2026-02-15T03:10:19.770473"
     },
     {
       "id": 690524062014,
@@ -265,7 +265,7 @@
       "error": "DUP_IN_RUN",
       "failures": 0,
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:43.734681"
+      "updated_at": "2026-02-15T03:10:20.524820"
     },
     {
       "id": 690523930942,
@@ -279,7 +279,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:45.356337",
+      "updated_at": "2026-02-15T03:10:22.389878",
       "failures": 0
     },
     {
@@ -308,7 +308,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:46.372481",
+      "updated_at": "2026-02-15T03:10:24.696724",
       "failures": 0
     },
     {
@@ -318,12 +318,12 @@
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396258",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:47.413572",
+      "last_error": null,
+      "updated_at": "2026-02-15T03:52:42.968551",
       "failures": 0
     },
     {
@@ -338,7 +338,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:48.653796",
+      "updated_at": "2026-02-15T03:10:27.367555",
       "failures": 0
     },
     {
@@ -348,12 +348,12 @@
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 1,
+      "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396267",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-15T04:07:53.908090",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T04:40:55.174816",
       "failures": 0
     },
     {
@@ -368,7 +368,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:51.170187",
+      "updated_at": "2026-02-15T03:10:30.616055",
       "failures": 0
     },
     {
@@ -383,7 +383,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:53.448967",
+      "updated_at": "2026-02-15T03:10:32.079479",
       "failures": 0
     },
     {
@@ -398,7 +398,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:54.341080",
+      "updated_at": "2026-02-15T03:10:33.517441",
       "failures": 0
     },
     {
@@ -413,7 +413,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:55.755792",
+      "updated_at": "2026-02-15T03:10:35.162816",
       "failures": 0
     },
     {
@@ -428,7 +428,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:57.678484",
+      "updated_at": "2026-02-15T03:10:36.419229",
       "failures": 0
     },
     {
@@ -443,7 +443,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:58.883807",
+      "updated_at": "2026-02-15T03:10:39.220308",
       "failures": 0
     },
     {
@@ -458,7 +458,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:55:59.930187",
+      "updated_at": "2026-02-15T03:10:40.297873",
       "failures": 0
     },
     {
@@ -473,7 +473,7 @@
       "last_attempt": null,
       "notes": "Cleared after 3 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:00.892024",
+      "updated_at": "2026-02-15T03:10:42.109632",
       "failures": 0
     },
     {
@@ -488,7 +488,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:02.098531",
+      "updated_at": "2026-02-15T03:10:44.223950",
       "failures": 0
     },
     {
@@ -503,7 +503,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:03.528268",
+      "updated_at": "2026-02-15T03:10:46.029449",
       "failures": 0
     },
     {
@@ -518,7 +518,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:04.693904",
+      "updated_at": "2026-02-15T03:10:48.305121",
       "failures": 0
     },
     {
@@ -533,7 +533,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:06.732208",
+      "updated_at": "2026-02-15T03:10:49.897023",
       "failures": 0
     },
     {
@@ -543,12 +543,12 @@
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 1,
+      "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396344",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-15T04:19:42.418969",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T04:40:56.206367",
       "failures": 0
     },
     {
@@ -563,7 +563,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:09.286469",
+      "updated_at": "2026-02-15T03:10:52.280880",
       "failures": 0
     },
     {
@@ -578,7 +578,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:11.198639",
+      "updated_at": "2026-02-15T03:10:53.180337",
       "failures": 0
     },
     {
@@ -594,7 +594,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:12.491384",
+      "updated_at": "2026-02-15T03:10:54.678032",
       "failures": 0
     },
     {
@@ -609,7 +609,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:13.370273",
+      "updated_at": "2026-02-15T03:10:57.234353",
       "failures": 0
     },
     {
@@ -624,7 +624,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:14.390493",
+      "updated_at": "2026-02-15T03:10:59.007883",
       "failures": 0
     },
     {
@@ -639,7 +639,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:15.706839",
+      "updated_at": "2026-02-15T03:11:00.841932",
       "failures": 0
     },
     {
@@ -654,7 +654,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:17.127386",
+      "updated_at": "2026-02-15T03:11:02.850950",
       "failures": 0
     },
     {
@@ -669,7 +669,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:18.525048",
+      "updated_at": "2026-02-15T03:11:04.206257",
       "failures": 0
     },
     {
@@ -684,7 +684,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:19.472459",
+      "updated_at": "2026-02-15T03:11:06.005735",
       "failures": 0
     },
     {
@@ -699,7 +699,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:21.679691",
+      "updated_at": "2026-02-15T03:11:08.249396",
       "failures": 0
     },
     {
@@ -714,7 +714,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:23.131773",
+      "updated_at": "2026-02-15T03:11:09.924323",
       "failures": 0
     },
     {
@@ -729,7 +729,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:24.788670",
+      "updated_at": "2026-02-15T03:11:11.532153",
       "failures": 0
     },
     {
@@ -745,7 +745,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:25.684413",
+      "updated_at": "2026-02-15T03:11:12.486353",
       "failures": 0
     },
     {
@@ -761,7 +761,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:26.861599",
+      "updated_at": "2026-02-15T03:11:15.365421",
       "failures": 0
     },
     {
@@ -776,7 +776,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:28.058763",
+      "updated_at": "2026-02-15T03:11:16.933971",
       "failures": 0
     },
     {
@@ -791,7 +791,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:29.454308",
+      "updated_at": "2026-02-15T03:11:18.202563",
       "failures": 0
     },
     {
@@ -806,7 +806,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:30.822350",
+      "updated_at": "2026-02-15T03:11:20.218396",
       "failures": 0
     },
     {
@@ -821,7 +821,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:31.661703",
+      "updated_at": "2026-02-15T03:11:22.124807",
       "failures": 0
     },
     {
@@ -836,7 +836,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:33.144099",
+      "updated_at": "2026-02-15T03:11:23.842874",
       "failures": 0
     },
     {
@@ -851,7 +851,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:35.387352",
+      "updated_at": "2026-02-15T03:11:25.572830",
       "failures": 0
     },
     {
@@ -866,7 +866,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:36.404722",
+      "updated_at": "2026-02-15T03:11:27.418531",
       "failures": 0
     },
     {
@@ -881,7 +881,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:37.740667",
+      "updated_at": "2026-02-15T03:11:28.808424",
       "failures": 0
     },
     {
@@ -896,7 +896,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:38.392029",
+      "updated_at": "2026-02-15T03:11:29.686968",
       "failures": 0
     },
     {
@@ -911,7 +911,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:40.098143",
+      "updated_at": "2026-02-15T03:11:32.202561",
       "failures": 0
     },
     {
@@ -926,7 +926,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:41.382806",
+      "updated_at": "2026-02-15T03:11:34.508076",
       "failures": 0
     },
     {
@@ -941,7 +941,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:42.445924",
+      "updated_at": "2026-02-15T03:11:36.143169",
       "failures": 0
     },
     {
@@ -956,7 +956,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:43.504331",
+      "updated_at": "2026-02-15T03:11:37.151418",
       "failures": 0
     },
     {
@@ -971,7 +971,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:44.635350",
+      "updated_at": "2026-02-15T03:11:38.597350",
       "failures": 0
     },
     {
@@ -987,7 +987,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:46.062903",
+      "updated_at": "2026-02-15T03:11:40.460639",
       "failures": 0
     },
     {
@@ -1002,7 +1002,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:48.651902",
+      "updated_at": "2026-02-15T03:11:41.653935",
       "failures": 0
     },
     {
@@ -1012,27 +1012,27 @@
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 1,
+      "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396410",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-15T04:32:26.035183",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T04:40:57.306360",
       "failures": 0
     },
     {
       "id": 690497356094,
       "title": "Making Herbal Tinctures Complete Guide: Safe Ratio",
-      "status": "pending",
+      "status": "failed",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396411",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T02:13:01.182708",
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_3_ATTEMPTS",
+      "updated_at": "2026-02-15T05:07:40.491259",
       "failures": 0
     },
     {
@@ -1047,7 +1047,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:51.658958",
+      "updated_at": "2026-02-15T03:11:46.918989",
       "failures": 0
     },
     {
@@ -1062,7 +1062,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:52.992607",
+      "updated_at": "2026-02-15T03:11:48.808314",
       "failures": 0
     },
     {
@@ -1077,7 +1077,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:54.472247",
+      "updated_at": "2026-02-15T03:11:50.496560",
       "failures": 0
     },
     {
@@ -1092,7 +1092,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:55.985341",
+      "updated_at": "2026-02-15T03:11:52.878565",
       "failures": 0
     },
     {
@@ -1107,7 +1107,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:57.031245",
+      "updated_at": "2026-02-15T03:11:54.697874",
       "failures": 0
     },
     {
@@ -1122,7 +1122,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:58.377201",
+      "updated_at": "2026-02-15T03:11:56.683480",
       "failures": 0
     },
     {
@@ -1137,22 +1137,22 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:56:59.759189",
+      "updated_at": "2026-02-15T03:11:57.964902",
       "failures": 0
     },
     {
       "id": 690496340286,
       "title": "Beeswax Wraps DIY Food Storage: Sustainable Kitche",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 2,
       "added_at": "2026-02-05T19:39:25.396432",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": null,
-      "updated_at": "2026-02-10T08:39:09.932623",
+      "updated_at": "2026-02-15T05:09:29.506032",
       "failures": 0
     },
     {
@@ -1167,7 +1167,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:02.190240",
+      "updated_at": "2026-02-15T03:12:00.275976",
       "failures": 0
     },
     {
@@ -1182,7 +1182,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:03.258368",
+      "updated_at": "2026-02-15T03:12:01.744782",
       "failures": 0
     },
     {
@@ -1197,7 +1197,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:05.802029",
+      "updated_at": "2026-02-15T03:12:02.454055",
       "failures": 0
     },
     {
@@ -1212,7 +1212,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:07.347934",
+      "updated_at": "2026-02-15T03:12:04.133856",
       "failures": 0
     },
     {
@@ -1257,7 +1257,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:10.338622",
+      "updated_at": "2026-02-15T03:12:08.674990",
       "failures": 0
     },
     {
@@ -1272,7 +1272,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:11.623784",
+      "updated_at": "2026-02-15T03:12:09.678539",
       "failures": 0
     },
     {
@@ -1317,7 +1317,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:14.661829",
+      "updated_at": "2026-02-15T03:12:13.620521",
       "failures": 0
     },
     {
@@ -1332,7 +1332,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:16.136364",
+      "updated_at": "2026-02-15T03:12:14.601555",
       "failures": 0
     },
     {
@@ -1347,7 +1347,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:17.168686",
+      "updated_at": "2026-02-15T03:12:15.959797",
       "failures": 0
     },
     {
@@ -1391,7 +1391,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:19.669660",
+      "updated_at": "2026-02-15T03:12:19.298019",
       "failures": 0
     },
     {
@@ -1406,7 +1406,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:20.943481",
+      "updated_at": "2026-02-15T03:12:20.532436",
       "failures": 0
     },
     {
@@ -1496,7 +1496,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:28.238817",
+      "updated_at": "2026-02-15T03:12:32.339916",
       "failures": 0
     },
     {
@@ -1511,7 +1511,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:30.185485",
+      "updated_at": "2026-02-15T03:12:33.057358",
       "failures": 0
     },
     {
@@ -1526,7 +1526,7 @@
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:31.858829",
+      "updated_at": "2026-02-15T03:12:34.687313",
       "failures": 0
     },
     {
@@ -1541,7 +1541,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:33.149757",
+      "updated_at": "2026-02-15T03:12:36.712022",
       "failures": 0
     },
     {
@@ -1556,7 +1556,7 @@
       "last_attempt": null,
       "notes": "Validated by cleanup script",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:34.101056",
+      "updated_at": "2026-02-15T03:12:38.535982",
       "failures": 0
     },
     {
@@ -1616,7 +1616,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:38.290676",
+      "updated_at": "2026-02-15T03:12:43.931777",
       "failures": 0
     },
     {
@@ -1631,7 +1631,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:39.717545",
+      "updated_at": "2026-02-15T03:12:45.483428",
       "failures": 0
     },
     {
@@ -1646,7 +1646,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:40.748236",
+      "updated_at": "2026-02-15T03:12:46.873931",
       "failures": 0
     },
     {
@@ -1661,7 +1661,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:42.280313",
+      "updated_at": "2026-02-15T03:12:48.868708",
       "failures": 0
     },
     {
@@ -1676,7 +1676,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:43.758296",
+      "updated_at": "2026-02-15T03:12:49.848956",
       "failures": 0
     },
     {
@@ -1691,7 +1691,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:44.911566",
+      "updated_at": "2026-02-15T03:12:50.822814",
       "failures": 0
     },
     {
@@ -1706,7 +1706,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:46.711219",
+      "updated_at": "2026-02-15T03:12:51.595459",
       "failures": 0
     },
     {
@@ -1721,7 +1721,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:47.678277",
+      "updated_at": "2026-02-15T03:12:53.420394",
       "failures": 0
     },
     {
@@ -1736,7 +1736,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:48.836448",
+      "updated_at": "2026-02-15T03:12:55.445438",
       "failures": 0
     },
     {
@@ -1751,7 +1751,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:49.838267",
+      "updated_at": "2026-02-15T03:12:56.685289",
       "failures": 0
     },
     {
@@ -1766,7 +1766,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:51.027589",
+      "updated_at": "2026-02-15T03:12:59.292065",
       "failures": 0
     },
     {
@@ -1781,7 +1781,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:52.585603",
+      "updated_at": "2026-02-15T03:13:00.603119",
       "failures": 0
     },
     {
@@ -1796,7 +1796,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:53.629614",
+      "updated_at": "2026-02-15T03:13:02.609834",
       "failures": 0
     },
     {
@@ -1811,7 +1811,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:54.568299",
+      "updated_at": "2026-02-15T03:13:04.015146",
       "failures": 0
     },
     {
@@ -1826,7 +1826,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:55.953517",
+      "updated_at": "2026-02-15T03:13:05.318867",
       "failures": 0
     },
     {
@@ -1841,7 +1841,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:57.156667",
+      "updated_at": "2026-02-15T03:13:06.998878",
       "failures": 0
     },
     {
@@ -1856,7 +1856,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:57:59.243749",
+      "updated_at": "2026-02-15T03:13:08.650132",
       "failures": 0
     },
     {
@@ -1871,7 +1871,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:00.447221",
+      "updated_at": "2026-02-15T03:13:09.776039",
       "failures": 0
     },
     {
@@ -2096,7 +2096,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:12.371258",
+      "updated_at": "2026-02-15T03:13:23.060719",
       "failures": 0
     },
     {
@@ -2111,7 +2111,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:13.814049",
+      "updated_at": "2026-02-15T03:13:24.099048",
       "failures": 0
     },
     {
@@ -2126,7 +2126,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:15.219055",
+      "updated_at": "2026-02-15T03:13:26.349038",
       "failures": 0
     },
     {
@@ -2141,7 +2141,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:16.344775",
+      "updated_at": "2026-02-15T03:13:27.464336",
       "failures": 0
     },
     {
@@ -2156,7 +2156,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:17.578337",
+      "updated_at": "2026-02-15T03:13:28.498865",
       "failures": 0
     },
     {
@@ -2171,7 +2171,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:18.586688",
+      "updated_at": "2026-02-15T03:13:29.526199",
       "failures": 0
     },
     {
@@ -2186,7 +2186,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:19.752552",
+      "updated_at": "2026-02-15T03:13:30.867473",
       "failures": 0
     },
     {
@@ -2201,7 +2201,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:21.116193",
+      "updated_at": "2026-02-15T03:13:32.801004",
       "failures": 0
     },
     {
@@ -2216,7 +2216,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:23.253406",
+      "updated_at": "2026-02-15T03:13:34.124489",
       "failures": 0
     },
     {
@@ -2246,7 +2246,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:24.992753",
+      "updated_at": "2026-02-15T03:13:37.047905",
       "failures": 0
     },
     {
@@ -2261,7 +2261,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:26.121235",
+      "updated_at": "2026-02-15T03:13:37.760242",
       "failures": 0
     },
     {
@@ -2276,7 +2276,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:27.529656",
+      "updated_at": "2026-02-15T03:13:38.447568",
       "failures": 0
     },
     {
@@ -2291,7 +2291,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:29.255426",
+      "updated_at": "2026-02-15T03:13:40.140630",
       "failures": 0
     },
     {
@@ -2306,7 +2306,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:30.108834",
+      "updated_at": "2026-02-15T03:13:41.356541",
       "failures": 0
     },
     {
@@ -2321,7 +2321,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:31.346062",
+      "updated_at": "2026-02-15T03:13:43.496847",
       "failures": 0
     },
     {
@@ -2336,7 +2336,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:32.269959",
+      "updated_at": "2026-02-15T03:13:44.543599",
       "failures": 0
     },
     {
@@ -2351,7 +2351,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:33.388665",
+      "updated_at": "2026-02-15T03:13:45.763988",
       "failures": 0
     },
     {
@@ -2381,7 +2381,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:35.389304",
+      "updated_at": "2026-02-15T03:13:48.493365",
       "failures": 0
     },
     {
@@ -2396,7 +2396,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:37.280685",
+      "updated_at": "2026-02-15T03:13:49.846470",
       "failures": 0
     },
     {
@@ -2411,7 +2411,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:38.166328",
+      "updated_at": "2026-02-15T03:13:51.164816",
       "failures": 0
     },
     {
@@ -2441,7 +2441,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:40.335427",
+      "updated_at": "2026-02-15T03:13:53.446695",
       "failures": 0
     },
     {
@@ -2456,7 +2456,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:41.719158",
+      "updated_at": "2026-02-15T03:13:54.587224",
       "failures": 0
     },
     {
@@ -2486,7 +2486,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:43.814608",
+      "updated_at": "2026-02-15T03:13:56.925078",
       "failures": 0
     },
     {
@@ -2501,7 +2501,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:45.014762",
+      "updated_at": "2026-02-15T03:13:57.893114",
       "failures": 0
     },
     {
@@ -2516,7 +2516,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:46.862510",
+      "updated_at": "2026-02-15T03:13:58.888598",
       "failures": 0
     },
     {
@@ -2561,7 +2561,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:49.447622",
+      "updated_at": "2026-02-15T03:14:00.969145",
       "failures": 0
     },
     {
@@ -2576,7 +2576,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:50.668797",
+      "updated_at": "2026-02-15T03:14:01.693769",
       "failures": 0
     },
     {
@@ -2633,7 +2633,7 @@
       "last_attempt": null,
       "notes": "Added by full scan",
       "last_error": "ALREADY_OK_BATCH",
-      "updated_at": "2026-02-15T03:58:54.621262"
+      "updated_at": "2026-02-15T03:14:04.460755"
     },
     {
       "id": 682730291518,
