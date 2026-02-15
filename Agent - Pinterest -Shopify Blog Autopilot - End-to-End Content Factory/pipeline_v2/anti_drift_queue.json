@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-02T16:08:41.513601",
-  "updated_at": "2026-02-15T02:45:14.663569",
+  "updated_at": "2026-02-15T03:52:42.968895",
   "items": [
     {
       "id": "691791921470",
@@ -46,39 +46,40 @@
     {
       "id": "690524487998",
       "title": "Grow Vanilla Beans: Complete Guide from Planting t",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-14T23:05:53.424333",
+      "updated_at": "2026-02-15T03:29:17.524828",
       "notes": "Validated by cleanup script",
       "failures": 0
     },
     {
       "id": "690524455230",
       "title": "Grow Turmeric in Containers: Complete Guide for An",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "",
+      "status": "skipped",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-14T23:52:33.762603",
-      "failures": 0
+      "updated_at": "2026-02-15T03:41:00.236850",
+      "failures": 0,
+      "error": "DUP_IN_RUN"
     },
     {
       "id": "690524062014",
       "title": "Natural Cleaning Products Vinegar Recipes: Easy DI",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": null,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-07T22:04:33.182793",
+      "updated_at": "2026-02-15T03:10:10.550320",
       "error": "DUP_IN_RUN",
       "failures": 0
     },
     {
       "id": 690770870590,
       "title": "Ginger Remedies Nausea Relief: Simple Natural Meth",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -88,12 +89,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:11.304086"
     },
     {
       "id": 690770805054,
       "title": "Lavender Uses Home Remedies: Simple Everyday Care ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -103,12 +105,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:12.047171"
     },
     {
       "id": 690770641214,
       "title": "Natural Allergy Relief Remedies: Gentle Herbs for ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -118,12 +121,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:12.764197"
     },
     {
       "id": 690770444606,
       "title": "Headache Relief Natural Remedies: Simple Herbal Op",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -133,12 +137,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:13.447620"
     },
     {
       "id": 690524848446,
       "title": "Aloe Vera Benefits Care: Safe Uses and Growing Tip",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -148,12 +153,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:14.245440"
     },
     {
       "id": 690524815678,
       "title": "Moringa Benefits Uses Safety: Practical Daily Guid",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -163,12 +169,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:14.974898"
     },
     {
       "id": 690524717374,
       "title": "Banana Hanger DIY Butterfly Feeder: Easy Backyard ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -178,12 +185,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:15.696921"
     },
     {
       "id": 690524586302,
       "title": "Neem Leaves Health Benefits: Medicinal Uses and Sa",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -193,12 +201,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:16.522613"
     },
     {
       "id": 690524520766,
       "title": "Grow Cinnamon Trees from Seed: Complete Home Guide",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -208,12 +217,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:17.394014"
     },
     {
       "id": 690524455230,
       "title": "Grow Turmeric in Containers: Complete Guide for An",
-      "status": "pending",
+      "status": "skipped",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -228,7 +238,7 @@
     {
       "id": 690524094782,
       "title": "Soy Candles: Homemade Recipe with Essential Oils a",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -238,12 +248,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:19.770473"
     },
     {
       "id": 690524062014,
       "title": "Natural Cleaning Products Vinegar Recipes: Easy DI",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -253,12 +264,13 @@
       "notes": "Added by full scan",
       "error": "DUP_IN_RUN",
       "failures": 0,
-      "last_error": null
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:20.524820"
     },
     {
       "id": 690523930942,
       "title": "Herbal Healing Salve: Calendula Recipe for Skin Re",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -266,8 +278,8 @@
       "added_at": "2026-02-05T19:39:25.396249",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-07T23:40:37.128645",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:22.389878",
       "failures": 0
     },
     {
@@ -287,7 +299,7 @@
     {
       "id": 690523865406,
       "title": "Composting Beginner Guide at Home: Simple Step-by-",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -295,29 +307,29 @@
       "added_at": "2026-02-05T19:39:25.396255",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T01:07:33.771242",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:24.696724",
       "failures": 0
     },
     {
       "id": 690523832638,
       "title": "How to Make DIY Beeswax Wraps for Food Storage: Co",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "added_at": "2026-02-05T19:39:25.396258",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
       "last_error": null,
-      "updated_at": "2026-02-08T01:20:13.899724",
+      "updated_at": "2026-02-15T03:52:42.968551",
       "failures": 0
     },
     {
       "id": 690523701566,
       "title": "Oat Bath Soak for Sensitive Skin: Soothing DIY Rec",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -325,8 +337,8 @@
       "added_at": "2026-02-05T19:39:25.396265",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T02:05:26.614616",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:27.367555",
       "failures": 0
     },
     {
@@ -347,7 +359,7 @@
     {
       "id": 690523439422,
       "title": "Lacto-Fermented Hot Sauce Recipe: Probiotic Heat f",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -355,14 +367,14 @@
       "added_at": "2026-02-05T19:39:25.396279",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T03:39:17.029994",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:30.616055",
       "failures": 0
     },
     {
       "id": 690523406654,
       "title": "Fruit Vinegar Shrubs for Summer Drinks: Easy Drink",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -370,14 +382,14 @@
       "added_at": "2026-02-05T19:39:25.396283",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T04:30:27.959196",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:32.079479",
       "failures": 0
     },
     {
       "id": 690523275582,
       "title": "Sourdough Starter for Beginners: Complete Step-by-",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -385,14 +397,14 @@
       "added_at": "2026-02-05T19:39:25.396294",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T05:31:37.528252",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:33.517441",
       "failures": 0
     },
     {
       "id": 690523210046,
       "title": "Mint Varieties for Tea and Cooking: Complete Flavo",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -400,14 +412,14 @@
       "added_at": "2026-02-05T19:39:25.396297",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T06:49:11.571547",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:35.162816",
       "failures": 0
     },
     {
       "id": 690523177278,
       "title": "Chamomile Harvest and Drying Guide: From Garden to",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -415,14 +427,14 @@
       "added_at": "2026-02-05T19:39:25.396301",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T07:01:50.874931",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:36.419229",
       "failures": 0
     },
     {
       "id": 690523111742,
       "title": "How to Store Dried Herbs Properly: Keep Flavor and",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -430,14 +442,14 @@
       "added_at": "2026-02-05T19:39:25.396307",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T08:15:31.860752",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:39.220308",
       "failures": 0
     },
     {
       "id": 690513412414,
       "title": "Kombucha First Batch: Guide and Safety Tips for Be",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -445,14 +457,14 @@
       "added_at": "2026-02-05T19:39:25.396310",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T09:25:30.083665",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:40.297873",
       "failures": 0
     },
     {
       "id": 690513346878,
       "title": "Natural Produce Wash Simple and Effective: Homemad",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -460,14 +472,14 @@
       "added_at": "2026-02-05T19:39:25.396316",
       "last_attempt": null,
       "notes": "Cleared after 3 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T11:16:52.563784",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:42.109632",
       "failures": 0
     },
     {
       "id": 690513314110,
       "title": "Baking Soda Deodorizer Sachets for Closets: Easy D",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -475,14 +487,14 @@
       "added_at": "2026-02-05T19:39:25.396321",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-08T12:25:58.031370",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:44.223950",
       "failures": 0
     },
     {
       "id": 690513248574,
       "title": "Laundry Booster Natural Formula: Without Harsh Che",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -490,14 +502,14 @@
       "added_at": "2026-02-05T19:39:25.396327",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T13:48:41.814988",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:46.029449",
       "failures": 0
     },
     {
       "id": 690513183038,
       "title": "Baking Soda Scrub Kitchen Sink: Natural Clean Rout",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -505,14 +517,14 @@
       "added_at": "2026-02-05T19:39:25.396334",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T14:20:05.772696",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:48.305121",
       "failures": 0
     },
     {
       "id": 690513150270,
       "title": "Natural Glass Cleaner Without Streaks: Homemade Re",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -520,8 +532,8 @@
       "added_at": "2026-02-05T19:39:25.396337",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T14:33:17.947738",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:49.897023",
       "failures": 0
     },
     {
@@ -542,7 +554,7 @@
     {
       "id": 690504499518,
       "title": "Microgreens Indoors Seven-Day: Fresh Greens in One",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -550,14 +562,14 @@
       "added_at": "2026-02-05T19:39:25.396346",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T15:54:29.798963",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:52.280880",
       "failures": 0
     },
     {
       "id": 690501222718,
       "title": "Upcycled Glass Jars: Creative Storage Solutions fo",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -565,14 +577,14 @@
       "added_at": "2026-02-05T19:39:25.396351",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-08T17:29:54.972964",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:53.180337",
       "failures": 0
     },
     {
       "id": 690501189950,
       "title": "Homemade Yogurt No Special Equipment: Easy Method ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT",
         "BROKEN_IMAGES"
@@ -581,14 +593,14 @@
       "added_at": "2026-02-05T19:39:25.396353",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T18:39:00.404634",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:54.678032",
       "failures": 0
     },
     {
       "id": 690501157182,
       "title": "Seed Saving for Beginners: How to Store Next Seaso",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -596,14 +608,14 @@
       "added_at": "2026-02-05T19:39:25.396355",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T19:43:12.468806",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:57.234353",
       "failures": 0
     },
     {
       "id": 690501124414,
       "title": "Homemade Fruit Leather Zero Added Sugar: Healthy S",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -611,14 +623,14 @@
       "added_at": "2026-02-05T19:39:25.396357",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T21:13:31.179501",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:10:59.007883",
       "failures": 0
     },
     {
       "id": 690501091646,
       "title": "Preserved Lemons Moroccan Salt-Cured Techniques: C",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -626,14 +638,14 @@
       "added_at": "2026-02-05T19:39:25.396358",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-08T22:44:02.191400",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:00.841932",
       "failures": 0
     },
     {
       "id": 690501058878,
       "title": "Beeswax Wraps Eco-Friendly Food Wraps: How to Make",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -641,14 +653,14 @@
       "added_at": "2026-02-05T19:39:25.396360",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T00:14:34.490040",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:02.850950",
       "failures": 0
     },
     {
       "id": 690500305214,
       "title": "Composting in Small Spaces: A Practical Beginner's",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -656,14 +668,14 @@
       "added_at": "2026-02-05T19:39:25.396362",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T01:10:59.562661",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:04.206257",
       "failures": 0
     },
     {
       "id": 690499584318,
       "title": "Indoor Herb Garden Year-Round: Grow Fresh Herbs Wi",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -671,14 +683,14 @@
       "added_at": "2026-02-05T19:39:25.396364",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T02:04:44.561183",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:06.005735",
       "failures": 0
     },
     {
       "id": 690499551550,
       "title": "Indoor Herb Garden Year-Round: Herbs Indoors for B",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -686,14 +698,14 @@
       "added_at": "2026-02-05T19:39:25.396366",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T03:35:03.971001",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:08.249396",
       "failures": 0
     },
     {
       "id": 690499518782,
       "title": "Natural Fabric Dyes Food Scraps: Colorful Kitchen ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -701,14 +713,14 @@
       "added_at": "2026-02-05T19:39:25.396367",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T04:35:06.382447",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:09.924323",
       "failures": 0
     },
     {
       "id": 690498863422,
       "title": "Creative Pickling Beyond Cucumbers: Flavorful Brin",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -716,14 +728,14 @@
       "added_at": "2026-02-05T19:39:25.396369",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-09T05:14:09.256518",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:11.532153",
       "failures": 0
     },
     {
       "id": 690498765118,
       "title": "Tofu and Tempeh Homemade Guide: Easy Fermented Pro",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT",
         "BROKEN_IMAGES"
@@ -732,14 +744,14 @@
       "added_at": "2026-02-05T19:39:25.396372",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-09T05:35:44.426501",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:12.486353",
       "failures": 0
     },
     {
       "id": 690498699582,
       "title": "Lasagna Garden No-Dig Bed: Step-by-Step Soil Layer",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT",
         "BROKEN_IMAGES"
@@ -748,14 +760,14 @@
       "added_at": "2026-02-05T19:39:25.396374",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T06:13:59.340187",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:15.365421",
       "failures": 0
     },
     {
       "id": 690498634046,
       "title": "Herbal Vinegars How to Make: Flavorful Infusions a",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -763,14 +775,14 @@
       "added_at": "2026-02-05T19:39:25.396376",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T07:28:20.395976",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:16.933971",
       "failures": 0
     },
     {
       "id": 690498568510,
       "title": "Zero-Waste Gift Wrapping: Simple Ideas for Reused ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -778,14 +790,14 @@
       "added_at": "2026-02-05T19:39:25.396379",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T08:58:54.631302",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:18.202563",
       "failures": 0
     },
     {
       "id": 690498404670,
       "title": "Lip Balm Recipe with Beeswax: Simple DIY Natural C",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -793,14 +805,14 @@
       "added_at": "2026-02-05T19:39:25.396384",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-09T10:30:33.294007",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:20.218396",
       "failures": 0
     },
     {
       "id": 690498339134,
       "title": "Fermented Beverages Kombucha and Kefir Guide: Begi",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -808,14 +820,14 @@
       "added_at": "2026-02-05T19:39:25.396385",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-09T10:43:33.835649",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:22.124807",
       "failures": 0
     },
     {
       "id": 690498273598,
       "title": "Natural Sunscreen After-Sun Care: DIY Soothing Sum",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -823,14 +835,14 @@
       "added_at": "2026-02-05T19:39:25.396387",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T11:52:20.436337",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:23.842874",
       "failures": 0
     },
     {
       "id": 690498208062,
       "title": "Backyard Flock Planner: Starting a Small Flock at ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -838,14 +850,14 @@
       "added_at": "2026-02-05T19:39:25.396389",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T13:22:54.933711",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:25.572830",
       "failures": 0
     },
     {
       "id": 690498142526,
       "title": "Natural Cleaning Products Vinegar Recipes: Baking ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -853,14 +865,14 @@
       "added_at": "2026-02-05T19:39:25.396390",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T14:44:17.802849",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:27.418531",
       "failures": 0
     },
     {
       "id": 690498076990,
       "title": "Homemade Jams and Jellies Beginner: Fruit Preservi",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -868,14 +880,14 @@
       "added_at": "2026-02-05T19:39:25.396393",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-09T16:00:15.083280",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:28.808424",
       "failures": 0
     },
     {
       "id": 690498011454,
       "title": "Foraging Edible Plants Safely: Beginner Rules and ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -883,14 +895,14 @@
       "added_at": "2026-02-05T19:39:25.396394",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-09T16:11:17.168354",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:29.686968",
       "failures": 0
     },
     {
       "id": 690497945918,
       "title": "Meal Planning Less Food Waste: Simple Weekly Strat",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -898,14 +910,14 @@
       "added_at": "2026-02-05T19:39:25.396396",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-09T16:21:59.181330",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:32.202561",
       "failures": 0
     },
     {
       "id": 690497880382,
       "title": "Making Natural Candles at Home: Simple Wax and Wic",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -913,14 +925,14 @@
       "added_at": "2026-02-05T19:39:25.396398",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T17:32:57.166873",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:34.508076",
       "failures": 0
     },
     {
       "id": 690497814846,
       "title": "Dehydrating Foods Beginners Preservation: Easy Dry",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -928,14 +940,14 @@
       "added_at": "2026-02-05T19:39:25.396400",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T19:03:59.837658",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:36.143169",
       "failures": 0
     },
     {
       "id": 690497749310,
       "title": "Zero-Waste Bathroom Essentials: Simple Plastic-Fre",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -943,14 +955,14 @@
       "added_at": "2026-02-05T19:39:25.396401",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T20:34:15.845676",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:37.151418",
       "failures": 0
     },
     {
       "id": 690497618238,
       "title": "Natural Remedies Common Ailments: Safe Herbs and U",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -958,14 +970,14 @@
       "added_at": "2026-02-05T19:39:25.396403",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T22:05:04.946027",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:38.597350",
       "failures": 0
     },
     {
       "id": 690497552702,
       "title": "Homemade Crackers and Flatbreads: Easy Crispy Baki",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT",
         "BROKEN_IMAGES"
@@ -974,14 +986,14 @@
       "added_at": "2026-02-05T19:39:25.396405",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-09T23:17:32.365609",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:40.460639",
       "failures": 0
     },
     {
       "id": 690497487166,
       "title": "Pollinator Friendly Garden Practical Guide: Flower",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -989,8 +1001,8 @@
       "added_at": "2026-02-05T19:39:25.396408",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T00:48:16.700445",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:41.653935",
       "failures": 0
     },
     {
@@ -1026,7 +1038,7 @@
     {
       "id": 690497192254,
       "title": "Rainwater Harvesting Basics: Garden Water Storage ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1034,14 +1046,14 @@
       "added_at": "2026-02-05T19:39:25.396414",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T03:35:19.002425",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:46.918989",
       "failures": 0
     },
     {
       "id": 690497061182,
       "title": "Natural Pest Control for Gardens: Organic Methods ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1049,14 +1061,14 @@
       "added_at": "2026-02-05T19:39:25.396419",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T04:34:18.137162",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:48.808314",
       "failures": 0
     },
     {
       "id": 690496995646,
       "title": "Homemade Nut and Seed Butters: Healthy Spreads Gui",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1064,14 +1076,14 @@
       "added_at": "2026-02-05T19:39:25.396421",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T04:47:53.822443",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:50.496560",
       "failures": 0
     },
     {
       "id": 690496930110,
       "title": "Growing Microgreens on Your Windowsill: Fresh Nutr",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1079,14 +1091,14 @@
       "added_at": "2026-02-05T19:39:25.396423",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T05:28:56.205847",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:52.878565",
       "failures": 0
     },
     {
       "id": 690496864574,
       "title": "DIY Herbal Salves and Balms: Natural Skin Care fro",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1094,14 +1106,14 @@
       "added_at": "2026-02-05T19:39:25.396424",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T06:16:45.359405",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:54.697874",
       "failures": 0
     },
     {
       "id": 690496667966,
       "title": "Upcycled Glass Jars Creative Storage Solutions: Tr",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1109,14 +1121,14 @@
       "added_at": "2026-02-05T19:39:25.396426",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T07:34:32.420230",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:56.683480",
       "failures": 0
     },
     {
       "id": 690496471358,
       "title": "Homemade Fruit Leather Zero Added Sugar: Easy Home",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1124,8 +1136,8 @@
       "added_at": "2026-02-05T19:39:25.396430",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T07:58:47.869615",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:11:57.964902",
       "failures": 0
     },
     {
@@ -1146,7 +1158,7 @@
     {
       "id": 690496307518,
       "title": "Composting in Small Spaces: Apartment-Friendly Met",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1154,14 +1166,14 @@
       "added_at": "2026-02-05T19:39:25.396433",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T08:53:11.365880",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:00.275976",
       "failures": 0
     },
     {
       "id": 690496176446,
       "title": "Natural Fabric Dyes Food Scraps: Transform Kitchen",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1169,14 +1181,14 @@
       "added_at": "2026-02-05T19:39:25.396437",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T09:27:45.789198",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:01.744782",
       "failures": 0
     },
     {
       "id": 690495881534,
       "title": "Vegetable Broth Zero-Waste Recipe: Flavorful Scrap",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1184,14 +1196,14 @@
       "added_at": "2026-02-05T19:39:25.396438",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T10:58:27.474810",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:02.454055",
       "failures": 0
     },
     {
       "id": 690495815998,
       "title": "Lacto-Fermented Hot Sauce Recipe Probiotic: Ultima",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1199,8 +1211,8 @@
       "added_at": "2026-02-05T19:39:25.396440",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T11:52:22.795649",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:04.133856",
       "failures": 0
     },
     {
@@ -1236,7 +1248,7 @@
     {
       "id": 690367758654,
       "title": "Fruit Scrap Vinegar: How to Make and Use",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1244,14 +1256,14 @@
       "added_at": "2026-02-05T19:39:25.396450",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T14:25:37.749202",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:08.674990",
       "failures": 0
     },
     {
       "id": 690331582782,
       "title": "Tire Garden Repurpose Old Tires: Home and Garden P",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1259,8 +1271,8 @@
       "added_at": "2026-02-05T19:39:25.396455",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-10T15:21:35.806257",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:09.678539",
       "failures": 0
     },
     {
@@ -1296,7 +1308,7 @@
     {
       "id": 690329977150,
       "title": "Halloween Bedroom Decor: 22 Cozy Spooky Ideas for ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1304,14 +1316,14 @@
       "added_at": "2026-02-05T19:39:25.396462",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T16:54:50.380929",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:13.620521",
       "failures": 0
     },
     {
       "id": 690329813310,
       "title": "Yarn Wall Hangings: DIY Ideas and Tips for Bedroom",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1319,14 +1331,14 @@
       "added_at": "2026-02-05T19:39:25.396463",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-10T18:25:38.825341",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:14.601555",
       "failures": 0
     },
     {
       "id": 690329747774,
       "title": "DIY Headboard Ideas: Easy Step-by-Step for Bedroom",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "GENERIC_CONTENT"
       ],
@@ -1334,8 +1346,8 @@
       "added_at": "2026-02-05T19:39:25.396466",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T19:56:23.116733",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:15.959797",
       "failures": 0
     },
     {
@@ -1370,7 +1382,7 @@
     {
       "id": 690328731966,
       "title": "Upcycled Birdbath Ideas: 17 Projects for Any Garde",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1378,14 +1390,14 @@
       "added_at": "2026-02-05T19:39:25.396471",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-10T22:33:49.930033",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:19.298019",
       "failures": 0
     },
     {
       "id": 690326798654,
       "title": "22 Tiny Patio Ideas",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1393,8 +1405,8 @@
       "added_at": "2026-02-05T19:39:25.396472",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-11T00:04:36.051933",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:20.532436",
       "failures": 0
     },
     {
@@ -1475,7 +1487,7 @@
     {
       "id": 690283151678,
       "title": "Dallisgrass Control: Slope Seeding with Coir Mats ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1483,14 +1495,14 @@
       "added_at": "2026-02-05T19:39:25.396489",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-11T09:07:44.314708",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:32.339916",
       "failures": 0
     },
     {
       "id": 690283118910,
       "title": "Daisy Fleabane in Pots: The Right Soil Mix for Thr",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1498,14 +1510,14 @@
       "added_at": "2026-02-05T19:39:25.396491",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-11T10:38:10.398431",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:33.057358",
       "failures": 0
     },
     {
       "id": 690282889534,
       "title": "Preventing Damping-Off in Sedum Seedlings: The",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1513,14 +1525,14 @@
       "added_at": "2026-02-05T19:39:25.396494",
       "last_attempt": null,
       "notes": "Cleared after 5 failed attempts",
-      "last_error": null,
-      "updated_at": "2026-02-11T12:02:13.062047",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:34.687313",
       "failures": 0
     },
     {
       "id": 690282758462,
       "title": "Jicama Intercropping: Combining Vines with Leafy G",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1528,14 +1540,14 @@
       "added_at": "2026-02-05T19:39:25.396498",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-11T13:16:44.752061",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:36.712022",
       "failures": 0
     },
     {
       "id": 690282692926,
       "title": "Staggered Sowing of Glutinous Corn: A Continuous H",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1543,8 +1555,8 @@
       "added_at": "2026-02-05T19:39:25.396501",
       "last_attempt": null,
       "notes": "Validated by cleanup script",
-      "last_error": null,
-      "updated_at": "2026-02-11T14:47:21.130673",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:38.535982",
       "failures": 0
     },
     {
@@ -1595,7 +1607,7 @@
     {
       "id": 690216599870,
       "title": "Drip Irrigation on a Budget: One Line for Five Con",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1603,14 +1615,14 @@
       "added_at": "2026-02-05T19:39:25.396511",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-11T20:14:05.182413",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:43.931777",
       "failures": 0
     },
     {
       "id": 690216567102,
       "title": "Self-Watering Planters: Wick Height and Reservoir ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1618,14 +1630,14 @@
       "added_at": "2026-02-05T19:39:25.396513",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-11T20:28:04.935628",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:45.483428",
       "failures": 0
     },
     {
       "id": 690216534334,
       "title": "Pollinator Strip Plan: Gomphrena and Fleabane Alon",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1633,14 +1645,14 @@
       "added_at": "2026-02-05T19:39:25.396515",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-11T20:43:04.964349",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:46.873931",
       "failures": 0
     },
     {
       "id": 690216468798,
       "title": "LED Grow Lights for Seedlings: Spectrum, Distance ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1648,14 +1660,14 @@
       "added_at": "2026-02-05T19:39:25.396518",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-11T21:32:11.046854",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:48.868708",
       "failures": 0
     },
     {
       "id": 690216436030,
       "title": "Reusing Potting Mix the Smart Way: Pasteurize, Ref",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1663,14 +1675,14 @@
       "added_at": "2026-02-05T19:39:25.396520",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-11T21:46:29.647655",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:49.848956",
       "failures": 0
     },
     {
       "id": 690216403262,
       "title": "Rainwater Harvesting for Pots with Micro Barrels a",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1678,14 +1690,14 @@
       "added_at": "2026-02-05T19:39:25.396522",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-11T22:25:10.011855",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:50.822814",
       "failures": 0
     },
     {
       "id": 690216337726,
       "title": "Bok Choy Stir-Fry Kit: From Seed Selection to Plat",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1693,14 +1705,14 @@
       "added_at": "2026-02-05T19:39:25.396526",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-11T22:45:00.589901",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:51.595459",
       "failures": 0
     },
     {
       "id": 690211815742,
       "title": "30-Day Balcony Challenge: Plant, Brew, and Cook Wi",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1708,14 +1720,14 @@
       "added_at": "2026-02-05T19:39:25.396528",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-11T23:53:52.368882",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:53.420394",
       "failures": 0
     },
     {
       "id": 690211782974,
       "title": "Protein Powders in Humid Climates: Storage Hacks a",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1723,14 +1735,14 @@
       "added_at": "2026-02-05T19:39:25.396530",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T01:24:32.117278",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:55.445438",
       "failures": 0
     },
     {
       "id": 690211619134,
       "title": "Honey in Tea: Ratios That Enhance, Not Overpower",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1738,14 +1750,14 @@
       "added_at": "2026-02-05T19:39:25.396531",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T03:34:48.251489",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:56.685289",
       "failures": 0
     },
     {
       "id": 690211586366,
       "title": "Honey Buying Guide: Floral Sources, Crystallizatio",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1753,14 +1765,14 @@
       "added_at": "2026-02-05T19:39:25.396533",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T04:33:51.361070",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:12:59.292065",
       "failures": 0
     },
     {
       "id": 690211553598,
       "title": "Blackstrap Molasses in Savory Dishes: Glazes, Bean",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1768,14 +1780,14 @@
       "added_at": "2026-02-05T19:39:25.396535",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T05:13:44.585316",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:00.603119",
       "failures": 0
     },
     {
       "id": 690211520830,
       "title": "Blackstrap Molasses vs Honey: When to Use Each in ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1783,14 +1795,14 @@
       "added_at": "2026-02-05T19:39:25.396536",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T05:26:58.730859",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:02.609834",
       "failures": 0
     },
     {
       "id": 690211488062,
       "title": "Tea Safety Basics: Who Should Avoid Which Ingredie",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1798,14 +1810,14 @@
       "added_at": "2026-02-05T19:39:25.396538",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T05:40:12.589184",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:04.015146",
       "failures": 0
     },
     {
       "id": 690211291454,
       "title": "Syzygium nervosum (Nu Voi) Tea: Floralâ€“Spice",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1813,14 +1825,14 @@
       "added_at": "2026-02-05T19:39:25.396545",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T06:56:34.033821",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:05.318867",
       "failures": 0
     },
     {
       "id": 690211193150,
       "title": "Goji Berry Tea: Rehydration Timing and Texture in ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1828,14 +1840,14 @@
       "added_at": "2026-02-05T19:39:25.396547",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T08:27:12.939819",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:06.998878",
       "failures": 0
     },
     {
       "id": 690211160382,
       "title": "Pandan Leaf Tea: Simmer vs Steep to Unlock Fragran",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1843,14 +1855,14 @@
       "added_at": "2026-02-05T19:39:25.396548",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T09:57:48.502164",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:08.650132",
       "failures": 0
     },
     {
       "id": 690211127614,
       "title": "Lemongrass Tea: Hot Brew vs Cold Brew for a Bright",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -1858,8 +1870,8 @@
       "added_at": "2026-02-05T19:39:25.396550",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-12T11:28:35.014562",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:09.776039",
       "failures": 0
     },
     {
@@ -2075,7 +2087,7 @@
     {
       "id": 690210373950,
       "title": "DIY Soil Mix: Aeration Amendments for Pots vs Rais",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2083,14 +2095,14 @@
       "added_at": "2026-02-05T19:39:25.396608",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T02:04:53.601703",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:23.060719",
       "failures": 0
     },
     {
       "id": 690210177342,
       "title": "Shade Cloth 30â€“50%: Keeping Bok Choy and Mustard f",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2098,14 +2110,14 @@
       "added_at": "2026-02-05T19:39:25.396613",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T03:30:15.134030",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:24.099048",
       "failures": 0
     },
     {
       "id": 690210111806,
       "title": "Square-Foot Plans: Designing a 1 mÂ² Garden with Mu",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2113,14 +2125,14 @@
       "added_at": "2026-02-05T19:39:25.396616",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T04:47:33.392425",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:26.349038",
       "failures": 0
     },
     {
       "id": 690210079038,
       "title": "Green Amaranth Seed-Saving: Drying, Winnowing, and",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2128,14 +2140,14 @@
       "added_at": "2026-02-05T19:39:25.396618",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T05:19:52.481440",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:27.464336",
       "failures": 0
     },
     {
       "id": 690210013502,
       "title": "Carelessweed (Green Amaranth): Fast Stirâ€‘Fry Green",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2143,14 +2155,14 @@
       "added_at": "2026-02-05T19:39:25.396619",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T05:44:10.754688",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:28.498865",
       "failures": 0
     },
     {
       "id": 690209915198,
       "title": "Great Mullein from Seed: Stratify, Surface-Sow, an",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2158,14 +2170,14 @@
       "added_at": "2026-02-05T19:39:25.396625",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T06:53:40.562079",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:29.526199",
       "failures": 0
     },
     {
       "id": 690209882430,
       "title": "Forget-Me-Not Self-Seeding: Keep the Dreamy Drift",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2173,14 +2185,14 @@
       "added_at": "2026-02-05T19:39:25.396628",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T08:24:17.872395",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:30.867473",
       "failures": 0
     },
     {
       "id": 690209849662,
       "title": "Forget-Me-Not Bedding Design: Color Pairings and S",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2188,14 +2200,14 @@
       "added_at": "2026-02-05T19:39:25.396629",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T09:55:00.973258",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:32.801004",
       "failures": 0
     },
     {
       "id": 690200740158,
       "title": "Saluyot/Molokhia from Seed: Heat-Loving Greens Mad",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2203,8 +2215,8 @@
       "added_at": "2026-02-05T19:39:25.396638",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T11:37:10.302946",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:34.124489",
       "failures": 0
     },
     {
@@ -2225,7 +2237,7 @@
     {
       "id": 690200674622,
       "title": "Magnolia 'Pinkie' from Seed: Germination Timeline ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2233,14 +2245,14 @@
       "added_at": "2026-02-05T19:39:25.396641",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T12:55:00.230555",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:37.047905",
       "failures": 0
     },
     {
       "id": 690200641854,
       "title": "Red Maple from Seed: Cold Stratification, Mold",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2248,14 +2260,14 @@
       "added_at": "2026-02-05T19:39:25.396644",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T14:25:40.704637",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:37.760242",
       "failures": 0
     },
     {
       "id": 690200576318,
       "title": "Daisy Fleabane from Seed: Low-Input Wildflower Pot",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2263,14 +2275,14 @@
       "added_at": "2026-02-05T19:39:25.396647",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T15:44:18.926587",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:38.447568",
       "failures": 0
     },
     {
       "id": 690200346942,
       "title": "Globe Amaranth from Seed: Pinching Techniques for ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2278,14 +2290,14 @@
       "added_at": "2026-02-05T19:39:25.396651",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T16:21:54.754333",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:40.140630",
       "failures": 0
     },
     {
       "id": 690200314174,
       "title": "Sedum 'Autumn Joy' from Seed: Drought-Tolerant Col",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2293,14 +2305,14 @@
       "added_at": "2026-02-05T19:39:25.396652",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T17:19:41.055241",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:41.356541",
       "failures": 0
     },
     {
       "id": 690199724350,
       "title": "Jicama from Seed: Trellis Setup, Harvest Window & ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2308,14 +2320,14 @@
       "added_at": "2026-02-05T19:39:25.396654",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T17:44:02.957400",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:43.496847",
       "failures": 0
     },
     {
       "id": 690199658814,
       "title": "Waxy Glutinous Corn: Block Planting & Pollination ",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2323,14 +2335,14 @@
       "added_at": "2026-02-05T19:39:25.396655",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T18:55:01.602468",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:44.543599",
       "failures": 0
     },
     {
       "id": 690199593278,
       "title": "Bok Choy Seeds: Heat-Tolerant Varieties & Successi",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2338,8 +2350,8 @@
       "added_at": "2026-02-05T19:39:25.396657",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T20:25:50.103720",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:45.763988",
       "failures": 0
     },
     {
@@ -2360,7 +2372,7 @@
     {
       "id": 689561993534,
       "title": "The Beautiful Appeal of Taiwan Oolong Tea: Health,",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2368,14 +2380,14 @@
       "added_at": "2026-02-05T19:39:25.396673",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-13T23:57:18.686967",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:48.493365",
       "failures": 0
     },
     {
       "id": 689560813886,
       "title": "The Allure of Returning to Nature: Embracing Susta",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2383,14 +2395,14 @@
       "added_at": "2026-02-05T19:39:25.396675",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T01:27:53.851642",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:49.846470",
       "failures": 0
     },
     {
       "id": 689560027454,
       "title": "The Allure of Poisonous Berries: Understanding The",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2398,8 +2410,8 @@
       "added_at": "2026-02-05T19:39:25.396677",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T03:28:24.247166",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:51.164816",
       "failures": 0
     },
     {
@@ -2420,7 +2432,7 @@
     {
       "id": 689558618430,
       "title": "The Enthusiastic Universe of Matcha Tea: A Cherish",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2428,14 +2440,14 @@
       "added_at": "2026-02-05T19:39:25.396680",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T05:47:58.814117",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:53.446695",
       "failures": 0
     },
     {
       "id": 689536270654,
       "title": "The Allure of Homesteading: Build Self-Sufficiency",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2443,8 +2455,8 @@
       "added_at": "2026-02-05T19:39:25.396682",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T06:15:09.980130",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:54.587224",
       "failures": 0
     },
     {
@@ -2465,7 +2477,7 @@
     {
       "id": 682731569470,
       "title": "The Impact of Carbon Footprint in the Horticultura",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2473,14 +2485,14 @@
       "added_at": "2026-02-05T19:39:25.396688",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T08:15:08.800964",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:56.925078",
       "failures": 0
     },
     {
       "id": 682731536702,
       "title": "The Role of Permaculture in Sustainable Agricultur",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2488,14 +2500,14 @@
       "added_at": "2026-02-05T19:39:25.396690",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T09:45:50.192043",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:57.893114",
       "failures": 0
     },
     {
       "id": 682731503934,
       "title": "The Threat to Pollinators and Ecosystems",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2503,8 +2515,8 @@
       "added_at": "2026-02-05T19:39:25.396691",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T10:42:42.394765",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:13:58.888598",
       "failures": 0
     },
     {
@@ -2540,7 +2552,7 @@
     {
       "id": 682730586430,
       "title": "The Concept of Holistic Permaculture",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2548,14 +2560,14 @@
       "added_at": "2026-02-05T19:39:25.396701",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T14:25:07.372601",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:14:00.969145",
       "failures": 0
     },
     {
       "id": 682730553662,
       "title": "Permaculture Principles for Sustainable Gardens",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
@@ -2563,8 +2575,8 @@
       "added_at": "2026-02-05T19:39:25.396703",
       "last_attempt": null,
       "notes": "Added by full scan",
-      "last_error": null,
-      "updated_at": "2026-02-14T14:53:26.602935",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:14:01.693769",
       "failures": 0
     },
     {
@@ -2612,14 +2624,16 @@
     {
       "id": 682730389822,
       "title": "The Role of Renewable Energy in Regenerative Desig",
-      "status": "pending",
+      "status": "done",
       "issues": [
         "BROKEN_IMAGES"
       ],
       "attempts": 0,
       "added_at": "2026-02-05T19:39:25.396709",
       "last_attempt": null,
-      "notes": "Added by full scan"
+      "notes": "Added by full scan",
+      "last_error": "ALREADY_OK_BATCH",
+      "updated_at": "2026-02-15T03:14:04.460755"
     },
     {
       "id": 682730291518,
