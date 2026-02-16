@@ -65,6 +65,7 @@ jobs:
             GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-sa.json
             GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
+            GEMINI_IMAGE_GEN_MODELS: "gemini-2.0-flash-exp-image-generation,gemini-2.5-flash-image,gemini-3-pro-image-preview"
             REQUIRE_PINTEREST_IMAGE: "0"
             FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '2' }}
             FIX_DELAY_SECONDS: "10"

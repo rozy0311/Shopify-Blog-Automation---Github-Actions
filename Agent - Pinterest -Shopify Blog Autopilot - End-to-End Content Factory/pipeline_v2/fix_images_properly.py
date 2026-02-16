@@ -20,6 +20,7 @@ import re
 import json
 import time
 import os
+import base64
 from pathlib import Path
 from urllib.parse import quote
 
@@ -238,6 +239,113 @@ def is_vision_safe(result) -> bool:
     return True
 
 
+# ---------------------------------------------------------------------------
+# Gemini Image Generation — fallback when Pollinations fails
+# Tries multiple image-capable models × multiple API keys
+# ---------------------------------------------------------------------------
+GEMINI_IMAGE_GEN_MODELS_DEFAULT = [
+    "gemini-2.0-flash-exp-image-generation",
+    "gemini-2.5-flash-image",
+    "gemini-3-pro-image-preview",
+]
+
+
+def _get_gemini_image_keys() -> list:
+    """Return de-duplicated list of Gemini API keys for image generation."""
+    keys = []
+    k1 = os.environ.get("GEMINI_API_KEY", "").strip()
+    if k1:
+        keys.append(k1)
+    k2 = os.environ.get("FALLBACK_GEMINI_API_KEY", "").strip()
+    if k2 and k2 != k1:
+        keys.append(k2)
+    return keys
+
+
+def generate_gemini_image(prompt: str) -> bytes | None:
+    """Generate image via Gemini generateContent (IMAGE modality).
+
+    Iterates models × keys.  Returns raw image bytes or None.
+    """
+    keys = _get_gemini_image_keys()
+    if not keys:
+        print("    ⚠️ No Gemini API keys for image fallback")
+        return None
+
+    # Allow env override for model list
+    env_models = os.environ.get("GEMINI_IMAGE_GEN_MODELS", "").strip()
+    models = (
+        [m.strip() for m in env_models.split(",") if m.strip()]
+        if env_models
+        else GEMINI_IMAGE_GEN_MODELS_DEFAULT
+    )
+
+    # Enhance prompt for Gemini (understands NL instructions better than Flux)
+    enhanced = (
+        f"{prompt}. "
+        "IMPORTANT: absolutely no people, no hands, no fingers, no faces, "
+        "no human body parts. Pure still-life / product / landscape scene."
+    )
+
+    for model in models:
+        for ki, key in enumerate(keys, 1):
+            try:
+                url = (
+                    f"https://generativelanguage.googleapis.com/v1beta/"
+                    f"models/{model}:generateContent?key={key}"
+                )
+                payload = {
+                    "contents": [{"parts": [{"text": enhanced}]}],
+                    "generationConfig": {
+                        "responseModalities": ["IMAGE", "TEXT"],
+                        "temperature": 0.7,
+                    },
+                }
+                print(f"    🔄 Gemini fallback: {model} (key{ki})...")
+                resp = requests.post(url, json=payload, timeout=120)
+
+                if resp.status_code == 200:
+                    data = resp.json()
+                    for cand in data.get("candidates", []):
+                        for part in cand.get("content", {}).get("parts", []):
+                            if "inlineData" in part:
+                                img_bytes = base64.b64decode(
+                                    part["inlineData"].get("data", "")
+                                )
+                                if len(img_bytes) > 10_000:
+                                    print(
+                                        f"    ✅ Gemini image OK: "
+                                        f"{len(img_bytes) // 1024}KB ({model})"
+                                    )
+                                    return img_bytes
+                                print(
+                                    f"    ⚠️ Gemini image too small: "
+                                    f"{len(img_bytes)} bytes"
+                                )
+                    print(f"    ⚠️ Gemini 200 but no image data")
+
+                elif resp.status_code == 429:
+                    print(
+                        f"    ⚠️ Gemini 429 rate-limited ({model} key{ki}), "
+                        "trying next..."
+                    )
+                    time.sleep(2)
+                    continue
+
+                else:
+                    try:
+                        msg = resp.json().get("error", {}).get("message", "")[:120]
+                    except Exception:
+                        msg = resp.text[:120]
+                    print(f"    ⚠️ Gemini {resp.status_code}: {msg}")
+
+            except Exception as exc:
+                print(f"    ⚠️ Gemini error ({model} key{ki}): {exc}")
+
+    print("    ❌ All Gemini image models/keys exhausted")
+    return None
+
+
 def generate_valid_pollinations_image(
     prompt: str,
     width: int,
@@ -245,6 +353,8 @@ def generate_valid_pollinations_image(
     seed_base: int,
     max_attempts: int = VISION_MAX_ATTEMPTS,
 ):
+    """Try Pollinations first, then fall back to Gemini image generation."""
+    # --- Primary: Pollinations (Flux) ---
     for attempt in range(max_attempts):
         seed = seed_base + attempt
         poll_url = get_pollinations_url(prompt, width, height, seed=seed)
@@ -255,6 +365,13 @@ def generate_valid_pollinations_image(
         img_bytes = download_image(poll_url)
         if img_bytes:
             return img_bytes, poll_url, vision_result
+
+    # --- Fallback: Gemini image generation (2 keys × 3 models) ---
+    print("    🔄 Pollinations failed → trying Gemini image generation...")
+    gemini_bytes = generate_gemini_image(prompt)
+    if gemini_bytes:
+        return gemini_bytes, None, None
+
     return None, None, None
 
 
