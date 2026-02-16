@@ -81,7 +81,7 @@ jobs:
             SHOPIFY_BLOG_ID: ${{ secrets.SHOPIFY_BLOG_ID }}
             SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
             POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
-            POLLINATIONS_NEGATIVE: "deformed hands, extra fingers, mutated hands, poorly drawn hands, bad anatomy, extra limbs, fused fingers, too many fingers, missing fingers, deformed, blurry, bad proportions, text, watermark, logo, signature"
+            POLLINATIONS_NEGATIVE: "people, person, human, hands, fingers, face, portrait, selfie, deformed hands, extra fingers, mutated hands, poorly drawn hands, bad anatomy, extra limbs, fused fingers, too many fingers, missing fingers, deformed, disfigured, blurry, bad proportions, ugly, duplicate, morbid, mutilated, text, watermark, logo, signature, words, letters"
             USE_LEXICA: "0"
             LEXICA_ONLY_SD15: "1"
             LEXICA_RESULT_LIMIT: "30"

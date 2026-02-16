@@ -87,12 +87,14 @@ def get_pinterest_image_url(pin_id: str) -> str:
     return f"https://i.pinimg.com/736x/{pin_id[:2]}/{pin_id[2:4]}/{pin_id[4:6]}/{pin_id}.jpg"
 
 
-# Default negative prompt to avoid common AI artifacts (hands, fingers, deformities)
+# Default negative prompt to avoid common AI artifacts (hands, fingers, people)
 DEFAULT_NEGATIVE = (
+    "people, person, human, hands, fingers, face, portrait, selfie, "
     "deformed hands, extra fingers, mutated hands, poorly drawn hands, "
     "bad anatomy, extra limbs, fused fingers, too many fingers, "
-    "missing fingers, deformed, blurry, bad proportions, "
-    "text, watermark, logo, signature"
+    "missing fingers, deformed, disfigured, blurry, bad proportions, "
+    "ugly, duplicate, morbid, mutilated, "
+    "text, watermark, logo, signature, words, letters"
 )
 
 
@@ -584,8 +586,9 @@ def generate_topic_specific_prompts(title: str) -> dict:
     # Topic-specific keywords for better image matching
     topic_keywords = main_subject.lower()
 
-    # Positive constraints to reduce hands/people without explicit bans
-    safety_suffix = "no people visible, no hands, no fingers, still life composition"
+    # Positive-only constraints — describe WHAT we want, not what to avoid
+    # (diffusion models treat "no X" as attention to X → generates X)
+    safety_suffix = "objects only, still life composition, product photography, uninhabited scene, empty of people"
 
     # AUTO-SELECT best scene based on topic keywords
     outdoor_keywords = [
