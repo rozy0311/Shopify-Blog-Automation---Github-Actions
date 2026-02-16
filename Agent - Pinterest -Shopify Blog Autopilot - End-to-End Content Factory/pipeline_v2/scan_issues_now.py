@@ -46,13 +46,34 @@ headers = {"X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json"}
 all_articles = []
 all_issues = []
 
-# Paginate through all articles
+# Paginate through ALL articles (Shopify max 250 per page)
+articles = []
 url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles.json?limit=250&published_status=published"
-response = requests.get(url, headers=headers)
+page = 0
+while url:
+    page += 1
+    response = requests.get(url, headers=headers, timeout=30)
+    if response.status_code != 200:
+        print(f"Error on page {page}: {response.status_code}")
+        print(response.text[:500])
+        break
+    batch = response.json().get("articles", [])
+    articles.extend(batch)
+    print(f"Page {page}: fetched {len(batch)} articles (total: {len(articles)})")
+    # Shopify Link header pagination
+    link_header = response.headers.get("Link", "")
+    url = None
+    if 'rel="next"' in link_header:
+        for part in link_header.split(","):
+            if 'rel="next"' in part:
+                url = part.split("<")[1].split(">")[0]
+                break
+    import time
 
-if response.status_code == 200:
-    articles = response.json().get("articles", [])
-    print(f"Found {len(articles)} published articles")
+    time.sleep(0.5)  # Rate limit courtesy
+
+if articles:
+    print(f"\nFound {len(articles)} published articles total")
 
     for art in articles:
         art_id = art.get("id")
@@ -258,11 +279,11 @@ if response.status_code == 200:
     # Warning-only issues are logged but NOT queued for auto-fix.
     # This prevents the pipeline from re-processing already-OK blogs.
     HARD_FAIL_TAGS = {
-        "NO_META",          # Missing summary_html → structural fail
-        "NO_FEATURED",      # Missing featured image → image fail
-        "BROKEN_TEXT",      # Corrupted content → content fail
-        "SCHEMA_IN_BODY",   # JSON-LD in body → policy fail
-        "TITLE_REPEATS",    # Subtitle duplicates title → quality fail
+        "NO_META",  # Missing summary_html → structural fail
+        "NO_FEATURED",  # Missing featured image → image fail
+        "BROKEN_TEXT",  # Corrupted content → content fail
+        "SCHEMA_IN_BODY",  # JSON-LD in body → policy fail
+        "TITLE_REPEATS",  # Subtitle duplicates title → quality fail
     }
 
     def _has_hard_fail(issue_list: list[str]) -> bool:
@@ -281,7 +302,9 @@ if response.status_code == 200:
         return False
 
     hard_fail_articles = [item for item in all_issues if _has_hard_fail(item["issues"])]
-    warn_only_articles = [item for item in all_issues if not _has_hard_fail(item["issues"])]
+    warn_only_articles = [
+        item for item in all_issues if not _has_hard_fail(item["issues"])
+    ]
 
     print(f"\nTotal articles with issues: {len(all_issues)}")
     print(f"  HARD FAIL (will queue for fix): {len(hard_fail_articles)}")
@@ -290,7 +313,9 @@ if response.status_code == 200:
     print("\n--- ARTICLES NEEDING FIX (HARD FAIL) ---")
     for i, item in enumerate(hard_fail_articles[:30]):
         hf = [iss for iss in item["issues"] if _has_hard_fail([iss])]
-        print(f'{i+1}. ID:{item["id"]} | {item["title"]} | HARD:{hf} | ALL:{item["issues"]}')
+        print(
+            f'{i+1}. ID:{item["id"]} | {item["title"]} | HARD:{hf} | ALL:{item["issues"]}'
+        )
 
     if warn_only_articles:
         print(f"\n--- SKIPPED (WARNING ONLY, {len(warn_only_articles)} articles) ---")
@@ -306,7 +331,8 @@ if response.status_code == 200:
     # Save to file for processing — ONLY hard fail articles
     with open("articles_to_fix.json", "w", encoding="utf-8") as f:
         json.dump(hard_fail_articles, f, indent=2)
-    print(f"\nSaved {len(hard_fail_articles)} articles to articles_to_fix.json (HARD FAIL only)")
+    print(
+        f"\nSaved {len(hard_fail_articles)} articles to articles_to_fix.json (HARD FAIL only)"
+    )
 else:
-    print(f"Error: {response.status_code}")
-    print(response.text[:500])
+    print("No articles fetched — check API credentials and blog ID.")
