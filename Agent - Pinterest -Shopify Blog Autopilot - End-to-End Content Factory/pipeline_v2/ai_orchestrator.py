@@ -4982,8 +4982,20 @@ def main():
             queue.mark_manual_review(article_id, error_msg)
             new_status = "manual_review"
         else:
-            queue.mark_failed(article_id, error_msg)
-            new_status = "failed"
+            # Auto-escalate: if article has been attempted too many times, move to manual_review
+            MAX_AUTO_ESCALATE = 5
+            current_attempts = 0
+            for item in queue.payload.get("items", []):
+                if str(item.get("id")) == str(article_id):
+                    current_attempts = int(item.get("attempts", 0))
+                    break
+            if current_attempts >= MAX_AUTO_ESCALATE - 1:  # Will be incremented to MAX inside _update_status
+                queue.mark_manual_review(article_id, f"AUTO_ESCALATED_AFTER_{current_attempts + 1}_ATTEMPTS: {error_msg}")
+                new_status = "manual_review"
+                print(f"⚠️ Auto-escalated {article_id} to manual_review after {current_attempts + 1} attempts")
+            else:
+                queue.mark_failed(article_id, error_msg)
+                new_status = "failed"
         queue.save()
         print(f"✅ Queue item {article_id} -> {new_status} ({error_msg})")
 
