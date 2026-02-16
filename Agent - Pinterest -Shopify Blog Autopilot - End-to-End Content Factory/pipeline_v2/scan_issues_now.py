@@ -252,19 +252,61 @@ if response.status_code == 200:
         if issues:
             all_issues.append({"id": art_id, "title": title, "issues": issues})
 
+    # ── HARD FAIL filter ──────────────────────────────────────────────
+    # Only queue articles that have issues which would cause
+    # pre_publish_review.py to HARD FAIL (exit code 1).
+    # Warning-only issues are logged but NOT queued for auto-fix.
+    # This prevents the pipeline from re-processing already-OK blogs.
+    HARD_FAIL_TAGS = {
+        "NO_META",          # Missing summary_html → structural fail
+        "NO_FEATURED",      # Missing featured image → image fail
+        "BROKEN_TEXT",      # Corrupted content → content fail
+        "SCHEMA_IN_BODY",   # JSON-LD in body → policy fail
+        "TITLE_REPEATS",    # Subtitle duplicates title → quality fail
+    }
+
+    def _has_hard_fail(issue_list: list[str]) -> bool:
+        for issue in issue_list:
+            tag = issue.split(":")[0]
+            if tag in HARD_FAIL_TAGS:
+                return True
+            if tag == "WORD_COUNT":
+                wc = int(issue.split(":")[1])
+                if wc < 1800:  # Only LOW word count is HARD FAIL; >2500 is warning
+                    return True
+            if tag == "GENERIC":
+                count = int(issue.split(":")[1])
+                if count >= 3:  # Review only HARD FAILs at ≥3 generic phrases
+                    return True
+        return False
+
+    hard_fail_articles = [item for item in all_issues if _has_hard_fail(item["issues"])]
+    warn_only_articles = [item for item in all_issues if not _has_hard_fail(item["issues"])]
+
     print(f"\nTotal articles with issues: {len(all_issues)}")
-    print("\n--- ARTICLES NEEDING FIX ---")
-    for i, item in enumerate(all_issues[:30]):
-        print(f'{i+1}. ID:{item["id"]} | {item["title"]} | {item["issues"]}')
+    print(f"  HARD FAIL (will queue for fix): {len(hard_fail_articles)}")
+    print(f"  WARNING only (skip, review would pass): {len(warn_only_articles)}")
+
+    print("\n--- ARTICLES NEEDING FIX (HARD FAIL) ---")
+    for i, item in enumerate(hard_fail_articles[:30]):
+        hf = [iss for iss in item["issues"] if _has_hard_fail([iss])]
+        print(f'{i+1}. ID:{item["id"]} | {item["title"]} | HARD:{hf} | ALL:{item["issues"]}')
+
+    if warn_only_articles:
+        print(f"\n--- SKIPPED (WARNING ONLY, {len(warn_only_articles)} articles) ---")
+        for i, item in enumerate(warn_only_articles[:10]):
+            print(f'  {i+1}. ID:{item["id"]} | {item["title"]} | {item["issues"]}')
+        if len(warn_only_articles) > 10:
+            print(f"  ... and {len(warn_only_articles) - 10} more")
 
     if SCAN_LIMIT > 0:
-        all_issues = all_issues[:SCAN_LIMIT]
+        hard_fail_articles = hard_fail_articles[:SCAN_LIMIT]
         print(f"\nScan limit enabled: keeping first {SCAN_LIMIT} items")
 
-    # Save to file for processing
+    # Save to file for processing — ONLY hard fail articles
     with open("articles_to_fix.json", "w", encoding="utf-8") as f:
-        json.dump(all_issues, f, indent=2)
-    print(f"\nSaved {len(all_issues)} articles to articles_to_fix.json")
+        json.dump(hard_fail_articles, f, indent=2)
+    print(f"\nSaved {len(hard_fail_articles)} articles to articles_to_fix.json (HARD FAIL only)")
 else:
     print(f"Error: {response.status_code}")
     print(response.text[:500])
