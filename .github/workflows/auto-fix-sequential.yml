@@ -332,7 +332,7 @@ jobs:
                   }, ensure_ascii=False, indent=2), encoding='utf-8')
 
                   # Auto-escalate stuck articles (too many attempts → manual_review)
-                  MAX_ESCALATE_ATTEMPTS = 5
+                  MAX_ESCALATE_ATTEMPTS = 3
                   escalated = 0
                   for item in items:
                       if item.get('status') in ('failed', 'retrying', 'pending') and int(item.get('attempts', 0)) >= MAX_ESCALATE_ATTEMPTS:
@@ -355,7 +355,7 @@ jobs:
                   queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
                   BATCH_SKIP
 
-            - name: Fix up to 50 articles sequentially (no batch)
+            - name: Fix articles via queue-step (end-to-end)
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
                   set -uo pipefail
@@ -369,162 +369,29 @@ jobs:
                   fi
                   max=${FIX_MAX_ITEMS:-2}
                   delay=${FIX_DELAY_SECONDS:-10}
-                  processed_file=".processed_ids"
                   start_time=$(date +%s)
-                  time_budget=1800  # 30 min budget for fix loop (leaves ~15 min for commit + batch skip)
-                  : > "$processed_file"
+                  time_budget=1800  # 30 min budget (leaves ~15 min for commit + batch skip)
+
+                  # queue-step handles EVERYTHING end-to-end per article:
+                  #   structural repair → image fix → strip broken images →
+                  #   pre_publish_review → auto-fix → cleanup → publish → queue status
                   for i in $(seq 1 "$max"); do
-                      # Time budget check — stop early so commit step can run
                       elapsed=$(( $(date +%s) - start_time ))
                       if [ "$elapsed" -ge "$time_budget" ]; then
-                          echo "[TIME] Budget exhausted (${elapsed}s >= ${time_budget}s). Stopping to allow commit."
+                          echo "[TIME] Budget exhausted (${elapsed}s >= ${time_budget}s). Stopping."
                           break
                       fi
                       remaining_time=$(( time_budget - elapsed ))
                       echo "[TIME] ${elapsed}s elapsed, ${remaining_time}s remaining"
-                      article_id=$(python - <<'PY'
-                  import json
-                  from pathlib import Path
-
-                  queue_path = Path('anti_drift_queue.json')
-                  if not queue_path.exists():
-                      raise SystemExit('')
-
-                  data = json.loads(queue_path.read_text(encoding='utf-8'))
-                  items = data.get('items', [])
-                  MAX_PICK_ATTEMPTS = 5  # Stop re-processing after this many attempts
-                  priority = ['pending', 'retrying', 'failed']
-                  chosen = None
-                  for status in priority:
-                      for item in items:
-                          if item.get('status') == status:
-                              attempts = int(item.get('attempts', 0))
-                              if attempts >= MAX_PICK_ATTEMPTS:
-                                  continue  # Skip stuck articles
-                              chosen = item
-                              break
-                      if chosen:
-                          break
-
-                  print(chosen.get('id') if chosen else '')
-                  PY
-                      )
-
-                      if [ -z "$article_id" ]; then
-                          echo "No eligible items in queue."
-                          break
-                      fi
-
-                      if grep -Fxq "$article_id" "$processed_file" 2>/dev/null; then
-                          echo "Already processed $article_id in this run; skipping."
-                          python - <<PY
-                  import json
-                  from pathlib import Path
-                  article_id = "$article_id"
-                  queue_path = Path('anti_drift_queue.json')
-                  data = json.loads(queue_path.read_text(encoding='utf-8'))
-                  for item in data.get('items', []):
-                      if str(item.get('id')) == str(article_id):
-                          item['status'] = 'skipped'
-                          item['error'] = 'DUP_IN_RUN'
-                  queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
-                  PY
-                          continue
-                      fi
-                      echo "Processing $article_id ($i/$max)"
-                      echo "$article_id" >> "$processed_file"
-
+                      echo "=== queue-step $i/$max ==="
                       set +e
-                      timeout 300 python ai_orchestrator.py fix-ids "$article_id"
-                      fix_ok=$?
-                      if [ "$fix_ok" = "124" ]; then echo "[WARN] fix-ids $article_id TIMED OUT after 5 min"; fi
-                      if [ "$fix_ok" != "0" ]; then echo "[WARN] fix-ids $article_id exited $fix_ok"; fi
-                      # NOTE: Removed build_meta_fix_queue.py and run_meta_fix_queue.py
-                      # as ai_orchestrator.py now handles all meta-prompt fixes including:
-                      # - Generic phrase removal
-                      # - Source injection
-                      # - Word count enforcement
-                      # - Featured image counting
-                      timeout 300 python "fix_images_properly.py" --article-id "$article_id" --images-only
-                      fix_images_ok=$?
-                      if [ "$fix_images_ok" = "124" ]; then
-                          echo "[WARN] fix_images_properly TIMED OUT after 5 min for $article_id"
-                          python ai_orchestrator.py queue-review "$article_id" fail "IMAGE_FIX_TIMEOUT" || true
-                          if [ "$i" -lt "$max" ]; then
-                              echo "Sleeping ${delay}s before next article..."
-                              sleep "$delay"
-                          fi
-                          continue
-                      fi
-
-                      # Post-image cleanup: remove title spam reintroduced by fix_images alt/figcaption
-                      timeout 60 python post_image_cleanup.py "$article_id" || echo "[WARN] Post-image cleanup failed (non-critical)"
+                      timeout 600 python ai_orchestrator.py queue-step
+                      step_exit=$?
                       set -e
-
-                      set +e
-                      timeout 180 python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-$article_id.txt"
-                      review_status=${PIPESTATUS[0]}
-                      set -e
-
-                      if [ "$review_status" != "0" ]; then
-                          # Retry loop with MAX_ATTEMPTS_PER_ARTICLE
-                          max_attempts=${MAX_ATTEMPTS_PER_ARTICLE:-3}
-                          attempt=1
-                          review_passed=0
-                          while [ "$attempt" -le "$max_attempts" ] && [ "$review_passed" -eq 0 ]; do
-                              echo "[Attempt $attempt/$max_attempts] Rebuilding $article_id..."
-                              set +e
-                              timeout 300 python ai_orchestrator.py force-rebuild-ids "$article_id"
-                              timeout 300 python "fix_images_properly.py" --article-id "$article_id" --images-only
-                              rebuild_images_ok=$?
-                              set -e
-                              if [ "$rebuild_images_ok" != "0" ]; then
-                                  echo "[WARN] fix_images_properly failed on attempt $attempt for $article_id"
-                                  attempt=$((attempt + 1))
-                                  sleep 30
-                                  continue
-                              fi
-                              # Post-image cleanup (retry): remove title spam reintroduced by images
-                              set +e
-                              timeout 60 python post_image_cleanup.py "$article_id" || echo "[WARN] Post-image cleanup failed (non-critical)"
-                              set -e
-                              set +e
-                              timeout 180 python "../scripts/pre_publish_review.py" "$article_id" | tee "review-output-${article_id}-attempt-${attempt}.txt"
-                              review_status_attempt=${PIPESTATUS[0]}
-                              set -e
-                              if [ "$review_status_attempt" == "0" ]; then
-                                  review_passed=1
-                                  echo "[SUCCESS] Review passed on attempt $attempt for $article_id"
-                              else
-                                  echo "[WARN] Review failed on attempt $attempt for $article_id"
-                                  attempt=$((attempt + 1))
-                                  sleep 30
-                              fi
-                          done
-                          if [ "$review_passed" -eq 0 ]; then
-                              python ai_orchestrator.py queue-review "$article_id" fail "PRE_PUBLISH_REVIEW_FAIL_AFTER_${max_attempts}_ATTEMPTS" || true
-                              echo "Pre-publish review failed after $max_attempts attempts for $article_id. Skipping."
-                          fi
-                          review_status_after=$review_passed
-                      fi
-                      if [ "$review_status" == "0" ] || [ "${review_status_after:-0}" == "1" ]; then
-                          echo "Review passed for $article_id. Cleanup then publish..."
-                          python cleanup_before_publish.py "$article_id" || true
-                          python publish_now_graphql.py "$article_id" || true
-
-                          # POST-PUBLISH VALIDATION: Re-check the article after publish
-                          # Catches any issues introduced by cleanup_before_publish or missed by review
-                          set +e
-                          timeout 120 python "../scripts/pre_publish_review.py" "$article_id" > /dev/null 2>&1
-                          post_pub_status=$?
-                          set -e
-                          if [ "$post_pub_status" != "0" ]; then
-                              echo "⚠️ POST-PUBLISH WARNING: Article $article_id failed validation after publish. Will be re-queued on next rescan."
-                              python ai_orchestrator.py queue-review "$article_id" done "PUBLISHED_WITH_WARNINGS" || true
-                          else
-                              python ai_orchestrator.py queue-review "$article_id" done "PUBLISHED" || true
-                          fi
-                          echo "Published and marked done: $article_id"
+                      if [ "$step_exit" = "124" ]; then
+                          echo "[WARN] queue-step TIMED OUT after 10 min"
+                      elif [ "$step_exit" != "0" ]; then
+                          echo "[WARN] queue-step exited $step_exit"
                       fi
                       if [ "$i" -lt "$max" ]; then
                           echo "Sleeping ${delay}s before next article..."

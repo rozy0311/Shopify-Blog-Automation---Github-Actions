@@ -1422,18 +1422,35 @@ class AntiDriftQueue:
             items = json.load(f)
         done_ids = _load_done_blacklist()
 
-        # Build lookup of existing queue state so we preserve failed/manual_review status
+        # Build lookup of existing queue state so we preserve ALL existing statuses
         existing_map: dict[str, dict] = {}
         for existing_item in self.payload.get("items", []):
             existing_map[str(existing_item.get("id"))] = existing_item
 
+        # Collect IDs from the scan so we know which articles are in articles_to_fix
+        scan_ids = {str(item.get("id")) for item in items}
+
         queue_items = []
         skipped_done = 0
         skipped_terminal = 0
+
+        # FIRST: Preserve ALL existing "done" items from the queue (even if not in blacklist)
+        for existing_item in self.payload.get("items", []):
+            eid = str(existing_item.get("id"))
+            if existing_item.get("status") == "done":
+                queue_items.append(existing_item)
+                done_ids.add(eid)  # Sync to blacklist
+                skipped_done += 1
+
+        # Save any newly found done IDs to blacklist
+        if skipped_done:
+            _save_done_blacklist(done_ids)
+
+        # SECOND: Process articles from scan
         for item in items:
             article_id = str(item.get("id"))
             if article_id in done_ids:
-                skipped_done += 1
+                # Already added above or in blacklist
                 continue
 
             # If article was already in queue with terminal status, preserve it
@@ -1451,6 +1468,10 @@ class AntiDriftQueue:
                     queue_items.append(prev)
                     skipped_terminal += 1
                     continue
+                if prev_status in ("failed", "retrying") and prev_attempts >= 1:
+                    # Preserve attempt count — don't reset to 0
+                    queue_items.append(prev)
+                    continue
 
             queue_items.append(
                 {
@@ -1466,7 +1487,7 @@ class AntiDriftQueue:
 
         if skipped_done or skipped_terminal:
             print(
-                f"queue-init: skipped {skipped_done} done + {skipped_terminal} terminal (failed≥3/manual_review)"
+                f"queue-init: preserved {skipped_done} done + {skipped_terminal} terminal (failed≥3/manual_review)"
             )
 
         self.payload = {
@@ -1518,7 +1539,12 @@ class AntiDriftQueue:
         return next_time
 
     def mark_in_progress(self, article_id: str):
-        self._update_status(article_id, "in_progress")
+        # Don't use _update_status — we must NOT increment attempts when just starting
+        for item in self.payload.get("items", []):
+            if str(item.get("id")) == str(article_id):
+                item["status"] = "in_progress"
+                item["updated_at"] = datetime.now().isoformat()
+                break
 
     def mark_done(self, article_id: str, shopify_url: str | None = None):
         self._update_status(article_id, "done", shopify_url=shopify_url)
@@ -3593,6 +3619,31 @@ class AIOrchestrator:
             return
 
         if gate_pass:
+            # --- Pre-review: fix images + strip broken + cleanup ---
+            try:
+                self._run_fix_images(article_id)
+                # Post-image cleanup: remove title spam from alt/figcaption
+                post_cleanup = PIPELINE_DIR / "post_image_cleanup.py"
+                if post_cleanup.exists():
+                    subprocess.run(
+                        [sys.executable, str(post_cleanup), str(article_id)],
+                        check=False,
+                        capture_output=True,
+                        timeout=60,
+                    )
+                # Strip any broken 404 images to prevent BROKEN_IMAGE review failures
+                from fix_images_properly import strip_broken_images as _strip_broken
+
+                fresh = self.api.get_article(article_id)
+                if fresh:
+                    body = fresh.get("body_html", "") or ""
+                    cleaned, removed = _strip_broken(body)
+                    if removed > 0:
+                        print(f"🗑️ Stripped {removed} broken image(s)")
+                        self.api.update_article(article_id, {"body_html": cleaned})
+            except Exception as exc:
+                print(f"[WARN] pre-review image fix: {exc}")
+
             # META-PROMPT: Pre-publish review then cleanup + publish before mark_done
             content_factory_dir = (
                 PIPELINE_DIR.parent
@@ -3995,7 +4046,7 @@ class AIOrchestrator:
                 print(f"❌ Auto-fix FAIL: {error_msg}")
 
     def _run_fix_images(self, article_id: str):
-        """Run fix_images_properly.py for a single article."""
+        """Run fix_images_properly.py for a single article (images-only mode)."""
         script_path = PIPELINE_DIR / "fix_images_properly.py"
         if not script_path.exists():
             print("⚠️ fix_images_properly.py not found")
@@ -4004,7 +4055,7 @@ class AIOrchestrator:
         print("🖼️  Fixing images...")
         try:
             subprocess.run(
-                [sys.executable, str(script_path), "--article-id", str(article_id)],
+                [sys.executable, str(script_path), "--article-id", str(article_id), "--images-only"],
                 check=False,
             )
         except Exception as e:
@@ -5273,7 +5324,7 @@ def main():
             new_status = "manual_review"
         else:
             # Auto-escalate: if article has been attempted too many times, move to manual_review
-            MAX_AUTO_ESCALATE = 5
+            MAX_AUTO_ESCALATE = 3
             current_attempts = 0
             for item in queue.payload.get("items", []):
                 if str(item.get("id")) == str(article_id):
