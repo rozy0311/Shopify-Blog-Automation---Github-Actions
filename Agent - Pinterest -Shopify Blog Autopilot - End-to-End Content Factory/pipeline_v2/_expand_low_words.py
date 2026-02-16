@@ -30,6 +30,18 @@ import sys
 import time
 import random
 import argparse
+from pathlib import Path
+
+# Load .env for standalone execution (ai_orchestrator loads it too when imported)
+try:
+    from dotenv import load_dotenv
+
+    for _env_path in [Path(__file__).parent / ".env", Path(__file__).parent.parent / ".env"]:
+        if _env_path.exists():
+            load_dotenv(_env_path)
+            break
+except ImportError:
+    pass
 
 try:
     import requests
