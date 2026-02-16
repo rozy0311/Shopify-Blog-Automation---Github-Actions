@@ -3595,28 +3595,66 @@ class AIOrchestrator:
             gate_score = gate.get("score", 0)
             gate_pass = gate.get("pass", False)
 
-        # HARD BLOCK: Word count must be >= 1600 regardless of gate
+        # HARD BLOCK: Word count must be >= 1800 regardless of gate
+        # Before blocking, attempt LLM expansion via _expand_low_words.py
         word_count_info = audit.get("details", {}).get("word_count", {})
         current_word_count = word_count_info.get("word_count", 0)
         HARD_MIN_WORDS = 1800
         if current_word_count < HARD_MIN_WORDS:
-            error_msg = (
-                f"HARD_BLOCK: Word count {current_word_count} < {HARD_MIN_WORDS}"
+            print(
+                f"📝 Word count {current_word_count} < {HARD_MIN_WORDS} — attempting LLM expansion..."
             )
-            print(f"[FAIL] {error_msg} - Cannot mark done")
-            queue.mark_retry(
-                article_id, error_msg, datetime.now() + timedelta(minutes=30)
+            try:
+                from _expand_low_words import expand_article as _expand_article
+
+                fresh_art = self.api.get_article(article_id)
+                if fresh_art:
+                    art_title = fresh_art.get("title", "")
+                    art_body = fresh_art.get("body_html", "") or ""
+                    expanded_body = _expand_article(art_title, art_body)
+                    if expanded_body and expanded_body != art_body:
+                        self.api.update_article(
+                            article_id, {"body_html": expanded_body}
+                        )
+                        # Re-audit after expansion
+                        refreshed = self.api.get_article(article_id)
+                        if refreshed:
+                            audit = self.quality_gate.full_audit(refreshed)
+                            gate = audit.get("deterministic_gate", {})
+                            gate_score = gate.get("score", 0)
+                            gate_pass = gate.get("pass", False)
+                            word_count_info = audit.get("details", {}).get(
+                                "word_count", {}
+                            )
+                            current_word_count = word_count_info.get("word_count", 0)
+                            print(
+                                f"📊 After expansion: {current_word_count} words"
+                            )
+            except Exception as exc:
+                print(f"[WARN] _expand_low_words failed: {exc}")
+
+            # If still under minimum after expansion attempt, hard block
+            if current_word_count < HARD_MIN_WORDS:
+                error_msg = (
+                    f"HARD_BLOCK: Word count {current_word_count} < {HARD_MIN_WORDS}"
+                )
+                print(f"[FAIL] {error_msg} - Cannot mark done")
+                queue.mark_retry(
+                    article_id, error_msg, datetime.now() + timedelta(minutes=30)
+                )
+                queue.save()
+                self._append_run_log(
+                    article_id,
+                    audit.get("title", ""),
+                    "failed",
+                    gate_score,
+                    False,
+                    error_msg,
+                )
+                return
+            print(
+                f"✅ Expansion successful! {current_word_count} words — proceeding"
             )
-            queue.save()
-            self._append_run_log(
-                article_id,
-                audit.get("title", ""),
-                "failed",
-                gate_score,
-                False,
-                error_msg,
-            )
-            return
 
         if gate_pass:
             # --- Pre-review: fix images + strip broken + cleanup ---
@@ -3639,8 +3677,17 @@ class AIOrchestrator:
                     body = fresh.get("body_html", "") or ""
                     cleaned, removed = _strip_broken(body)
                     if removed > 0:
-                        print(f"🗑️ Stripped {removed} broken image(s)")
+                        print(f"🗑️ Stripped {removed} broken inline image(s)")
                         self.api.update_article(article_id, {"body_html": cleaned})
+                    # Also check featured/main image — pre_publish_review validates it too
+                    main_img = fresh.get("image") or {}
+                    main_src = main_img.get("src", "")
+                    if main_src:
+                        from fix_images_properly import _check_image_accessible
+
+                        if not _check_image_accessible(main_src):
+                            print(f"🗑️ Featured image broken ({main_src[:60]}...) — clearing")
+                            self.api.update_article(article_id, {"image": None})
             except Exception as exc:
                 print(f"[WARN] pre-review image fix: {exc}")
 
@@ -4055,7 +4102,13 @@ class AIOrchestrator:
         print("🖼️  Fixing images...")
         try:
             subprocess.run(
-                [sys.executable, str(script_path), "--article-id", str(article_id), "--images-only"],
+                [
+                    sys.executable,
+                    str(script_path),
+                    "--article-id",
+                    str(article_id),
+                    "--images-only",
+                ],
                 check=False,
             )
         except Exception as e:
