@@ -65,7 +65,7 @@ jobs:
             echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL }}"
             echo "GH_MODELS_API_BASE=${{ vars.GH_MODELS_API_BASE || 'https://models.github.ai/inference' }}"
             echo "GH_MODELS_MODEL=${{ vars.GH_MODELS_MODEL }}"
-            echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-1.5-flash' }}"
+            echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}"
             echo "LLM_PROVIDER_ORDER=${{ vars.LLM_PROVIDER_ORDER || 'gemini,github_models,openai' }}"
             echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'true' }}"
             echo "CONFIG_FILE=${{ vars.CONFIG_FILE }}"
@@ -93,6 +93,7 @@ jobs:
             echo "GITHUB_MODELS_API_KEY=${{ secrets.GITHUB_MODELS_API_KEY }}"
             echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
             echo "GOOGLE_AI_STUDIO_API_KEY=${{ secrets.GOOGLE_AI_STUDIO_API_KEY }}"
+            echo "FALLBACK_GEMINI_API_KEY=${{ secrets.FALLBACK_GEMINI_API_KEY }}"
           } >> "$GITHUB_ENV"
       - name: Install dependencies
         run: npm ci
