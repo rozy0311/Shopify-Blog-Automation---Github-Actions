@@ -95,8 +95,11 @@ jobs:
             GEMINI_MODEL_FALLBACK: gemini-2.5-flash-lite
             GEMINI_MODEL_FALLBACK_2: gemini-2.5-flash
             GEMINI_MODEL_FALLBACK_3: gemini-2.0-flash-lite
-            LLM_PROVIDER_ORDER: gemini
-            DISABLE_OPENAI: "true"
+            GEMINI_DELAY_SECONDS: "3"
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+            OPENAI_MODEL: gpt-4o-mini
+            GH_MODELS_API_KEY: ${{ secrets.GH_MODELS_API_KEY }}
+            GH_MODELS_MODEL: ${{ vars.GH_MODELS_MODEL || 'openai/gpt-4.1' }}
             VISION_PROVIDER: gemini
             VISION_TIMEOUT: ${{ vars.VISION_TIMEOUT || '30' }}
             VISION_MAX_ATTEMPTS: ${{ vars.VISION_MAX_ATTEMPTS || '6' }}
