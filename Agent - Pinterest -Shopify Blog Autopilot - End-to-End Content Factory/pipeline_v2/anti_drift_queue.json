@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-15T17:11:01.489779",
-  "updated_at": "2026-02-16T06:37:13.417769",
+  "updated_at": "2026-02-16T07:13:27.376821",
   "items": [
     {
       "id": "690524029246",
@@ -222,20 +222,20 @@
     {
       "id": "690332401982",
       "title": "Bell Pepper Gardening: Grow Healthy Plants in Cont",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "failed",
+      "attempts": 1,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-15T17:11:01.489725"
+      "updated_at": "2026-02-16T07:02:25.222299"
     },
     {
       "id": "690332369214",
       "title": "Soda Bottle Drip Feeder: Garden Irrigation",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "failed",
+      "attempts": 1,
+      "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-15T17:11:01.489726"
+      "updated_at": "2026-02-16T07:13:27.376813"
     },
     {
       "id": "690332336446",
