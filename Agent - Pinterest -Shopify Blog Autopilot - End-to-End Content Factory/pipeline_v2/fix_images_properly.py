@@ -346,6 +346,83 @@ def generate_gemini_image(prompt: str) -> bytes | None:
     return None
 
 
+# ---------------------------------------------------------------------------
+# PIL Gradient — Tier 4 last-resort (local, unlimited, no API)
+# Generates a branded gradient placeholder so pipeline never hard-fails.
+# ---------------------------------------------------------------------------
+def generate_pil_gradient(
+    prompt: str, width: int = 1200, height: int = 800
+) -> bytes | None:
+    """Generate a branded gradient placeholder image with topic text overlay.
+
+    Uses only Pillow (PIL) — fully local, zero API calls, unlimited.
+    Returns JPEG bytes or None if Pillow is not installed.
+    """
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        print("    ⚠️ Pillow (PIL) not installed — cannot generate gradient")
+        return None
+
+    # Nature/eco-friendly gradient colours based on topic keywords
+    lower = prompt.lower()
+    if any(w in lower for w in ["garden", "plant", "grow", "seed", "herb"]):
+        c_top, c_bot = (34, 87, 46), (144, 190, 109)  # green
+    elif any(w in lower for w in ["cook", "recipe", "food", "tea", "honey"]):
+        c_top, c_bot = (120, 60, 20), (220, 170, 100)  # warm brown
+    elif any(w in lower for w in ["ocean", "water", "fish", "rain"]):
+        c_top, c_bot = (20, 60, 100), (100, 180, 220)  # blue
+    elif any(w in lower for w in ["craft", "diy", "make", "build"]):
+        c_top, c_bot = (80, 50, 80), (180, 140, 180)  # purple
+    else:
+        c_top, c_bot = (40, 60, 40), (160, 200, 160)  # default green
+
+    img = Image.new("RGB", (width, height))
+    draw = ImageDraw.Draw(img)
+
+    # Vertical gradient
+    for y in range(height):
+        ratio = y / height
+        r = int(c_top[0] + (c_bot[0] - c_top[0]) * ratio)
+        g = int(c_top[1] + (c_bot[1] - c_top[1]) * ratio)
+        b = int(c_top[2] + (c_bot[2] - c_top[2]) * ratio)
+        draw.line([(0, y), (width, y)], fill=(r, g, b))
+
+    # Extract short topic text (≤ 40 chars)
+    topic = prompt.split(",")[0].strip()[:40]
+
+    # Add subtle text overlay
+    try:
+        font = ImageFont.truetype("arial.ttf", max(24, height // 20))
+    except Exception:
+        font = ImageFont.load_default()
+
+    # Semi-transparent text bar at bottom
+    bar_h = height // 6
+    overlay = Image.new("RGBA", (width, bar_h), (0, 0, 0, 100))
+    img.paste(
+        Image.alpha_composite(
+            Image.new("RGBA", (width, bar_h), (0, 0, 0, 0)), overlay
+        ).convert("RGB"),
+        (0, height - bar_h),
+    )
+    # White text
+    bbox = draw.textbbox((0, 0), topic, font=font)
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    tx = (width - tw) // 2
+    ty = height - bar_h + (bar_h - th) // 2
+    draw.text((tx, ty), topic, fill=(255, 255, 255, 230), font=font)
+
+    # Save to bytes
+    from io import BytesIO
+
+    buf = BytesIO()
+    img.save(buf, format="JPEG", quality=85)
+    result = buf.getvalue()
+    print(f"    🎨 PIL gradient generated: {len(result) // 1024}KB")
+    return result
+
+
 def generate_valid_pollinations_image(
     prompt: str,
     width: int,
@@ -353,8 +430,15 @@ def generate_valid_pollinations_image(
     seed_base: int,
     max_attempts: int = VISION_MAX_ATTEMPTS,
 ):
-    """Try Pollinations first, then fall back to Gemini image generation."""
-    # --- Primary: Pollinations (Flux) ---
+    """Image Generation Cascade v2.11.1
+
+    Tier 1: Pollinations Flux (free, unlimited, priority queue)
+    Tier 2: Gemini Primary Key (3 models)
+    Tier 2b: Gemini Fallback Key (3 models)
+    Tier 3: (Imagen — requires billing, skipped)
+    Tier 4: PIL gradient (local, unlimited, last resort)
+    """
+    # --- Tier 1: Pollinations (Flux) — primary, unlimited ---
     for attempt in range(max_attempts):
         seed = seed_base + attempt
         poll_url = get_pollinations_url(prompt, width, height, seed=seed)
@@ -366,11 +450,17 @@ def generate_valid_pollinations_image(
         if img_bytes:
             return img_bytes, poll_url, vision_result
 
-    # --- Fallback: Gemini image generation (2 keys × 3 models) ---
-    print("    🔄 Pollinations failed → trying Gemini image generation...")
+    # --- Tier 2/2b: Gemini image generation (3 models × 2 keys) ---
+    print("    🔄 Pollinations failed → Tier 2: Gemini image generation...")
     gemini_bytes = generate_gemini_image(prompt)
     if gemini_bytes:
         return gemini_bytes, None, None
+
+    # --- Tier 4: PIL gradient (local, unlimited, last resort) ---
+    print("    🔄 All APIs failed → Tier 4: PIL gradient (local fallback)...")
+    pil_bytes = generate_pil_gradient(prompt, width, height)
+    if pil_bytes:
+        return pil_bytes, None, None
 
     return None, None, None
 
