@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T18:45:54.027521",
-  "updated_at": "2026-02-16T18:57:33.415320",
+  "updated_at": "2026-02-16T19:16:48.782315",
   "items": [
     {
       "id": "690524029246",
@@ -226,20 +226,22 @@
     {
       "id": "690495390014",
       "title": "Granola Easy Recipe Oats: Natural Sweeteners and C",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027425"
+      "updated_at": "2026-02-16T19:16:12.981664"
     },
     {
       "id": "690348097854",
       "title": "Natural Cordage Making: Strong Rope from Plants Gu",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "retrying",
+      "attempts": 1,
+      "last_error": "HARD_BLOCK: Word count 1501 < 1800",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027427"
+      "updated_at": "2026-02-16T19:16:48.782313",
+      "failures": 1,
+      "retry_at": "2026-02-16T19:46:48.782293"
     },
     {
       "id": "690332533054",
