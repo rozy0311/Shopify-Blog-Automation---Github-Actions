@@ -147,9 +147,9 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get(
     "GOOGLE_AI_STUDIO_API_KEY", ""
 )
 # Fallback Gemini key (second Google account — used after primary exhausts quota)
-FALLBACK_GEMINI_API_KEY = os.environ.get("FALLBACK_GEMINI_API_KEY", "") or os.environ.get(
-    "FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""
-)
+FALLBACK_GEMINI_API_KEY = os.environ.get(
+    "FALLBACK_GEMINI_API_KEY", ""
+) or os.environ.get("FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
 
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-flash-lite")
@@ -179,8 +179,8 @@ OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
 
 # Startup diagnostic: show dual-key LLM chain configuration
-_pk = '✅' if GEMINI_API_KEY else '❌ MISSING'
-_fk = '✅' if FALLBACK_GEMINI_API_KEY else '❌ MISSING'
+_pk = "✅" if GEMINI_API_KEY else "❌ MISSING"
+_fk = "✅" if FALLBACK_GEMINI_API_KEY else "❌ MISSING"
 print("🔧 LLM Provider Chain (Dual Gemini Key):")
 print(f"   --- PRIMARY KEY ({_pk}) ---")
 for _i, _m in enumerate(GEMINI_ALL_MODELS, 1):
@@ -193,9 +193,16 @@ _offset2 = _offset * 2
 print(
     f"   {_offset2 + 1}. GitHub Models: {GH_MODELS_MODEL} (key: {'✅' if GH_MODELS_API_KEY else '❌ MISSING'})"
 )
-print(f"   {_offset2 + 2}. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})")
+print(
+    f"   {_offset2 + 2}. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})"
+)
 print(f"   {_offset2 + 3}. Pollinations: free (no key needed)")
-if not GEMINI_API_KEY and not FALLBACK_GEMINI_API_KEY and not GH_MODELS_API_KEY and not OPENAI_API_KEY:
+if (
+    not GEMINI_API_KEY
+    and not FALLBACK_GEMINI_API_KEY
+    and not GH_MODELS_API_KEY
+    and not OPENAI_API_KEY
+):
     print("⚠️ WARNING: No LLM API keys configured! All LLM generation will fail.")
 
 
@@ -297,7 +304,9 @@ def call_gemini_api(
     return ""
 
 
-def call_github_models_api(prompt: str, max_tokens: int = 7000, max_retries: int = 3) -> str:
+def call_github_models_api(
+    prompt: str, max_tokens: int = 7000, max_retries: int = 3
+) -> str:
     """Call GitHub Models API (OpenAI-compatible) as fallback.
 
     Includes retry logic with exponential backoff for 429/5xx errors.
@@ -337,13 +346,17 @@ def call_github_models_api(prompt: str, max_tokens: int = 7000, max_retries: int
                 if choices:
                     return choices[0].get("message", {}).get("content", "")
             elif resp.status_code == 429:
-                wait_time = (2 ** attempt) * 10 + random.uniform(2, 8)
-                print(f"⚠️ GitHub Models API rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})")
+                wait_time = (2**attempt) * 10 + random.uniform(2, 8)
+                print(
+                    f"⚠️ GitHub Models API rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})"
+                )
                 time.sleep(wait_time)
                 continue
             elif resp.status_code >= 500:
-                wait_time = (2 ** attempt) * 3
-                print(f"⚠️ GitHub Models API server error ({resp.status_code}), retrying in {wait_time}s...")
+                wait_time = (2**attempt) * 3
+                print(
+                    f"⚠️ GitHub Models API server error ({resp.status_code}), retrying in {wait_time}s..."
+                )
                 time.sleep(wait_time)
                 continue
             else:
@@ -458,17 +471,23 @@ def call_openai_api(prompt: str, max_tokens: int = 7000, max_retries: int = 3) -
                 if choices:
                     return choices[0].get("message", {}).get("content", "")
             elif resp.status_code == 429:
-                wait_time = (2 ** attempt) * 10 + random.uniform(2, 8)
-                print(f"⚠️ OpenAI API rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})")
+                wait_time = (2**attempt) * 10 + random.uniform(2, 8)
+                print(
+                    f"⚠️ OpenAI API rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})"
+                )
                 time.sleep(wait_time)
                 continue
             elif resp.status_code >= 500:
-                wait_time = (2 ** attempt) * 3
-                print(f"⚠️ OpenAI API server error ({resp.status_code}), retrying in {wait_time}s...")
+                wait_time = (2**attempt) * 3
+                print(
+                    f"⚠️ OpenAI API server error ({resp.status_code}), retrying in {wait_time}s..."
+                )
                 time.sleep(wait_time)
                 continue
             else:
-                print(f"⚠️ OpenAI API error: {resp.status_code} - {mask_secrets(resp.text[:200])}")
+                print(
+                    f"⚠️ OpenAI API error: {resp.status_code} - {mask_secrets(resp.text[:200])}"
+                )
                 return ""
         except requests.exceptions.Timeout:
             print(f"⚠️ OpenAI API timeout (attempt {attempt + 1}/{max_retries})")
@@ -1402,11 +1421,37 @@ class AntiDriftQueue:
         with open(articles_file, "r", encoding="utf-8") as f:
             items = json.load(f)
         done_ids = _load_done_blacklist()
+
+        # Build lookup of existing queue state so we preserve failed/manual_review status
+        existing_map: dict[str, dict] = {}
+        for existing_item in self.payload.get("items", []):
+            existing_map[str(existing_item.get("id"))] = existing_item
+
         queue_items = []
+        skipped_done = 0
+        skipped_terminal = 0
         for item in items:
             article_id = str(item.get("id"))
             if article_id in done_ids:
+                skipped_done += 1
                 continue
+
+            # If article was already in queue with terminal status, preserve it
+            prev = existing_map.get(article_id)
+            if prev:
+                prev_status = prev.get("status", "")
+                prev_attempts = int(prev.get("attempts", 0))
+                if prev_status == "manual_review":
+                    # Already escalated — keep as-is, do NOT reset
+                    queue_items.append(prev)
+                    skipped_terminal += 1
+                    continue
+                if prev_status == "failed" and prev_attempts >= 3:
+                    # Tried 3+ times and failed — keep state, don't reset
+                    queue_items.append(prev)
+                    skipped_terminal += 1
+                    continue
+
             queue_items.append(
                 {
                     "id": article_id,
@@ -1418,6 +1463,12 @@ class AntiDriftQueue:
                     "updated_at": datetime.now().isoformat(),
                 }
             )
+
+        if skipped_done or skipped_terminal:
+            print(
+                f"queue-init: skipped {skipped_done} done + {skipped_terminal} terminal (failed≥3/manual_review)"
+            )
+
         self.payload = {
             "version": 1,
             "created_at": datetime.now().isoformat(),
@@ -2017,7 +2068,9 @@ class ShopifyAPI:
 
         url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
         try:
-            resp = requests.put(url, headers=HEADERS, json={"article": data}, timeout=60)
+            resp = requests.put(
+                url, headers=HEADERS, json={"article": data}, timeout=60
+            )
             return resp.status_code == 200
         except requests.exceptions.RequestException as e:
             print(f"⚠️ update_article request failed: {e}")
@@ -5049,10 +5102,17 @@ def main():
                 if str(item.get("id")) == str(article_id):
                     current_attempts = int(item.get("attempts", 0))
                     break
-            if current_attempts >= MAX_AUTO_ESCALATE - 1:  # Will be incremented to MAX inside _update_status
-                queue.mark_manual_review(article_id, f"AUTO_ESCALATED_AFTER_{current_attempts + 1}_ATTEMPTS: {error_msg}")
+            if (
+                current_attempts >= MAX_AUTO_ESCALATE - 1
+            ):  # Will be incremented to MAX inside _update_status
+                queue.mark_manual_review(
+                    article_id,
+                    f"AUTO_ESCALATED_AFTER_{current_attempts + 1}_ATTEMPTS: {error_msg}",
+                )
                 new_status = "manual_review"
-                print(f"⚠️ Auto-escalated {article_id} to manual_review after {current_attempts + 1} attempts")
+                print(
+                    f"⚠️ Auto-escalated {article_id} to manual_review after {current_attempts + 1} attempts"
+                )
             else:
                 queue.mark_failed(article_id, error_msg)
                 new_status = "failed"

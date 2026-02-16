@@ -861,6 +861,39 @@ def generate_topic_specific_prompts(title: str) -> dict:
     return prompts
 
 
+def _check_image_accessible(url: str, timeout: int = 10) -> bool:
+    """Quick HEAD check — returns True if image URL returns HTTP 200."""
+    if not url or not url.startswith("http"):
+        return False
+    try:
+        resp = requests.head(
+            url,
+            timeout=timeout,
+            allow_redirects=True,
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
+        return resp.status_code == 200
+    except Exception:
+        return False
+
+
+def strip_broken_images(body_html: str) -> tuple[str, int]:
+    """Remove <img> tags whose src returns non-200. Returns (cleaned_html, removed_count)."""
+    img_tags = re.findall(r"<img[^>]+>", body_html)
+    removed = 0
+    for tag in img_tags:
+        src_match = re.search(r'src="([^"]+)"', tag)
+        if not src_match:
+            continue
+        src = src_match.group(1)
+        if not _check_image_accessible(src):
+            # Remove the broken img tag (and wrapping <figure>/<a> if present)
+            body_html = body_html.replace(tag, "")
+            removed += 1
+            print(f"   🗑️ Removed broken image: {src[:80]}...")
+    return body_html, removed
+
+
 def count_existing_images(body_html: str) -> dict:
     """Count different types of images in article"""
     pinterest_imgs = len(re.findall(r'<img[^>]+src="[^"]*pinimg\.com[^"]*"', body_html))
@@ -928,7 +961,17 @@ def fix_article_images(
     if images_only:
         print(f"   Mode: IMAGES ONLY (add missing, preserve content)")
 
-    # Count existing images
+    # In images_only mode, strip broken (404) images FIRST so we get accurate count
+    if images_only:
+        body_html, broken_removed = strip_broken_images(body_html)
+        if broken_removed > 0:
+            print(f"   ⚠️ Removed {broken_removed} broken (HTTP 404) image(s)")
+            # Also check featured image accessibility
+            if has_featured and not _check_image_accessible(featured_src):
+                print(f"   ⚠️ Featured image is broken (404): {featured_src[:60]}...")
+                has_featured = False
+
+    # Count existing images (after broken removal if images_only)
     img_counts = count_existing_images(body_html)
     print(
         f"   Current images: Pinterest={img_counts['pinterest']}, Shopify CDN={img_counts['shopify_cdn']}, Total={img_counts['total']}"
@@ -1126,9 +1169,7 @@ def fix_article_images(
             paragraphs = list(re.finditer(r"</p>", new_html))
 
     # Step 6: Update article (do NOT set "published": True — it can reset published_at to NOW)
-    update_data = {
-        "article": {"id": article_id, "body_html": new_html}
-    }
+    update_data = {"article": {"id": article_id, "body_html": new_html}}
 
     # Add featured image if we have one (use src=CDN URL - more reliable than base64)
     if featured_cdn_url:
