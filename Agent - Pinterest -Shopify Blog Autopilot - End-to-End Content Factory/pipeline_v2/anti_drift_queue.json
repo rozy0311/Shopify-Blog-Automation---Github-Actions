@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T18:45:54.027521",
-  "updated_at": "2026-02-16T20:56:14.583071",
+  "updated_at": "2026-02-16T21:10:41.022191",
   "items": [
     {
       "id": "690524029246",
@@ -345,20 +345,20 @@
     {
       "id": "690332008766",
       "title": "Snake Plant Bloom: How to Make It Flower Indoors",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027445"
+      "updated_at": "2026-02-16T21:10:15.304269"
     },
     {
       "id": "690331943230",
       "title": "Black Houseplants: Best Varieties and Care Guide I",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027446"
+      "updated_at": "2026-02-16T21:10:41.022186"
     },
     {
       "id": "690331910462",
