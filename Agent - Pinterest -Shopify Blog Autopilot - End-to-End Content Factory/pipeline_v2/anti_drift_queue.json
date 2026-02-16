@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T18:45:54.027521",
-  "updated_at": "2026-02-16T21:51:55.659083",
+  "updated_at": "2026-02-16T22:13:20.179762",
   "items": [
     {
       "id": "690524029246",
@@ -346,28 +346,28 @@
       "id": "690332008766",
       "title": "Snake Plant Bloom: How to Make It Flower Indoors",
       "status": "done",
-      "attempts": 0,
+      "attempts": 1,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T21:13:11.708592"
+      "updated_at": "2026-02-16T21:31:16.517702"
     },
     {
       "id": "690331943230",
       "title": "Black Houseplants: Best Varieties and Care Guide I",
-      "status": "done",
-      "attempts": 1,
-      "last_error": "ALREADY_OK_BATCH",
-      "shopify_url": null,
-      "updated_at": "2026-02-16T21:49:20.284262"
-    },
-    {
-      "id": "690331910462",
-      "title": "Healing Bedroom Plants: Tips, Mistakes, and Easy F",
       "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T21:25:25.793972"
+      "updated_at": "2026-02-16T21:10:41.022186"
+    },
+    {
+      "id": "690331910462",
+      "title": "Healing Bedroom Plants: Tips, Mistakes, and Easy F",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-16T21:43:27.114799"
     },
     {
       "id": "690331812158",
@@ -376,34 +376,36 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T21:51:55.659078"
+      "updated_at": "2026-02-16T21:43:37.329671"
     },
     {
       "id": "690331779390",
       "title": "Hanging Flowers Blooming All Summer: Simple Care G",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "retrying",
+      "attempts": 1,
+      "last_error": "pre_publish_review_fail_after_fix",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027450"
+      "updated_at": "2026-02-16T22:02:59.955858",
+      "failures": 1,
+      "retry_at": "2026-02-16T22:05:18.955828"
     },
     {
       "id": "690331648318",
       "title": "Cucumber Trellis Space-Saving: Support Ideas for S",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518506"
+      "updated_at": "2026-02-16T22:12:31.418272"
     },
     {
       "id": "690331615550",
       "title": "Tire Garden Upcycled Planter Ideas: Easy Projects ",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027454"
+      "updated_at": "2026-02-16T22:13:20.179757"
     },
     {
       "id": "690331517246",
