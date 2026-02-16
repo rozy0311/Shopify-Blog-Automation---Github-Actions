@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T18:45:54.027521",
-  "updated_at": "2026-02-16T20:07:44.745349",
+  "updated_at": "2026-02-16T20:21:23.459010",
   "items": [
     {
       "id": "690524029246",
@@ -226,20 +226,20 @@
     {
       "id": "690495390014",
       "title": "Granola Easy Recipe Oats: Natural Sweeteners and C",
-      "status": "manual_review",
+      "status": "done",
       "attempts": 1,
-      "last_error": "GATE_FAIL",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T19:16:12.981664"
+      "updated_at": "2026-02-16T20:10:10.409388"
     },
     {
       "id": "690348097854",
       "title": "Natural Cordage Making: Strong Rope from Plants Gu",
-      "status": "retrying",
+      "status": "done",
       "attempts": 1,
-      "last_error": "HARD_BLOCK: Word count 1501 < 1800",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T19:16:48.782313",
+      "updated_at": "2026-02-16T20:10:10.924825",
       "failures": 1,
       "retry_at": "2026-02-16T19:46:48.782293"
     },
@@ -318,11 +318,11 @@
     {
       "id": "690332139838",
       "title": "DIY Outdoor Sink Ideas: Easy Step-by-Step Build Gu",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027440"
+      "updated_at": "2026-02-16T20:11:30.837501"
     },
     {
       "id": "690332107070",
@@ -336,11 +336,11 @@
     {
       "id": "690332041534",
       "title": "Lavender Leaves Uses: Benefits, How to Use, Safety",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027443"
+      "updated_at": "2026-02-16T20:21:23.458469"
     },
     {
       "id": "690332008766",
