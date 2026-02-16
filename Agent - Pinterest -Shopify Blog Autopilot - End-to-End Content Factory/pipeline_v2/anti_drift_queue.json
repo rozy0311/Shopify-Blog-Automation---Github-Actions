@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T18:45:54.027521",
-  "updated_at": "2026-02-16T14:24:42.520237",
+  "updated_at": "2026-02-16T20:24:55.214947",
   "items": [
     {
       "id": "690524029246",
@@ -226,20 +226,20 @@
     {
       "id": "690495390014",
       "title": "Granola Easy Recipe Oats: Natural Sweeteners and C",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "status": "done",
+      "attempts": 1,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.517836"
+      "updated_at": "2026-02-16T20:10:10.409388"
     },
     {
       "id": "690348097854",
       "title": "Natural Cordage Making: Strong Rope from Plants Gu",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "status": "done",
+      "attempts": 1,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518005",
+      "updated_at": "2026-02-16T20:10:10.924825",
       "failures": 1,
       "retry_at": "2026-02-16T19:46:48.782293"
     },
@@ -282,29 +282,29 @@
     {
       "id": "690332270910",
       "title": "DIY Plant Pot Ideas: Budget-Friendly Steps for Out",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518084"
+      "updated_at": "2026-02-16T19:56:30.511731"
     },
     {
       "id": "690332238142",
       "title": "Cinder Blocks DIY Outdoor Decorations: Budget Gard",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518226"
+      "updated_at": "2026-02-16T19:56:30.930745"
     },
     {
       "id": "690332205374",
       "title": "Tree Area Landscaping Ideas: Shaded Yards",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518329"
+      "updated_at": "2026-02-16T19:56:31.385551"
     },
     {
       "id": "690332172606",
@@ -327,11 +327,11 @@
     {
       "id": "690332107070",
       "title": "Flower Bed Ideas: 16 Unique Designs for Every Yard",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518426"
+      "updated_at": "2026-02-16T19:56:32.997472"
     },
     {
       "id": "690332041534",
@@ -345,11 +345,11 @@
     {
       "id": "690332008766",
       "title": "Snake Plant Bloom: How to Make It Flower Indoors",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027445"
+      "updated_at": "2026-02-16T20:24:55.214941"
     },
     {
       "id": "690331943230",
@@ -390,11 +390,11 @@
     {
       "id": "690331648318",
       "title": "Cucumber Trellis Space-Saving: Support Ideas for S",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518506"
+      "updated_at": "2026-02-16T19:56:37.396057"
     },
     {
       "id": "690331615550",
@@ -408,11 +408,11 @@
     {
       "id": "690331517246",
       "title": "Walkway Plants Best Choices: Paths and Borders Gui",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518587"
+      "updated_at": "2026-02-16T19:56:38.412137"
     },
     {
       "id": "690331484478",
@@ -462,20 +462,20 @@
     {
       "id": "690331222334",
       "title": "Halloween Projects DIY: Easy Ideas for Outdoors an",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518673"
+      "updated_at": "2026-02-16T19:56:41.678040"
     },
     {
       "id": "690331124030",
       "title": "DIY Fall Crafts: Easy Budget-Friendly Creations fo",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.518925"
+      "updated_at": "2026-02-16T19:56:42.072616"
     },
     {
       "id": "690331058494",
@@ -570,11 +570,11 @@
     {
       "id": "690330534206",
       "title": "Wooden Centerpiece Box: DIY Farmhouse Table Decor ",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519034"
+      "updated_at": "2026-02-16T19:56:48.473809"
     },
     {
       "id": "690330501438",
@@ -624,11 +624,11 @@
     {
       "id": "690330239294",
       "title": "Sage Green Bedroom Decor: 26 Calm Ideas for Relaxi",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519114"
+      "updated_at": "2026-02-16T19:56:51.721313"
     },
     {
       "id": "690330173758",
@@ -669,20 +669,20 @@
     {
       "id": "690330009918",
       "title": "DIY Rope Basket: Easy Step-by-Step Storage for Hom",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519192"
+      "updated_at": "2026-02-16T19:56:55.443112"
     },
     {
       "id": "690329944382",
       "title": "Repurpose Vintage Ladders: Home Decor",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519262"
+      "updated_at": "2026-02-16T19:56:55.822047"
     },
     {
       "id": "690329878846",
@@ -696,11 +696,11 @@
     {
       "id": "690329846078",
       "title": "Blanket Ladder: DIY Rustic Storage Decor for Livin",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519327"
+      "updated_at": "2026-02-16T19:56:56.825309"
     },
     {
       "id": "690329780542",
@@ -714,11 +714,11 @@
     {
       "id": "690329715006",
       "title": "Farmhouse Window Treatments: 23 Cozy Ideas for Kit",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519405"
+      "updated_at": "2026-02-16T19:56:57.868222"
     },
     {
       "id": "690329682238",
@@ -777,11 +777,11 @@
     {
       "id": "690329387326",
       "title": "Farmhouse Bathroom Decor: Simple Styling Ideas for",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519492"
+      "updated_at": "2026-02-16T19:57:02.112146"
     },
     {
       "id": "690329321790",
@@ -795,1550 +795,29 @@
     {
       "id": "690329289022",
       "title": "Cottage Garden Design and Planting: Guide for Begi",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519565"
+      "updated_at": "2026-02-16T19:57:02.802187"
     },
     {
       "id": "690329256254",
       "title": "Coffee Station Styling Ideas: Cozy Corner Setup fo",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519630"
+      "updated_at": "2026-02-16T19:57:03.215113"
     },
     {
       "id": "691791921470",
       "title": "Unlocking Your Garden's Potential: Harnessing the ",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "RESET_FALSE_DONE",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519698"
-    },
-    {
-      "id": "690770510142",
-      "title": "Sore Throat Spray: DIY Recipe for Soothing Relief",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519768"
-    },
-    {
-      "id": "690770411838",
-      "title": "Herbal Tea Blends Digestive Health: Soothing Recip",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519779"
-    },
-    {
-      "id": "690770346302",
-      "title": "Cough Drops Homemade Honey and Herb: Easy Soothing",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519785"
-    },
-    {
-      "id": "690770313534",
-      "title": "Chest Rub Natural Essential Oil Formula: Easy DIY ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519792"
-    },
-    {
-      "id": "690770280766",
-      "title": "Fire Cider DIY: Recipe Guide for Cold-Season Immun",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519796"
-    },
-    {
-      "id": "690525176126",
-      "title": "Lasagna Garden No-Dig Bed: Complete Step-by-Step B",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519800"
-    },
-    {
-      "id": "690525077822",
-      "title": "Summer Veggies in Pots: Corn, Okra, Eggplant Conta",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519804"
-    },
-    {
-      "id": "690525045054",
-      "title": "Perennial Vegetables Harvest Forever: Plant Once, ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519807"
-    },
-    {
-      "id": "690524881214",
-      "title": "Lasagna Garden No-Dig Bed: Cheap and Easy Soil Lay",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519809"
-    },
-    {
-      "id": "690524553534",
-      "title": "Hoop House Build: Heated Hinged Frame for Winter G",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519811"
-    },
-    {
-      "id": "690523668798",
-      "title": "DIY Sugar Scrub for Body: Gentle Exfoliation Recip",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519813"
-    },
-    {
-      "id": "690497585470",
-      "title": "Making Cheese at Home Beginners: Easy Fresh Cheese",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519815"
-    },
-    {
-      "id": "690496405822",
-      "title": "Preserving Lemons and Citrus: Moroccan Salt-Cured ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519817"
-    },
-    {
-      "id": "690495783230",
-      "title": "Plant-Based Milks Homemade Guide: Easy Dairy-Free ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519819"
-    },
-    {
-      "id": "690495619390",
-      "title": "Herbal Tea Collection Build: Blend, Store, and Enj",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519821"
-    },
-    {
-      "id": "690495586622",
-      "title": "Oat Milk Without Separating: Creamy DIY Method at ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519823"
-    },
-    {
-      "id": "690495521086",
-      "title": "Herbal Simple Syrups: Drinks and Desserts Guide wi",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519825"
-    },
-    {
-      "id": "690329190718",
-      "title": "Vintage Bathroom Decor: Timeless Styling Ideas for",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519849"
-    },
-    {
-      "id": "690329092414",
-      "title": "Mini Rock Gardens: Easy Design Ideas for Small Yar",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519855"
-    },
-    {
-      "id": "690329026878",
-      "title": "Fall Landscaping: Seasonal Ideas and Tips for Yard",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519858"
-    },
-    {
-      "id": "690328994110",
-      "title": "Yellow Bathroom Ideas: 21 Cheerful Looks for Small",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519860"
-    },
-    {
-      "id": "690328961342",
-      "title": "Fall Reading Nook: Cozy Decor Ideas for Autumn",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519862"
-    },
-    {
-      "id": "690328928574",
-      "title": "Fall Balcony Decor: 22 Easy Ideas and Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519864"
-    },
-    {
-      "id": "690328863038",
-      "title": "Christmas Wreaths: DIY Step-by-Step Ideas and Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519866"
-    },
-    {
-      "id": "690328797502",
-      "title": "Upcycled Tree Trunks: 22 Easy Ideas and Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519868"
-    },
-    {
-      "id": "690328666430",
-      "title": "Scarecrow Ideas: DIY Lady Scarecrow Projects and T",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519870"
-    },
-    {
-      "id": "690328633662",
-      "title": "Repurposed Old Wine Barrels",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519872"
-    },
-    {
-      "id": "690328568126",
-      "title": "Mailbox Landscaping: 27 Easy Ideas for Curb Appeal",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519874"
-    },
-    {
-      "id": "690328535358",
-      "title": "Birdbath Ideas: DIY Projects for Any Garden Today",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519877"
-    },
-    {
-      "id": "690328502590",
-      "title": "Leaf Confetti: DIY Fall Craft and Cleanup Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519879"
-    },
-    {
-      "id": "690328469822",
-      "title": "Old Wheel Repurposing: Garden Decor Ideas and Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519881"
-    },
-    {
-      "id": "690328437054",
-      "title": "Fall Porch Decor: 24 Warm Ideas and Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519883"
-    },
-    {
-      "id": "690328404286",
-      "title": "Recycled Buttons: Easy Craft Ideas and Uses at Hom",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519885"
-    },
-    {
-      "id": "690328338750",
-      "title": "Crabgrass Benefits: Uses, Dosage, Side Effects, an",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519886"
-    },
-    {
-      "id": "690328305982",
-      "title": "Spilled Flower Pots: 22 Easy Ideas and Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519888"
-    },
-    {
-      "id": "690328174910",
-      "title": "Upcycled Flower Beds: 24 Garden Ideas and Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519890"
-    },
-    {
-      "id": "690328011070",
-      "title": "Christmas Rock Painting: 28 Easy Ideas and Tips",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519892"
-    },
-    {
-      "id": "690327912766",
-      "title": "Outdoor Table Retreat Ideas: 24 Cozy Outdoor Table",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519895"
-    },
-    {
-      "id": "690327716158",
-      "title": "Halloween Mason Jar Ideas: 27 Spooky Decor Project",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519897"
-    },
-    {
-      "id": "690327650622",
-      "title": "Snowman Wreath Ideas: 23 Cozy DIY Designs for Wint",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519900"
-    },
-    {
-      "id": "690327617854",
-      "title": "Upcycled Light Bulb Ideas: 21 DIY Decor Projects f",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519901"
-    },
-    {
-      "id": "690327388478",
-      "title": "22 Fall Leaf Art Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519903"
-    },
-    {
-      "id": "690327290174",
-      "title": "DIY Nature Leaf Hanging Ornaments",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519907"
-    },
-    {
-      "id": "690326733118",
-      "title": "Upcycled Old Windows for Christmas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519909"
-    },
-    {
-      "id": "690326700350",
-      "title": "DIY Pinecone Crafts",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519910"
-    },
-    {
-      "id": "690326667582",
-      "title": "23 Alternative Christmas Tree Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519912"
-    },
-    {
-      "id": "690326438206",
-      "title": "26 Halloween Ghost Craft Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519914"
-    },
-    {
-      "id": "690326405438",
-      "title": "24 Recycled Glass Bottle Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519916"
-    },
-    {
-      "id": "690326372670",
-      "title": "25 Recycled Bottle Cap Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519918"
-    },
-    {
-      "id": "690326339902",
-      "title": "26 Christmas Mantel Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519920"
-    },
-    {
-      "id": "690326307134",
-      "title": "24 Halloween Wood Craft Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519922"
-    },
-    {
-      "id": "690326274366",
-      "title": "32 Recycled Seashell Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519924"
-    },
-    {
-      "id": "690326208830",
-      "title": "24 Christmas Window Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519926"
-    },
-    {
-      "id": "690326176062",
-      "title": "27 Halloween Yard Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519927"
-    },
-    {
-      "id": "690326012222",
-      "title": "26 Halloween Popsicle Stick Craft Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519930"
-    },
-    {
-      "id": "690325979454",
-      "title": "22 Christmas Window Box Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519932"
-    },
-    {
-      "id": "690325913918",
-      "title": "22 Snowflake Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519933"
-    },
-    {
-      "id": "690325881150",
-      "title": "23 Candy Cane Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519941"
-    },
-    {
-      "id": "690325815614",
-      "title": "21 Recycled Plastic Bottle Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519943"
-    },
-    {
-      "id": "690325782846",
-      "title": "27 Paper Cup Craft Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519945"
-    },
-    {
-      "id": "690325717310",
-      "title": "28 Halloween Craft Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519948"
-    },
-    {
-      "id": "690325324094",
-      "title": "DIY Easter Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519950"
-    },
-    {
-      "id": "690325291326",
-      "title": "How to Build a Walipini Greenhouse",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519952"
-    },
-    {
-      "id": "690325225790",
-      "title": "27 Christmas Bauble Decoration Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519954"
-    },
-    {
-      "id": "690325160254",
-      "title": "36 Greenhouse Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519956"
-    },
-    {
-      "id": "690325127486",
-      "title": "DIY Festive Cardboard Mantel",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519958"
-    },
-    {
-      "id": "690325029182",
-      "title": "How to Build a Homemade Vermicomposter",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519959"
-    },
-    {
-      "id": "690324963646",
-      "title": "How to Remove Tree Stump: Step-by-Step Guide + Pro",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519961"
-    },
-    {
-      "id": "690324799806",
-      "title": "Building a Bamboo Trellis Guide",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519963"
-    },
-    {
-      "id": "690324767038",
-      "title": "Hairy Bittercress Benefits: Uses, Dosage, Side Eff",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519965"
-    },
-    {
-      "id": "690324701502",
-      "title": "Chili Leaves Benefits: Nutrition Facts, How to Use",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519967"
-    },
-    {
-      "id": "690324570430",
-      "title": "Papaya Sap Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519971"
-    },
-    {
-      "id": "690324504894",
-      "title": "How to Craft Pom Pom Ornaments",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519974"
-    },
-    {
-      "id": "690324472126",
-      "title": "Walnut Leaves Benefits: Nutrition Facts, How to Us",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519977"
-    },
-    {
-      "id": "690324439358",
-      "title": "Cabbage Leaves Benefits: Nutrition Facts, How to U",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519981"
-    },
-    {
-      "id": "690324275518",
-      "title": "Horsetail Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519983"
-    },
-    {
-      "id": "690324242750",
-      "title": "DIY Snowflake Decor from Plastic Hangers",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519986"
-    },
-    {
-      "id": "690324209982",
-      "title": "33 Christmas Vase for Home Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519988"
-    },
-    {
-      "id": "690324046142",
-      "title": "How to Create Paw Print Christmas Tree Keepsake",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519990"
-    },
-    {
-      "id": "690324013374",
-      "title": "22 Recycled Gnome Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519992"
-    },
-    {
-      "id": "690323915070",
-      "title": "Clove Tea Benefits: Nutrition Facts, How to Use, a",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519994"
-    },
-    {
-      "id": "690323882302",
-      "title": "Rosemary Benefits: Uses, Dosage, Side Effects & In",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519996"
-    },
-    {
-      "id": "690323816766",
-      "title": "DIY Plastic Cup Snowman: Easy Step-by-Step + Budge",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.519998"
-    },
-    {
-      "id": "690323751230",
-      "title": "Lavender Benefits: Uses, Dosage, Side Effects & In",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520000"
-    },
-    {
-      "id": "690323718462",
-      "title": "Kyllinga Brevifolia Benefits: Uses, Dosage, Side E",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520002"
-    },
-    {
-      "id": "690323521854",
-      "title": "Bitter Leaf Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520004"
-    },
-    {
-      "id": "690323390782",
-      "title": "Foxtail Grass Benefits: Uses, Dosage, Side Effects",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520006"
-    },
-    {
-      "id": "690323358014",
-      "title": "Soursop Leaves Benefits: Nutrition Facts, How to U",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520008"
-    },
-    {
-      "id": "690323194174",
-      "title": "Hawthorn Benefits: Uses, Dosage, Side Effects & In",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520010"
-    },
-    {
-      "id": "690323128638",
-      "title": "How to Turn Plastic Bottles into Rotating Irrigati",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520012"
-    },
-    {
-      "id": "690323030334",
-      "title": "Calendula Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520014"
-    },
-    {
-      "id": "690322899262",
-      "title": "Common Rue Benefits (Ruta graveolens): Uses, Dosag",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520016"
-    },
-    {
-      "id": "690322735422",
-      "title": "Cleavers Benefits: Uses, Dosage, Side Effects & In",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520019"
-    },
-    {
-      "id": "690322669886",
-      "title": "Papaya Leaf for Battling Dengue Fever",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520021"
-    },
-    {
-      "id": "690322637118",
-      "title": "Nopal Cactus Benefits: Uses, Dosage, Side Effects ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520028"
-    },
-    {
-      "id": "690322571582",
-      "title": "Pruning Rose Bushes Guide",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520032"
-    },
-    {
-      "id": "690322506046",
-      "title": "Wild Violet Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520036"
-    },
-    {
-      "id": "690322473278",
-      "title": "Milkweed for Treating Diarrhea",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520039"
-    },
-    {
-      "id": "690322440510",
-      "title": "Aloe Vera for Hair Health",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520043"
-    },
-    {
-      "id": "690322374974",
-      "title": "How to Propagate Sansevieria",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520046"
-    },
-    {
-      "id": "690322243902",
-      "title": "Chelidonium Majus Benefits: Uses, Dosage, Side Eff",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520049"
-    },
-    {
-      "id": "690314838334",
-      "title": "Collard Greens Benefits: Nutrition Facts, How to U",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520053"
-    },
-    {
-      "id": "690314543422",
-      "title": "Thyme Benefits: Uses, Dosage, Side Effects & Inter",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520056"
-    },
-    {
-      "id": "690314510654",
-      "title": "Comfrey Benefits: Uses, Dosage, Side Effects & Int",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520059"
-    },
-    {
-      "id": "690313953598",
-      "title": "Knotweed Benefits: Uses, Dosage, Side Effects",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520062"
-    },
-    {
-      "id": "690309071166",
-      "title": "Black Garlic Benefits: Uses, Dosage, Side Effects ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520066"
-    },
-    {
-      "id": "690309038398",
-      "title": "Marshmallow Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520069"
-    },
-    {
-      "id": "690308972862",
-      "title": "Cranberries Benefits: Nutrition Facts, How to Use,",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520073"
-    },
-    {
-      "id": "690308874558",
-      "title": "Pumpkin Benefits: Nutrition Facts, How to Use, and",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520077"
-    },
-    {
-      "id": "690305335614",
-      "title": "Blechnaceae Benefits: Uses, Dosage, Side Effects",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520080"
-    },
-    {
-      "id": "690304942398",
-      "title": "Boiled Bananas Benefits: Nutrition Facts, How to U",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520084"
-    },
-    {
-      "id": "690296357182",
-      "title": "Lemongrass Tea: Hot Brew vs Cold Brew for Warm Wea",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520088"
-    },
-    {
-      "id": "690296291646",
-      "title": "Passionflower Tea for Evenings: Perfect Ratios, St",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520092"
-    },
-    {
-      "id": "690295800126",
-      "title": "Water Spinach Container Culture for Rainy Seasons ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520095"
-    },
-    {
-      "id": "690295570750",
-      "title": "Mustard Greens: Spring and Fall Sowing Guide for",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520099"
-    },
-    {
-      "id": "690295505214",
-      "title": "Bitter Melon Cool-Season Strategies for Mild Coast",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520103"
-    },
-    {
-      "id": "690295472446",
-      "title": "Bitter Melon Monsoon Drainage and Trellis Ideas fo",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520106"
-    },
-    {
-      "id": "690295406910",
-      "title": "Syzygium nervosum Tea: Floral-Spice Profile and Li",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520110"
-    },
-    {
-      "id": "690295177534",
-      "title": "Pandan Tea Syrup: Iced Drinks",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520113"
-    },
-    {
-      "id": "690295111998",
-      "title": "Lemongrass Batch Brew: Make-Ahead Iced Tea for the",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520116"
-    },
-    {
-      "id": "690293735742",
-      "title": "Daisy Fleabane Care: Wildflower Look Without the F",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520120"
-    },
-    {
-      "id": "690293670206",
-      "title": "Globe Amaranth Bed Design: Color Blocks That Pop i",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520123"
-    },
-    {
-      "id": "690293637438",
-      "title": "Globe Amaranth Edible Uses: Confetti Salads and Ca",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520127"
-    },
-    {
-      "id": "690293276990",
-      "title": "Green Amaranth Nutrients: Tender Leaves Without Ni",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520130"
-    },
-    {
-      "id": "690293014846",
-      "title": "Water Spinach Hydroponic Setup: Optimal Nutrient",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520134"
-    },
-    {
-      "id": "690292654398",
-      "title": "Bok Choy Flavor Fixes: Preventing Bitterness and H",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520138"
-    },
-    {
-      "id": "690292556094",
-      "title": "Bok Choy for Small Spaces: Square-Foot Layouts Tha",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520141"
-    },
-    {
-      "id": "690292392254",
-      "title": "Mustard Greens Mixes: Mild-to-Spicy Rows for Every",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520145"
-    },
-    {
-      "id": "690292195646",
-      "title": "Cold Stratification Guide: Maple, Magnolia, Sedum,",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520148"
-    },
-    {
-      "id": "690291769662",
-      "title": "Succession Calendar: Weekly Sows for Nonstop Harve",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520152"
-    },
-    {
-      "id": "690291376446",
-      "title": "Soil Mix Recipes: Leafy Greens vs Vines vs Flowers",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520156"
-    },
-    {
-      "id": "690289738046",
-      "title": "Red Palm Oil: Golden Rice, Savory Sauces, and Arom",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520159"
-    },
-    {
-      "id": "690287935806",
-      "title": "Blackstrap Molasses in Baking: Achieve Moist Crumb",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520163"
-    },
-    {
-      "id": "690287804734",
-      "title": "Bitter Melon Tea: Salt-Rinse vs Hot-Steep for Bett",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520166"
-    },
-    {
-      "id": "690287280446",
-      "title": "Floral Infusions: Forget-Me-Not & Gomphrena for Vi",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520168"
-    },
-    {
-      "id": "690284396862",
-      "title": "Water Spinach Continuous Cut System: Weekly Regrow",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520170"
-    },
-    {
-      "id": "690284003646",
-      "title": "Water Spinach: Semi-Hydro Buckets for Fast, Clean ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520172"
-    },
-    {
-      "id": "690283741502",
-      "title": "Sedum 'Autumn Joy' Heat Care: Reflective Mulch and",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520174"
-    },
-    {
-      "id": "690283544894",
-      "title": "Glutinous Corn Storage: Freezing, Husk-On Holding,",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520176"
-    },
-    {
-      "id": "690283512126",
-      "title": "Glutinous Corn Watering: Milky Stage Care for Best",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520178"
-    },
-    {
-      "id": "690283348286",
-      "title": "Eastern Persimmon Seedling Sexing: Graft Timing Gu",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520180"
-    },
-    {
-      "id": "690283315518",
-      "title": "Magnolia Seedling Success: First Year Care & Winte",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520182"
-    },
-    {
-      "id": "690282627390",
-      "title": "Protecting Green Amaranth: Identifying and Managin",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520183"
-    },
-    {
-      "id": "690211815742",
-      "title": "30-Day Balcony Challenge: Plant, Brew, and Cook Wi",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520187"
-    },
-    {
-      "id": "690211717438",
-      "title": "Breakfast Bowls: Superfood Powder Combos That Tast",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520189"
-    },
-    {
-      "id": "690211684670",
-      "title": "Red Palm Oil in High-Heat Cooking: Smoke Point & S",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520191"
-    },
-    {
-      "id": "690211029310",
-      "title": "Guava Leaf Tea Pairings: Citrus, Mint, and Gentle ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520193"
-    },
-    {
-      "id": "690210996542",
-      "title": "Guava Leaf Tea: Steeping Temperatures for Clean",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520195"
-    },
-    {
-      "id": "690210963774",
-      "title": "Jicama Snack Box: Crunchy Prep with Lime and Chili",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520196"
-    },
-    {
-      "id": "690210931006",
-      "title": "Glutinous Corn Kitchen Guide: Sticky Rice Corn Des",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520198"
-    },
-    {
-      "id": "690210865470",
-      "title": "Bitter Melon Recipes: Stir-Fry, Stuffed, and Tea",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520200"
-    },
-    {
-      "id": "690210832702",
-      "title": "Low-Light Strategies: Reflective Surfaces for Shad",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520202"
-    },
-    {
-      "id": "690210799934",
-      "title": "Five Garden Trellis Types: From Cattle Panel Arche",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520204"
-    },
-    {
-      "id": "690210734398",
-      "title": "Saving Water With Smart Mulch Choices for Heat-Lov",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520206"
-    },
-    {
-      "id": "690210701630",
-      "title": "Harvest & Store: Keeping Greens Crisp Without Plas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520208"
-    },
-    {
-      "id": "690210636094",
-      "title": "Cut-and-Come-Again Systems: Scheduling Mustard and",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520210"
-    },
-    {
-      "id": "690210505022",
-      "title": "Beginner Seed Kit: Five Fast Crops for a 30-Day Ha",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520212"
-    },
-    {
-      "id": "690210472254",
-      "title": "Seed Viability Tests: Float, Fold, and 10-Seed",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520214"
-    },
-    {
-      "id": "690210406718",
-      "title": "Companion Planting Map: Bitter Melon Arches Over L",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520216"
-    },
-    {
-      "id": "690209947966",
-      "title": "Great Mullein Habitat Value: Winter Rosettes and",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520218"
-    },
-    {
-      "id": "690200805694",
-      "title": "Rice Paddy Herb from Seed: Moisture, Light & Aroma",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520220"
-    },
-    {
-      "id": "682729865534",
-      "title": "Community permaculture that feeds cities: a practi",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520222"
-    },
-    {
-      "id": "682729767230",
-      "title": "Blockchain for fair labor in agriculture: a practi",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520224"
-    },
-    {
-      "id": "682651648318",
-      "title": "Achieving balance with permaculture gardens: a gro",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520226"
-    },
-    {
-      "id": "682426138942",
-      "title": "Growing sweet potatoes the low-maintenance way: sl",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520228"
-    },
-    {
-      "id": "682378395966",
-      "title": "Tree-Planting Journey: From One Sapling to a Green",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520230"
-    },
-    {
-      "id": "654526808382",
-      "title": "The Art Industry’s Eco-Friendly Revolution",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520232"
-    },
-    {
-      "id": "654302839102",
-      "title": "Crafting Eco-Conscious Handicrafts",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520233"
-    },
-    {
-      "id": "652474024254",
-      "title": "Transforming Urban Spaces through Gardening",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-16T14:24:42.520235"
+      "updated_at": "2026-02-16T19:57:04.673777"
     }
   ]
 }
