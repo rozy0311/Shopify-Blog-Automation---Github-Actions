@@ -38,7 +38,7 @@ jobs:
             LEXICA_ONLY_SD15: "1"
             LEXICA_RESULT_LIMIT: "30"
             LEXICA_FALLBACK_ONLY: "1"
-            VISION_REVIEW: "1"
+            VISION_REVIEW: "0"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
             GOOGLE_AI_STUDIO_API_KEY: ${{ secrets.GOOGLE_AI_STUDIO_API_KEY }}
