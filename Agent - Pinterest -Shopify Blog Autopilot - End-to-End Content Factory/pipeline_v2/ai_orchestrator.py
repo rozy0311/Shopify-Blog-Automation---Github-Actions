@@ -297,8 +297,11 @@ def call_gemini_api(
     return ""
 
 
-def call_github_models_api(prompt: str, max_tokens: int = 7000) -> str:
-    """Call GitHub Models API (OpenAI-compatible) as fallback."""
+def call_github_models_api(prompt: str, max_tokens: int = 7000, max_retries: int = 3) -> str:
+    """Call GitHub Models API (OpenAI-compatible) as fallback.
+
+    Includes retry logic with exponential backoff for 429/5xx errors.
+    """
     if not GH_MODELS_API_KEY:
         print("⚠️ GH_MODELS_API_KEY not set, skipping GitHub Models")
         return ""
@@ -325,16 +328,37 @@ def call_github_models_api(prompt: str, max_tokens: int = 7000) -> str:
         "temperature": 0.7,
     }
 
-    try:
-        resp = requests.post(endpoint, json=payload, headers=headers, timeout=120)
-        if resp.status_code == 200:
-            data = resp.json()
-            choices = data.get("choices", [])
-            if choices:
-                return choices[0].get("message", {}).get("content", "")
-        print(f"⚠️ GitHub Models API error: {resp.status_code}")
-    except Exception as e:
-        print(f"⚠️ GitHub Models API exception: {e}")
+    for attempt in range(max_retries):
+        try:
+            resp = requests.post(endpoint, json=payload, headers=headers, timeout=120)
+            if resp.status_code == 200:
+                data = resp.json()
+                choices = data.get("choices", [])
+                if choices:
+                    return choices[0].get("message", {}).get("content", "")
+            elif resp.status_code == 429:
+                wait_time = (2 ** attempt) * 10 + random.uniform(2, 8)
+                print(f"⚠️ GitHub Models API rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait_time)
+                continue
+            elif resp.status_code >= 500:
+                wait_time = (2 ** attempt) * 3
+                print(f"⚠️ GitHub Models API server error ({resp.status_code}), retrying in {wait_time}s...")
+                time.sleep(wait_time)
+                continue
+            else:
+                print(f"⚠️ GitHub Models API error: {resp.status_code}")
+                return ""
+        except requests.exceptions.Timeout:
+            print(f"⚠️ GitHub Models API timeout (attempt {attempt + 1}/{max_retries})")
+            if attempt < max_retries - 1:
+                time.sleep(5)
+                continue
+        except Exception as e:
+            print(f"⚠️ GitHub Models API exception: {mask_secrets(str(e))}")
+            return ""
+
+    print(f"⚠️ GitHub Models API failed after {max_retries} retries")
     return ""
 
 
@@ -405,8 +429,11 @@ def call_pollinations_text_api(prompt: str, max_tokens: int = 7000) -> str:
     return ""
 
 
-def call_openai_api(prompt: str, max_tokens: int = 7000) -> str:
-    """Call OpenAI API as fallback."""
+def call_openai_api(prompt: str, max_tokens: int = 7000, max_retries: int = 3) -> str:
+    """Call OpenAI API as fallback.
+
+    Includes retry logic with exponential backoff for 429/5xx errors.
+    """
     if not OPENAI_API_KEY:
         return ""
 
@@ -422,16 +449,37 @@ def call_openai_api(prompt: str, max_tokens: int = 7000) -> str:
         "temperature": 0.7,
     }
 
-    try:
-        resp = requests.post(endpoint, json=payload, headers=headers, timeout=120)
-        if resp.status_code == 200:
-            data = resp.json()
-            choices = data.get("choices", [])
-            if choices:
-                return choices[0].get("message", {}).get("content", "")
-        print(f"⚠️ OpenAI API error: {resp.status_code} - {resp.text[:200]}")
-    except Exception as e:
-        print(f"⚠️ OpenAI API exception: {e}")
+    for attempt in range(max_retries):
+        try:
+            resp = requests.post(endpoint, json=payload, headers=headers, timeout=120)
+            if resp.status_code == 200:
+                data = resp.json()
+                choices = data.get("choices", [])
+                if choices:
+                    return choices[0].get("message", {}).get("content", "")
+            elif resp.status_code == 429:
+                wait_time = (2 ** attempt) * 10 + random.uniform(2, 8)
+                print(f"⚠️ OpenAI API rate limit (429), waiting {wait_time:.1f}s... (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait_time)
+                continue
+            elif resp.status_code >= 500:
+                wait_time = (2 ** attempt) * 3
+                print(f"⚠️ OpenAI API server error ({resp.status_code}), retrying in {wait_time}s...")
+                time.sleep(wait_time)
+                continue
+            else:
+                print(f"⚠️ OpenAI API error: {resp.status_code} - {mask_secrets(resp.text[:200])}")
+                return ""
+        except requests.exceptions.Timeout:
+            print(f"⚠️ OpenAI API timeout (attempt {attempt + 1}/{max_retries})")
+            if attempt < max_retries - 1:
+                time.sleep(5)
+                continue
+        except Exception as e:
+            print(f"⚠️ OpenAI API exception: {mask_secrets(str(e))}")
+            return ""
+
+    print(f"⚠️ OpenAI API failed after {max_retries} retries")
     return ""
 
 
@@ -1938,7 +1986,11 @@ class ShopifyAPI:
 
         articles = []
         while url:
-            resp = requests.get(url, headers=HEADERS)
+            try:
+                resp = requests.get(url, headers=HEADERS, timeout=30)
+            except requests.exceptions.RequestException as e:
+                print(f"⚠️ get_all_articles request failed: {e}")
+                break
             if resp.status_code != 200:
                 break
             data = resp.json()
@@ -1964,8 +2016,12 @@ class ShopifyAPI:
             )
 
         url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
-        resp = requests.put(url, headers=HEADERS, json={"article": data})
-        return resp.status_code == 200
+        try:
+            resp = requests.put(url, headers=HEADERS, json={"article": data}, timeout=60)
+            return resp.status_code == 200
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ update_article request failed: {e}")
+            return False
 
 
 # ============================================================================
@@ -4318,7 +4374,7 @@ tr:nth-child(even) { background-color: #f9f9f9; }
                                     )
                                     a_tag.string = f"{domain} — Trusted Source"
                                     modified = True
-                                except:
+                                except Exception:
                                     pass
                             elif " - " in link_text:
                                 # Simple hyphen to em-dash conversion
@@ -4571,8 +4627,12 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         article_id = str(article.get("id"))
         url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
         payload = {"article": {"id": int(article_id), "summary_html": meta}}
-        resp = requests.put(url, headers=HEADERS, json=payload)
-        return resp.status_code == 200
+        try:
+            resp = requests.put(url, headers=HEADERS, json=payload, timeout=60)
+            return resp.status_code == 200
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ _ensure_meta_description request failed: {e}")
+            return False
 
     def _auto_fix_article(self, article_id: str) -> dict:
         """Auto-fix: images + meta description, then re-audit."""
