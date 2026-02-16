@@ -456,6 +456,13 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 <<<<<<< Updated upstream
 2026-02-16T22:02:59.958191,690331779390,Hanging Flowers Blooming All Summer: Simple Care Guide,failed,9,False,pre_publish_review_fail_after_fix,,
 2026-02-16T22:12:31.420489,690331648318,Cucumber Trellis Space-Saving: Support Ideas for Small Gardens,failed,7,False,GATE_FAIL,,
+<<<<<<< Updated upstream
 =======
 2026-02-16T22:25:14.048645,690331615550,Tire Garden Upcycled Planter Ideas: Easy Projects for Yards,failed,8,False,GATE_FAIL,,
+>>>>>>> Stashed changes
+=======
+2026-02-16T22:33:10.831518,690325225790,27 Christmas Bauble Decoration Ideas,done,9,True,review+cleanup+publish,,
+2026-02-16T22:33:27.948567,690325160254,36 Greenhouse Ideas,done,9,True,review+cleanup+publish,,
+2026-02-16T22:43:20.034946,690325127486,DIY Festive Cardboard Mantel,done,10,True,force_rebuild,,
+2026-02-16T22:43:25.232011,690325127486,DIY Festive Cardboard Mantel,done,10,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
