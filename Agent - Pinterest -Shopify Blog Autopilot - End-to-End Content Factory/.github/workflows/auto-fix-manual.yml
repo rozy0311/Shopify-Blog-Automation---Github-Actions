@@ -146,9 +146,20 @@ jobs:
                       raise SystemExit(0)
 
                   items = data.get('items', [])
+
+                  # Auto-escalate stuck articles
+                  import datetime
+                  MAX_ESCALATE_ATTEMPTS = 5
+                  for item in items:
+                      if item.get('status') in ('failed', 'retrying', 'pending') and int(item.get('attempts', 0)) >= MAX_ESCALATE_ATTEMPTS:
+                          item['status'] = 'manual_review'
+                          item['last_error'] = f"AUTO_ESCALATED_AFTER_{item.get('attempts')}_ATTEMPTS: {item.get('last_error', '')}"
+                  data['items'] = items
+                  queue_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+
                   pending_like = [
                       i for i in items
-                      if i.get('status') in {'pending', 'failed', 'retrying', 'manual_review'}
+                      if i.get('status') in {'pending', 'failed', 'retrying'}
                   ]
                   needs_refresh = 'false' if pending_like else 'true'
                   if output_path:
@@ -237,7 +248,7 @@ jobs:
                   AID="${{ github.event.inputs.article_id }}"
                   python ai_orchestrator.py fix-ids "$AID"
                   python ai_orchestrator.py force-rebuild-ids "$AID"
-                  python fix_images_properly.py --article-id "$AID" || true
+                  python fix_images_properly.py --article-id "$AID" --images-only || true
 
             - name: Review single article
               if: github.event.inputs.article_id != ''
