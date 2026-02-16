@@ -251,13 +251,15 @@ jobs:
                   queue_path = Path('anti_drift_queue.json')
                   data = json.loads(queue_path.read_text(encoding='utf-8'))
                   items = data.get('items', [])
-                  pending = [i for i in items if i.get('status') in ('pending',)]
+                  # Check ALL non-done items: pending, failed, retrying, manual_review
+                  # Any article that is published + no critical errors should be marked done
+                  pending = [i for i in items if i.get('status') not in ('done', 'in_progress')]
 
                   if not pending:
-                      print("No pending items to check.")
+                      print("No items to check for FAST-SKIP.")
                       sys.exit(0)
 
-                  print(f"Checking {len(pending)} pending articles for FAST-SKIP...")
+                  print(f"Checking {len(pending)} non-done articles for FAST-SKIP...")
 
                   SHOP = os.environ.get('SHOPIFY_SHOP') or os.environ.get('SHOPIFY_STORE_DOMAIN') or ''
                   if SHOP and '.myshopify.com' not in SHOP:
