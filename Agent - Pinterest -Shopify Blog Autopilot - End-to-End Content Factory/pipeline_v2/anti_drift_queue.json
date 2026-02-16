@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-15T17:11:01.489779",
-  "updated_at": "2026-02-16T18:12:58.890862",
+  "updated_at": "2026-02-16T18:44:54.114249",
   "items": [
     {
       "id": "690524029246",
@@ -37,7 +37,7 @@
       "attempts": 1,
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:12:58.890856",
+      "updated_at": "2026-02-16T18:34:10.605177",
       "fail_reason": ""
     },
     {
@@ -70,11 +70,11 @@
     {
       "id": "690498470206",
       "title": "Cutting Garden Grow Flowers for Bouquets: Easy Sea",
-      "status": "pending",
-      "attempts": 0,
+      "status": "failed",
+      "attempts": 1,
       "last_error": "PRE_PUBLISH_REVIEW_FAIL_AFTER_1_ATTEMPTS",
       "shopify_url": null,
-      "updated_at": "2026-02-15T18:39:53.395046",
+      "updated_at": "2026-02-16T18:44:54.114240",
       "fail_reason": ""
     },
     {
@@ -93,7 +93,7 @@
       "attempts": 0,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:01:43.926177",
+      "updated_at": "2026-02-16T18:23:11.754428",
       "fail_reason": ""
     },
     {
@@ -103,7 +103,7 @@
       "attempts": 0,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:01:45.393005",
+      "updated_at": "2026-02-16T18:23:12.511684",
       "fail_reason": ""
     },
     {
@@ -513,7 +513,7 @@
       "attempts": 0,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:02:21.944992",
+      "updated_at": "2026-02-16T18:23:35.346768",
       "fail_reason": ""
     },
     {
