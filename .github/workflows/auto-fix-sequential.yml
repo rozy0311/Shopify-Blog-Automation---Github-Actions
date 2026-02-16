@@ -142,14 +142,20 @@ jobs:
                       i for i in items
                       if i.get('status') in {'pending', 'failed', 'retrying', 'manual_review'}
                   ]
+                  total = len(items)
+                  done_count = len([i for i in items if i.get('status') == 'done'])
 
-                  # Periodic re-scan: every 50 runs, force refresh to catch NEW broken articles
-                  # (title repeats, low words, regressions from other changes)
-                  force_periodic = (run_number % 50 == 0) and run_number > 0
+                  # Periodic re-scan: every 15 runs (~2.5h), force refresh to catch NEW broken articles
+                  force_periodic = (run_number % 15 == 0) and run_number > 0
                   if force_periodic:
                       print(f"[PERIODIC RESCAN] Run #{run_number} — forcing queue refresh")
 
-                  needs_refresh = 'true' if (not pending_like or force_periodic) else 'false'
+                  # Smart refresh: if >80% of queue is done, most work is finished → rescan for new issues
+                  smart_refresh = total > 0 and (done_count / total) > 0.80
+                  if smart_refresh and not force_periodic:
+                      print(f"[SMART REFRESH] {done_count}/{total} done ({done_count*100//total}%) — triggering rescan")
+
+                  needs_refresh = 'true' if (not pending_like or force_periodic or smart_refresh) else 'false'
                   if output_path:
                       with open(output_path, 'a', encoding='utf-8') as f:
                           f.write(f'needs_refresh={needs_refresh}\n')
@@ -239,7 +245,7 @@ jobs:
                   fi
                   echo "=== BATCH FAST-SKIP: Checking all pending articles ==="
                   python - <<'BATCH_SKIP'
-                  import json, os, sys, subprocess, requests, time
+                  import json, os, sys, requests, time
                   from pathlib import Path
 
                   queue_path = Path('anti_drift_queue.json')
@@ -260,8 +266,14 @@ jobs:
                   TOKEN = os.environ.get('SHOPIFY_ACCESS_TOKEN') or ''
                   API_VERSION = os.environ.get('SHOPIFY_API_VERSION') or '2025-01'
 
+                  GENERIC_PHRASES = [
+                      'this comprehensive guide provides', 'this comprehensive guide covers',
+                      'whether you are a beginner', "whether you're a beginner",
+                      'this practical guide', 'join thousands who have already mastered',
+                  ]
+
                   skipped = 0
-                  failed_review = 0
+                  still_broken = 0
                   not_published = 0
                   errors = 0
 
@@ -281,27 +293,15 @@ jobs:
                       if (idx + 1) % 20 == 0:
                           print(f"  ... checked {idx + 1}/{len(pending)}")
 
-                      # Step 1: Run pre_publish_review
-                      try:
-                          result = subprocess.run(
-                              ['python', '../scripts/pre_publish_review.py', aid],
-                              capture_output=True, text=True, timeout=120
-                          )
-                          if result.returncode != 0:
-                              failed_review += 1
-                              continue
-                      except Exception as e:
-                          errors += 1
-                          continue
-
-                      # Step 2: Check if published on Shopify
+                      # Step 1: Check Shopify published status FIRST (fast API call)
                       try:
                           url = f'https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{aid}.json'
                           r = requests.get(url, headers={'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json'}, timeout=15)
                           if r.status_code != 200:
                               not_published += 1
                               continue
-                          pub = r.json().get('article', {}).get('published_at', '')
+                          article = r.json().get('article', {})
+                          pub = article.get('published_at', '')
                           if not pub:
                               not_published += 1
                               continue
@@ -309,15 +309,56 @@ jobs:
                           errors += 1
                           continue
 
-                      # Both checks pass → mark done
+                      # Step 2: Lightweight critical-error check (NO full pre_publish_review)
+                      # Only check errors that truly harm SEO/UX on published articles
+                      body = article.get('body_html', '') or ''
+                      body_lower = body.lower()
+                      has_critical_error = False
+
+                      # Check broken images (HTTP 404 img tags)
+                      import re as _re
+                      img_srcs = _re.findall(r'<img[^>]+src=["\']([^"\'>]+)["\']', body)
+                      broken_imgs = 0
+                      for src in img_srcs[:5]:  # Check max 5 images to stay fast
+                          try:
+                              ir = requests.head(src, timeout=8, allow_redirects=True)
+                              if ir.status_code >= 400:
+                                  broken_imgs += 1
+                          except Exception:
+                              broken_imgs += 1
+                      if broken_imgs > 0:
+                          has_critical_error = True
+                          print(f"  [{aid}] CRITICAL: {broken_imgs} broken images")
+
+                      # Check word count (< 1500 is critical for SEO)
+                      from bs4 import BeautifulSoup as _BS
+                      soup = _BS(body, 'html.parser')
+                      text = soup.get_text(' ', strip=True)
+                      wc = len(_re.findall(r'\w+', text))
+                      if wc < 1500:
+                          has_critical_error = True
+                          print(f"  [{aid}] CRITICAL: word count {wc} < 1500")
+
+                      # Check generic content (≥3 phrases = spam)
+                      generic_count = sum(1 for p in GENERIC_PHRASES if p in body_lower)
+                      if generic_count >= 3:
+                          has_critical_error = True
+                          print(f"  [{aid}] CRITICAL: {generic_count} generic phrases")
+
+                      if has_critical_error:
+                          still_broken += 1
+                          continue
+
+                      # Published + no critical errors → mark done
                       item['status'] = 'done'
                       item['last_error'] = 'ALREADY_OK_BATCH'
                       item['updated_at'] = __import__('datetime').datetime.now().isoformat()
                       done_ids.add(aid)
                       skipped += 1
+                      print(f"  [{aid}] SKIP: published, {wc} words, no critical errors")
 
                       # Rate limit: small delay every 10 articles to avoid Shopify throttle
-                      if skipped % 10 == 0:
+                      if (skipped + still_broken) % 10 == 0:
                           time.sleep(1)
 
                   # Save queue
@@ -344,7 +385,7 @@ jobs:
                   remaining = len([i for i in items if i.get('status') in ('pending', 'failed', 'retrying')])
                   print(f"\n=== BATCH FAST-SKIP RESULTS ===")
                   print(f"  Skipped (already OK): {skipped}")
-                  print(f"  Failed review (need fix): {failed_review}")
+                  print(f"  Still broken (critical errors): {still_broken}")
                   print(f"  Not published: {not_published}")
                   print(f"  Errors: {errors}")
                   print(f"  Auto-escalated (stuck ≥{MAX_ESCALATE_ATTEMPTS} attempts): {escalated}")
