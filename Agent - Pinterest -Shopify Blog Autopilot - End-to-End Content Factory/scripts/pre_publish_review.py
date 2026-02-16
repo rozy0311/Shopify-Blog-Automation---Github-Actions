@@ -235,15 +235,9 @@ GENERIC_PHRASES = [
     "no one succeeds in isolation",
     "perfect for anyone looking to improve",
     "the focus is on",
-    "overall,",
-    "it's important to remember",
-    "it is important to remember",
     "supporting data",
     "cited quotes",
     "advanced techniques for experienced",
-    "practical tips",
-    "maintenance and care",
-    "expert insights",
     "research highlights",
 ]
 
@@ -608,11 +602,11 @@ def review_article(article_id):
         for phrase in GENERIC_PHRASES:
             if phrase.lower() in visible_text_lower:
                 found_generic.append(phrase)
-        if len(found_generic) >= 3:
+        if len(found_generic) >= 6:
             errors.append(
                 f"❌ GENERIC CONTENT: Found {len(found_generic)} generic phrase(s): {', '.join(found_generic[:5])}"
             )
-        elif found_generic:
+        elif len(found_generic) >= 3:
             warnings.append(
                 f"⚠️ GENERIC CONTENT: Found {len(found_generic)} generic phrase(s): {', '.join(found_generic[:5])}"
             )

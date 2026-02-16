@@ -3233,57 +3233,6 @@ class AIOrchestrator:
         desc = f"Learn how to handle {topic} with a clear step-by-step process, practical tips, and troubleshooting guidance for reliable results."
         return desc[:160]
 
-    def _auto_fix_article(self, article_id: str) -> dict:
-        article = self.api.get_article(article_id)
-        if not article:
-            return {"status": "error", "error": "ARTICLE_NOT_FOUND"}
-
-        title = article.get("title", "")
-        body_html = self._build_article_body(title)
-
-        # If LLM failed (returned empty/short content), return error
-        if len(body_html) < 1000:
-            print(f"❌ LLM failed for {article_id} - no content to update")
-            # Check if existing content might already be acceptable
-            existing_audit = self.quality_gate.full_audit(article)
-            if existing_audit.get("deterministic_gate", {}).get("pass", False):
-                return {"status": "done", "audit": existing_audit}
-            return {"status": "error", "error": "LLM_GENERATION_FAILED"}
-
-        meta_description = self._build_meta_description(title)
-
-        update_payload = {"body_html": body_html, "summary_html": meta_description}
-
-        updated = self.api.update_article(article_id, update_payload)
-        if not updated:
-            return {"status": "error", "error": "UPDATE_FAILED"}
-
-        # Fix images using existing script
-        fix_script = PIPELINE_DIR / "fix_images_properly.py"
-        if fix_script.exists():
-            subprocess.run(
-                [
-                    os.environ.get("PYTHON", "python"),
-                    str(fix_script),
-                    "--article-id",
-                    str(article_id),
-                ],
-                check=False,
-            )
-
-        # Re-audit
-        refreshed = self.api.get_article(article_id)
-        if not refreshed:
-            return {"status": "error", "error": "RELOAD_FAILED"}
-        audit = self.quality_gate.full_audit(refreshed)
-
-        return {
-            "status": (
-                "done" if audit.get("deterministic_gate", {}).get("pass") else "failed"
-            ),
-            "audit": audit,
-        }
-
     def scan_all_articles(self, status: str = "published"):
         """Scan all articles and categorize by quality"""
         print("\n" + "=" * 70)
