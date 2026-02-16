@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T18:45:54.027521",
-  "updated_at": "2026-02-16T21:25:25.793978",
+  "updated_at": "2026-02-16T21:43:37.329676",
   "items": [
     {
       "id": "690524029246",
@@ -346,37 +346,37 @@
       "id": "690332008766",
       "title": "Snake Plant Bloom: How to Make It Flower Indoors",
       "status": "done",
-      "attempts": 0,
+      "attempts": 1,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T21:13:11.708592"
+      "updated_at": "2026-02-16T21:31:16.517702"
     },
     {
       "id": "690331943230",
       "title": "Black Houseplants: Best Varieties and Care Guide I",
-      "status": "manual_review",
-      "attempts": 1,
-      "last_error": "GATE_FAIL",
-      "shopify_url": null,
-      "updated_at": "2026-02-16T21:24:49.642068"
-    },
-    {
-      "id": "690331910462",
-      "title": "Healing Bedroom Plants: Tips, Mistakes, and Easy F",
       "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T21:25:25.793972"
+      "updated_at": "2026-02-16T21:10:41.022186"
+    },
+    {
+      "id": "690331910462",
+      "title": "Healing Bedroom Plants: Tips, Mistakes, and Easy F",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-16T21:43:27.114799"
     },
     {
       "id": "690331812158",
       "title": "Rose Propagation Grow Roses: Simple Calyx Method G",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027449"
+      "updated_at": "2026-02-16T21:43:37.329671"
     },
     {
       "id": "690331779390",

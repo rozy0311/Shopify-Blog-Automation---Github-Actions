@@ -445,6 +445,11 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-16T20:56:14.585493,690332107070,Flower Bed Ideas: 16 Unique Designs for Every Yard,done,10,True,review+cleanup+publish,,
 <<<<<<< Updated upstream
 2026-02-16T21:10:15.306333,690332008766,Snake Plant Bloom: How to Make It Flower Indoors,failed,7,False,GATE_FAIL,,
+<<<<<<< Updated upstream
 =======
 2026-02-16T21:24:49.644143,690331943230,Black Houseplants: Best Varieties and Care Guide Indoors,failed,8,False,GATE_FAIL,,
+>>>>>>> Stashed changes
+=======
+2026-02-16T21:43:22.045983,690331910462,"Healing Bedroom Plants: Tips, Mistakes, and Easy Fixes",done,9,True,force_rebuild,,
+2026-02-16T21:43:27.117860,690331910462,"Healing Bedroom Plants: Tips, Mistakes, and Easy Fixes",done,9,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
