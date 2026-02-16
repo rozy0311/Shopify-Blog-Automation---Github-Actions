@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T18:45:54.027521",
-  "updated_at": "2026-02-16T21:10:41.022191",
+  "updated_at": "2026-02-16T21:25:25.793978",
   "items": [
     {
       "id": "690524029246",
@@ -345,29 +345,29 @@
     {
       "id": "690332008766",
       "title": "Snake Plant Bloom: How to Make It Flower Indoors",
-      "status": "manual_review",
-      "attempts": 1,
-      "last_error": "GATE_FAIL",
+      "status": "done",
+      "attempts": 0,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T21:10:15.304269"
+      "updated_at": "2026-02-16T21:13:11.708592"
     },
     {
       "id": "690331943230",
       "title": "Black Houseplants: Best Varieties and Care Guide I",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-16T21:10:41.022186"
+      "updated_at": "2026-02-16T21:24:49.642068"
     },
     {
       "id": "690331910462",
       "title": "Healing Bedroom Plants: Tips, Mistakes, and Easy F",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027447"
+      "updated_at": "2026-02-16T21:25:25.793972"
     },
     {
       "id": "690331812158",
