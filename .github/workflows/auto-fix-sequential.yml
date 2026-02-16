@@ -67,7 +67,7 @@ jobs:
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             GEMINI_IMAGE_GEN_MODELS: "gemini-2.0-flash-exp-image-generation,gemini-2.5-flash-image,gemini-3-pro-image-preview"
             REQUIRE_PINTEREST_IMAGE: "0"
-            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '2' }}
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '3' }}
             FIX_DELAY_SECONDS: "10"
             MAX_ATTEMPTS_PER_ARTICLE: "1"
             PASS_RATE_ENFORCE: "1"
@@ -332,14 +332,24 @@ jobs:
                           has_critical_error = True
                           print(f"  [{aid}] CRITICAL: {broken_imgs} broken images")
 
-                      # Check word count (< 1500 is critical for SEO)
+                      # Check featured image (NO_FEATURED = structural fail)
+                      if not article.get('image'):
+                          has_critical_error = True
+                          print(f"  [{aid}] CRITICAL: no featured image")
+
+                      # Check word count (< 1800 matches scan_issues_now HARD_FAIL)
                       from bs4 import BeautifulSoup as _BS
                       soup = _BS(body, 'html.parser')
                       text = soup.get_text(' ', strip=True)
                       wc = len(_re.findall(r'\w+', text))
-                      if wc < 1500:
+                      if wc < 1800:
                           has_critical_error = True
-                          print(f"  [{aid}] CRITICAL: word count {wc} < 1500")
+                          print(f"  [{aid}] CRITICAL: word count {wc} < 1800")
+
+                      # Check broken text markers (corrupted content)
+                      if 'Cdn Shopify' in body or 'Image Pollinations' in body or 'rate limit' in body_lower:
+                          has_critical_error = True
+                          print(f"  [{aid}] CRITICAL: broken text markers found")
 
                       # Check generic content (≥3 phrases = spam)
                       generic_count = sum(1 for p in GENERIC_PHRASES if p in body_lower)
