@@ -89,7 +89,11 @@ jobs:
             VISION_REVIEW: "0"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+            FALLBACK_GEMINI_API_KEY: ${{ secrets.FALLBACK_GEMINI_API_KEY }}
             GEMINI_MODEL: gemini-2.0-flash
+            GEMINI_MODEL_FALLBACK: gemini-2.5-flash-lite
+            GEMINI_MODEL_FALLBACK_2: gemini-2.5-flash
+            GEMINI_MODEL_FALLBACK_3: gemini-2.0-flash-lite
             LLM_PROVIDER_ORDER: gemini
             DISABLE_OPENAI: "true"
             VISION_PROVIDER: gemini
