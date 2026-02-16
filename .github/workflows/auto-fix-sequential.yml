@@ -33,12 +33,12 @@ jobs:
             SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
             POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
             GET_POLLINATIONS_URL: ${{ secrets.GET_POLLINATIONS_URL }}
-            POLLINATIONS_NEGATIVE: "text, watermark, logo, signature"
+            POLLINATIONS_NEGATIVE: "deformed hands, extra fingers, mutated hands, poorly drawn hands, bad anatomy, extra limbs, fused fingers, too many fingers, missing fingers, deformed, blurry, bad proportions, text, watermark, logo, signature"
             USE_LEXICA: "0"
             LEXICA_ONLY_SD15: "1"
             LEXICA_RESULT_LIMIT: "30"
             LEXICA_FALLBACK_ONLY: "1"
-            VISION_REVIEW: "0"
+            VISION_REVIEW: "1"
             VISION_API_KEY: ${{ secrets.VISION_API_KEY }}
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
             GOOGLE_AI_STUDIO_API_KEY: ${{ secrets.GOOGLE_AI_STUDIO_API_KEY }}

@@ -87,29 +87,43 @@ def get_pinterest_image_url(pin_id: str) -> str:
     return f"https://i.pinimg.com/736x/{pin_id[:2]}/{pin_id[2:4]}/{pin_id[4:6]}/{pin_id}.jpg"
 
 
+# Default negative prompt to avoid common AI artifacts (hands, fingers, deformities)
+DEFAULT_NEGATIVE = (
+    "deformed hands, extra fingers, mutated hands, poorly drawn hands, "
+    "bad anatomy, extra limbs, fused fingers, too many fingers, "
+    "missing fingers, deformed, blurry, bad proportions, "
+    "text, watermark, logo, signature"
+)
+
+
 def get_pollinations_url(
     prompt: str, width: int = 1200, height: int = 800, seed: int = 42
 ) -> str:
     """Get Pollinations.ai image URL.
     When POLLINATIONS_API_KEY is set: uses gen.pollinations.ai (paid tier) or GET_POLLINATIONS_URL.
     Otherwise: uses image.pollinations.ai (free tier).
+    Reads POLLINATIONS_NEGATIVE env for negative prompt (defaults to hand/finger fixes).
     """
     encoded_prompt = quote(prompt)
     api_key = os.environ.get("POLLINATIONS_API_KEY", "").strip()
     base = (os.environ.get("GET_POLLINATIONS_URL", "") or "").strip().rstrip("/")
+    # Build negative prompt — env override + always include hand/finger fixes
+    env_neg = os.environ.get("POLLINATIONS_NEGATIVE", "").strip()
+    negative = env_neg if env_neg else DEFAULT_NEGATIVE
+    encoded_negative = quote(negative)
 
     if api_key and base:
         # Paid tier: use GET_POLLINATIONS_URL with /image/ path (enter/gen API)
         # gen.pollinations.ai requires model=flux parameter
         if "enter.pollinations.ai" in base:
             base = "https://gen.pollinations.ai"
-        url = f"{base}/image/{encoded_prompt}?model=flux&width={width}&height={height}&seed={seed}&key={api_key}"
+        url = f"{base}/image/{encoded_prompt}?model=flux&width={width}&height={height}&seed={seed}&key={api_key}&negative={encoded_negative}"
     elif api_key:
         # API key set but no custom base: use gen.pollinations.ai (paid tier)
-        url = f"https://gen.pollinations.ai/image/{encoded_prompt}?model=flux&width={width}&height={height}&seed={seed}&key={api_key}"
+        url = f"https://gen.pollinations.ai/image/{encoded_prompt}?model=flux&width={width}&height={height}&seed={seed}&key={api_key}&negative={encoded_negative}"
     else:
         # Free tier: image.pollinations.ai
-        url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={width}&height={height}&seed={seed}&nologo=true"
+        url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={width}&height={height}&seed={seed}&nologo=true&negative={encoded_negative}"
     return url
 
 
