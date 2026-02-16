@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T18:45:54.027521",
-  "updated_at": "2026-02-16T19:16:48.782315",
+  "updated_at": "2026-02-16T19:23:55.697844",
   "items": [
     {
       "id": "690524029246",
@@ -198,21 +198,21 @@
     {
       "id": "690498470206",
       "title": "Cutting Garden Grow Flowers for Bouquets: Easy Sea",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:44:54.114240",
+      "updated_at": "2026-02-16T19:23:45.474573",
       "fail_reason": ""
     },
     {
       "id": "690495684926",
       "title": "Dry Herbs Preserve from Your Garden: Easy Drying G",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:56:50.871158"
+      "updated_at": "2026-02-16T19:22:39.941357"
     },
     {
       "id": "690495553854",
@@ -246,11 +246,11 @@
     {
       "id": "690332533054",
       "title": "Celery in Pots How to Grow: Container Care Guide",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T18:45:54.027428"
+      "updated_at": "2026-02-16T19:23:55.697837"
     },
     {
       "id": "690332401982",
