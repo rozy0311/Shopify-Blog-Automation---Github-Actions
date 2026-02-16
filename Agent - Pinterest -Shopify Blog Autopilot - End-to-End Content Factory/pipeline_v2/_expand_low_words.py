@@ -46,7 +46,9 @@ except ImportError:
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get(
     "GOOGLE_AI_STUDIO_API_KEY", ""
 )
-FALLBACK_GEMINI_API_KEY = os.environ.get("FALLBACK_GEMINI_API_KEY", "")
+FALLBACK_GEMINI_API_KEY = os.environ.get("FALLBACK_GEMINI_API_KEY", "") or os.environ.get(
+    "FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""
+)
 
 GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
 GH_MODELS_API_BASE = os.environ.get(

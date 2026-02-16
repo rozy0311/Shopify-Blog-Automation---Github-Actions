@@ -147,7 +147,9 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get(
     "GOOGLE_AI_STUDIO_API_KEY", ""
 )
 # Fallback Gemini key (second Google account — used after primary exhausts quota)
-FALLBACK_GEMINI_API_KEY = os.environ.get("FALLBACK_GEMINI_API_KEY", "")
+FALLBACK_GEMINI_API_KEY = os.environ.get("FALLBACK_GEMINI_API_KEY", "") or os.environ.get(
+    "FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""
+)
 
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-flash-lite")
