@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-17T06:35:28.549667",
-  "updated_at": "2026-02-17T18:43:12.071057",
+  "created_at": "2026-02-17T19:01:04.529397",
+  "updated_at": "2026-02-17T19:22:16.697693",
   "items": [
     {
       "id": "690524029246",
@@ -784,17 +784,6 @@
       "updated_at": "2026-02-17T06:12:16.897575"
     },
     {
-      "id": "690314510654",
-      "title": "Comfrey Benefits: Uses, Dosage, Side Effects & Int",
-      "status": "retrying",
-      "attempts": 1,
-      "last_error": "GATE_FAIL",
-      "shopify_url": null,
-      "updated_at": "2026-02-17T05:55:45.696893",
-      "failures": 1,
-      "retry_at": "2026-02-17T05:57:57.696864"
-    },
-    {
       "id": "690308874558",
       "title": "Pumpkin Benefits: Nutrition Facts, How to Use, and",
       "status": "done",
@@ -1128,15 +1117,6 @@
       "updated_at": "2026-02-17T11:43:23.587610"
     },
     {
-      "id": "690210963774",
-      "title": "Jicama Snack Box: Crunchy Prep with Lime and Chili",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T11:43:34.871527"
-    },
-    {
       "id": "690210832702",
       "title": "Low-Light Strategies: Reflective Surfaces for Shad",
       "status": "done",
@@ -1155,15 +1135,6 @@
       "updated_at": "2026-02-17T12:49:11.947942"
     },
     {
-      "id": "690210734398",
-      "title": "Saving Water With Smart Mulch Choices for Heat-Lov",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T12:22:04.409826"
-    },
-    {
       "id": "690210636094",
       "title": "Cut-and-Come-Again Systems: Scheduling Mustard and",
       "status": "done",
@@ -1171,15 +1142,6 @@
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
       "updated_at": "2026-02-17T12:49:12.210818"
-    },
-    {
-      "id": "690210505022",
-      "title": "Beginner Seed Kit: Five Fast Crops for a 30-Day Ha",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T12:49:53.563474"
     },
     {
       "id": "690331812158",
@@ -1227,51 +1189,6 @@
       "updated_at": "2026-02-17T13:51:22.491751"
     },
     {
-      "id": "690331255102",
-      "title": "Halloween Cupcake Ideas: 27 Fun Designs for Partie",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T13:54:45.156625"
-    },
-    {
-      "id": "690331058494",
-      "title": "Fall Front Porch Decor: Cozy Ideas for a Welcoming",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T14:04:55.164088"
-    },
-    {
-      "id": "690331025726",
-      "title": "DIY Fall Gnome Wreath: Easy Craft for Front Door",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T14:15:05.172487"
-    },
-    {
-      "id": "690330992958",
-      "title": "Halloween Themes Party Decor: Ideas for Events and",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T14:40:36.195890"
-    },
-    {
-      "id": "690330927422",
-      "title": "Fairy Gardens: DIY Outdoor Ideas for Tiny Whimsica",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T14:50:46.207288"
-    },
-    {
       "id": "690330861886",
       "title": "Gnome Gardens: Whimsical Ideas for Playful Backyar",
       "status": "done",
@@ -1279,42 +1196,6 @@
       "last_error": null,
       "shopify_url": null,
       "updated_at": "2026-02-17T15:01:12.501928"
-    },
-    {
-      "id": "690330763582",
-      "title": "Garden Borders: Creative Ideas for Neat, Low-Maint",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T15:03:45.883365"
-    },
-    {
-      "id": "690330730814",
-      "title": "Pistachio Trees How to Grow: Container Care and Ha",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T15:13:55.892119"
-    },
-    {
-      "id": "690330698046",
-      "title": "Sweet Potatoes Soil Bags: Step-by-Step Grow Guide ",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T15:24:05.904944"
-    },
-    {
-      "id": "690330665278",
-      "title": "Repurpose Old Garage Items: Home Projects",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T15:52:42.730227"
     },
     {
       "id": "690330599742",
@@ -1326,42 +1207,6 @@
       "updated_at": "2026-02-17T16:40:56.862255"
     },
     {
-      "id": "690330501438",
-      "title": "Lighted Pumpkin Basket: DIY Fall Decor for Porches",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T16:13:02.745620"
-    },
-    {
-      "id": "690330435902",
-      "title": "Fall Lantern Decor: 24 Cozy Ideas for Entryways",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T16:41:35.028942"
-    },
-    {
-      "id": "690330403134",
-      "title": "No-Carve Pumpkins Painting Ideas: Easy Designs for",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T16:51:45.035888"
-    },
-    {
-      "id": "690330337598",
-      "title": "Pink Living Room Ideas: 23 Fresh Looks for Small S",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T17:01:55.043235"
-    },
-    {
       "id": "690330304830",
       "title": "Wood Hexagon Shelves: DIY Wall Decor for Plants",
       "status": "done",
@@ -1371,42 +1216,6 @@
       "updated_at": "2026-02-17T18:08:07.265994"
     },
     {
-      "id": "690330173758",
-      "title": "Plant Wall Shelves Display: Space-Saving Ideas for",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T17:22:55.256001"
-    },
-    {
-      "id": "690330140990",
-      "title": "Plant Chandelier Cascading Design: DIY Hanging Gre",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T17:33:05.263290"
-    },
-    {
-      "id": "690330075454",
-      "title": "Halloween Kitchen Decor: Spooky Ideas for Easy Sea",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T18:08:41.788032"
-    },
-    {
-      "id": "690330042686",
-      "title": "Christmas Window Painting Festive: Easy Designs fo",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T18:18:51.794524"
-    },
-    {
       "id": "690329878846",
       "title": "Fall Signs: DIY Ideas and Tips for Front Porch",
       "status": "done",
@@ -1414,15 +1223,6 @@
       "last_error": null,
       "shopify_url": null,
       "updated_at": "2026-02-17T18:29:41.829917"
-    },
-    {
-      "id": "690329780542",
-      "title": "Upcycled Tin Can Projects: Garden Decor",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T18:32:05.901874"
     },
     {
       "id": "690329682238",
@@ -1443,76 +1243,31 @@
       "updated_at": "2026-02-17T18:43:12.070415"
     },
     {
-      "id": "690329518398",
-      "title": "Moon Gate Garden Entry: Elegant Ideas for a Peacef",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549512"
-    },
-    {
-      "id": "690329485630",
-      "title": "Yard Art DIY Outdoor: Easy Projects for a Unique G",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549513"
-    },
-    {
-      "id": "690329452862",
-      "title": "Book Page Ghost Garland: DIY Halloween Craft for P",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549515"
-    },
-    {
-      "id": "690329420094",
-      "title": "Bathroom Counter Decor Ideas: Tips for Small Baths",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549516"
-    },
-    {
-      "id": "690329321790",
-      "title": "Boho Bathroom Decor: Warm Styling Ideas for a Rela",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549518"
-    },
-    {
       "id": "690329190718",
       "title": "Vintage Bathroom Decor: Timeless Styling Ideas for",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549519"
+      "updated_at": "2026-02-17T19:01:56.685583"
     },
     {
       "id": "690329092414",
       "title": "Mini Rock Gardens: Easy Design Ideas for Small Yar",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549521"
+      "updated_at": "2026-02-17T19:12:06.700144"
     },
     {
       "id": "690329026878",
       "title": "Fall Landscaping: Seasonal Ideas and Tips for Yard",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549522"
+      "updated_at": "2026-02-17T19:22:16.697688"
     },
     {
       "id": "690328994110",
@@ -1521,7 +1276,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549524"
+      "updated_at": "2026-02-17T19:01:04.529262"
     },
     {
       "id": "690328961342",
@@ -1530,7 +1285,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549525"
+      "updated_at": "2026-02-17T19:01:04.529264"
     },
     {
       "id": "690328928574",
@@ -1539,7 +1294,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549527"
+      "updated_at": "2026-02-17T19:01:04.529266"
     },
     {
       "id": "690328863038",
@@ -1548,7 +1303,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549528"
+      "updated_at": "2026-02-17T19:01:04.529267"
     },
     {
       "id": "690328797502",
@@ -1557,7 +1312,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549529"
+      "updated_at": "2026-02-17T19:01:04.529269"
     },
     {
       "id": "690328666430",
@@ -1566,7 +1321,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549531"
+      "updated_at": "2026-02-17T19:01:04.529270"
     },
     {
       "id": "690328633662",
@@ -1575,7 +1330,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549533"
+      "updated_at": "2026-02-17T19:01:04.529272"
     },
     {
       "id": "690328568126",
@@ -1584,7 +1339,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549534"
+      "updated_at": "2026-02-17T19:01:04.529273"
     },
     {
       "id": "690328535358",
@@ -1593,7 +1348,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549536"
+      "updated_at": "2026-02-17T19:01:04.529275"
     },
     {
       "id": "690328502590",
@@ -1602,7 +1357,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549537"
+      "updated_at": "2026-02-17T19:01:04.529277"
     },
     {
       "id": "690328469822",
@@ -1611,7 +1366,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549539"
+      "updated_at": "2026-02-17T19:01:04.529278"
     },
     {
       "id": "690328437054",
@@ -1620,7 +1375,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549540"
+      "updated_at": "2026-02-17T19:01:04.529280"
     },
     {
       "id": "690328404286",
@@ -1629,7 +1384,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549542"
+      "updated_at": "2026-02-17T19:01:04.529281"
     },
     {
       "id": "690328338750",
@@ -1638,7 +1393,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549543"
+      "updated_at": "2026-02-17T19:01:04.529283"
     },
     {
       "id": "690328305982",
@@ -1647,7 +1402,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549545"
+      "updated_at": "2026-02-17T19:01:04.529284"
     },
     {
       "id": "690328174910",
@@ -1656,7 +1411,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549546"
+      "updated_at": "2026-02-17T19:01:04.529286"
     },
     {
       "id": "690328011070",
@@ -1665,7 +1420,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549547"
+      "updated_at": "2026-02-17T19:01:04.529287"
     },
     {
       "id": "690327912766",
@@ -1674,7 +1429,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549549"
+      "updated_at": "2026-02-17T19:01:04.529289"
     },
     {
       "id": "690327716158",
@@ -1683,7 +1438,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549550"
+      "updated_at": "2026-02-17T19:01:04.529290"
     },
     {
       "id": "690327650622",
@@ -1692,7 +1447,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549552"
+      "updated_at": "2026-02-17T19:01:04.529292"
     },
     {
       "id": "690327617854",
@@ -1701,7 +1456,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549553"
+      "updated_at": "2026-02-17T19:01:04.529293"
     },
     {
       "id": "690327388478",
@@ -1710,7 +1465,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549555"
+      "updated_at": "2026-02-17T19:01:04.529295"
     },
     {
       "id": "690327290174",
@@ -1719,7 +1474,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549556"
+      "updated_at": "2026-02-17T19:01:04.529296"
     },
     {
       "id": "690326733118",
@@ -1728,7 +1483,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549557"
+      "updated_at": "2026-02-17T19:01:04.529298"
     },
     {
       "id": "690326700350",
@@ -1737,7 +1492,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549559"
+      "updated_at": "2026-02-17T19:01:04.529299"
     },
     {
       "id": "690326667582",
@@ -1746,7 +1501,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549560"
+      "updated_at": "2026-02-17T19:01:04.529301"
     },
     {
       "id": "690326438206",
@@ -1755,7 +1510,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549562"
+      "updated_at": "2026-02-17T19:01:04.529302"
     },
     {
       "id": "690326405438",
@@ -1764,7 +1519,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549563"
+      "updated_at": "2026-02-17T19:01:04.529304"
     },
     {
       "id": "690326372670",
@@ -1773,7 +1528,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549565"
+      "updated_at": "2026-02-17T19:01:04.529305"
     },
     {
       "id": "690326339902",
@@ -1782,7 +1537,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549627"
+      "updated_at": "2026-02-17T19:01:04.529307"
     },
     {
       "id": "690326307134",
@@ -1791,7 +1546,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549634"
+      "updated_at": "2026-02-17T19:01:04.529308"
     },
     {
       "id": "690326274366",
@@ -1800,7 +1555,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549637"
+      "updated_at": "2026-02-17T19:01:04.529310"
     },
     {
       "id": "690326208830",
@@ -1809,7 +1564,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549641"
+      "updated_at": "2026-02-17T19:01:04.529311"
     },
     {
       "id": "690326176062",
@@ -1818,7 +1573,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549644"
+      "updated_at": "2026-02-17T19:01:04.529313"
     },
     {
       "id": "690326012222",
@@ -1827,7 +1582,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549647"
+      "updated_at": "2026-02-17T19:01:04.529315"
     },
     {
       "id": "690325979454",
@@ -1836,7 +1591,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549649"
+      "updated_at": "2026-02-17T19:01:04.529316"
     },
     {
       "id": "690325913918",
@@ -1845,7 +1600,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549650"
+      "updated_at": "2026-02-17T19:01:04.529318"
     },
     {
       "id": "690325881150",
@@ -1854,7 +1609,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549652"
+      "updated_at": "2026-02-17T19:01:04.529320"
     },
     {
       "id": "690325815614",
@@ -1863,7 +1618,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549654"
+      "updated_at": "2026-02-17T19:01:04.529321"
     },
     {
       "id": "690325782846",
@@ -1872,7 +1627,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549655"
+      "updated_at": "2026-02-17T19:01:04.529322"
     },
     {
       "id": "690325717310",
@@ -1881,7 +1636,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549657"
+      "updated_at": "2026-02-17T19:01:04.529324"
     },
     {
       "id": "690325324094",
@@ -1890,7 +1645,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549658"
+      "updated_at": "2026-02-17T19:01:04.529325"
     },
     {
       "id": "690325291326",
@@ -1899,7 +1654,297 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549660"
+      "updated_at": "2026-02-17T19:01:04.529327"
+    },
+    {
+      "id": "690314510654",
+      "title": "Comfrey Benefits: Uses, Dosage, Side Effects & Int",
+      "status": "retrying",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
+      "shopify_url": null,
+      "updated_at": "2026-02-17T05:55:45.696893",
+      "failures": 1,
+      "retry_at": "2026-02-17T05:57:57.696864"
+    },
+    {
+      "id": "690210963774",
+      "title": "Jicama Snack Box: Crunchy Prep with Lime and Chili",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529339"
+    },
+    {
+      "id": "690210472254",
+      "title": "Seed Viability Tests: Float, Fold, and 10-Seed",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529341"
+    },
+    {
+      "id": "690210406718",
+      "title": "Companion Planting Map: Bitter Melon Arches Over L",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529342"
+    },
+    {
+      "id": "682729865534",
+      "title": "Community permaculture that feeds cities: a practi",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529344"
+    },
+    {
+      "id": "682729767230",
+      "title": "Blockchain for fair labor in agriculture: a practi",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529345"
+    },
+    {
+      "id": "682651648318",
+      "title": "Achieving balance with permaculture gardens: a gro",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529346"
+    },
+    {
+      "id": "682426138942",
+      "title": "Growing sweet potatoes the low-maintenance way: sl",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529347"
+    },
+    {
+      "id": "682378395966",
+      "title": "Tree-Planting Journey: From One Sapling to a Green",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529349"
+    },
+    {
+      "id": "654526808382",
+      "title": "The Art Industry’s Eco-Friendly Revolution",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529350"
+    },
+    {
+      "id": "654302839102",
+      "title": "Crafting Eco-Conscious Handicrafts",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529351"
+    },
+    {
+      "id": "652474024254",
+      "title": "Transforming Urban Spaces through Gardening",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529353"
+    },
+    {
+      "id": "690331255102",
+      "title": "Halloween Cupcake Ideas: 27 Fun Designs for Partie",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529357"
+    },
+    {
+      "id": "690331058494",
+      "title": "Fall Front Porch Decor: Cozy Ideas for a Welcoming",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529360"
+    },
+    {
+      "id": "690331025726",
+      "title": "DIY Fall Gnome Wreath: Easy Craft for Front Door",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529361"
+    },
+    {
+      "id": "690330992958",
+      "title": "Halloween Themes Party Decor: Ideas for Events and",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529363"
+    },
+    {
+      "id": "690330927422",
+      "title": "Fairy Gardens: DIY Outdoor Ideas for Tiny Whimsica",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529364"
+    },
+    {
+      "id": "690330698046",
+      "title": "Sweet Potatoes Soil Bags: Step-by-Step Grow Guide ",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529366"
+    },
+    {
+      "id": "690330665278",
+      "title": "Repurpose Old Garage Items: Home Projects",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529367"
+    },
+    {
+      "id": "690330501438",
+      "title": "Lighted Pumpkin Basket: DIY Fall Decor for Porches",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529369"
+    },
+    {
+      "id": "690330435902",
+      "title": "Fall Lantern Decor: 24 Cozy Ideas for Entryways",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529370"
+    },
+    {
+      "id": "690330403134",
+      "title": "No-Carve Pumpkins Painting Ideas: Easy Designs for",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529372"
+    },
+    {
+      "id": "690330337598",
+      "title": "Pink Living Room Ideas: 23 Fresh Looks for Small S",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529374"
+    },
+    {
+      "id": "690330173758",
+      "title": "Plant Wall Shelves Display: Space-Saving Ideas for",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529376"
+    },
+    {
+      "id": "690330140990",
+      "title": "Plant Chandelier Cascading Design: DIY Hanging Gre",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529378"
+    },
+    {
+      "id": "690330075454",
+      "title": "Halloween Kitchen Decor: Spooky Ideas for Easy Sea",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529380"
+    },
+    {
+      "id": "690330042686",
+      "title": "Christmas Window Painting Festive: Easy Designs fo",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529383"
+    },
+    {
+      "id": "690329518398",
+      "title": "Moon Gate Garden Entry: Elegant Ideas for a Peacef",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529386"
+    },
+    {
+      "id": "690329485630",
+      "title": "Yard Art DIY Outdoor: Easy Projects for a Unique G",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529387"
+    },
+    {
+      "id": "690329452862",
+      "title": "Book Page Ghost Garland: DIY Halloween Craft for P",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529389"
+    },
+    {
+      "id": "690329420094",
+      "title": "Bathroom Counter Decor Ideas: Tips for Small Baths",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529391"
+    },
+    {
+      "id": "690329321790",
+      "title": "Boho Bathroom Decor: Warm Styling Ideas for a Rela",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-17T19:01:04.529392"
     }
   ]
 }
