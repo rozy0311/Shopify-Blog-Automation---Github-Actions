@@ -577,5 +577,9 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T13:51:17.149477,690331287870,Halloween Fence Decoration: Yards and Gates,done,9,True,force_rebuild,,
 2026-02-17T13:51:22.494507,690331287870,Halloween Fence Decoration: Yards and Gates,done,9,True,review+cleanup+publish,,
 2026-02-17T15:01:12.504490,690330861886,Gnome Gardens: Whimsical Ideas for Playful Backyard Displays,done,9,True,review+cleanup+publish,,
+<<<<<<< Updated upstream
 2026-02-17T15:39:16.201816,690330763582,"Garden Borders: Creative Ideas for Neat, Low-Maintenance Edges",failed,8,False,GATE_FAIL,,
 2026-02-17T15:49:41.888029,690330730814,Pistachio Trees How to Grow: Container Care and Harvest Tips,failed,8,False,GATE_FAIL,,
+=======
+2026-02-17T16:12:26.554392,690330599742,Fall Tray Decor: 24 Cozy Ideas for Tables and Shelves,failed,8,False,GATE_FAIL,,
+>>>>>>> Stashed changes
