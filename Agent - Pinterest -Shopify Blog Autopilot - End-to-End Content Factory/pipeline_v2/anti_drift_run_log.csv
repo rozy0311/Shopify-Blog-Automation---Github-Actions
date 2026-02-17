@@ -557,6 +557,11 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T11:33:09.317218,690211029310,"Guava Leaf Tea Pairings: Citrus, Mint, and Gentle Sweeteners",done,10,True,force_rebuild,,
 2026-02-17T11:33:14.654364,690211029310,"Guava Leaf Tea Pairings: Citrus, Mint, and Gentle Sweeteners",done,10,True,review+cleanup+publish,,
 2026-02-17T11:43:23.590978,690210996542,Guava Leaf Tea: Steeping Temperatures for Clean,done,9,True,force_rebuild,,
+<<<<<<< Updated upstream
 2026-02-17T12:11:24.719442,690210832702,Low-Light Strategies: Reflective Surfaces for Shady,done,9,True,force_rebuild,,
 2026-02-17T12:11:44.192295,690210832702,Low-Light Strategies: Reflective Surfaces for Shady,done,9,True,review+cleanup+publish,,
 2026-02-17T12:21:28.244387,690210799934,Five Garden Trellis Types: From Cattle Panel Arches to,failed,8,False,GATE_FAIL,,
+=======
+2026-02-17T12:48:03.734407,690210734398,Saving Water With Smart Mulch Choices for Heat-Loving Crops,done,9,True,force_rebuild,,
+2026-02-17T12:48:09.438502,690210734398,Saving Water With Smart Mulch Choices for Heat-Loving Crops,done,9,True,review+cleanup+publish,,
+>>>>>>> Stashed changes
