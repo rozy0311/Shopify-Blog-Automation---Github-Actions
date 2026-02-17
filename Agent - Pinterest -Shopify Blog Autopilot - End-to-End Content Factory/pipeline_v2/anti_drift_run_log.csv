@@ -521,3 +521,7 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T07:33:01.123161,690295570750,Mustard Greens: Spring and Fall Sowing Guide for,done,9,True,review+cleanup+publish,,
 2026-02-17T07:33:15.409242,690295505214,Bitter Melon Cool-Season Strategies for Mild Coastal,done,9,True,review+cleanup+publish,,
 2026-02-17T07:33:30.183867,690295472446,Bitter Melon Monsoon Drainage and Trellis Ideas for,done,9,True,review+cleanup+publish,,
+2026-02-17T08:07:01.164681,690295406910,Syzygium nervosum Tea: Floral-Spice Profile and Light,failed,8,False,GATE_FAIL,,
+2026-02-17T08:07:18.491211,690295406910,Syzygium nervosum Tea: Floral-Spice Profile and Light,done,10,True,auto_fix,,
+2026-02-17T08:07:53.057494,690295177534,Pandan Tea Syrup: Iced Drinks,done,9,True,review+cleanup+publish,,
+2026-02-17T08:08:08.910463,690295111998,Lemongrass Batch Brew: Make-Ahead Iced Tea for the Week,done,9,True,review+cleanup+publish,,
