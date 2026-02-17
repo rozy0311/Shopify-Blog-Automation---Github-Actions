@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-17T06:35:28.549667",
-  "updated_at": "2026-02-17T11:43:34.871532",
+  "updated_at": "2026-02-17T11:56:10.462544",
   "items": [
     {
       "id": "690524029246",
@@ -1113,19 +1113,19 @@
       "id": "690211029310",
       "title": "Guava Leaf Tea Pairings: Citrus, Mint, and Gentle ",
       "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "attempts": 0,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-17T11:33:14.651630"
+      "updated_at": "2026-02-17T11:44:54.176159"
     },
     {
       "id": "690210996542",
       "title": "Guava Leaf Tea: Steeping Temperatures for Clean",
       "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "attempts": 0,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-17T11:43:23.587610"
+      "updated_at": "2026-02-17T11:44:54.402510"
     },
     {
       "id": "690210963774",
@@ -1134,16 +1134,16 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T11:43:34.871527"
+      "updated_at": "2026-02-17T11:46:00.456641"
     },
     {
       "id": "690210832702",
       "title": "Low-Light Strategies: Reflective Surfaces for Shad",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549458"
+      "updated_at": "2026-02-17T11:56:10.462537"
     },
     {
       "id": "690210799934",
