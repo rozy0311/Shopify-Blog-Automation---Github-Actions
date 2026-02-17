@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T22:31:12.045734",
-  "updated_at": "2026-02-17T01:49:23.629111",
+  "updated_at": "2026-02-17T03:00:29.212373",
   "items": [
     {
       "id": "690524029246",
@@ -633,29 +633,29 @@
     {
       "id": "690323030334",
       "title": "Calendula Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T22:31:12.045424"
+      "updated_at": "2026-02-17T02:49:38.229503"
     },
     {
       "id": "690322899262",
       "title": "Common Rue Benefits (Ruta graveolens): Uses, Dosag",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-16T22:31:12.045426"
+      "updated_at": "2026-02-17T02:59:24.883373"
     },
     {
       "id": "690322735422",
       "title": "Cleavers Benefits: Uses, Dosage, Side Effects & In",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T22:31:12.045427"
+      "updated_at": "2026-02-17T03:00:29.211734"
     },
     {
       "id": "690322669886",
