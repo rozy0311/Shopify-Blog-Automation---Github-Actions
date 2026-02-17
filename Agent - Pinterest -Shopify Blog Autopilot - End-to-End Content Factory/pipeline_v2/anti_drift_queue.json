@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-17T06:35:28.549667",
-  "updated_at": "2026-02-17T14:31:03.848532",
+  "updated_at": "2026-02-17T15:01:12.502466",
   "items": [
     {
       "id": "690524029246",
@@ -1215,7 +1215,7 @@
       "attempts": 1,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-17T14:19:55.262061"
+      "updated_at": "2026-02-17T13:53:53.420710"
     },
     {
       "id": "690331287870",
@@ -1233,7 +1233,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T14:20:53.842930"
+      "updated_at": "2026-02-17T13:54:45.156625"
     },
     {
       "id": "690331058494",
@@ -1242,43 +1242,43 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T14:31:03.848526"
+      "updated_at": "2026-02-17T14:04:55.164088"
     },
     {
       "id": "690331025726",
       "title": "DIY Fall Gnome Wreath: Easy Craft for Front Door",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549479"
+      "updated_at": "2026-02-17T14:15:05.172487"
     },
     {
       "id": "690330992958",
       "title": "Halloween Themes Party Decor: Ideas for Events and",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549481"
+      "updated_at": "2026-02-17T14:40:36.195890"
     },
     {
       "id": "690330927422",
       "title": "Fairy Gardens: DIY Outdoor Ideas for Tiny Whimsica",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549482"
+      "updated_at": "2026-02-17T14:50:46.207288"
     },
     {
       "id": "690330861886",
       "title": "Gnome Gardens: Whimsical Ideas for Playful Backyar",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549484"
+      "updated_at": "2026-02-17T15:01:12.501928"
     },
     {
       "id": "690330763582",
