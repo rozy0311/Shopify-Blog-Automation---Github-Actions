@@ -561,7 +561,13 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T12:11:24.719442,690210832702,Low-Light Strategies: Reflective Surfaces for Shady,done,9,True,force_rebuild,,
 2026-02-17T12:11:44.192295,690210832702,Low-Light Strategies: Reflective Surfaces for Shady,done,9,True,review+cleanup+publish,,
 2026-02-17T12:21:28.244387,690210799934,Five Garden Trellis Types: From Cattle Panel Arches to,failed,8,False,GATE_FAIL,,
+<<<<<<< Updated upstream
 =======
 2026-02-17T12:48:03.734407,690210734398,Saving Water With Smart Mulch Choices for Heat-Loving Crops,done,9,True,force_rebuild,,
 2026-02-17T12:48:09.438502,690210734398,Saving Water With Smart Mulch Choices for Heat-Loving Crops,done,9,True,review+cleanup+publish,,
+>>>>>>> Stashed changes
+=======
+2026-02-17T13:09:03.249446,690331812158,Rose Propagation Grow Roses: Simple Calyx Method Guide,failed,8,False,GATE_FAIL,,
+2026-02-17T13:09:17.771873,690331812158,Rose Propagation Grow Roses: Simple Calyx Method Guide,done,10,True,auto_fix,,
+2026-02-17T13:18:52.094414,690331484478,Garden Decorations DIY: Ideas for Outdoor Spaces on a Budget,failed,8,False,GATE_FAIL,,
 >>>>>>> Stashed changes
