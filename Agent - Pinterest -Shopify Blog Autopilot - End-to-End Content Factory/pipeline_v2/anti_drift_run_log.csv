@@ -498,3 +498,6 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T03:55:33.004775,690322637118,"Nopal Cactus Benefits: Uses, Dosage, Side Effects &",done,9,True,force_rebuild,,
 2026-02-17T03:55:44.327701,690322637118,"Nopal Cactus Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
 2026-02-17T03:56:10.577189,690322571582,Pruning Rose Bushes Guide,done,9,True,review+cleanup+publish,,
+2026-02-17T04:32:33.701917,690322506046,"Wild Violet Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
+2026-02-17T04:42:05.153473,690322473278,Milkweed for Treating Diarrhea,failed,8,False,GATE_FAIL,,
+2026-02-17T04:52:23.763453,690322440510,Aloe Vera for Hair Health,failed,8,False,GATE_FAIL,,
