@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-17T06:35:28.549667",
-  "updated_at": "2026-02-17T11:56:10.462544",
+  "updated_at": "2026-02-17T12:22:04.409830",
   "items": [
     {
       "id": "690524029246",
@@ -1113,19 +1113,19 @@
       "id": "690211029310",
       "title": "Guava Leaf Tea Pairings: Citrus, Mint, and Gentle ",
       "status": "done",
-      "attempts": 0,
-      "last_error": "ALREADY_OK_BATCH",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T11:44:54.176159"
+      "updated_at": "2026-02-17T11:33:14.651630"
     },
     {
       "id": "690210996542",
       "title": "Guava Leaf Tea: Steeping Temperatures for Clean",
       "status": "done",
-      "attempts": 0,
-      "last_error": "ALREADY_OK_BATCH",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T11:44:54.402510"
+      "updated_at": "2026-02-17T11:43:23.587610"
     },
     {
       "id": "690210963774",
@@ -1134,34 +1134,34 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T11:46:00.456641"
+      "updated_at": "2026-02-17T11:43:34.871527"
     },
     {
       "id": "690210832702",
       "title": "Low-Light Strategies: Reflective Surfaces for Shad",
-      "status": "in_progress",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T11:56:10.462537"
+      "updated_at": "2026-02-17T12:11:44.189677"
     },
     {
       "id": "690210799934",
       "title": "Five Garden Trellis Types: From Cattle Panel Arche",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549459"
+      "updated_at": "2026-02-17T12:21:28.242589"
     },
     {
       "id": "690210734398",
       "title": "Saving Water With Smart Mulch Choices for Heat-Lov",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549460"
+      "updated_at": "2026-02-17T12:22:04.409826"
     },
     {
       "id": "690210636094",
