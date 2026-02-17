@@ -504,3 +504,7 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T05:12:57.032236,690322374974,How to Propagate Sansevieria,done,9,True,review+cleanup+publish,,
 2026-02-17T05:13:13.722543,690322243902,"Chelidonium Majus Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
 2026-02-17T05:14:59.311995,690314838334,"Collard Greens Benefits: Nutrition Facts, How to Use",done,9,True,review+cleanup+publish,,
+2026-02-17T05:55:07.897790,690314543422,"Thyme Benefits: Uses, Dosage, Side Effects & Interactions",done,10,True,force_rebuild,,
+2026-02-17T05:55:14.256840,690314543422,"Thyme Benefits: Uses, Dosage, Side Effects & Interactions",done,10,True,review+cleanup+publish,,
+2026-02-17T05:55:45.698535,690314510654,"Comfrey Benefits: Uses, Dosage, Side Effects & Interactions",failed,9,False,GATE_FAIL,,
+2026-02-17T05:56:11.404431,690313953598,"Knotweed Benefits: Uses, Dosage, Side Effects",done,9,True,review+cleanup+publish,,
