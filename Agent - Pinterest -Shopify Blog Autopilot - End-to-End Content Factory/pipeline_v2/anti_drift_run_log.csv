@@ -600,3 +600,5 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T22:08:00.016108,690328502590,Leaf Confetti: DIY Fall Craft and Cleanup Tips,done,9,True,review+cleanup+publish,,
 2026-02-17T22:08:16.158548,690328469822,Old Wheel Repurposing: Garden Decor Ideas and Tips,done,9,True,review+cleanup+publish,,
 2026-02-17T22:41:33.972247,690328305982,Spilled Flower Pots: 22 Easy Ideas and Tips,done,9,True,review+cleanup+publish,,
+2026-02-17T23:40:30.314299,690327912766,Outdoor Table Retreat Ideas: 24 Cozy Outdoor Table Styling Ideas,failed,8,False,GATE_FAIL,,
+2026-02-17T23:40:45.504037,690327912766,Outdoor Table Retreat Ideas: 24 Cozy Outdoor Table Styling Ideas,done,10,True,auto_fix,,
