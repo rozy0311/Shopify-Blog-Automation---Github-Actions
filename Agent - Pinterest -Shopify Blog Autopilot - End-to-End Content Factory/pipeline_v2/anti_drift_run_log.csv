@@ -525,5 +525,11 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T08:07:18.491211,690295406910,Syzygium nervosum Tea: Floral-Spice Profile and Light,done,10,True,auto_fix,,
 2026-02-17T08:07:53.057494,690295177534,Pandan Tea Syrup: Iced Drinks,done,9,True,review+cleanup+publish,,
 2026-02-17T08:08:08.910463,690295111998,Lemongrass Batch Brew: Make-Ahead Iced Tea for the Week,done,9,True,review+cleanup+publish,,
+<<<<<<< Updated upstream
 2026-02-17T08:29:12.719427,690293735742,Daisy Fleabane Care: Wildflower Look Without the Flop,done,9,True,force_rebuild,,
 2026-02-17T08:29:53.209323,690293670206,Globe Amaranth Bed Design: Color Blocks That Pop in Sun,done,9,True,review+cleanup+publish,,
+=======
+2026-02-17T08:47:47.623115,690293637438,Globe Amaranth Edible Uses: Confetti Salads and Cake,failed,7,False,GATE_FAIL,,
+2026-02-17T08:48:47.917600,690293276990,Green Amaranth Nutrients: Tender Leaves Without Nitrate,done,9,True,review+cleanup+publish,,
+2026-02-17T08:49:03.392435,690293014846,Water Spinach Hydroponic Setup: Optimal Nutrient,done,9,True,review+cleanup+publish,,
+>>>>>>> Stashed changes

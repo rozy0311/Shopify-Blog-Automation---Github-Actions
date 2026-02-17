@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-17T06:35:28.549667",
-  "updated_at": "2026-02-17T08:30:03.421388",
+  "updated_at": "2026-02-17T08:49:03.390342",
   "items": [
     {
       "id": "690524029246",
@@ -906,46 +906,46 @@
       "id": "690293735742",
       "title": "Daisy Fleabane Care: Wildflower Look Without the F",
       "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "attempts": 0,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-17T08:29:12.717230"
+      "updated_at": "2026-02-17T08:37:17.495000"
     },
     {
       "id": "690293670206",
       "title": "Globe Amaranth Bed Design: Color Blocks That Pop i",
       "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "attempts": 0,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-17T08:29:53.206706"
+      "updated_at": "2026-02-17T08:37:17.996419"
     },
     {
       "id": "690293637438",
       "title": "Globe Amaranth Edible Uses: Confetti Salads and Ca",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-17T08:30:03.421384"
+      "updated_at": "2026-02-17T08:47:47.621280"
     },
     {
       "id": "690293276990",
       "title": "Green Amaranth Nutrients: Tender Leaves Without Ni",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549423"
+      "updated_at": "2026-02-17T08:48:47.915115"
     },
     {
       "id": "690293014846",
       "title": "Water Spinach Hydroponic Setup: Optimal Nutrient",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-17T06:35:28.549425"
+      "updated_at": "2026-02-17T08:49:03.389859"
     },
     {
       "id": "690292654398",
