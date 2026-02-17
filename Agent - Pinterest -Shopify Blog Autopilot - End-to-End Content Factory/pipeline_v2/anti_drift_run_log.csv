@@ -494,3 +494,7 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T02:49:38.232392,690323030334,"Calendula Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
 2026-02-17T02:59:24.885041,690322899262,"Common Rue Benefits (Ruta graveolens): Uses, Dosage, Side Effects",failed,8,False,GATE_FAIL,,
 2026-02-17T03:00:29.214703,690322735422,"Cleavers Benefits: Uses, Dosage, Side Effects & Interactions",done,9,True,review+cleanup+publish,,
+2026-02-17T03:45:54.587538,690322669886,Papaya Leaf for Battling Dengue Fever,done,9,True,review+cleanup+publish,,
+2026-02-17T03:55:33.004775,690322637118,"Nopal Cactus Benefits: Uses, Dosage, Side Effects &",done,9,True,force_rebuild,,
+2026-02-17T03:55:44.327701,690322637118,"Nopal Cactus Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
+2026-02-17T03:56:10.577189,690322571582,Pruning Rose Bushes Guide,done,9,True,review+cleanup+publish,,

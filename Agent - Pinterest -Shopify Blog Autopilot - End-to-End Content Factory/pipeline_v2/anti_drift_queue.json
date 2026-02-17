@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-16T22:31:12.045734",
-  "updated_at": "2026-02-17T03:00:29.212373",
+  "updated_at": "2026-02-17T03:56:10.575093",
   "items": [
     {
       "id": "690524029246",
@@ -642,11 +642,11 @@
     {
       "id": "690322899262",
       "title": "Common Rue Benefits (Ruta graveolens): Uses, Dosag",
-      "status": "manual_review",
+      "status": "done",
       "attempts": 1,
-      "last_error": "GATE_FAIL",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-17T02:59:24.883373"
+      "updated_at": "2026-02-17T03:43:48.480201"
     },
     {
       "id": "690322735422",
@@ -660,29 +660,29 @@
     {
       "id": "690322669886",
       "title": "Papaya Leaf for Battling Dengue Fever",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T22:31:12.045429"
+      "updated_at": "2026-02-17T03:45:54.584944"
     },
     {
       "id": "690322637118",
       "title": "Nopal Cactus Benefits: Uses, Dosage, Side Effects ",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T22:31:12.045430"
+      "updated_at": "2026-02-17T03:55:44.324970"
     },
     {
       "id": "690322571582",
       "title": "Pruning Rose Bushes Guide",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-16T22:31:12.045432"
+      "updated_at": "2026-02-17T03:56:10.574548"
     },
     {
       "id": "690322506046",
