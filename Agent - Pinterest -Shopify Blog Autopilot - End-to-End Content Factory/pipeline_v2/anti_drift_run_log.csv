@@ -540,3 +540,7 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-17T09:26:37.593286,690292195646,"Cold Stratification Guide: Maple, Magnolia, Sedum, and",done,9,True,review+cleanup+publish,,
 2026-02-17T09:26:52.563192,690291769662,Succession Calendar: Weekly Sows for Nonstop Harvest,done,9,True,review+cleanup+publish,,
 2026-02-17T09:27:07.330627,690291376446,Soil Mix Recipes: Leafy Greens vs Vines vs Flowers,done,9,True,review+cleanup+publish,,
+2026-02-17T09:48:18.593302,690289738046,"Red Palm Oil: Golden Rice, Savory Sauces, and Aroma",done,9,True,review+cleanup+publish,,
+2026-02-17T09:57:57.376417,690287935806,Blackstrap Molasses in Baking: Achieve Moist Crumb,failed,6,False,GATE_FAIL,,
+2026-02-17T10:08:03.300815,690287804734,Bitter Melon Tea: Salt-Rinse vs Hot-Steep for Better,done,10,True,force_rebuild,,
+2026-02-17T10:08:08.148546,690287804734,Bitter Melon Tea: Salt-Rinse vs Hot-Steep for Better,done,10,True,review+cleanup+publish,,
