@@ -625,7 +625,11 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-18T05:40:44.043269,690325291326,How to Build a Walipini Greenhouse,done,9,True,review+cleanup+publish,,
 2026-02-18T06:06:22.882958,690210963774,Jicama Snack Box: Crunchy Prep with Lime and Chili Salt,done,9,True,review+cleanup+publish,,
 2026-02-18T06:16:07.860656,690210472254,"Seed Viability Tests: Float, Fold, and 10-Seed",failed,8,False,GATE_FAIL,,
+<<<<<<< Updated upstream
 2026-02-18T06:44:33.556128,682729865534,Community permaculture that feeds cities: a practical,done,10,True,force_rebuild,,
 2026-02-18T06:44:39.445220,682729865534,Community permaculture that feeds cities: a practical,done,10,True,review+cleanup+publish,,
 2026-02-18T06:54:17.623732,682729767230,Blockchain for fair labor in agriculture: a practical,failed,8,False,GATE_FAIL,,
 2026-02-18T06:54:35.291378,682729767230,Blockchain for fair labor in agriculture: a practical,failed,8,False,GATE_FAIL,,
+=======
+2026-02-18T07:12:33.121891,682426138942,Growing sweet potatoes the low-maintenance way: slips,failed,10,False,pre_publish_review_fail_after_fix,,
+>>>>>>> Stashed changes
