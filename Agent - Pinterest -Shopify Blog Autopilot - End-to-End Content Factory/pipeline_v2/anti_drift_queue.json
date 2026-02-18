@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-18T15:26:25.851529",
-  "updated_at": "2026-02-18T15:46:51.892346",
+  "created_at": "2026-02-18T15:48:21.088366",
+  "updated_at": "2026-02-18T16:08:46.177530",
   "items": [
     {
       "id": "690524029246",
@@ -1693,22 +1693,13 @@
       "updated_at": "2026-02-18T14:10:08.286285"
     },
     {
-      "id": "690326667582",
-      "title": "23 Alternative Christmas Tree Ideas",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T15:26:31.876004"
-    },
-    {
       "id": "690326438206",
       "title": "26 Halloween Ghost Craft Ideas",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-18T15:36:41.882049"
+      "updated_at": "2026-02-18T15:58:20.989921"
     },
     {
       "id": "690326405438",
@@ -1717,7 +1708,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T15:46:51.892340"
+      "updated_at": "2026-02-18T15:58:36.166635"
     },
     {
       "id": "690314510654",
@@ -1742,11 +1733,11 @@
     {
       "id": "690328174910",
       "title": "Upcycled Flower Beds: 24 Garden Ideas and Tips",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T15:26:25.851519"
+      "updated_at": "2026-02-18T16:08:46.177524"
     },
     {
       "id": "690328011070",
@@ -1755,7 +1746,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T15:26:25.851521"
+      "updated_at": "2026-02-18T15:48:21.088356"
     },
     {
       "id": "690327716158",
@@ -1764,7 +1755,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T15:26:25.851522"
+      "updated_at": "2026-02-18T15:48:21.088358"
     },
     {
       "id": "690327388478",
@@ -1773,7 +1764,16 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T15:26:25.851524"
+      "updated_at": "2026-02-18T15:48:21.088360"
+    },
+    {
+      "id": "690326667582",
+      "title": "23 Alternative Christmas Tree Ideas",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T15:48:21.088361"
     }
   ]
 }

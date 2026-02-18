@@ -711,3 +711,4 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-18T14:00:02.565259,690328666430,Scarecrow Ideas: DIY Lady Scarecrow Projects and Tips,done,9,True,review+cleanup+publish,,
 2026-02-18T14:10:03.840244,690328633662,Repurposed Old Wine Barrels,done,10,True,force_rebuild,,
 2026-02-18T14:10:08.289205,690328633662,Repurposed Old Wine Barrels,done,10,True,review+cleanup+publish,,
+2026-02-18T15:58:20.991600,690326438206,26 Halloween Ghost Craft Ideas,failed,8,False,GATE_FAIL,,
