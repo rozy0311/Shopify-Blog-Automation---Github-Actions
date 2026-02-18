@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-18T10:29:03.259814",
-  "updated_at": "2026-02-18T10:49:56.861046",
+  "created_at": "2026-02-18T10:51:08.644859",
+  "updated_at": "2026-02-18T11:11:37.644607",
   "items": [
     {
       "id": "690524029246",
@@ -1639,17 +1639,6 @@
       "updated_at": "2026-02-18T10:21:44.253254"
     },
     {
-      "id": "690314510654",
-      "title": "Comfrey Benefits: Uses, Dosage, Side Effects & Int",
-      "status": "retrying",
-      "attempts": 1,
-      "last_error": "GATE_FAIL",
-      "shopify_url": null,
-      "updated_at": "2026-02-17T05:55:45.696893",
-      "failures": 1,
-      "retry_at": "2026-02-17T05:57:57.696864"
-    },
-    {
       "id": "652474024254",
       "title": "Transforming Urban Spaces through Gardening",
       "status": "done",
@@ -1657,15 +1646,6 @@
       "last_error": null,
       "shopify_url": null,
       "updated_at": "2026-02-18T10:29:48.479764"
-    },
-    {
-      "id": "690330927422",
-      "title": "Fairy Gardens: DIY Outdoor Ideas for Tiny Whimsica",
-      "status": "manual_review",
-      "attempts": 1,
-      "last_error": "GATE_FAIL",
-      "shopify_url": null,
-      "updated_at": "2026-02-18T10:39:30.321769"
     },
     {
       "id": "690330698046",
@@ -1677,31 +1657,42 @@
       "updated_at": "2026-02-18T10:49:56.860517"
     },
     {
+      "id": "690314510654",
+      "title": "Comfrey Benefits: Uses, Dosage, Side Effects & Int",
+      "status": "retrying",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
+      "shopify_url": null,
+      "updated_at": "2026-02-17T05:55:45.696893",
+      "failures": 1,
+      "retry_at": "2026-02-17T05:57:57.696864"
+    },
+    {
       "id": "690330665278",
       "title": "Repurpose Old Garage Items: Home Projects",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259774"
+      "updated_at": "2026-02-18T11:00:32.837205"
     },
     {
       "id": "690330337598",
       "title": "Pink Living Room Ideas: 23 Fresh Looks for Small S",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259776"
+      "updated_at": "2026-02-18T11:11:13.019356"
     },
     {
       "id": "690330173758",
       "title": "Plant Wall Shelves Display: Space-Saving Ideas for",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259778"
+      "updated_at": "2026-02-18T11:11:37.644602"
     },
     {
       "id": "690330140990",
@@ -1710,7 +1701,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259780"
+      "updated_at": "2026-02-18T10:51:08.644822"
     },
     {
       "id": "690330075454",
@@ -1719,7 +1710,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259782"
+      "updated_at": "2026-02-18T10:51:08.644824"
     },
     {
       "id": "690330042686",
@@ -1728,7 +1719,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259783"
+      "updated_at": "2026-02-18T10:51:08.644825"
     },
     {
       "id": "690329092414",
@@ -1746,7 +1737,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259787"
+      "updated_at": "2026-02-18T10:51:08.644829"
     },
     {
       "id": "690328928574",
@@ -1755,7 +1746,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259788"
+      "updated_at": "2026-02-18T10:51:08.644831"
     },
     {
       "id": "690328863038",
@@ -1764,7 +1755,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259790"
+      "updated_at": "2026-02-18T10:51:08.644832"
     },
     {
       "id": "690328797502",
@@ -1773,7 +1764,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259791"
+      "updated_at": "2026-02-18T10:51:08.644834"
     },
     {
       "id": "690328666430",
@@ -1782,7 +1773,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259792"
+      "updated_at": "2026-02-18T10:51:08.644835"
     },
     {
       "id": "690328633662",
@@ -1791,7 +1782,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259794"
+      "updated_at": "2026-02-18T10:51:08.644836"
     },
     {
       "id": "690328338750",
@@ -1800,7 +1791,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259796"
+      "updated_at": "2026-02-18T10:51:08.644839"
     },
     {
       "id": "690328174910",
@@ -1809,7 +1800,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259798"
+      "updated_at": "2026-02-18T10:51:08.644840"
     },
     {
       "id": "690328011070",
@@ -1818,7 +1809,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259799"
+      "updated_at": "2026-02-18T10:51:08.644842"
     },
     {
       "id": "690327716158",
@@ -1827,7 +1818,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259801"
+      "updated_at": "2026-02-18T10:51:08.644843"
     },
     {
       "id": "690327388478",
@@ -1836,7 +1827,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259803"
+      "updated_at": "2026-02-18T10:51:08.644846"
     },
     {
       "id": "690326667582",
@@ -1845,7 +1836,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259804"
+      "updated_at": "2026-02-18T10:51:08.644847"
     },
     {
       "id": "690326438206",
@@ -1854,7 +1845,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259806"
+      "updated_at": "2026-02-18T10:51:08.644849"
     },
     {
       "id": "690326405438",
@@ -1863,7 +1854,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:29:03.259807"
+      "updated_at": "2026-02-18T10:51:08.644850"
     }
   ]
 }
