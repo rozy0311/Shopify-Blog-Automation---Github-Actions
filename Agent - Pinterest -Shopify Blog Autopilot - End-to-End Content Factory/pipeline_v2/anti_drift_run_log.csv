@@ -676,3 +676,6 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-18T10:21:01.074567,654526808382,The Art Industry’s Eco-Friendly Revolution,done,9,True,review+cleanup+publish,,
 2026-02-18T10:21:44.255993,654302839102,Crafting Eco-Conscious Handicrafts,done,9,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
+2026-02-18T10:29:48.482545,652474024254,Transforming Urban Spaces through Gardening,done,9,True,review+cleanup+publish,,
+2026-02-18T10:39:30.323585,690330927422,Fairy Gardens: DIY Outdoor Ideas for Tiny Whimsical Spaces,failed,7,False,GATE_FAIL,,
+2026-02-18T10:49:56.862718,690330698046,Sweet Potatoes Soil Bags: Step-by-Step Grow Guide for Patios,done,9,True,force_rebuild,,

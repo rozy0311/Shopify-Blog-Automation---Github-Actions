@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-18T10:10:03.550637",
-  "updated_at": "2026-02-18T10:21:44.253914",
+  "created_at": "2026-02-18T10:29:03.259814",
+  "updated_at": "2026-02-18T10:49:56.861046",
   "items": [
     {
       "id": "690524029246",
@@ -1621,26 +1621,6 @@
       "updated_at": "2026-02-18T09:28:30.795015"
     },
     {
-      "id": "690314510654",
-      "title": "Comfrey Benefits: Uses, Dosage, Side Effects & Int",
-      "status": "retrying",
-      "attempts": 1,
-      "last_error": "GATE_FAIL",
-      "shopify_url": null,
-      "updated_at": "2026-02-17T05:55:45.696893",
-      "failures": 1,
-      "retry_at": "2026-02-17T05:57:57.696864"
-    },
-    {
-      "id": "682651648318",
-      "title": "Achieving balance with permaculture gardens: a gro",
-      "status": "manual_review",
-      "attempts": 1,
-      "last_error": "GATE_FAIL",
-      "shopify_url": null,
-      "updated_at": "2026-02-18T10:19:52.643623"
-    },
-    {
       "id": "654526808382",
       "title": "The Art Industry’s Eco-Friendly Revolution",
       "status": "done",
@@ -1659,31 +1639,42 @@
       "updated_at": "2026-02-18T10:21:44.253254"
     },
     {
+      "id": "690314510654",
+      "title": "Comfrey Benefits: Uses, Dosage, Side Effects & Int",
+      "status": "retrying",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
+      "shopify_url": null,
+      "updated_at": "2026-02-17T05:55:45.696893",
+      "failures": 1,
+      "retry_at": "2026-02-17T05:57:57.696864"
+    },
+    {
       "id": "652474024254",
       "title": "Transforming Urban Spaces through Gardening",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550590"
+      "updated_at": "2026-02-18T10:29:48.479764"
     },
     {
       "id": "690330927422",
       "title": "Fairy Gardens: DIY Outdoor Ideas for Tiny Whimsica",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550595"
+      "updated_at": "2026-02-18T10:39:30.321769"
     },
     {
       "id": "690330698046",
       "title": "Sweet Potatoes Soil Bags: Step-by-Step Grow Guide ",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550597"
+      "updated_at": "2026-02-18T10:49:56.860517"
     },
     {
       "id": "690330665278",
@@ -1692,7 +1683,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550598"
+      "updated_at": "2026-02-18T10:29:03.259774"
     },
     {
       "id": "690330337598",
@@ -1701,7 +1692,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550600"
+      "updated_at": "2026-02-18T10:29:03.259776"
     },
     {
       "id": "690330173758",
@@ -1710,7 +1701,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550602"
+      "updated_at": "2026-02-18T10:29:03.259778"
     },
     {
       "id": "690330140990",
@@ -1719,7 +1710,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550604"
+      "updated_at": "2026-02-18T10:29:03.259780"
     },
     {
       "id": "690330075454",
@@ -1728,7 +1719,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550605"
+      "updated_at": "2026-02-18T10:29:03.259782"
     },
     {
       "id": "690330042686",
@@ -1737,7 +1728,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550606"
+      "updated_at": "2026-02-18T10:29:03.259783"
     },
     {
       "id": "690329092414",
@@ -1755,7 +1746,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550610"
+      "updated_at": "2026-02-18T10:29:03.259787"
     },
     {
       "id": "690328928574",
@@ -1764,7 +1755,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550611"
+      "updated_at": "2026-02-18T10:29:03.259788"
     },
     {
       "id": "690328863038",
@@ -1773,7 +1764,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550613"
+      "updated_at": "2026-02-18T10:29:03.259790"
     },
     {
       "id": "690328797502",
@@ -1782,7 +1773,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550615"
+      "updated_at": "2026-02-18T10:29:03.259791"
     },
     {
       "id": "690328666430",
@@ -1791,7 +1782,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550616"
+      "updated_at": "2026-02-18T10:29:03.259792"
     },
     {
       "id": "690328633662",
@@ -1800,7 +1791,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550618"
+      "updated_at": "2026-02-18T10:29:03.259794"
     },
     {
       "id": "690328338750",
@@ -1809,7 +1800,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550620"
+      "updated_at": "2026-02-18T10:29:03.259796"
     },
     {
       "id": "690328174910",
@@ -1818,7 +1809,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550622"
+      "updated_at": "2026-02-18T10:29:03.259798"
     },
     {
       "id": "690328011070",
@@ -1827,7 +1818,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550624"
+      "updated_at": "2026-02-18T10:29:03.259799"
     },
     {
       "id": "690327716158",
@@ -1836,7 +1827,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550625"
+      "updated_at": "2026-02-18T10:29:03.259801"
     },
     {
       "id": "690327388478",
@@ -1845,7 +1836,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550627"
+      "updated_at": "2026-02-18T10:29:03.259803"
     },
     {
       "id": "690326667582",
@@ -1854,7 +1845,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550628"
+      "updated_at": "2026-02-18T10:29:03.259804"
     },
     {
       "id": "690326438206",
@@ -1863,7 +1854,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550630"
+      "updated_at": "2026-02-18T10:29:03.259806"
     },
     {
       "id": "690326405438",
@@ -1872,7 +1863,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T10:10:03.550631"
+      "updated_at": "2026-02-18T10:29:03.259807"
     }
   ]
 }
