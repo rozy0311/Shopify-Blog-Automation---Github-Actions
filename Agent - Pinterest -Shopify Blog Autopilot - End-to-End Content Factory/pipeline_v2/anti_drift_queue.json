@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-18T06:05:42.758274",
-  "updated_at": "2026-02-18T07:12:43.334172",
+  "created_at": "2026-02-18T07:32:29.996172",
+  "updated_at": "2026-02-18T07:53:22.786356",
   "items": [
     {
       "id": "690524029246",
@@ -1549,15 +1549,6 @@
       "updated_at": "2026-02-18T07:01:32.405118"
     },
     {
-      "id": "690210406718",
-      "title": "Companion Planting Map: Bitter Melon Arches Over L",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T06:16:43.102026"
-    },
-    {
       "id": "682729865534",
       "title": "Community permaculture that feeds cities: a practi",
       "status": "done",
@@ -1576,87 +1567,31 @@
       "updated_at": "2026-02-18T07:01:34.842671"
     },
     {
-      "id": "682651648318",
-      "title": "Achieving balance with permaculture gardens: a gro",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T07:02:05.066529"
-    },
-    {
-      "id": "682426138942",
-      "title": "Growing sweet potatoes the low-maintenance way: sl",
-      "status": "retrying",
-      "attempts": 1,
-      "last_error": "pre_publish_review_fail_after_fix",
-      "shopify_url": null,
-      "updated_at": "2026-02-18T07:12:33.120058",
-      "failures": 1,
-      "retry_at": "2026-02-18T07:14:53.120015"
-    },
-    {
-      "id": "682378395966",
-      "title": "Tree-Planting Journey: From One Sapling to a Green",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T07:12:43.334168"
-    },
-    {
-      "id": "654526808382",
-      "title": "The Art Industry’s Eco-Friendly Revolution",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758200"
-    },
-    {
-      "id": "654302839102",
-      "title": "Crafting Eco-Conscious Handicrafts",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758201"
-    },
-    {
-      "id": "652474024254",
-      "title": "Transforming Urban Spaces through Gardening",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758202"
-    },
-    {
       "id": "690331255102",
       "title": "Halloween Cupcake Ideas: 27 Fun Designs for Partie",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758208"
+      "updated_at": "2026-02-18T07:33:02.771553"
     },
     {
       "id": "690331058494",
       "title": "Fall Front Porch Decor: Cozy Ideas for a Welcoming",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758210"
+      "updated_at": "2026-02-18T07:52:35.449244"
     },
     {
       "id": "690331025726",
       "title": "DIY Fall Gnome Wreath: Easy Craft for Front Door",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758212"
+      "updated_at": "2026-02-18T07:53:22.786350"
     },
     {
       "id": "690330992958",
@@ -1665,7 +1600,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758213"
+      "updated_at": "2026-02-18T07:32:29.996099"
     },
     {
       "id": "690330927422",
@@ -1674,7 +1609,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758215"
+      "updated_at": "2026-02-18T07:32:29.996101"
     },
     {
       "id": "690330698046",
@@ -1683,7 +1618,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758216"
+      "updated_at": "2026-02-18T07:32:29.996103"
     },
     {
       "id": "690330665278",
@@ -1692,7 +1627,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758218"
+      "updated_at": "2026-02-18T07:32:29.996104"
     },
     {
       "id": "690330501438",
@@ -1701,7 +1636,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758220"
+      "updated_at": "2026-02-18T07:32:29.996106"
     },
     {
       "id": "690330435902",
@@ -1710,7 +1645,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758221"
+      "updated_at": "2026-02-18T07:32:29.996107"
     },
     {
       "id": "690330403134",
@@ -1719,7 +1654,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758223"
+      "updated_at": "2026-02-18T07:32:29.996109"
     },
     {
       "id": "690330337598",
@@ -1728,7 +1663,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758224"
+      "updated_at": "2026-02-18T07:32:29.996110"
     },
     {
       "id": "690330173758",
@@ -1737,7 +1672,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758226"
+      "updated_at": "2026-02-18T07:32:29.996112"
     },
     {
       "id": "690330140990",
@@ -1746,7 +1681,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758227"
+      "updated_at": "2026-02-18T07:32:29.996113"
     },
     {
       "id": "690330075454",
@@ -1755,7 +1690,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758229"
+      "updated_at": "2026-02-18T07:32:29.996115"
     },
     {
       "id": "690330042686",
@@ -1764,7 +1699,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758230"
+      "updated_at": "2026-02-18T07:32:29.996116"
     },
     {
       "id": "690329190718",
@@ -1773,7 +1708,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758233"
+      "updated_at": "2026-02-18T07:32:29.996119"
     },
     {
       "id": "690329092414",
@@ -1791,7 +1726,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758235"
+      "updated_at": "2026-02-18T07:32:29.996121"
     },
     {
       "id": "690328961342",
@@ -1800,7 +1735,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758237"
+      "updated_at": "2026-02-18T07:32:29.996123"
     },
     {
       "id": "690328928574",
@@ -1809,7 +1744,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758238"
+      "updated_at": "2026-02-18T07:32:29.996124"
     },
     {
       "id": "690328863038",
@@ -1818,7 +1753,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758240"
+      "updated_at": "2026-02-18T07:32:29.996126"
     },
     {
       "id": "690328797502",
@@ -1827,7 +1762,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758241"
+      "updated_at": "2026-02-18T07:32:29.996127"
     },
     {
       "id": "690328666430",
@@ -1836,7 +1771,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758243"
+      "updated_at": "2026-02-18T07:32:29.996129"
     },
     {
       "id": "690328633662",
@@ -1845,7 +1780,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758244"
+      "updated_at": "2026-02-18T07:32:29.996130"
     },
     {
       "id": "690328437054",
@@ -1854,7 +1789,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758246"
+      "updated_at": "2026-02-18T07:32:29.996132"
     },
     {
       "id": "690328404286",
@@ -1863,7 +1798,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758248"
+      "updated_at": "2026-02-18T07:32:29.996134"
     },
     {
       "id": "690328338750",
@@ -1872,7 +1807,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758249"
+      "updated_at": "2026-02-18T07:32:29.996135"
     },
     {
       "id": "690328174910",
@@ -1881,7 +1816,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758251"
+      "updated_at": "2026-02-18T07:32:29.996137"
     },
     {
       "id": "690328011070",
@@ -1890,7 +1825,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758252"
+      "updated_at": "2026-02-18T07:32:29.996140"
     },
     {
       "id": "690327716158",
@@ -1899,7 +1834,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758254"
+      "updated_at": "2026-02-18T07:32:29.996141"
     },
     {
       "id": "690327388478",
@@ -1908,7 +1843,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758255"
+      "updated_at": "2026-02-18T07:32:29.996143"
     },
     {
       "id": "690326667582",
@@ -1917,7 +1852,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758257"
+      "updated_at": "2026-02-18T07:32:29.996144"
     },
     {
       "id": "690326438206",
@@ -1926,7 +1861,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758258"
+      "updated_at": "2026-02-18T07:32:29.996146"
     },
     {
       "id": "690326405438",
@@ -1935,7 +1870,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T06:05:42.758260"
+      "updated_at": "2026-02-18T07:32:29.996147"
     },
     {
       "id": "690314510654",
@@ -1947,6 +1882,51 @@
       "updated_at": "2026-02-17T05:55:45.696893",
       "failures": 1,
       "retry_at": "2026-02-17T05:57:57.696864"
+    },
+    {
+      "id": "690210406718",
+      "title": "Companion Planting Map: Bitter Melon Arches Over L",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T07:32:29.996161"
+    },
+    {
+      "id": "682651648318",
+      "title": "Achieving balance with permaculture gardens: a gro",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T07:32:29.996162"
+    },
+    {
+      "id": "654526808382",
+      "title": "The Art Industry’s Eco-Friendly Revolution",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T07:32:29.996164"
+    },
+    {
+      "id": "654302839102",
+      "title": "Crafting Eco-Conscious Handicrafts",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T07:32:29.996165"
+    },
+    {
+      "id": "652474024254",
+      "title": "Transforming Urban Spaces through Gardening",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T07:32:29.996167"
     }
   ]
 }
