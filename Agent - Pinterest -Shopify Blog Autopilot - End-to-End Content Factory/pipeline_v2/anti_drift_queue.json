@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-18T14:12:12.563840",
-  "updated_at": "2026-02-18T14:32:37.065454",
+  "created_at": "2026-02-18T14:36:30.225978",
+  "updated_at": "2026-02-18T14:56:54.524330",
   "items": [
     {
       "id": "690524029246",
@@ -1693,67 +1693,31 @@
       "updated_at": "2026-02-18T14:10:08.286285"
     },
     {
-      "id": "690328338750",
-      "title": "Crabgrass Benefits: Uses, Dosage, Side Effects, an",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T14:12:17.051616"
-    },
-    {
-      "id": "690328174910",
-      "title": "Upcycled Flower Beds: 24 Garden Ideas and Tips",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T14:22:27.059640"
-    },
-    {
-      "id": "690328011070",
-      "title": "Christmas Rock Painting: 28 Easy Ideas and Tips",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T14:32:37.065449"
-    },
-    {
-      "id": "690327716158",
-      "title": "Halloween Mason Jar Ideas: 27 Spooky Decor Project",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T14:12:12.563811"
-    },
-    {
       "id": "690327388478",
       "title": "22 Fall Leaf Art Ideas",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T14:12:12.563812"
+      "updated_at": "2026-02-18T14:36:34.517183"
     },
     {
       "id": "690326667582",
       "title": "23 Alternative Christmas Tree Ideas",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T14:12:12.563814"
+      "updated_at": "2026-02-18T14:46:44.518153"
     },
     {
       "id": "690326438206",
       "title": "26 Halloween Ghost Craft Ideas",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T14:12:12.563816"
+      "updated_at": "2026-02-18T14:56:54.524326"
     },
     {
       "id": "690326405438",
@@ -1762,7 +1726,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T14:12:12.563817"
+      "updated_at": "2026-02-18T14:36:30.225949"
     },
     {
       "id": "690314510654",
@@ -1783,6 +1747,33 @@
       "last_error": "GATE_FAIL",
       "shopify_url": null,
       "updated_at": "2026-02-17T20:20:30.198515"
+    },
+    {
+      "id": "690328174910",
+      "title": "Upcycled Flower Beds: 24 Garden Ideas and Tips",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T14:36:30.225970"
+    },
+    {
+      "id": "690328011070",
+      "title": "Christmas Rock Painting: 28 Easy Ideas and Tips",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T14:36:30.225972"
+    },
+    {
+      "id": "690327716158",
+      "title": "Halloween Mason Jar Ideas: 27 Spooky Decor Project",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T14:36:30.225973"
     }
   ]
 }
