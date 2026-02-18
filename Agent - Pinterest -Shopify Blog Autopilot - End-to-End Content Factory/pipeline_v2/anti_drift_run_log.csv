@@ -696,6 +696,12 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-18T12:04:37.556921,690330042686,Christmas Window Painting Festive: Easy Designs for Winter Nights,done,10,True,force_rebuild,,
 2026-02-18T12:04:42.533512,690330042686,Christmas Window Painting Festive: Easy Designs for Winter Nights,done,10,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
+<<<<<<< Updated upstream
 =======
 2026-02-18T12:22:22.778635,690328961342,Fall Reading Nook: Cozy Decor Ideas for Autumn,failed,8,False,GATE_FAIL,,
+>>>>>>> Stashed changes
+=======
+2026-02-18T12:43:35.889949,690328928574,Fall Balcony Decor: 22 Easy Ideas and Tips,failed,8,False,GATE_FAIL,,
+2026-02-18T12:53:56.427856,690328863038,Christmas Wreaths: DIY Step-by-Step Ideas and Tips for Home,done,9,True,force_rebuild,,
+2026-02-18T12:54:08.095369,690328863038,Christmas Wreaths: DIY Step-by-Step Ideas and Tips for Home,done,9,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
