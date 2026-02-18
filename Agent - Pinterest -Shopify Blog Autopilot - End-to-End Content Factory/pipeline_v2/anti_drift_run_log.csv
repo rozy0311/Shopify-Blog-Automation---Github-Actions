@@ -641,7 +641,14 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-18T08:17:40.763793,690331025726,DIY Fall Gnome Wreath: Easy Craft for Front Door,done,9,True,force_rebuild,,
 2026-02-18T08:18:01.002112,690331025726,DIY Fall Gnome Wreath: Easy Craft for Front Door,done,9,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
+<<<<<<< Updated upstream
 =======
 2026-02-18T08:29:33.238206,690330992958,Halloween Themes Party Decor: Ideas for Events and Tables,done,9,True,force_rebuild,,
 2026-02-18T08:29:51.103993,690330992958,Halloween Themes Party Decor: Ideas for Events and Tables,done,9,True,review+cleanup+publish,,
+>>>>>>> Stashed changes
+=======
+2026-02-18T08:48:26.887484,690330501438,Lighted Pumpkin Basket: DIY Fall Decor for Porches,failed,8,False,GATE_FAIL,,
+2026-02-18T08:48:42.625792,690330501438,Lighted Pumpkin Basket: DIY Fall Decor for Porches,done,10,True,auto_fix,,
+2026-02-18T08:58:15.396886,690330435902,Fall Lantern Decor: 24 Cozy Ideas for Entryways,done,9,True,force_rebuild,,
+2026-02-18T08:58:19.665659,690330435902,Fall Lantern Decor: 24 Cozy Ideas for Entryways,done,9,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
