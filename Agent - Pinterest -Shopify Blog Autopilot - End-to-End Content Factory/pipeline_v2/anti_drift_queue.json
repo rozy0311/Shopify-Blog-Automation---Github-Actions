@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-18T08:38:30.831669",
-  "updated_at": "2026-02-18T08:58:29.885357",
+  "created_at": "2026-02-18T09:01:15.817878",
+  "updated_at": "2026-02-18T09:21:39.179799",
   "items": [
     {
       "id": "690524029246",
@@ -1567,94 +1567,22 @@
       "updated_at": "2026-02-18T07:01:34.842671"
     },
     {
-      "id": "690331025726",
-      "title": "DIY Fall Gnome Wreath: Easy Craft for Front Door",
+      "id": "690330992958",
+      "title": "Halloween Themes Party Decor: Ideas for Events and",
       "status": "done",
       "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:18:00.999377"
-    },
-    {
-      "id": "690330501438",
-      "title": "Lighted Pumpkin Basket: DIY Fall Decor for Porches",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T08:48:42.623068"
-    },
-    {
-      "id": "690330435902",
-      "title": "Fall Lantern Decor: 24 Cozy Ideas for Entryways",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T08:58:19.662548"
-    },
-    {
-      "id": "690330403134",
-      "title": "No-Carve Pumpkins Painting Ideas: Easy Designs for",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T08:58:29.885352"
-    },
-    {
-      "id": "690330337598",
-      "title": "Pink Living Room Ideas: 23 Fresh Looks for Small S",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831569"
-    },
-    {
-      "id": "690330173758",
-      "title": "Plant Wall Shelves Display: Space-Saving Ideas for",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831571"
-    },
-    {
-      "id": "690330140990",
-      "title": "Plant Chandelier Cascading Design: DIY Hanging Gre",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831573"
-    },
-    {
-      "id": "690330075454",
-      "title": "Halloween Kitchen Decor: Spooky Ideas for Easy Sea",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831575"
-    },
-    {
-      "id": "690330042686",
-      "title": "Christmas Window Painting Festive: Easy Designs fo",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
-      "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831576"
+      "updated_at": "2026-02-18T08:29:51.101178"
     },
     {
       "id": "690329190718",
       "title": "Vintage Bathroom Decor: Timeless Styling Ideas for",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831579"
+      "updated_at": "2026-02-18T09:11:04.357652"
     },
     {
       "id": "690329092414",
@@ -1668,20 +1596,20 @@
     {
       "id": "690329026878",
       "title": "Fall Landscaping: Seasonal Ideas and Tips for Yard",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831581"
+      "updated_at": "2026-02-18T09:21:28.963643"
     },
     {
       "id": "690328961342",
       "title": "Fall Reading Nook: Cozy Decor Ideas for Autumn",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831587"
+      "updated_at": "2026-02-18T09:21:39.179794"
     },
     {
       "id": "690328928574",
@@ -1690,7 +1618,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831589"
+      "updated_at": "2026-02-18T09:01:15.817810"
     },
     {
       "id": "690328863038",
@@ -1699,7 +1627,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831590"
+      "updated_at": "2026-02-18T09:01:15.817812"
     },
     {
       "id": "690328797502",
@@ -1708,7 +1636,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831592"
+      "updated_at": "2026-02-18T09:01:15.817814"
     },
     {
       "id": "690328666430",
@@ -1717,7 +1645,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831594"
+      "updated_at": "2026-02-18T09:01:15.817815"
     },
     {
       "id": "690328633662",
@@ -1726,7 +1654,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831595"
+      "updated_at": "2026-02-18T09:01:15.817817"
     },
     {
       "id": "690328437054",
@@ -1735,7 +1663,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831597"
+      "updated_at": "2026-02-18T09:01:15.817819"
     },
     {
       "id": "690328404286",
@@ -1744,7 +1672,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831599"
+      "updated_at": "2026-02-18T09:01:15.817821"
     },
     {
       "id": "690328338750",
@@ -1753,7 +1681,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831600"
+      "updated_at": "2026-02-18T09:01:15.817822"
     },
     {
       "id": "690328174910",
@@ -1762,7 +1690,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831602"
+      "updated_at": "2026-02-18T09:01:15.817824"
     },
     {
       "id": "690328011070",
@@ -1771,7 +1699,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831604"
+      "updated_at": "2026-02-18T09:01:15.817826"
     },
     {
       "id": "690327716158",
@@ -1780,7 +1708,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831626"
+      "updated_at": "2026-02-18T09:01:15.817827"
     },
     {
       "id": "690327388478",
@@ -1789,7 +1717,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831628"
+      "updated_at": "2026-02-18T09:01:15.817829"
     },
     {
       "id": "690326667582",
@@ -1798,7 +1726,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831630"
+      "updated_at": "2026-02-18T09:01:15.817831"
     },
     {
       "id": "690326438206",
@@ -1807,7 +1735,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831631"
+      "updated_at": "2026-02-18T09:01:15.817832"
     },
     {
       "id": "690326405438",
@@ -1816,7 +1744,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831633"
+      "updated_at": "2026-02-18T09:01:15.817833"
     },
     {
       "id": "690314510654",
@@ -1836,7 +1764,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831648"
+      "updated_at": "2026-02-18T09:01:15.817847"
     },
     {
       "id": "682651648318",
@@ -1845,7 +1773,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831650"
+      "updated_at": "2026-02-18T09:01:15.817849"
     },
     {
       "id": "654526808382",
@@ -1854,7 +1782,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831652"
+      "updated_at": "2026-02-18T09:01:15.817851"
     },
     {
       "id": "654302839102",
@@ -1863,7 +1791,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831653"
+      "updated_at": "2026-02-18T09:01:15.817852"
     },
     {
       "id": "652474024254",
@@ -1872,7 +1800,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831655"
+      "updated_at": "2026-02-18T09:01:15.817854"
     },
     {
       "id": "690330927422",
@@ -1881,7 +1809,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831660"
+      "updated_at": "2026-02-18T09:01:15.817859"
     },
     {
       "id": "690330698046",
@@ -1890,7 +1818,7 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831662"
+      "updated_at": "2026-02-18T09:01:15.817861"
     },
     {
       "id": "690330665278",
@@ -1899,7 +1827,61 @@
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-18T08:38:30.831664"
+      "updated_at": "2026-02-18T09:01:15.817863"
+    },
+    {
+      "id": "690330403134",
+      "title": "No-Carve Pumpkins Painting Ideas: Easy Designs for",
+      "status": "done",
+      "attempts": 0,
+      "last_error": "ALREADY_OK_BATCH",
+      "shopify_url": null,
+      "updated_at": "2026-02-18T09:01:30.719740"
+    },
+    {
+      "id": "690330337598",
+      "title": "Pink Living Room Ideas: 23 Fresh Looks for Small S",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T09:01:15.817866"
+    },
+    {
+      "id": "690330173758",
+      "title": "Plant Wall Shelves Display: Space-Saving Ideas for",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T09:01:15.817868"
+    },
+    {
+      "id": "690330140990",
+      "title": "Plant Chandelier Cascading Design: DIY Hanging Gre",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T09:01:15.817870"
+    },
+    {
+      "id": "690330075454",
+      "title": "Halloween Kitchen Decor: Spooky Ideas for Easy Sea",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T09:01:15.817871"
+    },
+    {
+      "id": "690330042686",
+      "title": "Christmas Window Painting Festive: Easy Designs fo",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-18T09:01:15.817872"
     }
   ]
 }
