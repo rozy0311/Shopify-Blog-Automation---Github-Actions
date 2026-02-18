@@ -653,8 +653,15 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-18T08:58:15.396886,690330435902,Fall Lantern Decor: 24 Cozy Ideas for Entryways,done,9,True,force_rebuild,,
 2026-02-18T08:58:19.665659,690330435902,Fall Lantern Decor: 24 Cozy Ideas for Entryways,done,9,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
+<<<<<<< Updated upstream
 =======
 2026-02-18T09:11:04.359402,690329190718,Vintage Bathroom Decor: Timeless Styling Ideas for Small Spaces,failed,8,False,GATE_FAIL,,
 2026-02-18T09:21:19.481288,690329026878,Fall Landscaping: Seasonal Ideas and Tips for Yards,done,9,True,force_rebuild,,
 2026-02-18T09:21:28.966250,690329026878,Fall Landscaping: Seasonal Ideas and Tips for Yards,done,9,True,review+cleanup+publish,,
+>>>>>>> Stashed changes
+=======
+2026-02-18T09:38:03.891318,690328437054,Fall Porch Decor: 24 Warm Ideas and Tips,done,10,True,force_rebuild,,
+2026-02-18T09:38:08.145020,690328437054,Fall Porch Decor: 24 Warm Ideas and Tips,done,10,True,review+cleanup+publish,,
+2026-02-18T09:47:34.001764,690328404286,Recycled Buttons: Easy Craft Ideas and Uses at Home,failed,8,False,GATE_FAIL,,
+2026-02-18T09:47:49.207248,690328404286,Recycled Buttons: Easy Craft Ideas and Uses at Home,done,10,True,auto_fix,,
 >>>>>>> Stashed changes
