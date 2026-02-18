@@ -691,7 +691,11 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-18T11:43:52.668824,690330140990,Plant Chandelier Cascading Design: DIY Hanging Greenery Guide,failed,7,False,GATE_FAIL,,
 2026-02-18T11:53:54.319345,690330075454,Halloween Kitchen Decor: Spooky Ideas for Easy Seasonal Styling,failed,8,False,GATE_FAIL,,
 >>>>>>> Stashed changes
+<<<<<<< Updated upstream
 =======
 2026-02-18T12:04:37.556921,690330042686,Christmas Window Painting Festive: Easy Designs for Winter Nights,done,10,True,force_rebuild,,
 2026-02-18T12:04:42.533512,690330042686,Christmas Window Painting Festive: Easy Designs for Winter Nights,done,10,True,review+cleanup+publish,,
+>>>>>>> Stashed changes
+=======
+2026-02-18T12:22:22.778635,690328961342,Fall Reading Nook: Cozy Decor Ideas for Autumn,failed,8,False,GATE_FAIL,,
 >>>>>>> Stashed changes
