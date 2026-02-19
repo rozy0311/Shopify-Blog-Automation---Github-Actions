@@ -34,7 +34,17 @@ except ImportError:
     pass
 
 # API Keys - NEVER hardcode keys, always use environment variables
-API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY") or os.getenv("GEMINI_API_KEY") or ""
+API_KEY = (
+    os.getenv("GOOGLE_AI_STUDIO_API_KEY")
+    or os.getenv("GEMINI_API_KEY")
+    or os.getenv("FALLBACK_GOOGLE_AI_STUDIO_API_KEY")
+    or os.getenv("FALLBACK_GEMINI_API_KEY")
+    or os.getenv("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY")
+    or os.getenv("SECOND_FALLBACK_GEMINI_API_KEY")
+    or os.getenv("GEMINI_API_KEY_3")
+    or os.getenv("THIRD_GEMINI_API_KEY")
+    or ""
+)
 if not API_KEY:
     raise ValueError(
         "GEMINI_API_KEY or GOOGLE_AI_STUDIO_API_KEY must be set in environment"

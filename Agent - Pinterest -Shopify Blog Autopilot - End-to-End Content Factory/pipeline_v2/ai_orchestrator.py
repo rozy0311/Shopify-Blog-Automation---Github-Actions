@@ -140,7 +140,7 @@ def mask_secrets(text: str) -> str:
 
 
 # ============================================================================
-# GEMINI / LLM CONFIG — DUAL KEY SUPPORT
+# GEMINI / LLM CONFIG — MULTI KEY SUPPORT (PRIMARY + 2 FALLBACKS)
 # ============================================================================
 # Primary Gemini key (GEMINI_API_KEY preferred, GOOGLE_AI_STUDIO_API_KEY as alias)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get(
@@ -150,6 +150,18 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get(
 FALLBACK_GEMINI_API_KEY = os.environ.get(
     "FALLBACK_GEMINI_API_KEY", ""
 ) or os.environ.get("FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
+# Second fallback Gemini key (third Google account — optional)
+SECOND_FALLBACK_GEMINI_API_KEY = (
+    os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", "")
+    or os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
+    # Back-compat aliases (if user named secrets differently)
+    or os.environ.get("GEMINI_API_KEY_3", "")
+    or os.environ.get("THIRD_GEMINI_API_KEY", "")
+)
+
+# De-duplicate keys while preserving primary → fallback → fallback2 preference
+if SECOND_FALLBACK_GEMINI_API_KEY in {GEMINI_API_KEY, FALLBACK_GEMINI_API_KEY}:
+    SECOND_FALLBACK_GEMINI_API_KEY = ""
 
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-flash-lite")
@@ -178,10 +190,11 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
 
-# Startup diagnostic: show dual-key LLM chain configuration
+# Startup diagnostic: show multi-key LLM chain configuration
 _pk = "✅" if GEMINI_API_KEY else "❌ MISSING"
 _fk = "✅" if FALLBACK_GEMINI_API_KEY else "❌ MISSING"
-print("🔧 LLM Provider Chain (Dual Gemini Key):")
+_sk = "✅" if SECOND_FALLBACK_GEMINI_API_KEY else "❌ MISSING"
+print("🔧 LLM Provider Chain (3 Gemini Keys):")
 print(f"   --- PRIMARY KEY ({_pk}) ---")
 for _i, _m in enumerate(GEMINI_ALL_MODELS, 1):
     print(f"   {_i}. Gemini: {_m} (primary key: {_pk})")
@@ -190,16 +203,21 @@ print(f"   --- FALLBACK KEY ({_fk}) ---")
 for _i, _m in enumerate(GEMINI_ALL_MODELS, _offset + 1):
     print(f"   {_i}. Gemini: {_m} (fallback key: {_fk})")
 _offset2 = _offset * 2
+print(f"   --- SECOND FALLBACK KEY ({_sk}) ---")
+for _i, _m in enumerate(GEMINI_ALL_MODELS, _offset2 + 1):
+    print(f"   {_i}. Gemini: {_m} (second fallback key: {_sk})")
+_offset3 = _offset * 3
 print(
-    f"   {_offset2 + 1}. GitHub Models: {GH_MODELS_MODEL} (key: {'✅' if GH_MODELS_API_KEY else '❌ MISSING'})"
+    f"   {_offset3 + 1}. GitHub Models: {GH_MODELS_MODEL} (key: {'✅' if GH_MODELS_API_KEY else '❌ MISSING'})"
 )
 print(
-    f"   {_offset2 + 2}. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})"
+    f"   {_offset3 + 2}. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})"
 )
-print(f"   {_offset2 + 3}. Pollinations: free (no key needed)")
+print(f"   {_offset3 + 3}. Pollinations: free (no key needed)")
 if (
     not GEMINI_API_KEY
     and not FALLBACK_GEMINI_API_KEY
+    and not SECOND_FALLBACK_GEMINI_API_KEY
     and not GH_MODELS_API_KEY
     and not OPENAI_API_KEY
 ):
@@ -965,7 +983,29 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
     else:
         print("⚠️ FALLBACK Gemini key not set, skipping fallback phase")
 
-    # ── PHASE 3: Non-Gemini providers ─────────────────────────────────
+    # ── PHASE 3: Try ALL Gemini models with SECOND FALLBACK key ──────
+    if SECOND_FALLBACK_GEMINI_API_KEY:
+        for model_name in GEMINI_ALL_MODELS:
+            print(f"🔄 Trying Gemini {model_name} (second fallback key)...")
+            content = call_gemini_api(
+                prompt,
+                LLM_MAX_OUTPUT_TOKENS,
+                model_name,
+                api_key=SECOND_FALLBACK_GEMINI_API_KEY,
+            )
+            if content and len(content) > 1000:
+                content = _clean_llm_output(content)
+                content = _remove_title_spam(content, title)
+                content = _remove_generic_phrases(content)
+                print(
+                    f"✅ Generated {len(content)} chars with Gemini {model_name} (second fallback key)"
+                )
+                return content
+        print("⚠️ All Gemini models exhausted with SECOND FALLBACK key")
+    else:
+        print("⚠️ SECOND FALLBACK Gemini key not set, skipping second fallback phase")
+
+    # ── PHASE 4: Non-Gemini providers ─────────────────────────────────
     # Fallback to GitHub Models
     print(f"🔄 Fallback to GitHub Models ({GH_MODELS_MODEL})...")
     content = call_github_models_api(prompt, LLM_MAX_OUTPUT_TOKENS)

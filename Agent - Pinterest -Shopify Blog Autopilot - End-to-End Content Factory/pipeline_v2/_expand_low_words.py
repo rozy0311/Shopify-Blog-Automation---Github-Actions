@@ -1,25 +1,17 @@
 #!/usr/bin/env python3
 """_expand_low_words.py — Expand articles that fall below the minimum word count.
 
-Uses a multi-provider LLM fallback chain with DUAL Gemini API keys
+Uses a multi-provider LLM fallback chain with 3 Gemini API keys (primary + 2 fallbacks)
 to generate additional high-quality content sections and pad articles
 to the required 1800+ word minimum.
 
 Fallback order:
-  1. GitHub Models (gpt-4o-mini)     — fast, cheap, good quality
-  2. gemini-2.5-pro (primary key)    — heavyweight, best expansion quality
-  3. gemini-2.5-pro (fallback key)
-  4. gemini-2.0-flash (primary key)
-  5. gemini-2.0-flash (fallback key)
-  6. gemini-2.5-flash-lite (primary key)
-  7. gemini-2.5-flash-lite (fallback key)
-  8. gemini-2.5-flash (primary key)
-  9. gemini-2.5-flash (fallback key)
-  10. gemini-2.0-flash-lite (primary key)
-  11. gemini-2.0-flash-lite (fallback key)
+    1. GitHub Models (gpt-4o-mini)          — fast, cheap, good quality
+    2+. Gemini models × 3 keys (primary → fallback → fallback2)
 
 Each Gemini model is tried with PRIMARY key first, then FALLBACK key,
-exhausting all Gemini models before moving to external providers.
+then SECOND FALLBACK key, exhausting all Gemini models before moving
+to external providers.
 """
 
 from __future__ import annotations
@@ -61,6 +53,16 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get(
 FALLBACK_GEMINI_API_KEY = os.environ.get("FALLBACK_GEMINI_API_KEY", "") or os.environ.get(
     "FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""
 )
+SECOND_FALLBACK_GEMINI_API_KEY = (
+    os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", "")
+    or os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
+    # Back-compat aliases
+    or os.environ.get("GEMINI_API_KEY_3", "")
+    or os.environ.get("THIRD_GEMINI_API_KEY", "")
+)
+
+if SECOND_FALLBACK_GEMINI_API_KEY in {GEMINI_API_KEY, FALLBACK_GEMINI_API_KEY}:
+    SECOND_FALLBACK_GEMINI_API_KEY = ""
 
 GH_MODELS_API_KEY = os.environ.get("GH_MODELS_API_KEY", "")
 GH_MODELS_API_BASE = os.environ.get(
@@ -97,7 +99,12 @@ def _word_count(html: str) -> int:
 
 def _mask_secrets(text: str) -> str:
     """Mask API keys in error messages."""
-    for key_val in [GEMINI_API_KEY, FALLBACK_GEMINI_API_KEY, GH_MODELS_API_KEY]:
+    for key_val in [
+        GEMINI_API_KEY,
+        FALLBACK_GEMINI_API_KEY,
+        SECOND_FALLBACK_GEMINI_API_KEY,
+        GH_MODELS_API_KEY,
+    ]:
         if key_val and len(key_val) > 8:
             text = text.replace(key_val, key_val[:4] + "****" + key_val[-4:])
     return text
@@ -301,10 +308,14 @@ def expand_article(title: str, current_html: str) -> str:
     else:
         print("⚠️ GH_MODELS_API_KEY not set, skipping GitHub Models")
 
-    # ── 2-11. Gemini models × dual key ──────────────────────────────
+    # ── 2+. Gemini models × 3 keys (primary → fallback → fallback2) ─
     step = 2
     for model_name in EXPAND_GEMINI_MODELS:
-        for key_label, api_key in [("primary", GEMINI_API_KEY), ("fallback", FALLBACK_GEMINI_API_KEY)]:
+        for key_label, api_key in [
+            ("primary", GEMINI_API_KEY),
+            ("fallback", FALLBACK_GEMINI_API_KEY),
+            ("fallback2", SECOND_FALLBACK_GEMINI_API_KEY),
+        ]:
             if not api_key:
                 print(f"⚠️ [{step}] Gemini {key_label} key not set, skipping")
                 step += 1
@@ -354,6 +365,7 @@ def _print_chain():
     """Print the configured fallback chain."""
     pk = "✅" if GEMINI_API_KEY else "❌"
     fk = "✅" if FALLBACK_GEMINI_API_KEY else "❌"
+    sk = "✅" if SECOND_FALLBACK_GEMINI_API_KEY else "❌"
     gh = "✅" if GH_MODELS_API_KEY else "❌"
     print("🔧 _expand_low_words.py — LLM Fallback Chain:")
     print(f"   1. GitHub Models: {GH_MODELS_MODEL} (key: {gh})")
@@ -362,6 +374,8 @@ def _print_chain():
         print(f"   {step}. Gemini: {model} (primary key: {pk})")
         step += 1
         print(f"   {step}. Gemini: {model} (fallback key: {fk})")
+        step += 1
+        print(f"   {step}. Gemini: {model} (second fallback key: {sk})")
         step += 1
     print(f"   Total: {step - 1} fallback slots")
 

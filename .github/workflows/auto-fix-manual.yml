@@ -37,6 +37,8 @@ jobs:
             GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
             FALLBACK_GEMINI_API_KEY: ${{ secrets.FALLBACK_GEMINI_API_KEY }}
             FALLBACK_GOOGLE_AI_STUDIO_API_KEY: ${{ secrets.FALLBACK_GEMINI_API_KEY }}
+            SECOND_FALLBACK_GEMINI_API_KEY: ${{ secrets.SECOND_FALLBACK_GEMINI_API_KEY || secrets.GEMINI_API_KEY_3 || secrets.THIRD_GEMINI_API_KEY || '' }}
+            SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY: ${{ secrets.SECOND_FALLBACK_GEMINI_API_KEY || secrets.GEMINI_API_KEY_3 || secrets.THIRD_GEMINI_API_KEY || '' }}
             GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}
             GEMINI_MODEL_FALLBACK: ${{ vars.GEMINI_MODEL_FALLBACK || 'gemini-2.5-flash-lite' }}
             GEMINI_MODEL_FALLBACK_2: ${{ vars.GEMINI_MODEL_FALLBACK_2 || 'gemini-2.5-flash' }}
@@ -97,8 +99,13 @@ jobs:
 
             - name: Verify vision review enabled
               run: |
-                  if [ "${VISION_REVIEW:-0}" = "1" ] && [ -z "${VISION_API_KEY:-}" ] && [ -z "${GEMINI_API_KEY:-}" ]; then
-                      echo "Missing VISION_API_KEY or GEMINI_API_KEY; vision review is required."
+                                    if [ "${VISION_REVIEW:-0}" = "1" ] \
+                                        && [ -z "${VISION_API_KEY:-}" ] \
+                                        && [ -z "${GOOGLE_AI_STUDIO_API_KEY:-}" ] \
+                                        && [ -z "${GEMINI_API_KEY:-}" ] \
+                                        && [ -z "${FALLBACK_GEMINI_API_KEY:-}" ] \
+                                        && [ -z "${SECOND_FALLBACK_GEMINI_API_KEY:-}" ]; then
+                                            echo "Missing VISION_API_KEY or any GEMINI API key; vision review is required."
                       exit 1
                   fi
 

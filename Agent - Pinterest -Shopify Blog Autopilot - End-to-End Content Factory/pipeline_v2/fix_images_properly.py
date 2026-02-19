@@ -253,12 +253,24 @@ GEMINI_IMAGE_GEN_MODELS_DEFAULT = [
 def _get_gemini_image_keys() -> list:
     """Return de-duplicated list of Gemini API keys for image generation."""
     keys = []
-    k1 = os.environ.get("GEMINI_API_KEY", "").strip()
+    k1 = (os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GOOGLE_AI_STUDIO_API_KEY", "")).strip()
     if k1:
         keys.append(k1)
-    k2 = os.environ.get("FALLBACK_GEMINI_API_KEY", "").strip()
+    k2 = (
+        os.environ.get("FALLBACK_GEMINI_API_KEY", "")
+        or os.environ.get("FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
+    ).strip()
     if k2 and k2 != k1:
         keys.append(k2)
+    k3 = (
+        os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", "")
+        or os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
+        # Back-compat aliases
+        or os.environ.get("GEMINI_API_KEY_3", "")
+        or os.environ.get("THIRD_GEMINI_API_KEY", "")
+    ).strip()
+    if k3 and k3 not in keys:
+        keys.append(k3)
     return keys
 
 
