@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-19T22:21:41.787021",
-  "updated_at": "2026-02-19T22:42:03.367213",
+  "created_at": "2026-02-19T22:47:01.832190",
+  "updated_at": "2026-02-19T22:57:51.947427",
   "items": [
     {
       "id": "690524029246",
@@ -1724,38 +1724,29 @@
     {
       "id": "692642087230",
       "title": "Stop wasting $10 on store-bought green garlic — gr",
-      "status": "manual_review",
+      "status": "done",
       "attempts": 1,
-      "last_error": "GATE_FAIL",
-      "shopify_url": null,
-      "updated_at": "2026-02-19T22:31:34.252838"
-    },
-    {
-      "id": "692642054462",
-      "title": "Want to feed a family of 4 for just $50 a week? He",
-      "status": "in_progress",
-      "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-19T22:31:53.360110"
+      "updated_at": "2026-02-19T22:47:31.727892"
     },
     {
       "id": "692642021694",
       "title": "Want fresh salads all week? Layer 5 mason jars in ",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": null,
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-19T22:42:03.367206"
+      "updated_at": "2026-02-19T22:56:54.783524"
     },
     {
       "id": "692641988926",
       "title": "Stop wasting $10 on drain cleaners — learn how bak",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-19T22:21:41.786999"
+      "updated_at": "2026-02-19T22:57:51.947422"
     },
     {
       "id": "690329092414",
