@@ -731,7 +731,11 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 >>>>>>> Stashed changes
 <<<<<<< Updated upstream
 2026-02-19T22:31:34.254360,692642087230,Stop wasting $10 on store-bought green garlic — grow your own in just 21 days!,failed,6,False,GATE_FAIL,,
+<<<<<<< Updated upstream
 =======
 2026-02-19T22:47:31.730501,692642087230,Stop wasting $10 on store-bought green garlic — grow your own in just 21 days!,done,10,True,review+cleanup+publish,,
 2026-02-19T22:56:54.785128,692642021694,Want fresh salads all week? Layer 5 mason jars in just 30 minutes to avoid soggy greens!,failed,8,False,GATE_FAIL,,
+>>>>>>> Stashed changes
+=======
+2026-02-19T23:12:25.060798,692641988926,Stop wasting $10 on drain cleaners — learn how baking soda and vinegar can unclog your sink in just 10 minutes!,done,9,True,force_rebuild,,
 >>>>>>> Stashed changes
