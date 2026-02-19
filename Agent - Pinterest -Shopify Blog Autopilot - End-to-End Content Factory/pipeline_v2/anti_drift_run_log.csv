@@ -715,6 +715,12 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-19T06:55:24.105670,690328174910,Upcycled Flower Beds: 24 Garden Ideas and Tips,failed,8,False,GATE_FAIL,,
 2026-02-19T07:05:50.834847,690328011070,Christmas Rock Painting: 28 Easy Ideas and Tips,done,9,True,force_rebuild,,
 2026-02-19T07:06:08.999054,690328011070,Christmas Rock Painting: 28 Easy Ideas and Tips,done,9,True,review+cleanup+publish,,
+<<<<<<< Updated upstream
 2026-02-19T08:10:15.042623,690327716158,Halloween Mason Jar Ideas: 27 Spooky Decor Projects for Cozy Homes,done,9,True,force_rebuild,,
 2026-02-19T08:10:36.643145,690327716158,Halloween Mason Jar Ideas: 27 Spooky Decor Projects for Cozy Homes,done,9,True,review+cleanup+publish,,
 2026-02-19T08:20:11.749657,690327388478,22 Fall Leaf Art Ideas,failed,8,False,GATE_FAIL,,
+=======
+2026-02-19T08:34:11.606405,690326667582,23 Alternative Christmas Tree Ideas,failed,8,False,GATE_FAIL,,
+2026-02-19T08:44:34.545668,690326405438,24 Recycled Glass Bottle Ideas,done,9,True,force_rebuild,,
+2026-02-19T08:44:54.870387,690326405438,24 Recycled Glass Bottle Ideas,done,9,True,review+cleanup+publish,,
+>>>>>>> Stashed changes
