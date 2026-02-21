@@ -768,3 +768,7 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-21T18:49:19.285343,690331746622,"Dandelion Roots Benefits: Uses, How to Take It, and Side",done,10,True,review+cleanup+publish,,
 2026-02-21T18:49:34.476857,690331550014,Pumpkins Reuse and Repurpose: Easy Ideas for Fall Decor,done,10,True,review+cleanup+publish,,
 2026-02-21T18:59:33.290084,690331156798,How to Preserve Acorns: Step-by-Step Guide for Storage,failed,8,False,GATE_FAIL,,
+2026-02-21T19:04:42.268468,690332041534,"Lavender Leaves Uses: Benefits, How to Use, Safety Tips",done,10,True,review+cleanup+publish,,
+2026-02-21T19:04:57.173252,690296357182,Lemongrass Tea: Hot Brew vs Cold Brew for Warm Weather,done,10,True,review+cleanup+publish,,
+2026-02-21T19:14:55.147960,690295111998,Lemongrass Batch Brew: Make-Ahead Iced Tea for the Week,done,9,True,force_rebuild,,
+2026-02-21T19:15:05.619419,690295111998,Lemongrass Batch Brew: Make-Ahead Iced Tea for the Week,done,9,True,review+cleanup+publish,,
