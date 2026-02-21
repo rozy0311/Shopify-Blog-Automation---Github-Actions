@@ -60,9 +60,11 @@ GENERIC_HEADINGS = {
     "research highlights",
     "expert insights",
     "step-by-step approach",
-    "key terms",
-    "sources & further reading",
-    "sources &amp; further reading",
+    # NOTE: do NOT remove these. They are required by the meta-prompt and
+    # pre_publish_review checks, and removing them causes "generic" failures.
+    # "key terms",
+    # "sources & further reading",
+    # "sources &amp; further reading",
     "advanced techniques for experienced practitioners",
     "customization and personalization",
     "batch production",
