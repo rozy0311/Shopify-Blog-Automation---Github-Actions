@@ -1461,6 +1461,19 @@ class AntiDriftQueue:
         with open(articles_file, "r", encoding="utf-8") as f:
             items = json.load(f)
         done_ids = _load_done_blacklist()
+        # If a previously-done article regresses and shows up as HARD FAIL in the
+        # current scan, we must allow it to be re-queued; otherwise the system
+        # will appear to "run" but never actually fix/publish updates.
+        #
+        # Keep this on by default because scan_issues_now.py only emits HARD FAIL
+        # items (warning-only posts are not queued).
+        allow_requeue_done_on_hard_fail = os.environ.get(
+            "ANTI_DRIFT_REQUEUE_DONE_ON_HARD_FAIL", "1"
+        ).strip() not in {"0", "false", "False"}
+        allow_retry_terminal_on_hard_fail = os.environ.get(
+            "ANTI_DRIFT_RETRY_TERMINAL_ON_HARD_FAIL", "0"
+        ).strip() in {"1", "true", "True"}
+        blacklist_changed = False
 
         # Build lookup of existing queue state so we preserve ALL existing statuses
         existing_map: dict[str, dict] = {}
@@ -1486,31 +1499,53 @@ class AntiDriftQueue:
         if skipped_done:
             _save_done_blacklist(done_ids)
 
-        # SECOND: Process articles from scan
+        # SECOND: Process articles from scan (HARD FAIL only)
         for item in items:
             article_id = str(item.get("id"))
-            if article_id in done_ids:
-                # Already added above or in blacklist
-                continue
-
-            # If article was already in queue with terminal status, preserve it
             prev = existing_map.get(article_id)
+
+            if article_id in done_ids:
+                # Historically marked done, but current scan says HARD FAIL.
+                # Allow re-queue so broken posts get fixed.
+                if not allow_requeue_done_on_hard_fail:
+                    continue
+                done_ids.discard(article_id)
+                blacklist_changed = True
+
+            # If article was already in queue with terminal status, preserve or optionally retry it
             if prev:
                 prev_status = prev.get("status", "")
                 prev_attempts = int(prev.get("attempts", 0))
                 if prev_status == "manual_review":
-                    # Already escalated — keep as-is, do NOT reset
-                    queue_items.append(prev)
-                    skipped_terminal += 1
-                    continue
+                    if not allow_retry_terminal_on_hard_fail:
+                        # Already escalated — keep as-is, do NOT reset
+                        queue_items.append(prev)
+                        skipped_terminal += 1
+                        continue
                 if prev_status == "failed" and prev_attempts >= 3:
-                    # Tried 3+ times and failed — keep state, don't reset
-                    queue_items.append(prev)
-                    skipped_terminal += 1
-                    continue
+                    if not allow_retry_terminal_on_hard_fail:
+                        # Tried 3+ times and failed — keep state, don't reset
+                        queue_items.append(prev)
+                        skipped_terminal += 1
+                        continue
                 if prev_status in ("failed", "retrying") and prev_attempts >= 1:
                     # Preserve attempt count — don't reset to 0
                     queue_items.append(prev)
+                    continue
+
+                if prev_status == "done":
+                    # Was done, but scan says HARD FAIL now → reset to pending
+                    queue_items.append(
+                        {
+                            "id": article_id,
+                            "title": item.get("title", ""),
+                            "status": "pending",
+                            "attempts": 0,
+                            "last_error": "REQUEUED_HARD_FAIL_SCAN",
+                            "shopify_url": prev.get("shopify_url"),
+                            "updated_at": datetime.now().isoformat(),
+                        }
+                    )
                     continue
 
             queue_items.append(
@@ -1519,11 +1554,14 @@ class AntiDriftQueue:
                     "title": item.get("title", ""),
                     "status": "pending",
                     "attempts": 0,
-                    "last_error": None,
+                    "last_error": "HARD_FAIL_SCAN",
                     "shopify_url": None,
                     "updated_at": datetime.now().isoformat(),
                 }
             )
+
+        if blacklist_changed:
+            _save_done_blacklist(done_ids)
 
         if skipped_done or skipped_terminal:
             print(

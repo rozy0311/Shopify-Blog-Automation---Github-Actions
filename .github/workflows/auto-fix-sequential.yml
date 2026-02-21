@@ -76,6 +76,8 @@ jobs:
             MIN_PASS_RATE: "0.95"
             PASS_RATE_WINDOW: "20"
             PASS_RATE_MIN_SAMPLES: "10"
+            ANTI_DRIFT_REQUEUE_DONE_ON_HARD_FAIL: "1"
+            ANTI_DRIFT_RETRY_TERMINAL_ON_HARD_FAIL: "0"
         steps:
             - name: Checkout
               uses: actions/checkout@v4
