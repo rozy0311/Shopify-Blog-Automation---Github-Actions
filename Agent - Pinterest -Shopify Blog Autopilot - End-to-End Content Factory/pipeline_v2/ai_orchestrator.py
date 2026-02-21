@@ -1475,34 +1475,45 @@ class AntiDriftQueue:
         ).strip() in {"1", "true", "True"}
         blacklist_changed = False
 
-        # Build lookup of existing queue state so we preserve ALL existing statuses
-        existing_map: dict[str, dict] = {}
-        for existing_item in self.payload.get("items", []):
-            existing_map[str(existing_item.get("id"))] = existing_item
-
         # Collect IDs from the scan so we know which articles are in articles_to_fix
         scan_ids = {str(item.get("id")) for item in items}
 
-        queue_items = []
+        # Build a merged queue without duplicates.
+        # Key idea: each article_id must appear at most once.
+        existing_items: list[dict] = list(self.payload.get("items", []))
+        existing_map: dict[str, dict] = {}
+        order: list[str] = []
+        for existing_item in existing_items:
+            eid = str(existing_item.get("id"))
+            if eid not in existing_map:
+                order.append(eid)
+            existing_map[eid] = existing_item
+
+        merged: dict[str, dict] = dict(existing_map)
+
         skipped_done = 0
         skipped_terminal = 0
 
-        # FIRST: Preserve ALL existing "done" items from the queue (even if not in blacklist)
-        for existing_item in self.payload.get("items", []):
-            eid = str(existing_item.get("id"))
-            if existing_item.get("status") == "done":
-                queue_items.append(existing_item)
-                done_ids.add(eid)  # Sync to blacklist
-                skipped_done += 1
+        # Preserve/sync existing done items, BUT if current scan says HARD FAIL and
+        # re-queue is allowed, we must NOT keep a parallel "done" entry.
+        for eid, existing_item in list(existing_map.items()):
+            if existing_item.get("status") != "done":
+                continue
+            if eid in scan_ids and allow_requeue_done_on_hard_fail:
+                continue
+            done_ids.add(eid)
+            skipped_done += 1
 
-        # Save any newly found done IDs to blacklist
         if skipped_done:
             _save_done_blacklist(done_ids)
 
-        # SECOND: Process articles from scan (HARD FAIL only)
+        # Process articles from scan (HARD FAIL only)
         for item in items:
             article_id = str(item.get("id"))
             prev = existing_map.get(article_id)
+
+            if article_id not in order:
+                order.append(article_id)
 
             if article_id in done_ids:
                 # Historically marked done, but current scan says HARD FAIL.
@@ -1519,46 +1530,42 @@ class AntiDriftQueue:
                 if prev_status == "manual_review":
                     if not allow_retry_terminal_on_hard_fail:
                         # Already escalated — keep as-is, do NOT reset
-                        queue_items.append(prev)
+                        merged[article_id] = prev
                         skipped_terminal += 1
                         continue
                 if prev_status == "failed" and prev_attempts >= 3:
                     if not allow_retry_terminal_on_hard_fail:
                         # Tried 3+ times and failed — keep state, don't reset
-                        queue_items.append(prev)
+                        merged[article_id] = prev
                         skipped_terminal += 1
                         continue
                 if prev_status in ("failed", "retrying") and prev_attempts >= 1:
                     # Preserve attempt count — don't reset to 0
-                    queue_items.append(prev)
+                    merged[article_id] = prev
                     continue
 
                 if prev_status == "done":
                     # Was done, but scan says HARD FAIL now → reset to pending
-                    queue_items.append(
-                        {
-                            "id": article_id,
-                            "title": item.get("title", ""),
-                            "status": "pending",
-                            "attempts": 0,
-                            "last_error": "REQUEUED_HARD_FAIL_SCAN",
-                            "shopify_url": prev.get("shopify_url"),
-                            "updated_at": datetime.now().isoformat(),
-                        }
-                    )
+                    merged[article_id] = {
+                        "id": article_id,
+                        "title": item.get("title", ""),
+                        "status": "pending",
+                        "attempts": 0,
+                        "last_error": "REQUEUED_HARD_FAIL_SCAN",
+                        "shopify_url": prev.get("shopify_url"),
+                        "updated_at": datetime.now().isoformat(),
+                    }
                     continue
 
-            queue_items.append(
-                {
-                    "id": article_id,
-                    "title": item.get("title", ""),
-                    "status": "pending",
-                    "attempts": 0,
-                    "last_error": "HARD_FAIL_SCAN",
-                    "shopify_url": None,
-                    "updated_at": datetime.now().isoformat(),
-                }
-            )
+            merged[article_id] = {
+                "id": article_id,
+                "title": item.get("title", ""),
+                "status": "pending",
+                "attempts": 0,
+                "last_error": "HARD_FAIL_SCAN",
+                "shopify_url": (prev or {}).get("shopify_url"),
+                "updated_at": datetime.now().isoformat(),
+            }
 
         if blacklist_changed:
             _save_done_blacklist(done_ids)
@@ -1567,6 +1574,13 @@ class AntiDriftQueue:
             print(
                 f"queue-init: preserved {skipped_done} done + {skipped_terminal} terminal (failed≥3/manual_review)"
             )
+
+        # Materialize merged queue in stable order (no duplicates)
+        queue_items: list[dict] = []
+        for eid in order:
+            it = merged.get(eid)
+            if it:
+                queue_items.append(it)
 
         self.payload = {
             "version": 1,
