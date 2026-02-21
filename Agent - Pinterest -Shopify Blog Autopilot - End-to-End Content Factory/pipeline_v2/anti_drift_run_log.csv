@@ -794,4 +794,11 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-21T21:01:03.847434,654526808382,The Art Industry’s Eco-Friendly Revolution,done,10,True,review+cleanup+publish,,
 2026-02-21T21:01:34.285971,654302839102,Crafting Eco-Conscious Handicrafts,done,9,True,review+cleanup+publish,,
 2026-02-21T21:02:03.537243,652474024254,Transforming Urban Spaces through Gardening,done,10,True,review+cleanup+publish,,
+<<<<<<< Updated upstream
 2026-02-21T21:25:23.975806,690328994110,Yellow Bathroom Ideas: 21 Cheerful Looks for Small Baths,done,9,True,manual_review_fix,,
+=======
+2026-02-21T21:23:41.032048,690770510142,Sore Throat Spray: DIY Recipe for Soothing Relief,done,9,True,force_rebuild,,
+2026-02-21T21:23:58.248620,690770510142,Sore Throat Spray: DIY Recipe for Soothing Relief,done,9,True,review+cleanup+publish,,
+2026-02-21T21:33:48.898220,690211815742,"30-Day Balcony Challenge: Plant, Brew, and Cook With One",failed,7,False,GATE_FAIL,,
+2026-02-21T21:44:12.887500,690210931006,Glutinous Corn Kitchen Guide: Sticky Rice Corn Desserts,done,9,True,force_rebuild,,
+>>>>>>> Stashed changes
