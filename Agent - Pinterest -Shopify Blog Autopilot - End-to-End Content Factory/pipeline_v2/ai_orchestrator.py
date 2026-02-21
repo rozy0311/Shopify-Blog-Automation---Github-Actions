@@ -3773,22 +3773,8 @@ class AIOrchestrator:
             publish_script = PIPELINE_DIR / "publish_now_graphql.py"
             review_ok = False
             if review_script.exists():
-                r = subprocess.run(
-                    [sys.executable, str(review_script), str(article_id)],
-                    cwd=str(content_factory_dir),
-                    capture_output=True,
-                    text=True,
-                    timeout=120,
-                )
-                review_ok = r.returncode == 0
-                if not review_ok and r.stderr:
-                    print(f"[WARN] pre_publish_review: {r.stderr[:200]}")
-            else:
-                print(
-                    "[FAIL] pre_publish_review.py not found - refusing to publish without review"
-                )
-                review_ok = False
-            if review_ok:
+                # IMPORTANT: cleanup can change content/word count.
+                # Always clean up FIRST, then run pre_publish_review on the FINAL content.
                 if cleanup_script.exists():
                     subprocess.run(
                         [sys.executable, str(cleanup_script), str(article_id)],
@@ -3805,6 +3791,58 @@ class AIOrchestrator:
                         capture_output=True,
                         timeout=60,
                     )
+
+                def _run_review() -> subprocess.CompletedProcess:
+                    return subprocess.run(
+                        [sys.executable, str(review_script), str(article_id)],
+                        cwd=str(content_factory_dir),
+                        capture_output=True,
+                        text=True,
+                        timeout=120,
+                    )
+
+                r = _run_review()
+                review_ok = r.returncode == 0
+
+                # If review fails due to min word count, try expansion once.
+                if not review_ok:
+                    out = (r.stdout or "") + "\n" + (r.stderr or "")
+                    if "WORDS:" in out and "< 1800" in out:
+                        try:
+                            from _expand_low_words import expand_article as _expand_article
+
+                            fresh_art = self.api.get_article(article_id)
+                            if fresh_art:
+                                art_title = fresh_art.get("title", "")
+                                art_body = fresh_art.get("body_html", "") or ""
+                                expanded_body = _expand_article(art_title, art_body)
+                                if expanded_body and expanded_body != art_body:
+                                    self.api.update_article(article_id, {"body_html": expanded_body})
+                                    # Cleanup again after expansion
+                                    if cleanup_script.exists():
+                                        subprocess.run(
+                                            [sys.executable, str(cleanup_script), str(article_id)],
+                                            cwd=str(content_factory_dir),
+                                            capture_output=True,
+                                            timeout=90,
+                                        )
+                                    r = _run_review()
+                                    review_ok = r.returncode == 0
+                        except Exception as exc:
+                            print(f"[WARN] expand+review retry failed: {exc}")
+
+                if not review_ok:
+                    # Show a short reason in logs to aid debugging
+                    out = (r.stdout or "") + "\n" + (r.stderr or "")
+                    out = out.strip().replace("\r", "")
+                    if out:
+                        print(f"[WARN] pre_publish_review FAIL (tail): {out[-400:]}")
+            else:
+                print(
+                    "[FAIL] pre_publish_review.py not found - refusing to publish without review"
+                )
+                review_ok = False
+            if review_ok:
                 if publish_script.exists():
                     subprocess.run(
                         [sys.executable, str(publish_script), str(article_id)],
