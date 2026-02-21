@@ -1473,6 +1473,33 @@ class AntiDriftQueue:
         allow_retry_terminal_on_hard_fail = os.environ.get(
             "ANTI_DRIFT_RETRY_TERMINAL_ON_HARD_FAIL", "0"
         ).strip() in {"1", "true", "True"}
+
+        # Prevent thrash: if an article was just published/fixed and immediately
+        # shows up as HARD FAIL again (scanner mismatch / propagation delay),
+        # do not re-queue it for a short cooldown window.
+        try:
+            requeue_done_cooldown_hours = float(
+                os.environ.get("ANTI_DRIFT_REQUEUE_DONE_COOLDOWN_HOURS", "12").strip()
+            )
+        except ValueError:
+            requeue_done_cooldown_hours = 12.0
+        requeue_done_cooldown = timedelta(hours=max(0.0, requeue_done_cooldown_hours))
+        now = datetime.now()
+
+        def _is_recent_done(existing_item: dict) -> bool:
+            if not requeue_done_cooldown:
+                return False
+            if existing_item.get("status") != "done":
+                return False
+            ts = existing_item.get("updated_at")
+            if not ts:
+                return False
+            try:
+                dt = datetime.fromisoformat(str(ts))
+            except ValueError:
+                return False
+            return (now - dt) <= requeue_done_cooldown
+
         blacklist_changed = False
 
         # Collect IDs from the scan so we know which articles are in articles_to_fix
@@ -1500,7 +1527,9 @@ class AntiDriftQueue:
             if existing_item.get("status") != "done":
                 continue
             if eid in scan_ids and allow_requeue_done_on_hard_fail:
-                continue
+                # If it was just fixed/published, keep it done for a short cooldown.
+                if not _is_recent_done(existing_item):
+                    continue
             done_ids.add(eid)
             skipped_done += 1
 
@@ -1519,6 +1548,9 @@ class AntiDriftQueue:
                 # Historically marked done, but current scan says HARD FAIL.
                 # Allow re-queue so broken posts get fixed.
                 if not allow_requeue_done_on_hard_fail:
+                    continue
+                if prev and prev.get("status") == "done" and _is_recent_done(prev):
+                    # Cooldown: don't thrash recently published items
                     continue
                 done_ids.discard(article_id)
                 blacklist_changed = True
