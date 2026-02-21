@@ -2,7 +2,7 @@ name: Auto Fix Sequential (Continuous Loop)
 # Runs every 10 minutes
 # Batch FAST-SKIP: marks ALL already-published + passing articles as done in one pass
 # Then processes up to 2 truly broken articles per run (within 45-min budget)
-# cancel-in-progress: true = prevent stacking of scheduled runs
+# cancel-in-progress: false = queue next scheduled run instead of cancelling
 
 on:
     schedule:
@@ -17,7 +17,7 @@ on:
 
 concurrency:
     group: auto-fix-sequential
-    cancel-in-progress: true
+    cancel-in-progress: false
 
 jobs:
     auto-fix-one:
@@ -109,15 +109,15 @@ jobs:
 
             - name: Verify vision review enabled
               run: |
-                                    if [ "${VISION_REVIEW:-0}" = "1" ] \
-                                        && [ -z "${VISION_API_KEY:-}" ] \
-                                        && [ -z "${GOOGLE_AI_STUDIO_API_KEY:-}" ] \
-                                        && [ -z "${GEMINI_API_KEY:-}" ] \
-                                        && [ -z "${FALLBACK_GEMINI_API_KEY:-}" ] \
-                                        && [ -z "${SECOND_FALLBACK_GEMINI_API_KEY:-}" ]; then
-                                            echo "Missing VISION_API_KEY or any GEMINI API key; vision review is required."
-                                            exit 1
-                                    fi
+                  if [ "${VISION_REVIEW:-0}" = "1" ] \
+                      && [ -z "${VISION_API_KEY:-}" ] \
+                      && [ -z "${GOOGLE_AI_STUDIO_API_KEY:-}" ] \
+                      && [ -z "${GEMINI_API_KEY:-}" ] \
+                      && [ -z "${FALLBACK_GEMINI_API_KEY:-}" ] \
+                      && [ -z "${SECOND_FALLBACK_GEMINI_API_KEY:-}" ]; then
+                          echo "Missing VISION_API_KEY or any GEMINI API key; vision review is required."
+                          exit 1
+                  fi
 
             - name: Check if queue needs refresh
               id: queue_check
