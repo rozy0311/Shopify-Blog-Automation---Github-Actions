@@ -739,3 +739,5 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 =======
 2026-02-19T23:12:25.060798,692641988926,Stop wasting $10 on drain cleaners — learn how baking soda and vinegar can unclog your sink in just 10 minutes!,done,9,True,force_rebuild,,
 >>>>>>> Stashed changes
+2026-02-21T16:47:55.666452,690770510142,Sore Throat Spray: DIY Recipe for Soothing Relief,done,9,True,review+cleanup+publish,,
+2026-02-21T16:58:05.019664,690770411838,Herbal Tea Blends Digestive Health: Soothing Recipes for After Meals,failed,9,False,GATE_FAIL,,
