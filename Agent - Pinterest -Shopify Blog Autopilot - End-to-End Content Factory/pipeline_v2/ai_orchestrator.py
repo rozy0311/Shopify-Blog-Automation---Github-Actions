@@ -3804,6 +3804,25 @@ class AIOrchestrator:
                 r = _run_review()
                 review_ok = r.returncode == 0
 
+                # Optionally enforce stricter quality to avoid publishing generic content.
+                # pre_publish_review.py treats some items as warnings; we can hard-block them here.
+                strict_generic = os.environ.get(
+                    "ANTI_DRIFT_STRICT_GENERIC", "1"
+                ).strip() not in {"0", "false", "False"}
+                if review_ok and strict_generic:
+                    out = ((r.stdout or "") + "\n" + (r.stderr or "")).replace("\r", "")
+                    generic_triggers = [
+                        "SOURCES: 0 < 5",  # citations missing
+                        "FAQ COUNT: 0 < 7",  # missing FAQs
+                        "11-SECTION STRUCTURE: Missing sections",  # structure missing
+                        "TOPIC FOCUS SCORE:",  # low topical focus (often generic)
+                    ]
+                    if any(t in out for t in generic_triggers):
+                        review_ok = False
+                        print(
+                            "[WARN] pre_publish_review STRICT_GENERIC: treating generic warnings as FAIL"
+                        )
+
                 # If review fails due to min word count, try expansion once.
                 if not review_ok:
                     out = (r.stdout or "") + "\n" + (r.stderr or "")
