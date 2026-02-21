@@ -46,7 +46,7 @@ def fix_broken_images(article_id):
 
     # CINEMATIC QUALITY settings
     quality = "hyper realistic, photorealistic, cinematic lighting, golden hour, shallow depth of field, bokeh, 8K, shot on Sony A7R IV"
-    safety = "no people visible, no hands, no fingers, still life composition"
+    safety = "no people visible, still life composition"
 
     # Generate topic-specific CINEMATIC prompts
     topic = title.lower()

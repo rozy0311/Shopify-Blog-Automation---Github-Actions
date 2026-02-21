@@ -295,7 +295,7 @@ def generate_gemini_image(prompt: str) -> bytes | None:
     # Enhance prompt for Gemini (understands NL instructions better than Flux)
     enhanced = (
         f"{prompt}. "
-        "IMPORTANT: absolutely no people, no hands, no fingers, no faces, "
+        "IMPORTANT: absolutely no people, no faces, "
         "no human body parts. Pure still-life / product / landscape scene."
     )
 
@@ -1020,7 +1020,7 @@ def generate_topic_specific_prompts(title: str) -> dict:
             f"vintage garden journal, dried lavender, apothecary aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline2"]["prompt"] = (
-            f"Close-up of hands-free shot of fresh medicinal herbs like chamomile and calendula in woven basket, "
+            f"Close-up still life of fresh medicinal herbs like chamomile and calendula in woven basket, "
             f"dew drops on petals, morning garden harvest aesthetic, {QUALITY}, {safety_suffix}"
         )
         prompts["inline3"]["prompt"] = (
