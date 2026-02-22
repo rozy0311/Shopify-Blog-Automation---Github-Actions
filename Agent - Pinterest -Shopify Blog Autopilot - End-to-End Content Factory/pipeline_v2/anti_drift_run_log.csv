@@ -837,7 +837,12 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-22T09:12:52.291433,690329944382,Repurpose Vintage Ladders: Home Decor,done,9,True,force_rebuild,,
 2026-02-22T09:22:48.892325,690329846078,Blanket Ladder: DIY Rustic Storage Decor for Living Rooms,failed,8,False,GATE_FAIL,,
 2026-02-22T09:23:03.373029,690329846078,Blanket Ladder: DIY Rustic Storage Decor for Living Rooms,done,10,True,auto_fix,,
+<<<<<<< Updated upstream
 =======
 2026-02-22T09:33:04.235467,690330009918,DIY Rope Basket: Easy Step-by-Step Storage for Home,done,9,True,force_rebuild,,
 2026-02-22T09:33:16.460029,690330009918,DIY Rope Basket: Easy Step-by-Step Storage for Home,done,9,True,review+cleanup+publish,,
+>>>>>>> Stashed changes
+=======
+2026-02-22T09:53:31.778319,690329715006,Farmhouse Window Treatments: 23 Cozy Ideas for Kitchens,failed,8,False,GATE_FAIL,,
+2026-02-22T09:53:47.241443,690329715006,Farmhouse Window Treatments: 23 Cozy Ideas for Kitchens,done,9,True,auto_fix,,
 >>>>>>> Stashed changes
