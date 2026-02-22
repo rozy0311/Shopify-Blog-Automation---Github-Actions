@@ -57,6 +57,11 @@ SECOND_FALLBACK_GEMINI_API_KEY = (
     os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", "")
     or os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
     # Back-compat aliases
+    or os.environ.get("THIRD_FALLBACK_GEMINI_API_KEY", "")
+    or os.environ.get("THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
+    or os.environ.get("GEMINI_API_KEY_FALLBACK_2", "")
+    or os.environ.get("GEMINI_API_KEY_FALLBACK2", "")
+    or os.environ.get("GEMINI_API_KEY_THIRD", "")
     or os.environ.get("GEMINI_API_KEY_3", "")
     or os.environ.get("THIRD_GEMINI_API_KEY", "")
 )

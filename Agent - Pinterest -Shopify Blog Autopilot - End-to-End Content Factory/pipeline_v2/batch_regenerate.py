@@ -33,22 +33,56 @@ try:
 except ImportError:
     pass
 
-# API Keys - NEVER hardcode keys, always use environment variables
-API_KEY = (
-    os.getenv("GOOGLE_AI_STUDIO_API_KEY")
-    or os.getenv("GEMINI_API_KEY")
-    or os.getenv("FALLBACK_GOOGLE_AI_STUDIO_API_KEY")
-    or os.getenv("FALLBACK_GEMINI_API_KEY")
-    or os.getenv("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY")
-    or os.getenv("SECOND_FALLBACK_GEMINI_API_KEY")
-    or os.getenv("GEMINI_API_KEY_3")
-    or os.getenv("THIRD_GEMINI_API_KEY")
-    or ""
-)
-if not API_KEY:
-    raise ValueError(
-        "GEMINI_API_KEY or GOOGLE_AI_STUDIO_API_KEY must be set in environment"
+def _get_gemini_keys() -> list[str]:
+    """Return de-duplicated Gemini API keys in priority order (key1 → key2 → key3)."""
+
+    def _add(keys: list[str], v: str | None) -> None:
+        v = (v or "").strip()
+        if v and v not in keys:
+            keys.append(v)
+
+    keys: list[str] = []
+    _add(keys, os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_AI_STUDIO_API_KEY"))
+    _add(
+        keys,
+        os.getenv("FALLBACK_GEMINI_API_KEY") or os.getenv("FALLBACK_GOOGLE_AI_STUDIO_API_KEY"),
     )
+    _add(
+        keys,
+        os.getenv("SECOND_FALLBACK_GEMINI_API_KEY")
+        or os.getenv("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY")
+        or os.getenv("THIRD_FALLBACK_GEMINI_API_KEY")
+        or os.getenv("THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY")
+        or os.getenv("GEMINI_API_KEY_FALLBACK_2")
+        or os.getenv("GEMINI_API_KEY_FALLBACK2")
+        or os.getenv("GEMINI_API_KEY_THIRD")
+        or os.getenv("GEMINI_API_KEY_3")
+        or os.getenv("THIRD_GEMINI_API_KEY"),
+    )
+    return keys
+
+
+def _get_gemini_text_models() -> list[str]:
+    models = [
+        os.getenv("GEMINI_MODEL") or "gemini-2.0-flash",
+        os.getenv("GEMINI_MODEL_FALLBACK") or "gemini-2.5-flash-lite",
+        os.getenv("GEMINI_MODEL_FALLBACK_2") or "gemini-2.5-flash",
+        os.getenv("GEMINI_MODEL_FALLBACK_3") or "gemini-2.0-flash-lite",
+    ]
+    # De-duplicate while preserving order
+    out: list[str] = []
+    for m in models:
+        m = (m or "").strip()
+        if m and m not in out:
+            out.append(m)
+    return out
+
+
+GEMINI_KEYS = _get_gemini_keys()
+if not GEMINI_KEYS:
+    raise ValueError("No Gemini API keys found in environment")
+
+GEMINI_TEXT_MODELS = _get_gemini_text_models()
 
 SHOPIFY_STORE = "https://" + os.getenv("SHOPIFY_STORE_DOMAIN", "").strip()
 SHOPIFY_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")
@@ -60,10 +94,8 @@ def log(msg: str):
     print(f"[{ts}] {msg}")
 
 
-def call_gemini(prompt: str, max_tokens: int = 8000) -> str:
-    """Call Gemini API."""
-    # Use header-based auth instead of URL query param for security
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+def call_gemini(prompt: str, max_tokens: int = 8000) -> str | None:
+    """Call Gemini with model × key fallback chain."""
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -74,22 +106,42 @@ def call_gemini(prompt: str, max_tokens: int = 8000) -> str:
         },
     }
 
-    headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": API_KEY,
-    }
+    for model in GEMINI_TEXT_MODELS:
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{model}:generateContent"
+        )
+        for ki, key in enumerate(GEMINI_KEYS, 1):
+            headers = {
+                "Content-Type": "application/json",
+                "x-goog-api-key": key,
+            }
+            try:
+                response = requests.post(url, headers=headers, json=payload, timeout=120)
+            except Exception as exc:
+                log(f"Gemini exception (model={model}, key{ki}): {type(exc).__name__}")
+                time.sleep(2 + ki)
+                continue
 
-    response = requests.post(url, headers=headers, json=payload, timeout=120)
+            if response.status_code == 200:
+                result = response.json()
+                try:
+                    text = result["candidates"][0]["content"]["parts"][0]["text"]
+                    if text and isinstance(text, str):
+                        return text
+                except (KeyError, IndexError, TypeError):
+                    log(f"Gemini parse error (model={model}, key{ki})")
+                    continue
 
-    if response.status_code != 200:
-        log(f"Gemini error: {response.status_code}")
-        return None
+            # Retry-worthy statuses → try next key/model
+            if response.status_code in (429, 500, 502, 503, 504):
+                log(f"Gemini throttled/error {response.status_code} (model={model}, key{ki})")
+                time.sleep(2 + ki)
+                continue
 
-    result = response.json()
-    try:
-        return result["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError):
-        return None
+            log(f"Gemini error {response.status_code} (model={model}, key{ki})")
+
+    return None
 
 
 def generate_article_content(title: str, tags: str = "") -> str:
