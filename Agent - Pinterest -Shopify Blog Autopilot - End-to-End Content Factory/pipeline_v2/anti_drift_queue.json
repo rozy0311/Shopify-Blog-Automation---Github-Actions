@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-22T07:38:42.087458",
-  "updated_at": "2026-02-22T08:08:53.629283",
+  "created_at": "2026-02-22T08:09:36.370330",
+  "updated_at": "2026-02-22T08:39:34.171165",
   "items": [
     {
       "id": "690524029246",
@@ -1879,11 +1879,11 @@
     {
       "id": "690496405822",
       "title": "Preserving Lemons and Citrus: Moroccan Salt-Cured ",
-      "status": "done",
-      "attempts": 1,
-      "last_error": "ALREADY_OK_BATCH",
+      "status": "in_progress",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:42.397277"
+      "updated_at": "2026-02-22T06:05:49.325624"
     },
     {
       "id": "690495783230",
@@ -1892,79 +1892,79 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T05:45:06.894622"
+      "updated_at": "2026-02-22T05:11:20.415918"
     },
     {
       "id": "690495619390",
       "title": "Herbal Tea Collection Build: Blend, Store, and Enj",
-      "status": "done",
-      "attempts": 1,
-      "last_error": "ALREADY_OK_BATCH",
+      "status": "in_progress",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:42.518776"
+      "updated_at": "2026-02-22T06:15:59.331511"
     },
     {
       "id": "690495586622",
       "title": "Oat Milk Without Separating: Creamy DIY Method at ",
-      "status": "done",
+      "status": "in_progress",
       "attempts": 0,
-      "last_error": "ALREADY_OK_BATCH",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T06:36:49.467368"
+      "updated_at": "2026-02-22T06:26:09.338364"
     },
     {
       "id": "690495521086",
       "title": "Herbal Simple Syrups: Drinks and Desserts Guide wi",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
-      "shopify_url": null,
-      "updated_at": "2026-02-22T06:57:14.088921"
-    },
-    {
-      "id": "690331517246",
-      "title": "Walkway Plants Best Choices: Paths and Borders Gui",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
-      "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:46.192154"
-    },
-    {
-      "id": "690331222334",
-      "title": "Halloween Projects DIY: Easy Ideas for Outdoors an",
       "status": "done",
       "attempts": 0,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:43.887825"
+      "updated_at": "2026-02-22T07:07:47.543102"
     },
     {
-      "id": "690331124030",
-      "title": "DIY Fall Crafts: Easy Budget-Friendly Creations fo",
+      "id": "690331517246",
+      "title": "Walkway Plants Best Choices: Paths and Borders Gui",
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
+      "shopify_url": null,
+      "updated_at": "2026-02-22T08:19:03.525991"
+    },
+    {
+      "id": "690331222334",
+      "title": "Halloween Projects DIY: Easy Ideas for Outdoors an",
       "status": "in_progress",
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:48:56.196206"
+      "updated_at": "2026-02-22T07:18:00.975174"
+    },
+    {
+      "id": "690331124030",
+      "title": "DIY Fall Crafts: Easy Budget-Friendly Creations fo",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
+      "shopify_url": null,
+      "updated_at": "2026-02-22T08:29:38.612503"
     },
     {
       "id": "690330534206",
       "title": "Wooden Centerpiece Box: DIY Farmhouse Table Decor ",
       "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "attempts": 0,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-22T08:08:53.628801"
+      "updated_at": "2026-02-22T08:09:38.184992"
     },
     {
       "id": "690330239294",
       "title": "Sage Green Bedroom Decor: 26 Calm Ideas for Relaxi",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:42.087264"
+      "updated_at": "2026-02-22T08:39:34.171155"
     },
     {
       "id": "690330009918",
@@ -1973,7 +1973,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:42.087268"
+      "updated_at": "2026-02-22T08:09:36.370158"
     },
     {
       "id": "690329944382",
@@ -1982,7 +1982,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:42.087272"
+      "updated_at": "2026-02-22T08:09:36.370162"
     },
     {
       "id": "690329846078",
@@ -1991,7 +1991,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:42.087276"
+      "updated_at": "2026-02-22T08:09:36.370166"
     },
     {
       "id": "690329715006",
@@ -2000,7 +2000,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:38:42.087281"
+      "updated_at": "2026-02-22T08:09:36.370170"
     },
     {
       "id": "690329092414",

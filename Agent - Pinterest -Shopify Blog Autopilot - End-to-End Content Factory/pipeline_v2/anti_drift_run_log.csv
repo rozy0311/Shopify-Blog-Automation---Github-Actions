@@ -819,4 +819,11 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-22T04:20:01.036924,690524553534,Hoop House Build: Heated Hinged Frame for Winter Growing,done,10,True,review+cleanup+publish,,
 2026-02-22T06:46:21.525628,690496405822,Preserving Lemons and Citrus: Moroccan Salt-Cured Techniques Guide,failed,7,False,GATE_FAIL,,
 2026-02-22T06:56:13.036555,690495619390,"Herbal Tea Collection Build: Blend, Store, and Enjoy",failed,8,False,GATE_FAIL,,
+<<<<<<< Updated upstream
 2026-02-22T08:08:53.631039,690330534206,Wooden Centerpiece Box: DIY Farmhouse Table Decor for Dining,done,9,True,force_rebuild,,
+=======
+2026-02-22T08:19:03.527819,690331517246,Walkway Plants Best Choices: Paths and Borders Guide,failed,8,False,GATE_FAIL,,
+2026-02-22T08:29:04.878702,690331124030,DIY Fall Crafts: Easy Budget-Friendly Creations for Home,done,9,True,force_rebuild,,
+2026-02-22T08:29:38.615155,690331124030,DIY Fall Crafts: Easy Budget-Friendly Creations for Home,done,9,True,auto_fix+review_pass+cleanup+publish,,
+2026-02-22T08:39:34.172990,690330239294,Sage Green Bedroom Decor: 26 Calm Ideas for Relaxing Spaces,failed,8,False,GATE_FAIL,,
+>>>>>>> Stashed changes
