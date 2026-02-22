@@ -3777,6 +3777,7 @@ class AIOrchestrator:
             cleanup_script = PIPELINE_DIR / "cleanup_before_publish.py"
             publish_script = PIPELINE_DIR / "publish_now_graphql.py"
             review_ok = False
+            rate_limit_body = False
             if review_script.exists():
                 # IMPORTANT: cleanup can change content/word count.
                 # Always clean up FIRST, then run pre_publish_review on the FINAL content.
@@ -3809,6 +3810,36 @@ class AIOrchestrator:
                 r = _run_review()
                 review_ok = r.returncode == 0
 
+                def _rate_limit_marker_hits(body_html: str) -> list[str]:
+                    body_lower = (body_html or "").lower()
+                    markers = [
+                        "too many requests",
+                        "rate limit",
+                        "429",
+                        "resource_exhausted",
+                        "resource exhausted",
+                        "quota exceeded",
+                        "exceeded your quota",
+                        "pollinations.ai/prompt",
+                        "https://pollinations.ai/prompt",
+                    ]
+                    return [m for m in markers if m in body_lower]
+
+                # Hard block: never publish content that contains upstream rate-limit/quota artifacts.
+                # These markers have historically shown up in broken posts when providers throttle.
+                try:
+                    fresh_for_markers = self.api.get_article(article_id)
+                    body_for_markers = (fresh_for_markers or {}).get("body_html", "") or ""
+                    marker_hits = _rate_limit_marker_hits(body_for_markers)
+                    if marker_hits:
+                        rate_limit_body = True
+                        review_ok = False
+                        print(
+                            f"[FAIL] Provider/rate-limit markers found in body: {', '.join(marker_hits[:4])}"
+                        )
+                except Exception as exc:
+                    print(f"[WARN] marker-scan failed: {exc}")
+
                 # Optionally enforce stricter quality to avoid publishing generic content.
                 # pre_publish_review.py treats some items as warnings; we can hard-block them here.
                 strict_generic = os.environ.get(
@@ -3829,7 +3860,8 @@ class AIOrchestrator:
                         )
 
                 # If review fails due to min word count, try expansion once.
-                if not review_ok:
+                # Never attempt expansion when rate-limit/quota markers are present.
+                if not review_ok and not rate_limit_body:
                     out = (r.stdout or "") + "\n" + (r.stderr or "")
                     if "WORDS:" in out and "< 1800" in out:
                         try:
@@ -3866,6 +3898,21 @@ class AIOrchestrator:
                     "[FAIL] pre_publish_review.py not found - refusing to publish without review"
                 )
                 review_ok = False
+
+            # Re-scan immediately before publish (cleanup/expansion can change content).
+            if review_ok:
+                try:
+                    fresh_for_markers = self.api.get_article(article_id)
+                    body_for_markers = (fresh_for_markers or {}).get("body_html", "") or ""
+                    marker_hits = _rate_limit_marker_hits(body_for_markers)
+                    if marker_hits:
+                        rate_limit_body = True
+                        review_ok = False
+                        print(
+                            f"[FAIL] Provider/rate-limit markers found in body (final check): {', '.join(marker_hits[:4])}"
+                        )
+                except Exception as exc:
+                    print(f"[WARN] marker-scan (final) failed: {exc}")
             if review_ok:
                 if publish_script.exists():
                     subprocess.run(
@@ -3891,6 +3938,27 @@ class AIOrchestrator:
                     f"✅ Gate PASS ({gate_score}/10) - Review OK - Cleanup + Publish - Marked DONE"
                 )
             else:
+                if rate_limit_body:
+                    error_msg = "RATE_LIMIT_MARKERS_IN_BODY"
+                    if use_backoff and failures < MAX_QUEUE_RETRIES:
+                        retry_at = self._next_retry_at(failures + 1)
+                        queue.mark_retry(article_id, error_msg, retry_at)
+                        print(
+                            f"⏳ Rate-limit markers detected - retry at {retry_at.isoformat()}"
+                        )
+                    else:
+                        queue.mark_failed(article_id, error_msg)
+                        print(f"❌ Rate-limit markers detected - {error_msg}")
+                    queue.save()
+                    self._append_run_log(
+                        article_id,
+                        audit.get("title", ""),
+                        "failed",
+                        gate_score,
+                        False,
+                        error_msg,
+                    )
+                    return
                 print(f"⏳ Gate PASS but pre_publish_review FAIL - attempting auto-fix")
                 fix_result = self._auto_fix_article(article_id)
                 if fix_result.get("status") == "done":
