@@ -1445,11 +1445,76 @@ class AntiDriftQueue:
     def __init__(self, payload: dict):
         self.payload = payload
 
+    def recover_stale_in_progress(self) -> int:
+        """Reset stale 'in_progress' items back to 'pending'.
+
+        If a workflow run terminates early after marking an item in_progress,
+        it can remain stuck forever and the queue may have no eligible items.
+
+        Controlled by env ANTI_DRIFT_IN_PROGRESS_STALE_MINUTES (default: 90).
+        Returns number of items reset.
+        """
+
+        raw = os.environ.get("ANTI_DRIFT_IN_PROGRESS_STALE_MINUTES", "90").strip()
+        try:
+            stale_minutes = float(raw)
+        except ValueError:
+            stale_minutes = 90.0
+        if stale_minutes <= 0:
+            return 0
+
+        now = datetime.now()
+        cutoff = now - timedelta(minutes=stale_minutes)
+
+        def _parse_ts(ts: str | None) -> datetime | None:
+            if not ts:
+                return None
+            try:
+                dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+            except ValueError:
+                return None
+            # Normalize aware → naive (local) so comparisons don't crash.
+            if dt.tzinfo is not None:
+                try:
+                    dt = dt.astimezone().replace(tzinfo=None)
+                except Exception:
+                    dt = dt.replace(tzinfo=None)
+            return dt
+
+        reset_count = 0
+        for item in self.payload.get("items", []) or []:
+            if item.get("status") != "in_progress":
+                continue
+            ts = _parse_ts(item.get("updated_at"))
+            if ts is None or ts <= cutoff:
+                prev = (item.get("last_error") or "").strip()
+                item["status"] = "pending"
+                item.pop("retry_at", None)
+                item["last_error"] = (
+                    f"AUTO_RESET_STALE_IN_PROGRESS" + (f": {prev}" if prev else "")
+                )
+                item["updated_at"] = now.isoformat()
+                reset_count += 1
+
+        if reset_count:
+            print(
+                f"queue-recover: reset {reset_count} stale in_progress → pending (>{stale_minutes:g}m)"
+            )
+            self.save()
+
+        return reset_count
+
     @classmethod
     def load(cls) -> "AntiDriftQueue":
         if ANTI_DRIFT_QUEUE_FILE.exists():
             with open(ANTI_DRIFT_QUEUE_FILE, "r", encoding="utf-8") as f:
-                return cls(json.load(f))
+                q = cls(json.load(f))
+                # Best-effort recovery so the pipeline doesn't stall.
+                try:
+                    q.recover_stale_in_progress()
+                except Exception as exc:
+                    print(f"[WARN] queue-recover failed: {exc}")
+                return q
         return cls({"version": 1, "created_at": None, "updated_at": None, "items": []})
 
     def save(self):
