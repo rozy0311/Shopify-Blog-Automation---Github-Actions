@@ -265,6 +265,11 @@ def _get_gemini_image_keys() -> list:
     k3 = (
         os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", "")
         or os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
+        or os.environ.get("THIRD_FALLBACK_GEMINI_API_KEY", "")
+        or os.environ.get("THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
+        or os.environ.get("GEMINI_API_KEY_FALLBACK_2", "")
+        or os.environ.get("GEMINI_API_KEY_FALLBACK2", "")
+        or os.environ.get("GEMINI_API_KEY_THIRD", "")
         # Back-compat aliases
         or os.environ.get("GEMINI_API_KEY_3", "")
         or os.environ.get("THIRD_GEMINI_API_KEY", "")
@@ -462,7 +467,7 @@ def generate_valid_pollinations_image(
         if img_bytes:
             return img_bytes, poll_url, vision_result
 
-    # --- Tier 2/2b: Gemini image generation (3 models × 2 keys) ---
+    # --- Tier 2/2b/2c: Gemini image generation (3 models × up to 3 keys) ---
     print("    🔄 Pollinations failed → Tier 2: Gemini image generation...")
     gemini_bytes = generate_gemini_image(prompt)
     if gemini_bytes:
