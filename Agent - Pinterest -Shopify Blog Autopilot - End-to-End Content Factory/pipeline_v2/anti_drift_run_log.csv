@@ -833,3 +833,6 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-22T08:41:10.348283,690296357182,Lemongrass Tea: Hot Brew vs Cold Brew for Warm Weather,done,10,True,review+cleanup+publish,,
 2026-02-22T08:41:24.219354,690292556094,Bok Choy for Small Spaces: Square-Foot Layouts That,done,10,True,review+cleanup+publish,,
 >>>>>>> Stashed changes
+2026-02-22T09:12:52.291433,690329944382,Repurpose Vintage Ladders: Home Decor,done,9,True,force_rebuild,,
+2026-02-22T09:22:48.892325,690329846078,Blanket Ladder: DIY Rustic Storage Decor for Living Rooms,failed,8,False,GATE_FAIL,,
+2026-02-22T09:23:03.373029,690329846078,Blanket Ladder: DIY Rustic Storage Decor for Living Rooms,done,10,True,auto_fix,,
