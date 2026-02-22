@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-02-22T07:07:47.118027",
-  "updated_at": "2026-02-22T07:28:10.982794",
+  "created_at": "2026-02-22T07:38:42.087458",
+  "updated_at": "2026-02-22T08:08:53.629283",
   "items": [
     {
       "id": "690524029246",
@@ -1879,11 +1879,11 @@
     {
       "id": "690496405822",
       "title": "Preserving Lemons and Citrus: Moroccan Salt-Cured ",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-22T06:05:49.325624"
+      "updated_at": "2026-02-22T07:38:42.397277"
     },
     {
       "id": "690495783230",
@@ -1892,34 +1892,34 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T05:11:20.415918"
+      "updated_at": "2026-02-22T05:45:06.894622"
     },
     {
       "id": "690495619390",
       "title": "Herbal Tea Collection Build: Blend, Store, and Enj",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-22T06:15:59.331511"
+      "updated_at": "2026-02-22T07:38:42.518776"
     },
     {
       "id": "690495586622",
       "title": "Oat Milk Without Separating: Creamy DIY Method at ",
-      "status": "in_progress",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
-      "shopify_url": null,
-      "updated_at": "2026-02-22T06:26:09.338364"
-    },
-    {
-      "id": "690495521086",
-      "title": "Herbal Simple Syrups: Drinks and Desserts Guide wi",
       "status": "done",
       "attempts": 0,
       "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:07:47.543102"
+      "updated_at": "2026-02-22T06:36:49.467368"
+    },
+    {
+      "id": "690495521086",
+      "title": "Herbal Simple Syrups: Drinks and Desserts Guide wi",
+      "status": "in_progress",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-02-22T06:57:14.088921"
     },
     {
       "id": "690331517246",
@@ -1928,16 +1928,16 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:07:50.982408"
+      "updated_at": "2026-02-22T07:38:46.192154"
     },
     {
       "id": "690331222334",
       "title": "Halloween Projects DIY: Easy Ideas for Outdoors an",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:18:00.975174"
+      "updated_at": "2026-02-22T07:38:43.887825"
     },
     {
       "id": "690331124030",
@@ -1946,16 +1946,16 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:28:10.982789"
+      "updated_at": "2026-02-22T07:48:56.196206"
     },
     {
       "id": "690330534206",
       "title": "Wooden Centerpiece Box: DIY Farmhouse Table Decor ",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:07:47.117892"
+      "updated_at": "2026-02-22T08:08:53.628801"
     },
     {
       "id": "690330239294",
@@ -1964,7 +1964,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:07:47.117900"
+      "updated_at": "2026-02-22T07:38:42.087264"
     },
     {
       "id": "690330009918",
@@ -1973,7 +1973,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:07:47.117903"
+      "updated_at": "2026-02-22T07:38:42.087268"
     },
     {
       "id": "690329944382",
@@ -1982,7 +1982,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:07:47.117907"
+      "updated_at": "2026-02-22T07:38:42.087272"
     },
     {
       "id": "690329846078",
@@ -1991,7 +1991,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:07:47.117911"
+      "updated_at": "2026-02-22T07:38:42.087276"
     },
     {
       "id": "690329715006",
@@ -2000,7 +2000,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-22T07:07:47.117916"
+      "updated_at": "2026-02-22T07:38:42.087281"
     },
     {
       "id": "690329092414",
