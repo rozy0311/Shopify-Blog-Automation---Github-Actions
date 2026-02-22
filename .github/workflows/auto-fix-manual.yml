@@ -391,7 +391,13 @@ jobs:
                       if ! git diff --cached --quiet; then
                           git commit -m "chore: Update queue state after manual run [skip ci]"
                           git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-                          git push origin HEAD:${{ github.ref_name }} && echo "✅ Queue changes pushed successfully" || echo "❌ Push failed"
+                          # Avoid non-fast-forward when other workflows push concurrently.
+                          # Rebase onto the latest branch tip, then push.
+                          git fetch origin ${{ github.ref_name }} --prune || true
+                          git pull --rebase origin ${{ github.ref_name }} || true
+                          (git push origin HEAD:${{ github.ref_name }} && echo "✅ Queue changes pushed successfully") \
+                            || (echo "⚠️ Push failed, retrying after rebase..." && git pull --rebase origin ${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }}) \
+                            || echo "❌ Push failed"
                       else
                           echo "No queue changes to commit (git diff --cached is empty)"
                       fi
