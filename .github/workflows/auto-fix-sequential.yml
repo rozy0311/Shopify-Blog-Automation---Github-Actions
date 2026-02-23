@@ -304,6 +304,12 @@ jobs:
                       if (idx + 1) % 20 == 0:
                           print(f"  ... checked {idx + 1}/{len(pending)}")
 
+                      # Do NOT FAST-SKIP items that were queued as HARD FAIL.
+                      # Those must go through queue-step (full fix + review) instead.
+                      if (item.get('last_error') or '').strip() in ('HARD_FAIL_SCAN', 'REQUEUED_HARD_FAIL_SCAN'):
+                          still_broken += 1
+                          continue
+
                       # Step 1: Check Shopify published status FIRST (fast API call)
                       try:
                           url = f'https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{aid}.json'
