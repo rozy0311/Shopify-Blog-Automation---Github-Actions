@@ -453,7 +453,7 @@ jobs:
                       echo "[TIME] ${elapsed}s elapsed, ${remaining_time}s remaining"
                       echo "=== queue-step $i/$max ==="
                       set +e
-                      timeout 600 python ai_orchestrator.py queue-step
+                      timeout 1200 python ai_orchestrator.py queue-step
                       step_exit=$?
                       set -e
                       if [ "$step_exit" = "124" ]; then
