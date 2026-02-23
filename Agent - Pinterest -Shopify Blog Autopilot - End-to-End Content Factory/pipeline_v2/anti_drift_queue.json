@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-23T18:41:48.871575",
-  "updated_at": "2026-02-23T19:29:17.117746",
+  "updated_at": "2026-02-23T20:07:11.391867",
   "items": [
     {
       "id": "690524029246",
@@ -381,20 +381,22 @@
     {
       "id": "690200805694",
       "title": "Rice Paddy Herb from Seed: Moisture, Light & Aroma",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-23T18:41:48.871069"
+      "updated_at": "2026-02-23T19:47:27.808081"
     },
     {
       "id": "690325225790",
       "title": "27 Christmas Bauble Decoration Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "retrying",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-23T18:41:48.871149"
+      "updated_at": "2026-02-23T20:07:11.391858",
+      "failures": 1,
+      "retry_at": "2026-02-23T20:09:13.391834"
     },
     {
       "id": "690325160254",
