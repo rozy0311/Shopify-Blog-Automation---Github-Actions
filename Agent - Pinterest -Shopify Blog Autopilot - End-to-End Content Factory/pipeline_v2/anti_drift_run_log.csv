@@ -860,3 +860,5 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-23T20:36:53.973539,690287280446,Floral Infusions: Forget-Me-Not & Gomphrena for Vibrant,done,10,True,auto_fix+review_pass+cleanup+publish,,
 2026-02-23T21:11:08.006669,690282627390,Protecting Green Amaranth: Identifying and Managing,failed,8,False,GATE_FAIL,,
 2026-02-23T21:20:30.722572,690282627390,Protecting Green Amaranth: Identifying and Managing,done,9,True,auto_fix,,
+2026-02-23T21:45:48.537214,690325225790,27 Christmas Bauble Decoration Ideas,done,9,True,force_rebuild,,
+2026-02-23T21:45:54.718300,690325225790,27 Christmas Bauble Decoration Ideas,done,9,True,review+cleanup+publish,,
