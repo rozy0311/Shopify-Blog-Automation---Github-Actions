@@ -1561,6 +1561,10 @@ class AntiDriftQueue:
                 return False
             if existing_item.get("status") != "done":
                 return False
+            # If the item was marked done by FAST-SKIP (not a real fix/publish),
+            # do not apply cooldown — allow immediate requeue on HARD FAIL.
+            if (existing_item.get("last_error") or "").strip() == "ALREADY_OK_BATCH":
+                return False
             ts = existing_item.get("updated_at")
             if not ts:
                 return False
