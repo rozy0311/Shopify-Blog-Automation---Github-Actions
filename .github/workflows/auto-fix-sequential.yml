@@ -16,7 +16,7 @@ on:
                 default: "2"
 
 concurrency:
-    group: auto-fix-sequential
+    group: auto-fix-sequential-${{ github.ref }}
     cancel-in-progress: false
 
 jobs:
@@ -457,7 +457,7 @@ jobs:
                       step_exit=$?
                       set -e
                       if [ "$step_exit" = "124" ]; then
-                          echo "[WARN] queue-step TIMED OUT after 10 min"
+                          echo "[WARN] queue-step TIMED OUT after 20 min"
                       elif [ "$step_exit" != "0" ]; then
                           echo "[WARN] queue-step exited $step_exit"
                       fi
