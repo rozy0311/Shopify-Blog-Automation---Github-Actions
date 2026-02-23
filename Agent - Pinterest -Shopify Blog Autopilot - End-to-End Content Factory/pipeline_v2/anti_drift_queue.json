@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-23T18:41:48.871575",
-  "updated_at": "2026-02-23T18:51:19.883170",
+  "updated_at": "2026-02-23T19:14:54.438940",
   "items": [
     {
       "id": "690524029246",
@@ -226,11 +226,11 @@
     {
       "id": "690495390014",
       "title": "Granola Easy Recipe Oats: Natural Sweeteners and C",
-      "status": "manual_review",
+      "status": "done",
       "attempts": 1,
-      "last_error": "GATE_FAIL",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-23T18:51:19.883161"
+      "updated_at": "2026-02-23T19:04:44.135182"
     },
     {
       "id": "690348097854",
@@ -354,20 +354,20 @@
     {
       "id": "690287280446",
       "title": "Floral Infusions: Forget-Me-Not & Gomphrena for Vi",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-23T18:41:48.871316"
+      "updated_at": "2026-02-23T19:04:44.434958"
     },
     {
       "id": "690282627390",
       "title": "Protecting Green Amaranth: Identifying and Managin",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-23T18:41:48.871058"
+      "updated_at": "2026-02-23T19:14:54.438935"
     },
     {
       "id": "690209947966",
