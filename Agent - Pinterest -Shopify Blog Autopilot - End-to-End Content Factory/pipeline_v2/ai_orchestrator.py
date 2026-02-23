@@ -1490,8 +1490,8 @@ class AntiDriftQueue:
                 prev = (item.get("last_error") or "").strip()
                 item["status"] = "pending"
                 item.pop("retry_at", None)
-                item["last_error"] = (
-                    f"AUTO_RESET_STALE_IN_PROGRESS" + (f": {prev}" if prev else "")
+                item["last_error"] = f"AUTO_RESET_STALE_IN_PROGRESS" + (
+                    f": {prev}" if prev else ""
                 )
                 item["updated_at"] = now.isoformat()
                 reset_count += 1
@@ -1717,6 +1717,13 @@ class AntiDriftQueue:
                     if datetime.fromisoformat(retry_at) <= now:
                         return item
                 except ValueError:
+                    return item
+        # Allow non-terminal failed items to be retried.
+        # Terminal failures should be escalated to manual_review by the orchestrator.
+        for item in self.payload.get("items", []):
+            if item.get("status") == "failed":
+                attempts = int(item.get("attempts", 0))
+                if attempts < MAX_QUEUE_RETRIES:
                     return item
         return None
 
@@ -3652,6 +3659,10 @@ class AIOrchestrator:
     ) -> None:
         article_id = item.get("id")
         title = item.get("title", "")
+        # Queue items historically tracked retries via "attempts"; "failures" may be
+        # absent (older queue entries / re-initialized scans). Use attempts to avoid
+        # escalating to manual_review prematurely.
+        attempts = int(item.get("attempts", 0))
         failures = int(item.get("failures", 0))
         print(f"\n▶️ Processing queue item: {article_id} - {title}")
         queue.mark_in_progress(article_id)
@@ -3660,12 +3671,12 @@ class AIOrchestrator:
         article = self.api.get_article(article_id)
         if not article:
             error = "ARTICLE_NOT_FOUND"
-            if use_backoff and failures < MAX_QUEUE_RETRIES:
+            if use_backoff and attempts < MAX_QUEUE_RETRIES:
                 retry_at = self._next_retry_at(failures + 1)
                 queue.mark_retry(article_id, error, retry_at)
                 print(f"⏳ {error} - retry scheduled at {retry_at.isoformat()}")
             else:
-                queue.mark_failed(article_id, error)
+                queue.mark_manual_review(article_id, error)
                 print(f"❌ {error}")
             queue.save()
             self._append_run_log(article_id, title, "failed", 0, False, error)
@@ -3726,12 +3737,12 @@ class AIOrchestrator:
             rebuilt_article = self.api.get_article(article_id)
             if not rebuilt_article:
                 error = "REBUILD_ARTICLE_NOT_FOUND"
-                if use_backoff and failures < MAX_QUEUE_RETRIES:
+                if use_backoff and attempts < MAX_QUEUE_RETRIES:
                     retry_at = self._next_retry_at(failures + 1)
                     queue.mark_retry(article_id, error, retry_at)
                     print(f"⏳ {error} - retry scheduled at {retry_at.isoformat()}")
                 else:
-                    queue.mark_failed(article_id, error)
+                    queue.mark_manual_review(article_id, error)
                     print(f"❌ {error}")
                 queue.save()
                 self._append_run_log(article_id, title, "failed", 0, False, error)
@@ -3774,9 +3785,7 @@ class AIOrchestrator:
                                 "word_count", {}
                             )
                             current_word_count = word_count_info.get("word_count", 0)
-                            print(
-                                f"📊 After expansion: {current_word_count} words"
-                            )
+                            print(f"📊 After expansion: {current_word_count} words")
             except Exception as exc:
                 print(f"[WARN] _expand_low_words failed: {exc}")
 
@@ -3799,9 +3808,7 @@ class AIOrchestrator:
                     error_msg,
                 )
                 return
-            print(
-                f"✅ Expansion successful! {current_word_count} words — proceeding"
-            )
+            print(f"✅ Expansion successful! {current_word_count} words — proceeding")
 
         if gate_pass:
             # --- Pre-review: fix images + strip broken + cleanup ---
@@ -3833,7 +3840,9 @@ class AIOrchestrator:
                         from fix_images_properly import _check_image_accessible
 
                         if not _check_image_accessible(main_src):
-                            print(f"🗑️ Featured image broken ({main_src[:60]}...) — clearing")
+                            print(
+                                f"🗑️ Featured image broken ({main_src[:60]}...) — clearing"
+                            )
                             self.api.update_article(article_id, {"image": None})
             except Exception as exc:
                 print(f"[WARN] pre-review image fix: {exc}")
@@ -3898,7 +3907,9 @@ class AIOrchestrator:
                 # These markers have historically shown up in broken posts when providers throttle.
                 try:
                     fresh_for_markers = self.api.get_article(article_id)
-                    body_for_markers = (fresh_for_markers or {}).get("body_html", "") or ""
+                    body_for_markers = (fresh_for_markers or {}).get(
+                        "body_html", ""
+                    ) or ""
                     marker_hits = _rate_limit_marker_hits(body_for_markers)
                     if marker_hits:
                         rate_limit_body = True
@@ -3934,7 +3945,9 @@ class AIOrchestrator:
                     out = (r.stdout or "") + "\n" + (r.stderr or "")
                     if "WORDS:" in out and "< 1800" in out:
                         try:
-                            from _expand_low_words import expand_article as _expand_article
+                            from _expand_low_words import (
+                                expand_article as _expand_article,
+                            )
 
                             fresh_art = self.api.get_article(article_id)
                             if fresh_art:
@@ -3942,11 +3955,17 @@ class AIOrchestrator:
                                 art_body = fresh_art.get("body_html", "") or ""
                                 expanded_body = _expand_article(art_title, art_body)
                                 if expanded_body and expanded_body != art_body:
-                                    self.api.update_article(article_id, {"body_html": expanded_body})
+                                    self.api.update_article(
+                                        article_id, {"body_html": expanded_body}
+                                    )
                                     # Cleanup again after expansion
                                     if cleanup_script.exists():
                                         subprocess.run(
-                                            [sys.executable, str(cleanup_script), str(article_id)],
+                                            [
+                                                sys.executable,
+                                                str(cleanup_script),
+                                                str(article_id),
+                                            ],
                                             cwd=str(content_factory_dir),
                                             capture_output=True,
                                             timeout=90,
@@ -3972,7 +3991,9 @@ class AIOrchestrator:
             if review_ok:
                 try:
                     fresh_for_markers = self.api.get_article(article_id)
-                    body_for_markers = (fresh_for_markers or {}).get("body_html", "") or ""
+                    body_for_markers = (fresh_for_markers or {}).get(
+                        "body_html", ""
+                    ) or ""
                     marker_hits = _rate_limit_marker_hits(body_for_markers)
                     if marker_hits:
                         rate_limit_body = True
@@ -4009,14 +4030,14 @@ class AIOrchestrator:
             else:
                 if rate_limit_body:
                     error_msg = "RATE_LIMIT_MARKERS_IN_BODY"
-                    if use_backoff and failures < MAX_QUEUE_RETRIES:
+                    if use_backoff and attempts < MAX_QUEUE_RETRIES:
                         retry_at = self._next_retry_at(failures + 1)
                         queue.mark_retry(article_id, error_msg, retry_at)
                         print(
                             f"⏳ Rate-limit markers detected - retry at {retry_at.isoformat()}"
                         )
                     else:
-                        queue.mark_failed(article_id, error_msg)
+                        queue.mark_manual_review(article_id, error_msg)
                         print(f"❌ Rate-limit markers detected - {error_msg}")
                     queue.save()
                     self._append_run_log(
@@ -4089,14 +4110,14 @@ class AIOrchestrator:
                         )
                     else:
                         error_msg = "pre_publish_review_fail_after_fix"
-                        if use_backoff and failures < MAX_QUEUE_RETRIES:
+                        if use_backoff and attempts < MAX_QUEUE_RETRIES:
                             retry_at = self._next_retry_at(failures + 1)
                             queue.mark_retry(article_id, error_msg, retry_at)
                             print(
                                 f"⏳ Review still FAIL after fix - retry at {retry_at.isoformat()}"
                             )
                         else:
-                            queue.mark_failed(article_id, error_msg)
+                            queue.mark_manual_review(article_id, error_msg)
                             print(f"❌ Review FAIL after fix - {error_msg}")
                         queue.save()
                         self._append_run_log(
@@ -4109,12 +4130,12 @@ class AIOrchestrator:
                         )
                 else:
                     error_msg = fix_result.get("error") or "pre_publish_review_fail"
-                    if use_backoff and failures < MAX_QUEUE_RETRIES:
+                    if use_backoff and attempts < MAX_QUEUE_RETRIES:
                         retry_at = self._next_retry_at(failures + 1)
                         queue.mark_retry(article_id, error_msg, retry_at)
                         print(f"⏳ Review FAIL - retry at {retry_at.isoformat()}")
                     else:
-                        queue.mark_failed(article_id, error_msg)
+                        queue.mark_manual_review(article_id, error_msg)
                         print(f"❌ Review FAIL - {error_msg}")
                     queue.save()
                     self._append_run_log(
@@ -4153,7 +4174,7 @@ class AIOrchestrator:
         )
         if not error_msg:
             error_msg = "; ".join(audit.get("issues", [])[:3]) or "GATE_FAIL"
-        if use_backoff and failures < MAX_QUEUE_RETRIES:
+        if use_backoff and attempts < MAX_QUEUE_RETRIES:
             retry_at = self._next_retry_at(failures + 1)
             queue.mark_retry(article_id, error_msg, retry_at)
             print(
