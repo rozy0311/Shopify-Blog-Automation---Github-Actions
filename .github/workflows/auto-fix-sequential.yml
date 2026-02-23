@@ -1,19 +1,19 @@
 name: Auto Fix Sequential (Continuous Loop)
-# Runs every 10 minutes
+# Runs every 20 minutes (typical run time is ~10–16 minutes; avoid backlog)
 # Batch FAST-SKIP: marks ALL already-published + passing articles as done in one pass
 # Then processes up to 2 truly broken articles per run (within 45-min budget)
 # cancel-in-progress: false = queue next scheduled run instead of cancelling
 
 on:
     schedule:
-        # Every 10 minutes — 1 article/run, natural 10-min gap between articles
-        - cron: "*/10 * * * *"
+        # Every 20 minutes — 1 article/run
+        - cron: "*/20 * * * *"
     workflow_dispatch:
         inputs:
             fix_max_items:
-                description: "Number of articles per run (default 2)"
+                description: "Number of articles per run (default 1)"
                 required: false
-                default: "2"
+                default: "1"
 
 concurrency:
     group: auto-fix-sequential-${{ github.ref }}
@@ -69,7 +69,7 @@ jobs:
             USE_VERTEX_IMAGEN: ${{ vars.USE_VERTEX_IMAGEN || '' }}
             GEMINI_IMAGE_GEN_MODELS: "gemini-2.0-flash-exp-image-generation,gemini-2.5-flash-image,gemini-3-pro-image-preview"
             REQUIRE_PINTEREST_IMAGE: "0"
-            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '3' }}
+            FIX_MAX_ITEMS: ${{ github.event.inputs.fix_max_items || '1' }}
             FIX_DELAY_SECONDS: "10"
             MAX_ATTEMPTS_PER_ARTICLE: "1"
             PASS_RATE_ENFORCE: "1"
