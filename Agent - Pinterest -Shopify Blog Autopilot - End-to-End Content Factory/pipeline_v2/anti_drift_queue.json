@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-24T17:05:30.282647",
-  "updated_at": "2026-02-24T18:29:02.380746",
+  "updated_at": "2026-02-24T19:04:39.760046",
   "items": [
     {
       "id": "690524029246",
@@ -444,11 +444,11 @@
     {
       "id": "690324767038",
       "title": "Hairy Bittercress Benefits: Uses, Dosage, Side Eff",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-24T17:05:30.282169"
+      "updated_at": "2026-02-24T19:04:39.759498"
     },
     {
       "id": "690324701502",
@@ -635,11 +635,11 @@
     {
       "id": "690323030334",
       "title": "Calendula Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-24T18:28:57.237056"
+      "updated_at": "2026-02-24T19:04:33.533085"
     },
     {
       "id": "690322899262",
