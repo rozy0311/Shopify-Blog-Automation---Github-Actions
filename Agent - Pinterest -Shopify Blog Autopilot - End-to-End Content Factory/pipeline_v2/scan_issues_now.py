@@ -297,7 +297,7 @@ if articles:
                     return True
             if tag == "GENERIC":
                 count = int(issue.split(":")[1])
-                if count >= 3:  # Review only HARD FAILs at ≥3 generic phrases
+                if count >= 1:  # Any generic phrases = HARD FAIL (fix all)
                     return True
         return False
 
