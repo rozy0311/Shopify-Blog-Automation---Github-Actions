@@ -174,7 +174,7 @@ jobs:
               if: steps.queue_check.outputs.needs_refresh == 'true'
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
               run: |
-                  SCAN_LIMIT=200 python scan_issues_now.py
+                  SCAN_LIMIT=1000 python scan_issues_now.py
 
             - name: Ensure articles_to_fix.json exists
               if: steps.queue_check.outputs.needs_refresh == 'true'
