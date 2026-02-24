@@ -903,3 +903,5 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-24T21:07:05.514327,690324275518,"Horsetail Benefits: Uses, Dosage, Side Effects &",done,9,True,force_rebuild,,
 2026-02-24T21:07:40.327465,690324275518,"Horsetail Benefits: Uses, Dosage, Side Effects &",done,9,True,auto_fix+review_pass+cleanup+publish,,
 2026-02-24T21:18:08.170745,690324242750,DIY Snowflake Decor from Plastic Hangers,done,9,True,review+cleanup+publish,,
+2026-02-24T21:48:09.708094,690322669886,Papaya Leaf for Battling Dengue Fever,done,9,True,force_rebuild,,
+2026-02-24T21:48:15.395302,690322669886,Papaya Leaf for Battling Dengue Fever,done,9,True,review+cleanup+publish,,
