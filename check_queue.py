@@ -1,6 +1,6 @@
 import json
 
-d = json.load(open("artifact-downloads/force-rescan/anti_drift_queue.json"))
+d = json.load(open("artifact-downloads/generic-fix/anti_drift_queue.json"))
 items = d["items"]
 
 # Count by status

@@ -139,6 +139,78 @@ def mask_secrets(text: str) -> str:
     return text
 
 
+def extract_real_subject(title: str) -> str:
+    """Extract the ACTUAL subject from a clickbait title.
+    
+    Examples:
+        "Stop wasting $10 on store-bought green garlic — grow your own" → "green garlic"
+        "Want fresh salads all week? Layer 5 mason jars" → "mason jar salads"  
+        "Stop wasting $10 on drain cleaners — learn how baking soda" → "baking soda and drain cleaning"
+        "How to grow microgreens indoors" → "microgreens"
+        
+    Returns the noun phrase that represents the actual topic, not the clickbait prefix.
+    """
+    if not title:
+        return title
+        
+    # Normalize: remove em-dash split, question marks
+    title = title.strip()
+    
+    # Common clickbait prefixes to strip
+    clickbait_prefixes = [
+        r"^stop wasting \$?\d+ on (?:store[- ]?bought\s+)?",
+        r"^want (?:to )?.+\?\s*",
+        r"^how to ",
+        r"^learn how (?:to )?",
+        r"^discover how (?:to )?",
+        r"^the secret (?:of|to) ",
+        r"^unlock (?:the )?(?:power of |secret of )?",
+        r"^save \$?\d+ (?:on|by) ",
+        r"^never buy .+ again[—:]\s*",
+        r"^\d+ (?:ways?|tips?|tricks?) (?:to |for )",
+    ]
+    
+    subject = title.lower()
+    
+    # Strip clickbait prefix
+    for pattern in clickbait_prefixes:
+        subject = re.sub(pattern, "", subject, flags=re.IGNORECASE)
+    
+    # Split on — and take the part with the real subject (usually contains action verb)
+    if "—" in subject or "–" in subject:
+        parts = re.split(r"[—–]", subject)
+        # First part usually has the subject
+        subject = parts[0].strip()
+    
+    # Remove trailing action phrases
+    subject = re.sub(r"\s*(?:in (?:just )?\d+ (?:days?|hours?|minutes?|weeks?)|using .+)$", "", subject, flags=re.IGNORECASE)
+    
+    # Clean up
+    subject = re.sub(r"[!?.,]+$", "", subject).strip()
+    
+    # Extract main noun phrases (simple heuristic)
+    # Look for pattern: adjective + noun or just nouns
+    words = subject.split()
+    if len(words) > 5:
+        # Take last 2-4 significant words (likely the noun phrase)
+        stopwords = {"a", "an", "the", "in", "on", "your", "my", "is", "are", "for", "with", "how", "why", "what"}
+        significant = [w for w in words if w.lower() not in stopwords]
+        if len(significant) >= 2:
+            subject = " ".join(significant[-3:])  # Last 3 significant words
+    
+    # Capitalize for display
+    if subject:
+        subject = subject.strip()
+        # Title case but keep common lowercase words
+        subject = " ".join(
+            w.capitalize() if w.lower() not in {"and", "or", "the", "a", "an", "in", "on", "with", "for"}
+            else w.lower()
+            for w in subject.split()
+        )
+    
+    return subject or title[:50]  # Fallback to truncated original
+
+
 # ============================================================================
 # GEMINI / LLM CONFIG — MULTI KEY SUPPORT (PRIMARY + 2 FALLBACKS)
 # ============================================================================
@@ -2737,16 +2809,19 @@ class AIOrchestrator:
             if not definition:
                 # Generate category-specific fallback (NOT generic)
                 topic_lower = topic.lower()
-                if "garden" in topic_lower:
-                    definition = f"a gardening technique that improves plant health through proper timing, application rate, and environmental conditions"
+                real_subject = extract_real_subject(topic)
+                if "garden" in topic_lower or "grow" in topic_lower or "plant" in topic_lower:
+                    definition = f"a gardening technique for {real_subject} that improves plant health through proper timing, application rate, and environmental conditions"
                 elif "soap" in topic_lower or "candle" in topic_lower:
-                    definition = f"a crafting element with specific temperature requirements, safety protocols, and quality indicators"
+                    definition = f"a crafting element for {real_subject} with specific temperature requirements, safety protocols, and quality indicators"
                 elif "vinegar" in topic_lower or "ferment" in topic_lower:
-                    definition = f"a fermentation component requiring controlled temperature (60-80°F), proper vessel, and 2-6 week timeline"
-                elif "clean" in topic_lower:
-                    definition = f"a cleaning method using specific dilution ratios, contact time, and surface-appropriate application"
+                    definition = f"a fermentation component for {real_subject} requiring controlled temperature (60-80°F), proper vessel, and 2-6 week timeline"
+                elif "clean" in topic_lower or "drain" in topic_lower:
+                    definition = f"a cleaning method for {real_subject} using specific dilution ratios, contact time, and surface-appropriate application"
+                elif "cook" in topic_lower or "recipe" in topic_lower or "food" in topic_lower:
+                    definition = f"a culinary technique for {real_subject} involving specific measurements, timing, and temperature control"
                 else:
-                    definition = f"a process step with measurable inputs, specific timing, and observable quality indicators"
+                    definition = f"a key component of {real_subject} with specific requirements and observable quality indicators"
 
             items.append(f"<li><strong>{term_display}</strong> — {definition}</li>")
 
@@ -2760,27 +2835,29 @@ class AIOrchestrator:
 
     def _build_sources_section(self, topic: str) -> str:
         """Build Sources section with NON-GENERIC content to avoid strip_generic_sections removal."""
+        # Use real subject instead of clickbait title
+        real_subject = extract_real_subject(topic)
         # Use specific, authoritative sources with varied descriptions
         sources = [
             (
                 "https://www.epa.gov",
-                f"EPA Guidelines — Official environmental and safety standards applicable to {topic}",
+                f"EPA Guidelines — Official environmental and safety standards applicable to {real_subject}",
             ),
             (
                 "https://www.usda.gov",
-                f"USDA Resources — Agricultural best practices and research findings for {topic}",
+                f"USDA Resources — Agricultural best practices and research findings for {real_subject}",
             ),
             (
                 "https://www.cdc.gov",
-                f"CDC Recommendations — Public health guidelines and prevention strategies for {topic}",
+                f"CDC Recommendations — Public health guidelines and prevention strategies for {real_subject}",
             ),
             (
                 "https://extension.psu.edu",
-                f"Penn State Extension — University research and educational materials on {topic}",
+                f"Penn State Extension — University research and educational materials on {real_subject}",
             ),
             (
                 "https://nchfp.uga.edu",
-                f"National Center for Home Food Preservation — Expert methods and safety protocols for {topic}",
+                f"National Center for Home Food Preservation — Expert methods and safety protocols for {real_subject}",
             ),
         ]
         items = "\n".join(
@@ -2861,20 +2938,24 @@ class AIOrchestrator:
         selected = scored[: max(count, 2)]
 
         quotes_html = []
+        # Use real subject instead of clickbait title
+        real_subject = extract_real_subject(topic)
         templates = [
-            "Working with {topic} consistently shows that patience and proper technique yield the most reliable long-term results for both beginners and experienced practitioners alike.",
-            "The key to success with {topic} lies in understanding the underlying principles rather than following rigid steps — adaptability is what separates good outcomes from great ones.",
-            "In my experience with {topic}, the single most overlooked factor is timing — knowing when to act and when to wait makes all the difference in achieving optimal results.",
+            "Working with {subject} consistently shows that patience and proper technique yield the most reliable long-term results for both beginners and experienced practitioners alike.",
+            "The key to success with {subject} lies in understanding the underlying principles rather than following rigid steps — adaptability is what separates good outcomes from great ones.",
+            "In my experience with {subject}, the single most overlooked factor is timing — knowing when to act and when to wait makes all the difference in achieving optimal results.",
         ]
         for i in range(min(count, len(selected))):
             _, name, title_str, expertise = selected[i]
-            quote_text = templates[i % len(templates)].format(topic=topic)
+            quote_text = templates[i % len(templates)].format(subject=real_subject)
             quotes_html.append(
                 f'<blockquote>\n<p>"{quote_text}"</p>\n<p>— <strong>{name}</strong>, {title_str}</p>\n</blockquote>'
             )
         return "\n".join(quotes_html)
 
     def _build_comparison_table(self, topic: str) -> str:
+        # Use real subject instead of clickbait title
+        real_subject = extract_real_subject(topic)
         return f"""
 <div style="overflow-x:auto;">
 <table style="width:100%; border-collapse:collapse; line-height:1.6; table-layout:auto; word-wrap:break-word;">
@@ -2888,7 +2969,7 @@ class AIOrchestrator:
   <tbody>
     <tr style="background:#f8f9f5;">
       <td style="padding:10px 12px;">Beginner Approach</td>
-      <td style="padding:10px 12px;">Getting started with {topic}</td>
+      <td style="padding:10px 12px;">Getting started with {real_subject}</td>
       <td style="padding:10px 12px;">Simple steps, minimal tools</td>
     </tr>
     <tr>
@@ -2912,55 +2993,58 @@ class AIOrchestrator:
         Answers must be specific with measurements, timeframes, and actionable details
         to avoid being flagged as generic content.
         """
+        # Extract the REAL subject from clickbait title
+        real_subject = extract_real_subject(topic)
+        
         # Extract key terms for more specific answers
         terms = self._extract_topic_terms(topic)
-        key_term = terms[0] if terms else topic
+        key_term = terms[0] if terms else real_subject
 
         faqs = [
             (
-                f"How long does {topic} typically take from start to finish?",
-                f"Most {topic} projects require 2-4 weeks for initial setup and 6-8 weeks to see measurable results. "
+                f"How long does {real_subject} typically take from start to finish?",
+                f"Most {real_subject} projects require 2-4 weeks for initial setup and 6-8 weeks to see measurable results. "
                 f"The timeline varies based on your specific conditions: temperature (65-75°F is optimal), "
                 f"humidity levels (40-60%), and the quality of materials used. "
                 f"Track progress weekly and adjust your approach based on observed changes.",
             ),
             (
-                f"What are the 3 most common mistakes beginners make with {topic}?",
+                f"What are the 3 most common mistakes beginners make with {real_subject}?",
                 f"First, rushing the preparation phase—spend at least 30 minutes ensuring all materials are ready. "
                 f"Second, ignoring temperature fluctuations which can reduce effectiveness by up to 40%. "
                 f"Third, not documenting the process; keep a log with dates, quantities (in grams or cups), "
                 f"and environmental conditions to replicate successful results.",
             ),
             (
-                f"Is {topic} suitable for beginners with no prior experience?",
+                f"Is {real_subject} suitable for beginners with no prior experience?",
                 f"Absolutely. Start with a small-scale test (approximately 1 square foot or 500g of material) "
                 f"to learn the fundamentals without significant investment. "
                 f"The learning curve takes about 3-4 practice sessions, and success rates improve to 85%+ "
                 f"once you understand the basic principles of {key_term}.",
             ),
             (
-                f"Can I scale {topic} for commercial or larger applications?",
+                f"Can I scale {real_subject} for commercial or larger applications?",
                 f"Yes, scaling is straightforward once you master the basics. "
                 f"Increase batch sizes by 50% increments to maintain quality control. "
                 f"Commercial operations typically process 10-50 kg per cycle compared to home-scale 1-2 kg batches. "
                 f"Equipment upgrades become cost-effective at volumes exceeding 20 kg per week.",
             ),
             (
-                f"What essential tools and materials do I need for {topic}?",
+                f"What essential tools and materials do I need for {real_subject}?",
                 f"Core requirements include: a clean workspace (minimum 2x3 feet), measuring tools accurate to 0.1g, "
                 f"quality containers (food-grade plastic or glass), and a thermometer with ±1°F accuracy. "
                 f"Budget approximately $50-150 for starter equipment. "
                 f"Premium tools costing $200-400 offer better durability and precision for long-term use.",
             ),
             (
-                f"How should I store the results from {topic} for maximum longevity?",
+                f"How should I store the results from {real_subject} for maximum longevity?",
                 f"Store in airtight containers at 50-65°F with humidity below 60%. "
                 f"Label each container with: date of completion, batch number, and key parameters used. "
                 f"Properly stored results maintain quality for 6-12 months. "
                 f"Avoid direct sunlight and temperature swings exceeding 10°F within 24 hours.",
             ),
             (
-                f"How do I know if my {topic} process was successful?",
+                f"How do I know if my {real_subject} process was successful?",
                 f"Evaluate these 4 indicators: visual appearance (consistent color and texture), "
                 f"expected weight or volume change (typically 10-30% variation from starting material), "
                 f"smell (should match known-good references), and performance testing against baseline. "
@@ -4863,8 +4947,9 @@ tr:nth-child(even) { background-color: #f9f9f9; }
         # Keywords missing from last paragraphs
         missing_last = [k for k in topic_keywords if k not in last_two_text]
 
-        # Create natural keyword phrases
-        topic_phrase = " ".join(topic_keywords[:4])
+        # Create natural keyword phrases - use real subject, not clickbait keywords
+        real_subject = extract_real_subject(topic)
+        topic_phrase = real_subject  # Use extracted subject instead of random keywords
 
         # Enhance first paragraph if needed
         if missing_first and len(missing_first) >= 2:
