@@ -872,3 +872,5 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-02-23T23:50:13.592964,690324799806,Building a Bamboo Trellis Guide,done,9,True,auto_fix+review_pass+cleanup+publish,,
 2026-02-24T00:25:13.152942,690324767038,"Hairy Bittercress Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
 2026-02-24T00:26:48.174263,690324701502,"Chili Leaves Benefits: Nutrition Facts, How to Use, and",done,9,True,review+cleanup+publish,,
+2026-02-24T00:42:07.153510,690495422782,Nut Butter How to Make: Easy Homemade Spread Guide,failed,8,False,GATE_FAIL,,
+2026-02-24T00:51:42.510866,690495422782,Nut Butter How to Make: Easy Homemade Spread Guide,done,9,True,auto_fix,,
