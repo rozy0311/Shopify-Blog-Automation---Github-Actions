@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-24T17:05:30.282647",
-  "updated_at": "2026-02-24T17:42:00.403277",
+  "updated_at": "2026-02-24T18:29:02.380746",
   "items": [
     {
       "id": "690524029246",
@@ -417,11 +417,11 @@
     {
       "id": "690325029182",
       "title": "How to Build a Homemade Vermicomposter",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-24T17:05:30.282156"
+      "updated_at": "2026-02-24T18:29:02.380115"
     },
     {
       "id": "690324963646",
@@ -561,11 +561,11 @@
     {
       "id": "690323816766",
       "title": "DIY Plastic Cup Snowman: Easy Step-by-Step + Budge",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-24T17:41:55.768031"
+      "updated_at": "2026-02-24T18:28:56.726709"
     },
     {
       "id": "690323751230",
@@ -635,11 +635,11 @@
     {
       "id": "690323030334",
       "title": "Calendula Benefits: Uses, Dosage, Side Effects &",
-      "status": "in_progress",
+      "status": "pending",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-24T16:30:15.331239"
+      "updated_at": "2026-02-24T18:28:57.237056"
     },
     {
       "id": "690322899262",
