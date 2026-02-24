@@ -14,6 +14,11 @@ on:
                 description: "Number of articles per run (default 1)"
                 required: false
                 default: "1"
+            force_rescan:
+                description: "Force full rescan of all articles (ignore pending queue)"
+                required: false
+                type: boolean
+                default: false
 
 concurrency:
     group: auto-fix-sequential-${{ github.ref }}
@@ -122,6 +127,8 @@ jobs:
             - name: Check if queue needs refresh
               id: queue_check
               working-directory: Agent - Pinterest -Shopify Blog Autopilot - End-to-End Content Factory/pipeline_v2
+              env:
+                  FORCE_RESCAN: ${{ inputs.force_rescan || 'false' }}
               run: |
                   python - <<'PY'
                   import json
@@ -156,15 +163,19 @@ jobs:
 
                   # Periodic re-scan: every 15 runs (~2.5h), force refresh to catch NEW broken articles
                   force_periodic = (run_number % 15 == 0) and run_number > 0
+                  # Manual force_rescan input
+                  force_rescan_input = os.environ.get('FORCE_RESCAN', 'false').lower() == 'true'
+                  if force_rescan_input:
+                      print("[FORCE RESCAN] Manual trigger with force_rescan=true")
                   if force_periodic:
                       print(f"[PERIODIC RESCAN] Run #{run_number} — forcing queue refresh")
 
                   # Smart refresh: if >80% of queue is done, most work is finished → rescan for new issues
                   smart_refresh = total > 0 and (done_count / total) > 0.80
-                  if smart_refresh and not force_periodic:
+                  if smart_refresh and not force_periodic and not force_rescan_input:
                       print(f"[SMART REFRESH] {done_count}/{total} done ({done_count*100//total}%) — triggering rescan")
 
-                  needs_refresh = 'true' if (not pending_like or force_periodic or smart_refresh) else 'false'
+                  needs_refresh = 'true' if (not pending_like or force_periodic or smart_refresh or force_rescan_input) else 'false'
                   if output_path:
                       with open(output_path, 'a', encoding='utf-8') as f:
                           f.write(f'needs_refresh={needs_refresh}\n')
