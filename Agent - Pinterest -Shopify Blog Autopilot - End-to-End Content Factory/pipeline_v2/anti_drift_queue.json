@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-25T10:37:37.453679",
-  "updated_at": "2026-02-25T11:04:12.347854",
+  "updated_at": "2026-02-25T11:35:58.678051",
   "items": [
     {
       "id": "690524029246",
@@ -417,11 +417,11 @@
     {
       "id": "690325029182",
       "title": "How to Build a Homemade Vermicomposter",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-25T10:37:37.452833"
+      "updated_at": "2026-02-25T11:35:58.677521"
     },
     {
       "id": "690324963646",
@@ -842,11 +842,11 @@
     {
       "id": "690295570750",
       "title": "Mustard Greens: Spring and Fall Sowing Guide for",
-      "status": "in_progress",
+      "status": "pending",
       "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-25T09:38:47.664591"
+      "updated_at": "2026-02-25T11:35:52.734206"
     },
     {
       "id": "690295505214",
