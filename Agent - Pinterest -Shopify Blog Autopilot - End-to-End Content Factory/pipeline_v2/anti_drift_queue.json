@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-25T10:37:37.453679",
-  "updated_at": "2026-02-25T11:35:58.678051",
+  "updated_at": "2026-02-25T11:55:41.447281",
   "items": [
     {
       "id": "690524029246",
@@ -444,11 +444,11 @@
     {
       "id": "690324767038",
       "title": "Hairy Bittercress Benefits: Uses, Dosage, Side Eff",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-25T10:37:37.452846"
+      "updated_at": "2026-02-25T11:55:41.446807"
     },
     {
       "id": "690324701502",
@@ -842,20 +842,20 @@
     {
       "id": "690295570750",
       "title": "Mustard Greens: Spring and Fall Sowing Guide for",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-02-25T11:35:52.734206"
+      "updated_at": "2026-02-25T11:55:36.751848"
     },
     {
       "id": "690295505214",
       "title": "Bitter Melon Cool-Season Strategies for Mild Coast",
-      "status": "in_progress",
+      "status": "pending",
       "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-25T10:06:31.243501"
+      "updated_at": "2026-02-25T11:55:36.984917"
     },
     {
       "id": "690295472446",
