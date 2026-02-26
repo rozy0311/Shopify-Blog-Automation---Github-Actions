@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-26T03:07:25.534313",
-  "updated_at": "2026-02-26T03:07:33.249897",
+  "updated_at": "2026-02-26T04:06:39.735857",
   "items": [
     {
       "id": "690524029246",
@@ -399,11 +399,11 @@
     {
       "id": "690325160254",
       "title": "36 Greenhouse Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-26T03:07:25.533433"
+      "updated_at": "2026-02-26T04:06:39.735282"
     },
     {
       "id": "690325127486",
@@ -923,11 +923,11 @@
     {
       "id": "690293276990",
       "title": "Green Amaranth Nutrients: Tender Leaves Without Ni",
-      "status": "in_progress",
+      "status": "pending",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-26T01:40:33.427757"
+      "updated_at": "2026-02-26T04:06:33.852362"
     },
     {
       "id": "690293014846",
