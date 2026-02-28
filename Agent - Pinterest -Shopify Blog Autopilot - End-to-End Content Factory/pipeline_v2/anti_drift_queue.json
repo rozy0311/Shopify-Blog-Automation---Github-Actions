@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-28T07:33:33.454604",
-  "updated_at": "2026-02-28T07:33:38.726930",
+  "updated_at": "2026-02-28T07:48:29.741386",
   "items": [
     {
       "id": "690524029246",
@@ -399,11 +399,11 @@
     {
       "id": "690325160254",
       "title": "36 Greenhouse Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-28T07:33:33.453775"
+      "updated_at": "2026-02-28T07:48:29.740763"
     },
     {
       "id": "690325127486",
