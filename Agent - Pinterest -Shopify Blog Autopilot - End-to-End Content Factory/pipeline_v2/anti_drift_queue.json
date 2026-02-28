@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-28T12:36:18.019994",
-  "updated_at": "2026-02-28T17:09:00.937844",
+  "updated_at": "2026-02-28T17:43:47.986372",
   "items": [
     {
       "id": "690524029246",
@@ -1472,11 +1472,11 @@
     {
       "id": "690325913918",
       "title": "22 Snowflake Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-02-28T12:36:18.018971"
+      "updated_at": "2026-02-28T17:43:47.986365"
     },
     {
       "id": "690325881150",
