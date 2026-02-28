@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-02-27T23:33:08.999180",
-  "updated_at": "2026-02-28T04:43:37.064278",
+  "updated_at": "2026-02-28T05:17:57.648472",
   "items": [
     {
       "id": "690524029246",
@@ -968,11 +968,11 @@
     {
       "id": "690292195646",
       "title": "Cold Stratification Guide: Maple, Magnolia, Sedum,",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-02-27T23:33:08.998799"
+      "updated_at": "2026-02-28T05:17:57.647901"
     },
     {
       "id": "690291769662",
