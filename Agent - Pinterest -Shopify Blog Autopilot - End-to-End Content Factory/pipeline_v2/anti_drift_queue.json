@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-01T18:34:31.856787",
-  "updated_at": "2026-03-01T21:57:19.688734",
+  "updated_at": "2026-03-01T22:09:45.519788",
   "items": [
     {
       "id": "690524029246",
@@ -1517,20 +1517,20 @@
     {
       "id": "690325324094",
       "title": "DIY Easter Decor Ideas",
-      "status": "manual_review",
+      "status": "done",
       "attempts": 1,
-      "last_error": "GATE_FAIL",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-03-01T21:57:19.688724"
+      "updated_at": "2026-03-01T22:09:36.401399"
     },
     {
       "id": "690325291326",
       "title": "How to Build a Walipini Greenhouse",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-01T18:34:31.856210"
+      "updated_at": "2026-03-01T22:09:45.519089"
     },
     {
       "id": "690210963774",
