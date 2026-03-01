@@ -1150,3 +1150,5 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-03-01T19:31:56.332762,690324209982,33 Christmas Vase for Home Decor Ideas,done,9,True,review+cleanup+publish,,
 2026-03-01T19:47:19.131205,690324046142,How to Create Paw Print Christmas Tree Keepsake,done,9,True,review+cleanup+publish,,
 2026-03-01T20:10:11.339612,690283512126,Glutinous Corn Watering: Milky Stage Care for Best Texture,done,9,True,review+cleanup+publish,,
+2026-03-01T20:42:55.541399,690325881150,23 Candy Cane Decor Ideas,done,9,True,force_rebuild,,
+2026-03-01T20:43:24.351198,690325881150,23 Candy Cane Decor Ideas,done,9,True,auto_fix+review_pass+cleanup+publish,,
