@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-03T22:51:23.894119",
-  "updated_at": "2026-03-04T05:25:15.457831",
+  "updated_at": "2026-03-04T05:58:27.178719",
   "items": [
     {
       "id": "690524029246",
@@ -1427,11 +1427,11 @@
     {
       "id": "690326274366",
       "title": "32 Recycled Seashell Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-03T22:51:23.893458"
+      "updated_at": "2026-03-04T05:58:27.178245"
     },
     {
       "id": "690326208830",
