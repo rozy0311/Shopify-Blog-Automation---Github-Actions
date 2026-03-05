@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-04T21:34:52.650913",
-  "updated_at": "2026-03-05T05:27:37.384132",
+  "updated_at": "2026-03-05T06:00:08.585881",
   "items": [
     {
       "id": "690524029246",
@@ -1490,11 +1490,11 @@
     {
       "id": "690325815614",
       "title": "21 Recycled Plastic Bottle Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-04T21:34:52.650089"
+      "updated_at": "2026-03-05T06:00:08.585338"
     },
     {
       "id": "690325782846",
