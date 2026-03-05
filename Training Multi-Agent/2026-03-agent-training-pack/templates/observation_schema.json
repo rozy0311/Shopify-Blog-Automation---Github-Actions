@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ObservationMemoryCell",
+  "type": "object",
+  "required": [
+    "timestamp",
+    "scene",
+    "cell_type",
+    "salience",
+    "content"
+  ],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "description": "ISO-8601 UTC timestamp"
+    },
+    "scene": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cell_type": {
+      "type": "string",
+      "enum": ["fact", "plan", "preference", "decision", "task", "risk", "constraint", "error", "fix"]
+    },
+    "salience": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "source": {
+      "type": "string"
+    },
+    "supersedes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

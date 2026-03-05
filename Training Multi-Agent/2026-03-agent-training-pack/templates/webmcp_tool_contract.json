@@ -1,0 +1,31 @@
+{
+  "tool_name": "example.book_flight",
+  "description": "Books a flight for a user after explicit approval",
+  "risk_level": "high",
+  "requires_approval": true,
+  "idempotent": false,
+  "input_schema": {
+    "type": "object",
+    "required": ["origin", "destination", "date", "budget_usd"],
+    "properties": {
+      "origin": { "type": "string" },
+      "destination": { "type": "string" },
+      "date": { "type": "string" },
+      "budget_usd": { "type": "number", "minimum": 1 }
+    },
+    "additionalProperties": false
+  },
+  "output_schema": {
+    "type": "object",
+    "required": ["status", "booking_id"],
+    "properties": {
+      "status": { "type": "string" },
+      "booking_id": { "type": "string" }
+    }
+  },
+  "audit": {
+    "log_args_hash": true,
+    "log_result_summary": true,
+    "retain_days": 30
+  }
+}
