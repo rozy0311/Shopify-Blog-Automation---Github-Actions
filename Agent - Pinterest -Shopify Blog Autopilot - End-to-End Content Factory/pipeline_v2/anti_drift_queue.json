@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-07T20:33:20.681083",
-  "updated_at": "2026-03-07T21:31:37.995675",
+  "updated_at": "2026-03-07T21:46:58.411829",
   "items": [
     {
       "id": "690524029246",
@@ -489,11 +489,11 @@
     {
       "id": "690324439358",
       "title": "Cabbage Leaves Benefits: Nutrition Facts, How to U",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-07T20:33:20.680264"
+      "updated_at": "2026-03-07T21:46:58.411289"
     },
     {
       "id": "690324275518",
@@ -2025,11 +2025,11 @@
     {
       "id": "690323554622",
       "title": "Kalanchoe Benefits: Uses, Dosage, Side Effects &",
-      "status": "in_progress",
+      "status": "pending",
       "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-03-07T20:09:33.957405"
+      "updated_at": "2026-03-07T21:46:51.156974"
     },
     {
       "id": "690323489086",
