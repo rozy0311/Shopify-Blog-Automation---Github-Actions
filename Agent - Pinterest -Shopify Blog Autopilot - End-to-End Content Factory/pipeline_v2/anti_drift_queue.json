@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-07T04:48:20.518184",
-  "updated_at": "2026-03-07T09:12:53.515157",
+  "updated_at": "2026-03-07T09:33:37.243044",
   "items": [
     {
       "id": "690524029246",
@@ -716,11 +716,11 @@
     {
       "id": "690322374974",
       "title": "How to Propagate Sansevieria",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-07T04:48:20.517730"
+      "updated_at": "2026-03-07T09:33:37.242412"
     },
     {
       "id": "690322243902",
