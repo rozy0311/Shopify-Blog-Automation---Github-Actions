@@ -1514,3 +1514,4 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-03-08T22:49:22.707529,690322374974,How to Propagate Sansevieria,done,9,True,review+cleanup+publish,,
 2026-03-08T23:10:12.111737,690322243902,"Chelidonium Majus Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
 2026-03-08T23:32:56.309543,690309071166,"Black Garlic Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
+2026-03-08T23:48:55.310465,690323063102,"Fennel Seeds Benefits: Nutrition Facts, How to Use, and",failed,9,False,GATE_FAIL,,
