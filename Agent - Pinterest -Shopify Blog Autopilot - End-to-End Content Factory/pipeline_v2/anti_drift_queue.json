@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-08T10:10:37.362707",
-  "updated_at": "2026-03-08T11:09:25.054217",
+  "updated_at": "2026-03-08T11:31:01.419048",
   "items": [
     {
       "id": "690524029246",
@@ -489,11 +489,11 @@
     {
       "id": "690324439358",
       "title": "Cabbage Leaves Benefits: Nutrition Facts, How to U",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-08T10:10:37.362356"
+      "updated_at": "2026-03-08T11:31:01.418491"
     },
     {
       "id": "690324275518",
