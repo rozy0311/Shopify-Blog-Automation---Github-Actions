@@ -1455,3 +1455,5 @@ timestamp,article_id,title,status,gate_score,gate_pass,issues,spec_hash,goldens_
 2026-03-07T23:09:40.647627,690323751230,"Lavender Benefits: Uses, Dosage, Side Effects & Interactions",done,9,True,review+cleanup+publish,,
 2026-03-07T23:32:15.082075,690323521854,"Bitter Leaf Benefits: Uses, Dosage, Side Effects &",done,9,True,review+cleanup+publish,,
 2026-03-07T23:47:41.317211,690325717310,28 Halloween Craft Ideas,done,9,True,review+cleanup+publish,,
+2026-03-08T00:55:57.087027,690323489086,"Turmeric Benefits: Uses, Dosage, Side Effects & Interactions",done,9,True,force_rebuild,,
+2026-03-08T00:56:27.977949,690323489086,"Turmeric Benefits: Uses, Dosage, Side Effects & Interactions",done,9,True,auto_fix+review_pass+cleanup+publish,,
