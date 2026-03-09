@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-09T05:01:15.921041",
-  "updated_at": "2026-03-09T05:01:20.299875",
+  "updated_at": "2026-03-09T05:44:02.444016",
   "items": [
     {
       "id": "690524029246",
@@ -444,11 +444,11 @@
     {
       "id": "690324767038",
       "title": "Hairy Bittercress Benefits: Uses, Dosage, Side Eff",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-09T05:01:15.920218"
+      "updated_at": "2026-03-09T05:44:02.443464"
     },
     {
       "id": "690324701502",
@@ -2081,11 +2081,11 @@
     {
       "id": "690322604350",
       "title": "Ramsons Benefits: Uses, Dosage, Side Effects & Int",
-      "status": "in_progress",
+      "status": "pending",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-03-09T04:06:25.960808"
+      "updated_at": "2026-03-09T05:43:57.618362"
     },
     {
       "id": "690322407742",
