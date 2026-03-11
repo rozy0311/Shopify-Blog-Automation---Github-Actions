@@ -27,6 +27,11 @@ on:
         required: false
         default: Manual dispatch
         type: string
+      skip_local_heartbeat:
+        description: "Ignore LOCAL_HEARTBEAT checks and run in Actions anyway"
+        required: false
+        default: true
+        type: boolean
   schedule:
     - cron: "*/10 * * * *" # every 10 minutes (UTC)
 
@@ -79,6 +84,7 @@ jobs:
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
             echo "MODE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }}"
             echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
+            echo "SKIP_LOCAL_HEARTBEAT=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_local_heartbeat || vars.SKIP_LOCAL_HEARTBEAT || 'false' }}"
           } >> "$GITHUB_ENV"
       - name: Export batch window
         run: |
@@ -126,6 +132,12 @@ jobs:
       - name: Check local heartbeat
         run: |
           set -euo pipefail
+          if [ "${SKIP_LOCAL_HEARTBEAT:-false}" = "true" ]; then
+            echo "SKIP_LOCAL_HEARTBEAT=true -> bypassing heartbeat gate"
+            echo "LOCAL_HEARTBEAT_ACTIVE=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
           max_age_min="${LOCAL_HEARTBEAT_MAX_AGE_MINUTES:-15}"
           heartbeat_ts=""
           if [ -n "${LOCAL_HEARTBEAT_URL:-}" ]; then
