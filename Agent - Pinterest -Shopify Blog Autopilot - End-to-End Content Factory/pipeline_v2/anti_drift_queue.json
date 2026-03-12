@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-12T18:36:52.301522",
-  "updated_at": "2026-03-12T22:33:34.715818",
+  "updated_at": "2026-03-12T22:50:51.276065",
   "items": [
     {
       "id": "690524029246",
@@ -1058,11 +1058,11 @@
     {
       "id": "690283512126",
       "title": "Glutinous Corn Watering: Milky Stage Care for Best",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-12T18:36:52.301083"
+      "updated_at": "2026-03-12T22:50:51.275460"
     },
     {
       "id": "690283348286",
