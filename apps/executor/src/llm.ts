@@ -6,7 +6,7 @@ import { wait } from "./batch.js";
 
 type OpenAIError = Error & { status?: number; retryAfterMs?: number };
 
-type Provider = "github_models" | "gemini" | "openai";
+type Provider = "chatgpt_ui" | "github_models" | "gemini" | "openai";
 
 type LlmPayload = {
   title: string;
@@ -47,6 +47,9 @@ export async function callLLM(
       const attempt = async (prompt: string) => {
         if (provider === "gemini") {
           return await callGemini(systemPrompt, prompt, resolvedModel);
+        }
+        if (provider === "chatgpt_ui") {
+          return await callChatgptUi(systemPrompt, prompt, resolvedModel);
         }
         return await callOpenAICompatible(provider, systemPrompt, prompt, resolvedModel);
       };
@@ -200,6 +203,13 @@ function resolveProviderOrder(): Provider[] {
   const seen = new Set<Provider>();
   const providers: Provider[] = [];
   for (const value of raw) {
+    if (value === "chatgpt_ui" || value === "chatgpt-ui" || value === "chatgptui") {
+      if (!seen.has("chatgpt_ui")) {
+        providers.push("chatgpt_ui");
+        seen.add("chatgpt_ui");
+      }
+      continue;
+    }
     if (value === "github_models" || value === "github" || value === "githubmodels") {
       if (!seen.has("github_models")) {
         providers.push("github_models");
@@ -231,6 +241,15 @@ function resolveProviderOrder(): Provider[] {
 }
 
 function resolveModelForProvider(provider: Provider, fallbackModel: string): string {
+  if (provider === "chatgpt_ui") {
+    // chatgpt_ui can map to a bridge model id or an API model when bridge is not configured.
+    return (
+      process.env.CHATGPT_UI_MODEL ||
+      process.env.OPENAI_MODEL ||
+      fallbackModel ||
+      "gpt-4o"
+    );
+  }
   if (provider === "github_models") {
     const explicit = process.env.GH_MODELS_MODEL || process.env.GITHUB_MODELS_MODEL;
     if (explicit) return explicit;
@@ -240,6 +259,77 @@ function resolveModelForProvider(provider: Provider, fallbackModel: string): str
     return process.env.GEMINI_MODEL || "gemini-1.5-flash";
   }
   return fallbackModel;
+}
+
+async function callChatgptUi(systemPrompt: string, userPrompt: string, model: string): Promise<LlmPayload> {
+  const enabled = (process.env.CHATGPT_UI_ENABLED || "").toLowerCase() === "true";
+  if (!enabled) {
+    throw new Error("CHATGPT_UI disabled");
+  }
+
+  const bridgeUrl = (process.env.CHATGPT_UI_BRIDGE_URL || "").trim();
+  const bridgeToken = (process.env.CHATGPT_UI_BRIDGE_TOKEN || "").trim();
+  const modelLabel = (process.env.CHATGPT_UI_MODEL_LABEL || "5.4 Thinking").trim();
+
+  // Preferred mode: call a remote/local Playwright bridge that controls ChatGPT UI.
+  if (bridgeUrl) {
+    const timeoutMs = Number(process.env.CHATGPT_UI_TIMEOUT_MS || process.env.OPENAI_TIMEOUT_MS || "180000");
+    const controller = new AbortController();
+    const timeout = setTimeout(
+      () => controller.abort(),
+      Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 180000,
+    );
+
+    try {
+      const response = await fetch(bridgeUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(bridgeToken ? { Authorization: `Bearer ${bridgeToken}` } : {}),
+        },
+        body: JSON.stringify({
+          model,
+          modelLabel,
+          systemPrompt,
+          userPrompt,
+          responseFormat: "json_object",
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const message = await extractErrorMessage(response);
+        const error = new Error(message) as OpenAIError;
+        error.status = response.status;
+        throw error;
+      }
+
+      const payload = await response.json();
+      const content =
+        payload?.content ||
+        payload?.text ||
+        payload?.response ||
+        payload?.data?.content ||
+        "";
+
+      return parseJsonRelaxed(String(content)) as LlmPayload;
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("chatgpt_ui bridge request timed out");
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  // Compatibility fallback: run through OpenAI API when no Playwright bridge is configured.
+  if (process.env.OPENAI_API_KEY) {
+    console.warn("chatgpt_ui bridge missing, falling back to OpenAI API provider path");
+    return callOpenAICompatible("openai", systemPrompt, userPrompt, model);
+  }
+
+  throw new Error("Missing CHATGPT_UI_BRIDGE_URL and OPENAI_API_KEY");
 }
 
 function shouldFallback(provider: Provider, error: Error): boolean {
