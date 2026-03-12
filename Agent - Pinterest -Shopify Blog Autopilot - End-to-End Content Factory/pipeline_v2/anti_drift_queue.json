@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-12T18:36:52.301522",
-  "updated_at": "2026-03-12T19:36:18.399283",
+  "updated_at": "2026-03-12T19:55:12.703430",
   "items": [
     {
       "id": "690524029246",
@@ -534,11 +534,11 @@
     {
       "id": "690324013374",
       "title": "22 Recycled Gnome Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-12T18:36:52.300703"
+      "updated_at": "2026-03-12T19:55:12.702821"
     },
     {
       "id": "690323915070",
