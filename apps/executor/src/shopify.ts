@@ -52,7 +52,18 @@ export async function publishArticle(
   data: { title: string; html: string; images?: Array<{ src?: string } | null> },
 ) {
   const blog = await withRetry(() => getBlogByHandle(blogHandle));
-  const image = Array.isArray(data.images) && data.images[0]?.src ? { src: data.images[0]?.src } : undefined;
+  const rawImageSrc = Array.isArray(data.images) ? data.images[0]?.src?.trim() : undefined;
+  let image: { src: string } | undefined;
+  if (rawImageSrc) {
+    try {
+      const parsed = new URL(rawImageSrc);
+      if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+        image = { src: rawImageSrc };
+      }
+    } catch {
+      // Keep image undefined when src is malformed so article can still publish.
+    }
+  }
   return withRetry(() =>
     createArticle(blog.id, {
       title: data.title,

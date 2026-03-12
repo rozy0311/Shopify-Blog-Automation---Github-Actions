@@ -341,9 +341,25 @@ async function callOpenAICompatible(
 }
 
 async function callGemini(systemPrompt: string, userPrompt: string, model: string): Promise<LlmPayload> {
-  // Prefer GOOGLE_AI_STUDIO_API_KEY (correct format: AIzaSy...) over GEMINI_API_KEY
-  const apiKey = process.env.GOOGLE_AI_StUDIO_API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("Missing GEMINI_API_KEY or GOOGLE_AI_STUDIO_API_KEY");
+  // Prefer Google AI Studio key and then walk configured fallback key chain.
+  const keyCandidates = [
+    process.env.GOOGLE_AI_STUDIO_API_KEY,
+    process.env.GEMINI_API_KEY,
+    process.env.FALLBACK_GOOGLE_AI_STUDIO_API_KEY,
+    process.env.FALLBACK_GEMINI_API_KEY,
+    process.env.SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY,
+    process.env.SECOND_FALLBACK_GEMINI_API_KEY,
+    process.env.THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY,
+    process.env.THIRD_FALLBACK_GEMINI_API_KEY,
+    process.env.FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY,
+    process.env.FOURTH_FALLBACK_GEMINI_API_KEY,
+    process.env.FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY,
+    process.env.FIFTH_FALLBACK_GEMINI_API_KEY,
+    process.env.SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY,
+    process.env.SIXTH_FALLBACK_GEMINI_API_KEY,
+  ];
+  const apiKeys = [...new Set(keyCandidates.map((k) => (k || "").trim()).filter(Boolean))];
+  if (!apiKeys.length) throw new Error("Missing GEMINI_API_KEY or GOOGLE_AI_STUDIO_API_KEY");
 
   const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || "120000");
   const controller = new AbortController();
@@ -352,54 +368,66 @@ async function callGemini(systemPrompt: string, userPrompt: string, model: strin
     Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 120000,
   );
 
-  // Use header-based auth instead of URL query param for security
+  // Use header-based auth instead of URL query param for security.
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  let response: Response;
+  let lastError: OpenAIError | null = null;
+
   try {
-    response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
-      body: JSON.stringify({
-        systemInstruction: {
-          role: "system",
-          parts: [{ text: systemPrompt }],
-        },
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: userPrompt }],
+    for (const apiKey of apiKeys) {
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
           },
-        ],
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 2200,
-          response_mime_type: "application/json",
-        },
-      }),
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("gemini request timed out");
+          body: JSON.stringify({
+            systemInstruction: {
+              role: "system",
+              parts: [{ text: systemPrompt }],
+            },
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: userPrompt }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.3,
+              maxOutputTokens: 2200,
+              response_mime_type: "application/json",
+            },
+          }),
+          signal: controller.signal,
+        });
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          throw new Error("gemini request timed out");
+        }
+        throw error;
+      }
+
+      if (!response.ok) {
+        const message = await extractErrorMessage(response);
+        const error = new Error(message) as OpenAIError;
+        error.status = response.status;
+        lastError = error;
+        if (shouldFallback("gemini", error)) {
+          continue;
+        }
+        throw error;
+      }
+
+      const json = await response.json();
+      const text = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+      return parseJsonRelaxed(text) as LlmPayload;
     }
-    throw error;
   } finally {
     clearTimeout(timeout);
   }
 
-  if (!response.ok) {
-    const message = await extractErrorMessage(response);
-    const error = new Error(message) as OpenAIError;
-    error.status = response.status;
-    throw error;
-  }
-
-  const json = await response.json();
-  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  return parseJsonRelaxed(text) as LlmPayload;
+  throw lastError || new Error("Gemini exhausted all configured API keys");
 }
 
 async function extractErrorMessage(response: Response): Promise<string> {
