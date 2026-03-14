@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-14T17:50:30.288263",
-  "updated_at": "2026-03-14T17:50:34.851475",
+  "updated_at": "2026-03-14T18:15:44.855828",
   "items": [
     {
       "id": "690524029246",
@@ -1049,11 +1049,11 @@
     {
       "id": "690283544894",
       "title": "Glutinous Corn Storage: Freezing, Husk-On Holding,",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-14T17:50:30.287317"
+      "updated_at": "2026-03-14T18:15:44.855265"
     },
     {
       "id": "690283512126",
