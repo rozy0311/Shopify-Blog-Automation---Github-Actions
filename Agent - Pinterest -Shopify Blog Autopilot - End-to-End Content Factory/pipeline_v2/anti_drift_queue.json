@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-14T07:35:10.604070",
-  "updated_at": "2026-03-14T11:48:17.037101",
+  "updated_at": "2026-03-14T12:17:47.981282",
   "items": [
     {
       "id": "690524029246",
@@ -626,11 +626,11 @@
     {
       "id": "690323128638",
       "title": "How to Turn Plastic Bottles into Rotating Irrigati",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-14T07:35:10.603639"
+      "updated_at": "2026-03-14T12:17:47.980770"
     },
     {
       "id": "690323030334",
