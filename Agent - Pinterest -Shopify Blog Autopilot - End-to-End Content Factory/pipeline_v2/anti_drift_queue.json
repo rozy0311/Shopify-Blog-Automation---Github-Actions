@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-14T22:53:46.387017",
-  "updated_at": "2026-03-15T07:55:41.151891",
+  "updated_at": "2026-03-15T08:22:52.628241",
   "items": [
     {
       "id": "690524029246",
@@ -2117,11 +2117,13 @@
     {
       "id": "690321293630",
       "title": "Knotgrass Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "retrying",
+      "attempts": 1,
+      "last_error": "RATE_LIMIT_MARKERS_IN_BODY",
       "shopify_url": null,
-      "updated_at": "2026-03-14T17:50:30.287757"
+      "updated_at": "2026-03-15T08:22:52.628236",
+      "failures": 1,
+      "retry_at": "2026-03-15T08:25:22.628182"
     },
     {
       "id": "690320638270",
