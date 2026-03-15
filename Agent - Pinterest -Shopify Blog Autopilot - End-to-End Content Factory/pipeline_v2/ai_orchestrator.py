@@ -141,21 +141,21 @@ def mask_secrets(text: str) -> str:
 
 def extract_real_subject(title: str) -> str:
     """Extract the ACTUAL subject from a clickbait title.
-    
+
     Examples:
         "Stop wasting $10 on store-bought green garlic — grow your own" → "green garlic"
-        "Want fresh salads all week? Layer 5 mason jars" → "mason jar salads"  
+        "Want fresh salads all week? Layer 5 mason jars" → "mason jar salads"
         "Stop wasting $10 on drain cleaners — learn how baking soda" → "baking soda and drain cleaning"
         "How to grow microgreens indoors" → "microgreens"
-        
+
     Returns the noun phrase that represents the actual topic, not the clickbait prefix.
     """
     if not title:
         return title
-        
+
     # Normalize: remove em-dash split, question marks
     title = title.strip()
-    
+
     # Common clickbait prefixes to strip
     clickbait_prefixes = [
         r"^stop wasting \$?\d+ on (?:store[- ]?bought\s+)?",
@@ -169,25 +169,25 @@ def extract_real_subject(title: str) -> str:
         r"^never buy .+ again[—:]\s*",
         r"^\d+ (?:ways?|tips?|tricks?) (?:to |for )",
     ]
-    
+
     subject = title.lower()
-    
+
     # Strip clickbait prefix
     for pattern in clickbait_prefixes:
         subject = re.sub(pattern, "", subject, flags=re.IGNORECASE)
-    
+
     # Split on — and take the part with the real subject (usually contains action verb)
     if "—" in subject or "–" in subject:
         parts = re.split(r"[—–]", subject)
         # First part usually has the subject
         subject = parts[0].strip()
-    
+
     # Remove trailing action phrases
     subject = re.sub(r"\s*(?:in (?:just )?\d+ (?:days?|hours?|minutes?|weeks?)|using .+)$", "", subject, flags=re.IGNORECASE)
-    
+
     # Clean up
     subject = re.sub(r"[!?.,]+$", "", subject).strip()
-    
+
     # Extract main noun phrases (simple heuristic)
     # Look for pattern: adjective + noun or just nouns
     words = subject.split()
@@ -197,7 +197,7 @@ def extract_real_subject(title: str) -> str:
         significant = [w for w in words if w.lower() not in stopwords]
         if len(significant) >= 2:
             subject = " ".join(significant[-3:])  # Last 3 significant words
-    
+
     # Capitalize for display
     if subject:
         subject = subject.strip()
@@ -207,38 +207,87 @@ def extract_real_subject(title: str) -> str:
             else w.lower()
             for w in subject.split()
         )
-    
+
     return subject or title[:50]  # Fallback to truncated original
 
 
 # ============================================================================
-# GEMINI / LLM CONFIG — MULTI KEY SUPPORT (PRIMARY + 2 FALLBACKS)
+# GEMINI / LLM CONFIG — MULTI KEY SUPPORT (PRIMARY + FALLBACK 1..6)
 # ============================================================================
-# Primary Gemini key (GEMINI_API_KEY preferred, GOOGLE_AI_STUDIO_API_KEY as alias)
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get(
-    "GOOGLE_AI_STUDIO_API_KEY", ""
-)
-# Fallback Gemini key (second Google account — used after primary exhausts quota)
-FALLBACK_GEMINI_API_KEY = os.environ.get(
-    "FALLBACK_GEMINI_API_KEY", ""
-) or os.environ.get("FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
-# Second fallback Gemini key (third Google account — optional)
-SECOND_FALLBACK_GEMINI_API_KEY = (
-    os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", "")
-    or os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
-    # Back-compat aliases (if user named secrets differently)
-    or os.environ.get("THIRD_FALLBACK_GEMINI_API_KEY", "")
-    or os.environ.get("THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
-    or os.environ.get("GEMINI_API_KEY_FALLBACK_2", "")
-    or os.environ.get("GEMINI_API_KEY_FALLBACK2", "")
-    or os.environ.get("GEMINI_API_KEY_THIRD", "")
-    or os.environ.get("GEMINI_API_KEY_3", "")
-    or os.environ.get("THIRD_GEMINI_API_KEY", "")
-)
 
-# De-duplicate keys while preserving primary → fallback → fallback2 preference
-if SECOND_FALLBACK_GEMINI_API_KEY in {GEMINI_API_KEY, FALLBACK_GEMINI_API_KEY}:
-    SECOND_FALLBACK_GEMINI_API_KEY = ""
+
+def _first_non_empty(*vals: str) -> str:
+    for v in vals:
+        if (v or "").strip():
+            return v.strip()
+    return ""
+
+
+def _collect_gemini_api_keys() -> list[str]:
+    """Collect Gemini keys in deterministic order: primary, fallback1..fallback6.
+
+    Supports legacy aliases to preserve backward compatibility.
+    """
+    candidates = [
+        _first_non_empty(
+            os.environ.get("GEMINI_API_KEY", ""),
+            os.environ.get("GOOGLE_AI_STUDIO_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("THIRD_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_FALLBACK_2", ""),
+            os.environ.get("GEMINI_API_KEY_FALLBACK2", ""),
+            os.environ.get("GEMINI_API_KEY_THIRD", ""),
+            os.environ.get("GEMINI_API_KEY_3", ""),
+            os.environ.get("THIRD_GEMINI_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("FOURTH_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_4", ""),
+            os.environ.get("FOURTH_GEMINI_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("FIFTH_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_5", ""),
+            os.environ.get("FIFTH_GEMINI_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("SIXTH_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_6", ""),
+            os.environ.get("SIXTH_GEMINI_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("SEVENTH_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("SEVENTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_7", ""),
+            os.environ.get("SEVENTH_GEMINI_API_KEY", ""),
+        ),
+    ]
+
+    keys: list[str] = []
+    for k in candidates:
+        if k and k not in keys:
+            keys.append(k)
+    return keys
+
+
+GEMINI_API_KEYS = _collect_gemini_api_keys()
+# Back-compat named aliases
+GEMINI_API_KEY = GEMINI_API_KEYS[0] if len(GEMINI_API_KEYS) > 0 else ""
+FALLBACK_GEMINI_API_KEY = GEMINI_API_KEYS[1] if len(GEMINI_API_KEYS) > 1 else ""
+SECOND_FALLBACK_GEMINI_API_KEY = (
+    GEMINI_API_KEYS[2] if len(GEMINI_API_KEYS) > 2 else ""
+)
 
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 GEMINI_MODEL_FALLBACK = os.environ.get("GEMINI_MODEL_FALLBACK", "gemini-2.5-flash-lite")
@@ -267,37 +316,21 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 LLM_MAX_OUTPUT_TOKENS = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "7000"))
 
-# Startup diagnostic: show multi-key LLM chain configuration
-_pk = "✅" if GEMINI_API_KEY else "❌ MISSING"
-_fk = "✅" if FALLBACK_GEMINI_API_KEY else "❌ MISSING"
-_sk = "✅" if SECOND_FALLBACK_GEMINI_API_KEY else "❌ MISSING"
-print("🔧 LLM Provider Chain (3 Gemini Keys):")
-print(f"   --- PRIMARY KEY ({_pk}) ---")
-for _i, _m in enumerate(GEMINI_ALL_MODELS, 1):
-    print(f"   {_i}. Gemini: {_m} (primary key: {_pk})")
-_offset = len(GEMINI_ALL_MODELS)
-print(f"   --- FALLBACK KEY ({_fk}) ---")
-for _i, _m in enumerate(GEMINI_ALL_MODELS, _offset + 1):
-    print(f"   {_i}. Gemini: {_m} (fallback key: {_fk})")
-_offset2 = _offset * 2
-print(f"   --- SECOND FALLBACK KEY ({_sk}) ---")
-for _i, _m in enumerate(GEMINI_ALL_MODELS, _offset2 + 1):
-    print(f"   {_i}. Gemini: {_m} (second fallback key: {_sk})")
-_offset3 = _offset * 3
+# Startup diagnostic: show provider chain configuration
+print("🔧 LLM Provider Chain (OpenAI first, then Gemini keys, then others):")
+print(f"   1. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})")
+_idx = 2
+for _kidx, _ in enumerate(GEMINI_API_KEYS, 1):
+    _kstat = "✅"
+    for _m in GEMINI_ALL_MODELS:
+        print(f"   {_idx}. Gemini: {_m} (key#{_kidx}: {_kstat})")
+        _idx += 1
 print(
-    f"   {_offset3 + 1}. GitHub Models: {GH_MODELS_MODEL} (key: {'✅' if GH_MODELS_API_KEY else '❌ MISSING'})"
+    f"   {_idx}. GitHub Models: {GH_MODELS_MODEL} (key: {'✅' if GH_MODELS_API_KEY else '❌ MISSING'})"
 )
-print(
-    f"   {_offset3 + 2}. OpenAI: {OPENAI_MODEL} (key: {'✅' if OPENAI_API_KEY else '❌ MISSING'})"
-)
-print(f"   {_offset3 + 3}. Pollinations: free (no key needed)")
-if (
-    not GEMINI_API_KEY
-    and not FALLBACK_GEMINI_API_KEY
-    and not SECOND_FALLBACK_GEMINI_API_KEY
-    and not GH_MODELS_API_KEY
-    and not OPENAI_API_KEY
-):
+_idx += 1
+print(f"   {_idx}. Pollinations: free (no key needed)")
+if not GEMINI_API_KEYS and not GH_MODELS_API_KEY and not OPENAI_API_KEY:
     print("⚠️ WARNING: No LLM API keys configured! All LLM generation will fail.")
 
 
@@ -958,7 +991,14 @@ def _remove_generic_phrases(content: str) -> str:
 
 
 def generate_article_with_llm(title: str, topic: str) -> str:
-    """Generate high-quality article content using LLM (Gemini first, then GitHub Models)."""
+    """Generate high-quality article content.
+
+    Safe-default provider order:
+    1) OpenAI (ChatGPT API model; configurable via OPENAI_MODEL)
+    2) Gemini models × key chain (primary + fallback1..fallback6)
+    3) GitHub Models
+    4) Pollinations Text
+    """
     prompt = f"""Write a comprehensive, expert-level blog article about "{title}" for a sustainable living and homesteading blog.
 
 CRITICAL ANTI-REPETITION RULES:
@@ -1019,71 +1059,40 @@ IMPORTANT:
 
 Output ONLY the article HTML content starting with <h2>. No markdown, no code blocks, no explanations."""
 
-    # ── PHASE 1: Try ALL Gemini models with PRIMARY key ──────────────
-    if GEMINI_API_KEY:
-        for model_name in GEMINI_ALL_MODELS:
-            print(f"🔄 Trying Gemini {model_name} (primary key)...")
-            content = call_gemini_api(
-                prompt, LLM_MAX_OUTPUT_TOKENS, model_name, api_key=GEMINI_API_KEY
-            )
-            if content and len(content) > 1000:
-                content = _clean_llm_output(content)
-                content = _remove_title_spam(content, title)
-                content = _remove_generic_phrases(content)
-                print(
-                    f"✅ Generated {len(content)} chars with Gemini {model_name} (primary key)"
-                )
-                return content
-        print("⚠️ All Gemini models exhausted with PRIMARY key")
-    else:
-        print("⚠️ PRIMARY Gemini key not set, skipping primary phase")
+    # ── PHASE 1: OpenAI-first (ChatGPT API model) ────────────────────
+    print(f"🔄 Trying OpenAI first ({OPENAI_MODEL})...")
+    content = call_openai_api(prompt, LLM_MAX_OUTPUT_TOKENS)
+    if content and len(content) > 1000:
+        content = _clean_llm_output(content)
+        content = _remove_title_spam(content, title)
+        content = _remove_generic_phrases(content)
+        print(f"✅ Generated {len(content)} chars with OpenAI")
+        return content
 
-    # ── PHASE 2: Try ALL Gemini models with FALLBACK key ──────────────
-    if FALLBACK_GEMINI_API_KEY:
-        for model_name in GEMINI_ALL_MODELS:
-            print(f"🔄 Trying Gemini {model_name} (fallback key)...")
-            content = call_gemini_api(
-                prompt,
-                LLM_MAX_OUTPUT_TOKENS,
-                model_name,
-                api_key=FALLBACK_GEMINI_API_KEY,
-            )
-            if content and len(content) > 1000:
-                content = _clean_llm_output(content)
-                content = _remove_title_spam(content, title)
-                content = _remove_generic_phrases(content)
-                print(
-                    f"✅ Generated {len(content)} chars with Gemini {model_name} (fallback key)"
+    # ── PHASE 2: Gemini models × key chain (primary + fallback1..6) ─
+    if GEMINI_API_KEYS:
+        for key_index, key_value in enumerate(GEMINI_API_KEYS, 1):
+            for model_name in GEMINI_ALL_MODELS:
+                print(f"🔄 Trying Gemini {model_name} (key#{key_index})...")
+                content = call_gemini_api(
+                    prompt,
+                    LLM_MAX_OUTPUT_TOKENS,
+                    model_name,
+                    api_key=key_value,
                 )
-                return content
-        print("⚠️ All Gemini models exhausted with FALLBACK key")
+                if content and len(content) > 1000:
+                    content = _clean_llm_output(content)
+                    content = _remove_title_spam(content, title)
+                    content = _remove_generic_phrases(content)
+                    print(
+                        f"✅ Generated {len(content)} chars with Gemini {model_name} (key#{key_index})"
+                    )
+                    return content
+        print("⚠️ All Gemini models exhausted across all configured keys")
     else:
-        print("⚠️ FALLBACK Gemini key not set, skipping fallback phase")
+        print("⚠️ No Gemini API keys configured, skipping Gemini phase")
 
-    # ── PHASE 3: Try ALL Gemini models with SECOND FALLBACK key ──────
-    if SECOND_FALLBACK_GEMINI_API_KEY:
-        for model_name in GEMINI_ALL_MODELS:
-            print(f"🔄 Trying Gemini {model_name} (second fallback key)...")
-            content = call_gemini_api(
-                prompt,
-                LLM_MAX_OUTPUT_TOKENS,
-                model_name,
-                api_key=SECOND_FALLBACK_GEMINI_API_KEY,
-            )
-            if content and len(content) > 1000:
-                content = _clean_llm_output(content)
-                content = _remove_title_spam(content, title)
-                content = _remove_generic_phrases(content)
-                print(
-                    f"✅ Generated {len(content)} chars with Gemini {model_name} (second fallback key)"
-                )
-                return content
-        print("⚠️ All Gemini models exhausted with SECOND FALLBACK key")
-    else:
-        print("⚠️ SECOND FALLBACK Gemini key not set, skipping second fallback phase")
-
-    # ── PHASE 4: Non-Gemini providers ─────────────────────────────────
-    # Fallback to GitHub Models
+    # ── PHASE 3: GitHub Models fallback ───────────────────────────────
     print(f"🔄 Fallback to GitHub Models ({GH_MODELS_MODEL})...")
     content = call_github_models_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
@@ -1093,17 +1102,7 @@ Output ONLY the article HTML content starting with <h2>. No markdown, no code bl
         print(f"✅ Generated {len(content)} chars with GitHub Models")
         return content
 
-    # Fallback to OpenAI
-    print(f"🔄 Fallback to OpenAI ({OPENAI_MODEL})...")
-    content = call_openai_api(prompt, LLM_MAX_OUTPUT_TOKENS)
-    if content and len(content) > 1000:
-        content = _clean_llm_output(content)
-        content = _remove_title_spam(content, title)
-        content = _remove_generic_phrases(content)
-        print(f"✅ Generated {len(content)} chars with OpenAI")
-        return content
-
-    # Final fallback: Pollinations (free, no key required)
+    # ── PHASE 4: Final fallback: Pollinations (free, no key required) ─
     print("🔄 Fallback to Pollinations Text API (free)...")
     content = call_pollinations_text_api(prompt, LLM_MAX_OUTPUT_TOKENS)
     if content and len(content) > 1000:
@@ -2995,7 +2994,7 @@ class AIOrchestrator:
         """
         # Extract the REAL subject from clickbait title
         real_subject = extract_real_subject(topic)
-        
+
         # Extract key terms for more specific answers
         terms = self._extract_topic_terms(topic)
         key_term = terms[0] if terms else real_subject
