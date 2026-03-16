@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-16T00:51:34.326723",
-  "updated_at": "2026-03-16T00:51:38.983971",
+  "updated_at": "2026-03-16T01:42:45.962294",
   "items": [
     {
       "id": "690524029246",
@@ -570,11 +570,11 @@
     {
       "id": "690323751230",
       "title": "Lavender Benefits: Uses, Dosage, Side Effects & In",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-16T00:51:34.326274"
+      "updated_at": "2026-03-16T01:42:45.961739"
     },
     {
       "id": "690323718462",
@@ -2108,11 +2108,11 @@
     {
       "id": "690322080062",
       "title": "Night Jasmine Benefits: Uses, Dosage, Side Effects",
-      "status": "in_progress",
+      "status": "pending",
       "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-03-15T23:53:44.739627"
+      "updated_at": "2026-03-16T01:42:41.386043"
     },
     {
       "id": "690321293630",
