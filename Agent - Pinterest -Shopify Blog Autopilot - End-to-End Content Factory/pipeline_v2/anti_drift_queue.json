@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-20T19:02:47.548451",
-  "updated_at": "2026-03-20T19:02:54.096344",
+  "updated_at": "2026-03-20T19:35:10.456037",
   "items": [
     {
       "id": "690524029246",
@@ -417,11 +417,11 @@
     {
       "id": "690325029182",
       "title": "How to Build a Homemade Vermicomposter",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-03-20T19:02:47.547676"
+      "updated_at": "2026-03-20T19:35:10.455384"
     },
     {
       "id": "690324963646",
