@@ -27,6 +27,11 @@ on:
         required: false
         default: Manual dispatch
         type: string
+      skip_local_heartbeat:
+        description: "Ignore LOCAL_HEARTBEAT checks and run in Actions anyway"
+        required: false
+        default: true
+        type: boolean
   schedule:
     - cron: "*/10 * * * *" # every 10 minutes (UTC)
 
@@ -66,8 +71,8 @@ jobs:
             echo "GH_MODELS_API_BASE=${{ vars.GH_MODELS_API_BASE || 'https://models.github.ai/inference' }}"
             echo "GH_MODELS_MODEL=${{ vars.GH_MODELS_MODEL }}"
             echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}"
-            echo "LLM_PROVIDER_ORDER=${{ vars.LLM_PROVIDER_ORDER || 'gemini,github_models,openai' }}"
-            echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'true' }}"
+            echo "LLM_PROVIDER_ORDER=${{ vars.LLM_PROVIDER_ORDER || 'openai,gemini,github_models,pollinations' }}"
+            echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'false' }}"
             echo "CONFIG_FILE=${{ vars.CONFIG_FILE }}"
             echo "QUEUE_FILE=${{ vars.QUEUE_FILE }}"
             echo "QUEUE_URL=${{ vars.QUEUE_URL }}"
@@ -79,6 +84,7 @@ jobs:
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
             echo "MODE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }}"
             echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
+            echo "SKIP_LOCAL_HEARTBEAT=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_local_heartbeat || vars.SKIP_LOCAL_HEARTBEAT || 'false' }}"
           } >> "$GITHUB_ENV"
       - name: Export batch window
         run: |
@@ -95,6 +101,16 @@ jobs:
             echo "GOOGLE_AI_STUDIO_API_KEY=${{ secrets.GOOGLE_AI_STUDIO_API_KEY }}"
             echo "FALLBACK_GEMINI_API_KEY=${{ secrets.FALLBACK_GEMINI_API_KEY }}"
             echo "FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FALLBACK_GEMINI_API_KEY }}"
+            echo "SECOND_FALLBACK_GEMINI_API_KEY=${{ secrets.SECOND_FALLBACK_GEMINI_API_KEY }}"
+            echo "SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+            echo "THIRD_FALLBACK_GEMINI_API_KEY=${{ secrets.THIRD_FALLBACK_GEMINI_API_KEY }}"
+            echo "THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+            echo "FOURTH_FALLBACK_GEMINI_API_KEY=${{ secrets.FOURTH_FALLBACK_GEMINI_API_KEY }}"
+            echo "FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+            echo "FIFTH_FALLBACK_GEMINI_API_KEY=${{ secrets.FIFTH_FALLBACK_GEMINI_API_KEY }}"
+            echo "FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+            echo "SIXTH_FALLBACK_GEMINI_API_KEY=${{ secrets.SIXTH_FALLBACK_GEMINI_API_KEY }}"
+            echo "SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
           } >> "$GITHUB_ENV"
       - name: Install dependencies
         run: npm ci
@@ -116,6 +132,12 @@ jobs:
       - name: Check local heartbeat
         run: |
           set -euo pipefail
+          if [ "${SKIP_LOCAL_HEARTBEAT:-false}" = "true" ]; then
+            echo "SKIP_LOCAL_HEARTBEAT=true -> bypassing heartbeat gate"
+            echo "LOCAL_HEARTBEAT_ACTIVE=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
           max_age_min="${LOCAL_HEARTBEAT_MAX_AGE_MINUTES:-15}"
           heartbeat_ts=""
           if [ -n "${LOCAL_HEARTBEAT_URL:-}" ]; then
