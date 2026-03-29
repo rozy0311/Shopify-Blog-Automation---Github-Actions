@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-03-28T23:34:03.717039",
-  "updated_at": "2026-03-29T08:21:24.139941",
+  "updated_at": "2026-03-29T09:07:24.026874",
   "items": [
     {
       "id": "690524029246",
@@ -2182,11 +2182,11 @@
     {
       "id": "690316935486",
       "title": "Fenugreek Benefits: Uses, Dosage, Side Effects &",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "manual_review",
+      "attempts": 1,
+      "last_error": "GATE_FAIL",
       "shopify_url": null,
-      "updated_at": "2026-03-28T23:34:03.716110"
+      "updated_at": "2026-03-29T09:07:24.026866"
     },
     {
       "id": "690315559230",
