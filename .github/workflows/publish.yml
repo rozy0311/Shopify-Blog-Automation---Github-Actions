@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON != '' && fromJSON(vars.CHATGPT_UI_RUNNER_LABELS_JSON) || 'ubuntu-latest' }}
     permissions:
       contents: read
     steps:
@@ -76,6 +76,7 @@ jobs:
             echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
             echo "CHATGPT_UI_NODE_SCRIPT=${{ vars.CHATGPT_UI_NODE_SCRIPT || 'ui-automation/scripts/chatgpt_ui.mjs' }}"
             echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
+            echo "CHATGPT_UI_RUNNER_LABELS_JSON=${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON || '' }}"
             echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
             echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
             echo "CONFIG_FILE=${{ vars.CONFIG_FILE }}"
@@ -120,6 +121,26 @@ jobs:
           } >> "$GITHUB_ENV"
       - name: Install dependencies
         run: npm ci
+      - name: Preflight ChatGPT UI auth readiness
+        if: env.CHATGPT_UI_ENABLED == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          bridge="${CHATGPT_UI_BRIDGE_URL:-}"
+          storage="${CHATGPT_UI_STORAGE_STATE_B64:-}"
+          strict="${CHATGPT_UI_REQUIRED:-false}"
+
+          if [ -z "$bridge" ] && [ -z "$storage" ]; then
+            echo "ERROR: CHATGPT_UI is enabled but neither CHATGPT_UI_BRIDGE_URL nor CHATGPT_UI_STORAGE_STATE_B64 is configured."
+            echo "Set a bridge URL/token OR set storage-state secret for direct UI automation."
+            exit 1
+          fi
+
+          if [ "$strict" = "true" ] && [ -z "$bridge" ] && [ -z "$storage" ]; then
+            echo "ERROR: CHATGPT_UI_REQUIRED=true requires bridge or storage-state secret."
+            exit 1
+          fi
+
       - name: Install Playwright Chromium (ChatGPT UI)
         if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
         run: npx playwright install --with-deps chromium
