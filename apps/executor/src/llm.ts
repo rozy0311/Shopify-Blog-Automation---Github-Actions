@@ -32,6 +32,7 @@ const STRICT_JSON_MESSAGE =
   "Return ONLY a valid minified JSON object. Use double quotes, no trailing commas, no extra text.";
 const TERMINAL_BATCH_STATUSES = new Set(["completed", "failed", "expired", "canceled"]);
 let cachedOpenAIClient: OpenAI | null = null;
+let providerOrderLogged = false;
 
 export async function callLLM(
   systemPrompt: string,
@@ -39,6 +40,10 @@ export async function callLLM(
   userPrompt: string = JSON_ONLY_MESSAGE,
 ): Promise<LlmPayload> {
   const providers = resolveProviderOrder();
+  if (!providerOrderLogged) {
+    providerOrderLogged = true;
+    console.log(`[LLM] provider order: ${providers.join(",")}`);
+  }
   let lastError: Error | null = null;
 
   for (const provider of providers) {
@@ -195,7 +200,11 @@ function isNonJsonError(error: unknown): boolean {
 
 function resolveProviderOrder(): Provider[] {
   const disableOpenAI = (process.env.DISABLE_OPENAI || "").toLowerCase() === "true";
-  const raw = (process.env.LLM_PROVIDER_ORDER || process.env.LLM_PROVIDER || "gemini,github_models,openai")
+  const raw = (
+    process.env.LLM_PROVIDER_ORDER ||
+    process.env.LLM_PROVIDER ||
+    "chatgpt_ui,gemini,github_models,openai"
+  )
     .split(",")
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);
@@ -336,6 +345,7 @@ function shouldFallback(provider: Provider, error: Error): boolean {
   const message = error.message.toLowerCase();
   const status = (error as OpenAIError).status;
   if (message.includes("missing")) return true;
+  if (message.includes("disabled") || message.includes("bridge")) return provider !== "openai";
   if (status && [401, 403, 429].includes(status)) return true;
   if (
     message.includes("quota") ||
