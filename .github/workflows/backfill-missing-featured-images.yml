@@ -1,0 +1,42 @@
+name: Backfill Missing Featured Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "How many recent published articles to scan"
+        required: false
+        default: "100"
+      dry_run:
+        description: "Set true to only report changes"
+        required: false
+        default: "false"
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests
+
+      - name: Run featured-image backfill
+        env:
+          SHOPIFY_SHOP: ${{ vars.SHOPIFY_SHOP }}
+          SHOPIFY_STORE_DOMAIN: ${{ vars.SHOPIFY_SHOP }}
+          SHOPIFY_BLOG_ID: ${{ vars.SHOPIFY_BLOG_ID }}
+          SHOPIFY_API_VERSION: ${{ vars.SHOPIFY_API_VERSION || '2025-01' }}
+          SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+          BACKFILL_LIMIT: ${{ github.event.inputs.limit || '100' }}
+          BACKFILL_DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          python scripts/backfill_missing_featured_images.py
