@@ -18,6 +18,7 @@ if SHOP and ".myshopify.com" not in SHOP:
 
 TOKEN = env("SHOPIFY_ACCESS_TOKEN") or env("SHOPIFY_TOKEN")
 BLOG_ID = env("SHOPIFY_BLOG_ID") or env("BLOG_ID")
+BLOG_HANDLE = env("BLOG_HANDLE")
 API_VERSION = env("SHOPIFY_API_VERSION", "2025-01")
 LIMIT = int(env("BACKFILL_LIMIT", "100"))
 DRY_RUN = env("BACKFILL_DRY_RUN", "false").lower() == "true"
@@ -34,10 +35,26 @@ def ensure_env() -> None:
     missing = [name for name, value in {
         "SHOPIFY_SHOP": SHOP,
         "SHOPIFY_ACCESS_TOKEN": TOKEN,
-        "SHOPIFY_BLOG_ID": BLOG_ID,
     }.items() if not value]
     if missing:
         raise RuntimeError(f"Missing required env vars: {', '.join(missing)}")
+
+
+def resolve_blog_id() -> str:
+    if BLOG_ID:
+        return BLOG_ID
+    if not BLOG_HANDLE:
+        raise RuntimeError("Missing SHOPIFY_BLOG_ID and BLOG_HANDLE")
+
+    url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs.json"
+    response = requests.get(url, headers=headers(), timeout=30)
+    response.raise_for_status()
+    blogs = response.json().get("blogs", [])
+    for blog in blogs:
+        if (blog.get("handle") or "").strip() == BLOG_HANDLE:
+            return str(blog.get("id"))
+
+    raise RuntimeError(f"Cannot resolve blog id for handle: {BLOG_HANDLE}")
 
 
 def list_published_articles(limit: int) -> list[dict[str, Any]]:
@@ -46,7 +63,7 @@ def list_published_articles(limit: int) -> list[dict[str, Any]]:
     page_size = min(250, max(1, limit))
 
     while len(results) < limit:
-        base = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles.json"
+        base = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{RESOLVED_BLOG_ID}/articles.json"
         params: dict[str, Any] = {
             "status": "published",
             "limit": min(page_size, limit - len(results)),
@@ -120,7 +137,7 @@ def fetch_image_attachment(url: str) -> str | None:
 
 
 def update_featured_image(article_id: int, title: str, attachment: str) -> bool:
-    url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{BLOG_ID}/articles/{article_id}.json"
+    url = f"https://{SHOP}/admin/api/{API_VERSION}/blogs/{RESOLVED_BLOG_ID}/articles/{article_id}.json"
     payload = {
         "article": {
             "id": article_id,
@@ -139,7 +156,7 @@ def update_featured_image(article_id: int, title: str, attachment: str) -> bool:
 
 def main() -> int:
     ensure_env()
-    print(f"[INFO] shop={SHOP} blog_id={BLOG_ID} api={API_VERSION} limit={LIMIT} dry_run={DRY_RUN}")
+    print(f"[INFO] shop={SHOP} blog_id={RESOLVED_BLOG_ID} api={API_VERSION} limit={LIMIT} dry_run={DRY_RUN}")
 
     published = list_published_articles(LIMIT)
     print(f"[INFO] fetched published articles: {len(published)}")
@@ -177,6 +194,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     try:
+        RESOLVED_BLOG_ID = resolve_blog_id()
         sys.exit(main())
     except Exception as exc:
         print(f"[ERROR] {exc}")
