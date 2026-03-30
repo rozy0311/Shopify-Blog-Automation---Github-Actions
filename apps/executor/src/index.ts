@@ -101,7 +101,8 @@ async function processQueue(
 ) {
   for (const row of queue) {
     try {
-      const data = await getDraftForRow(row, context, precomputed);
+      const rawData = await getDraftForRow(row, context, precomputed);
+      const data = stripYearTokens(rawData);
       validateNoYears(data);
 
       const preview = await writePreview({
@@ -134,6 +135,24 @@ async function processQueue(
       console.error(`Failed for ${row.url_blog_crawl}:`, message);
     }
   }
+}
+
+function stripYearTokens(data: Awaited<ReturnType<typeof callLLM>>) {
+  const sanitize = (value: string | undefined) => {
+    if (!value) return value;
+    return value
+      .replaceAll(/\b(19|20)\d{2}\b/g, "")
+      .replaceAll(/\s{2,}/g, " ")
+      .trim();
+  };
+
+  return {
+    ...data,
+    title: sanitize(data.title) || data.title,
+    seo_title: sanitize(data.seo_title),
+    meta_desc: sanitize(data.meta_desc),
+    html: sanitize(data.html) || data.html,
+  };
 }
 
 async function getDraftForRow(
