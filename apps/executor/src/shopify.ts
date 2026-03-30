@@ -71,7 +71,7 @@ export async function publishArticle(
   );
 }
 
-async function buildShopifyImageAttachment(imageSrc: string, title: string) {
+async function buildShopifyImageAttachment(imageSrc: string, title: string): Promise<{ attachment: string; alt: string } | undefined> {
   const timeoutMs = 20000;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -84,18 +84,18 @@ async function buildShopifyImageAttachment(imageSrc: string, title: string) {
     });
 
     if (!response.ok || !isImageContentType(response.headers.get("content-type"))) {
-      return { src: imageSrc, alt: title };
+      return undefined;
     }
 
     const contentLength = Number(response.headers.get("content-length") || "0");
     if (Number.isFinite(contentLength) && contentLength > 12 * 1024 * 1024) {
-      return { src: imageSrc, alt: title };
+      return undefined;
     }
 
     const arrayBuffer = await response.arrayBuffer();
     const bytes = Buffer.from(arrayBuffer);
     if (!bytes.length || bytes.length > 12 * 1024 * 1024) {
-      return { src: imageSrc, alt: title };
+      return undefined;
     }
 
     return {
@@ -103,7 +103,7 @@ async function buildShopifyImageAttachment(imageSrc: string, title: string) {
       alt: title,
     };
   } catch {
-    return { src: imageSrc, alt: title };
+    return undefined;
   } finally {
     clearTimeout(timeout);
   }
@@ -121,8 +121,17 @@ async function resolvePublishableImageSrc(rawImageSrc: string | undefined, title
   const fallbackResolved = await tryGetPublishableImageSrc(fallback);
   if (fallbackResolved) {
     console.log(`[SHOPIFY] Using fallback realistic image for: ${title}`);
+    return fallbackResolved;
   }
-  return fallbackResolved;
+
+  const picsumFallback = buildPicsumFallbackImageUrl(title);
+  const picsumResolved = await tryGetPublishableImageSrc(picsumFallback);
+  if (picsumResolved) {
+    console.log(`[SHOPIFY] Using fallback realistic image (picsum) for: ${title}`);
+    return picsumResolved;
+  }
+
+  return undefined;
 }
 
 function buildPollinationsFallbackImageUrl(title: string): string | undefined {
@@ -132,6 +141,11 @@ function buildPollinationsFallbackImageUrl(title: string): string | undefined {
 
   // Public Pollinations endpoint, tuned for realistic photo style.
   return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1536&height=1024&nologo=true&seed=${seed}&model=flux`;
+}
+
+function buildPicsumFallbackImageUrl(title: string): string {
+  const seed = deterministicSeed(title);
+  return `https://picsum.photos/seed/${seed}/1536/1024`;
 }
 
 function deterministicSeed(input: string): number {
