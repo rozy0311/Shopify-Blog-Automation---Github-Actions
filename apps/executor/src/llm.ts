@@ -1,6 +1,7 @@
 import "dotenv/config";
 import fs from "node:fs";
 import path from "node:path";
+import { spawn } from "node:child_process";
 import OpenAI, { APIError } from "openai";
 import { wait } from "./batch.js";
 
@@ -342,6 +343,15 @@ async function callChatgptUi(systemPrompt: string, userPrompt: string, model: st
   }
 
   // Compatibility fallback: run through OpenAI API when no Playwright bridge is configured.
+  try {
+    return await callChatgptUiLocal(systemPrompt, userPrompt, modelLabel);
+  } catch (error) {
+    if (strict) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`CHATGPT_UI required but local UI failed: ${message}`);
+    }
+  }
+
   if (strict) {
     throw new Error("CHATGPT_UI required but bridge is missing");
   }
@@ -351,6 +361,107 @@ async function callChatgptUi(systemPrompt: string, userPrompt: string, model: st
   }
 
   throw new Error("Missing CHATGPT_UI_BRIDGE_URL and OPENAI_API_KEY");
+}
+
+async function callChatgptUiLocal(
+  systemPrompt: string,
+  userPrompt: string,
+  modelLabel: string,
+): Promise<LlmPayload> {
+  const scriptPath = (
+    process.env.CHATGPT_UI_NODE_SCRIPT ||
+    path.join("ui-automation", "scripts", "chatgpt_ui.mjs")
+  ).trim();
+
+  if (!scriptPath || !fs.existsSync(scriptPath)) {
+    throw new Error(`Missing ChatGPT UI script: ${scriptPath}`);
+  }
+
+  const timeoutSecondsRaw = (process.env.CHATGPT_UI_TIMEOUT_SECONDS || "240").trim();
+  const timeoutSeconds = Number.isFinite(Number(timeoutSecondsRaw)) ? Number(timeoutSecondsRaw) : 240;
+  const timeoutMs = Math.max(60, Math.min(1800, timeoutSeconds)) * 1000;
+
+  const prompt = systemPrompt ? `${systemPrompt}\n\n${userPrompt}` : userPrompt;
+  const strictModelRaw = (process.env.CHATGPT_UI_STRICT_MODEL || "true").trim().toLowerCase();
+  const strictModel = strictModelRaw === "1" || strictModelRaw === "true";
+
+  const output = await runNodeScript({
+    scriptPath,
+    prompt,
+    timeoutMs,
+    env: {
+      ...process.env,
+      CHATGPT_UI_MODE: "text",
+      CHATGPT_UI_MODEL_LABEL: modelLabel,
+      CHATGPT_UI_STRICT_MODEL: strictModel ? "1" : "0",
+    },
+  });
+
+  const text = output.stdout.trim();
+  if (!text) {
+    const reason = output.stderr.trim() || "empty response from UI automation";
+    throw new Error(reason);
+  }
+
+  return parseJsonRelaxed(text) as LlmPayload;
+}
+
+async function runNodeScript(args: {
+  scriptPath: string;
+  prompt: string;
+  timeoutMs: number;
+  env: NodeJS.ProcessEnv;
+}): Promise<{ stdout: string; stderr: string }> {
+  const { scriptPath, prompt, timeoutMs, env } = args;
+  return await new Promise((resolve, reject) => {
+    const child = spawn("node", [scriptPath], {
+      env,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      child.kill("SIGTERM");
+      reject(new Error("chatgpt_ui local request timed out"));
+    }, timeoutMs);
+
+    child.stdout.on("data", (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += String(chunk);
+    });
+
+    child.on("error", (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    });
+
+    child.on("close", (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (code === 0) {
+        resolve({ stdout, stderr });
+      } else {
+        const lines = stderr
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter(Boolean);
+        const message = lines[lines.length - 1] || `chatgpt_ui local failed (exit ${code ?? -1})`;
+        reject(new Error(message));
+      }
+    });
+
+    child.stdin.write(prompt);
+    child.stdin.end();
+  });
 }
 
 function shouldFallback(provider: Provider, error: Error): boolean {
