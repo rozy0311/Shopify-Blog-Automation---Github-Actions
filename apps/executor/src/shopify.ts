@@ -52,7 +52,9 @@ export async function publishArticle(
   data: { title: string; html: string; images?: Array<{ src?: string } | null> },
 ) {
   const blog = await withRetry(() => getBlogByHandle(blogHandle));
-  const image = Array.isArray(data.images) && data.images[0]?.src ? { src: data.images[0]?.src } : undefined;
+  const rawImageSrc = Array.isArray(data.images) ? data.images[0]?.src?.trim() : undefined;
+  const imageSrc = await resolvePublishableImageSrc(rawImageSrc);
+  const image = imageSrc ? { src: imageSrc } : undefined;
   return withRetry(() =>
     createArticle(blog.id, {
       title: data.title,
@@ -62,4 +64,54 @@ export async function publishArticle(
       image,
     }),
   );
+}
+
+async function resolvePublishableImageSrc(rawImageSrc?: string): Promise<string | undefined> {
+  if (!rawImageSrc) return undefined;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(rawImageSrc);
+  } catch {
+    return undefined;
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return undefined;
+  }
+
+  const timeoutMs = 12000;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const head = await fetch(parsed.toString(), {
+      method: "HEAD",
+      redirect: "follow",
+      signal: controller.signal,
+    });
+    if (head.ok && isImageContentType(head.headers.get("content-type"))) {
+      return parsed.toString();
+    }
+
+    const get = await fetch(parsed.toString(), {
+      method: "GET",
+      redirect: "follow",
+      signal: controller.signal,
+    });
+    if (get.ok && isImageContentType(get.headers.get("content-type"))) {
+      return parsed.toString();
+    }
+
+    return undefined;
+  } catch {
+    return undefined;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function isImageContentType(value: string | null): boolean {
+  if (!value) return false;
+  return value.toLowerCase().includes("image/");
 }

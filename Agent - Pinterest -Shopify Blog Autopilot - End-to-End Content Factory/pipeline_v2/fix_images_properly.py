@@ -69,6 +69,8 @@ VISION_MODEL_ID = os.environ.get("VISION_MODEL_ID", "openai/gpt-4o-mini")
 VISION_API_KEY = os.environ.get("VISION_API_KEY", "")
 VISION_TIMEOUT = 20
 VISION_MAX_ATTEMPTS = 4
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
+OPENAI_IMAGE_MODEL = os.environ.get("OPENAI_IMAGE_MODEL", "gpt-image-1").strip()
 
 
 def load_matched_data():
@@ -250,33 +252,124 @@ GEMINI_IMAGE_GEN_MODELS_DEFAULT = [
 ]
 
 
+def _first_non_empty(*vals: str) -> str:
+    for v in vals:
+        if (v or "").strip():
+            return v.strip()
+    return ""
+
+
 def _get_gemini_image_keys() -> list:
-    """Return de-duplicated list of Gemini API keys for image generation."""
+    """Return de-duplicated Gemini API key chain: primary + fallback1..6."""
+    candidates = [
+        _first_non_empty(
+            os.environ.get("GEMINI_API_KEY", ""),
+            os.environ.get("GOOGLE_AI_STUDIO_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("THIRD_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_FALLBACK_2", ""),
+            os.environ.get("GEMINI_API_KEY_FALLBACK2", ""),
+            os.environ.get("GEMINI_API_KEY_THIRD", ""),
+            os.environ.get("GEMINI_API_KEY_3", ""),
+            os.environ.get("THIRD_GEMINI_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("FOURTH_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_4", ""),
+            os.environ.get("FOURTH_GEMINI_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("FIFTH_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_5", ""),
+            os.environ.get("FIFTH_GEMINI_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("SIXTH_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_6", ""),
+            os.environ.get("SIXTH_GEMINI_API_KEY", ""),
+        ),
+        _first_non_empty(
+            os.environ.get("SEVENTH_FALLBACK_GEMINI_API_KEY", ""),
+            os.environ.get("SEVENTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", ""),
+            os.environ.get("GEMINI_API_KEY_7", ""),
+            os.environ.get("SEVENTH_GEMINI_API_KEY", ""),
+        ),
+    ]
+
     keys = []
-    k1 = (os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GOOGLE_AI_STUDIO_API_KEY", "")).strip()
-    if k1:
-        keys.append(k1)
-    k2 = (
-        os.environ.get("FALLBACK_GEMINI_API_KEY", "")
-        or os.environ.get("FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
-    ).strip()
-    if k2 and k2 != k1:
-        keys.append(k2)
-    k3 = (
-        os.environ.get("SECOND_FALLBACK_GEMINI_API_KEY", "")
-        or os.environ.get("SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
-        or os.environ.get("THIRD_FALLBACK_GEMINI_API_KEY", "")
-        or os.environ.get("THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY", "")
-        or os.environ.get("GEMINI_API_KEY_FALLBACK_2", "")
-        or os.environ.get("GEMINI_API_KEY_FALLBACK2", "")
-        or os.environ.get("GEMINI_API_KEY_THIRD", "")
-        # Back-compat aliases
-        or os.environ.get("GEMINI_API_KEY_3", "")
-        or os.environ.get("THIRD_GEMINI_API_KEY", "")
-    ).strip()
-    if k3 and k3 not in keys:
-        keys.append(k3)
+    for k in candidates:
+        if k and k not in keys:
+            keys.append(k)
     return keys
+
+
+def generate_openai_image(prompt: str, width: int, height: int) -> bytes | None:
+    """Generate image with OpenAI Images API (OpenAI-first image tier)."""
+    if not OPENAI_API_KEY:
+        return None
+
+    # OpenAI image API supports fixed sizes; map requested size to closest option.
+    size = "1024x1024"
+    if width >= 1536 and height >= 1024:
+        size = "1536x1024"
+    elif height >= 1536 and width >= 1024:
+        size = "1024x1536"
+
+    endpoint = "https://api.openai.com/v1/images/generations"
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": OPENAI_IMAGE_MODEL,
+        "prompt": prompt,
+        "size": size,
+        "quality": "high",
+        "n": 1,
+        "response_format": "b64_json",
+    }
+
+    try:
+        print(f"    🔄 OpenAI image: {OPENAI_IMAGE_MODEL} ({size})...")
+        resp = requests.post(endpoint, headers=headers, json=payload, timeout=180)
+        if resp.status_code != 200:
+            try:
+                err = resp.json().get("error", {}).get("message", "")[:160]
+            except Exception:
+                err = resp.text[:160]
+            print(f"    ⚠️ OpenAI image {resp.status_code}: {err}")
+            return None
+
+        data = resp.json().get("data", [])
+        if not data:
+            print("    ⚠️ OpenAI image: empty data")
+            return None
+
+        b64_payload = data[0].get("b64_json", "")
+        if b64_payload:
+            img_bytes = base64.b64decode(b64_payload)
+            if len(img_bytes) > 10_000:
+                print(f"    ✅ OpenAI image OK: {len(img_bytes) // 1024}KB")
+                return img_bytes
+
+        # Fallback: some providers return URL
+        url = data[0].get("url", "")
+        if url:
+            return download_image(url)
+    except Exception as exc:
+        print(f"    ⚠️ OpenAI image error: {exc}")
+    return None
 
 
 def generate_gemini_image(prompt: str) -> bytes | None:
@@ -447,15 +540,26 @@ def generate_valid_pollinations_image(
     seed_base: int,
     max_attempts: int = VISION_MAX_ATTEMPTS,
 ):
-    """Image Generation Cascade v2.11.1
+    """Image Generation Cascade v2.12
 
-    Tier 1: Pollinations Flux (free, unlimited, priority queue)
-    Tier 2: Gemini Primary Key (3 models)
-    Tier 2b: Gemini Fallback Key (3 models)
-    Tier 3: (Imagen — requires billing, skipped)
+    Tier 1: OpenAI image model (ChatGPT API image tier)
+    Tier 2: Gemini models × key chain (primary + fallback1..6)
+    Tier 3: Pollinations Flux (free)
     Tier 4: PIL gradient (local, unlimited, last resort)
     """
-    # --- Tier 1: Pollinations (Flux) — primary, unlimited ---
+    # --- Tier 1: OpenAI image generation ---
+    openai_bytes = generate_openai_image(prompt, width, height)
+    if openai_bytes:
+        return openai_bytes, None, None
+
+    # --- Tier 2: Gemini models × keys ---
+    print("    🔄 OpenAI image failed → Tier 2: Gemini image generation...")
+    gemini_bytes = generate_gemini_image(prompt)
+    if gemini_bytes:
+        return gemini_bytes, None, None
+
+    # --- Tier 3: Pollinations (Flux) ---
+    print("    🔄 Gemini image failed → Tier 3: Pollinations...")
     for attempt in range(max_attempts):
         seed = seed_base + attempt
         poll_url = get_pollinations_url(prompt, width, height, seed=seed)
@@ -466,12 +570,6 @@ def generate_valid_pollinations_image(
         img_bytes = download_image(poll_url)
         if img_bytes:
             return img_bytes, poll_url, vision_result
-
-    # --- Tier 2/2b/2c: Gemini image generation (3 models × up to 3 keys) ---
-    print("    🔄 Pollinations failed → Tier 2: Gemini image generation...")
-    gemini_bytes = generate_gemini_image(prompt)
-    if gemini_bytes:
-        return gemini_bytes, None, None
 
     # --- Tier 4: PIL gradient (local, unlimited, last resort) ---
     print("    🔄 All APIs failed → Tier 4: PIL gradient (local fallback)...")
