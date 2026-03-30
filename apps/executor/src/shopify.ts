@@ -53,8 +53,13 @@ export async function publishArticle(
 ) {
   const blog = await withRetry(() => getBlogByHandle(blogHandle));
   const rawImageSrc = Array.isArray(data.images) ? data.images[0]?.src?.trim() : undefined;
-  const imageSrc = await resolvePublishableImageSrc(rawImageSrc);
+  const imageSrc = await resolvePublishableImageSrc(rawImageSrc, data.title);
   const image = imageSrc ? { src: imageSrc } : undefined;
+
+  if (!image) {
+    console.warn(`[SHOPIFY] No publishable featured image for: ${data.title}`);
+  }
+
   return withRetry(() =>
     createArticle(blog.id, {
       title: data.title,
@@ -66,8 +71,40 @@ export async function publishArticle(
   );
 }
 
-async function resolvePublishableImageSrc(rawImageSrc?: string): Promise<string | undefined> {
-  if (!rawImageSrc) return undefined;
+async function resolvePublishableImageSrc(rawImageSrc: string | undefined, title: string): Promise<string | undefined> {
+  if (rawImageSrc) {
+    const direct = await tryGetPublishableImageSrc(rawImageSrc);
+    if (direct) return direct;
+  }
+
+  const fallback = buildPollinationsFallbackImageUrl(title);
+  if (!fallback) return undefined;
+
+  const fallbackResolved = await tryGetPublishableImageSrc(fallback);
+  if (fallbackResolved) {
+    console.log(`[SHOPIFY] Using fallback realistic image for: ${title}`);
+  }
+  return fallbackResolved;
+}
+
+function buildPollinationsFallbackImageUrl(title: string): string | undefined {
+  const prompt = `ultra realistic editorial photo for blog article: ${title}, natural lighting, high detail`;
+  const encodedPrompt = encodeURIComponent(prompt);
+  const seed = deterministicSeed(title);
+
+  // Public Pollinations endpoint, tuned for realistic photo style.
+  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1536&height=1024&nologo=true&seed=${seed}&model=flux`;
+}
+
+function deterministicSeed(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash || 1;
+}
+
+async function tryGetPublishableImageSrc(rawImageSrc: string): Promise<string | undefined> {
 
   let parsed: URL;
   try {
