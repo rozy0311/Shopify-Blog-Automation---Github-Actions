@@ -1,6 +1,11 @@
 import "dotenv/config";
 import { withRetry } from "./batch.js";
 
+type ImageBrief = {
+  prompt: string;
+  alt: string;
+};
+
 export async function getBlogByHandle(handle: string) {
   const shop = process.env.SHOPIFY_SHOP;
   if (!shop) throw new Error("Missing SHOPIFY_SHOP");
@@ -50,11 +55,20 @@ export async function publishArticle(
   blogHandle: string,
   author: string,
   data: { title: string; html: string; images?: Array<{ src?: string } | null> },
+  imageBrief?: ImageBrief,
 ) {
   const blog = await withRetry(() => getBlogByHandle(blogHandle));
   const rawImageSrc = Array.isArray(data.images) ? data.images[0]?.src?.trim() : undefined;
-  const imageSrc = await resolvePublishableImageSrc(rawImageSrc, data.title);
-  const image = imageSrc ? await buildShopifyImageAttachment(imageSrc, data.title) : undefined;
+  const candidates = await resolvePublishableImageCandidates(rawImageSrc, data.title, imageBrief);
+
+  let image: { attachment: string; alt: string } | undefined;
+  for (const candidate of candidates) {
+    const attachment = await buildShopifyImageAttachment(candidate, imageBrief?.alt || data.title);
+    if (attachment) {
+      image = attachment;
+      break;
+    }
+  }
 
   if (!image) {
     console.warn(`[SHOPIFY] No publishable featured image for: ${data.title}`);
@@ -109,38 +123,57 @@ async function buildShopifyImageAttachment(imageSrc: string, title: string): Pro
   }
 }
 
-async function resolvePublishableImageSrc(rawImageSrc: string | undefined, title: string): Promise<string | undefined> {
+async function resolvePublishableImageCandidates(
+  rawImageSrc: string | undefined,
+  title: string,
+  imageBrief?: ImageBrief,
+): Promise<string[]> {
+  const candidates: string[] = [];
+
   if (rawImageSrc) {
     const direct = await tryGetPublishableImageSrc(rawImageSrc);
-    if (direct) return direct;
+    if (direct) candidates.push(direct);
   }
 
-  const fallback = buildPollinationsFallbackImageUrl(title);
-  if (!fallback) return undefined;
+  const fallback = buildPollinationsFallbackImageUrl(imageBrief?.prompt || title);
+  if (fallback) {
+    const fallbackResolved = await tryGetPublishableImageSrc(fallback);
+    if (fallbackResolved) {
+      console.log(`[SHOPIFY] Using fallback realistic image for: ${title}`);
+      candidates.push(fallbackResolved);
+    }
+  }
 
-  const fallbackResolved = await tryGetPublishableImageSrc(fallback);
-  if (fallbackResolved) {
-    console.log(`[SHOPIFY] Using fallback realistic image for: ${title}`);
-    return fallbackResolved;
+  const unsplashFallback = buildUnsplashFallbackImageUrl(imageBrief?.prompt || title);
+  const unsplashResolved = await tryGetPublishableImageSrc(unsplashFallback);
+  if (unsplashResolved) {
+    console.log(`[SHOPIFY] Using fallback realistic image (unsplash) for: ${title}`);
+    candidates.push(unsplashResolved);
   }
 
   const picsumFallback = buildPicsumFallbackImageUrl(title);
   const picsumResolved = await tryGetPublishableImageSrc(picsumFallback);
   if (picsumResolved) {
     console.log(`[SHOPIFY] Using fallback realistic image (picsum) for: ${title}`);
-    return picsumResolved;
+    candidates.push(picsumResolved);
   }
 
-  return undefined;
+  return [...new Set(candidates)];
 }
 
-function buildPollinationsFallbackImageUrl(title: string): string | undefined {
-  const prompt = `ultra realistic editorial photo for blog article: ${title}, natural lighting, high detail`;
+function buildPollinationsFallbackImageUrl(imagePrompt: string): string | undefined {
+  const prompt = `ultra realistic editorial photo for blog article: ${imagePrompt}, natural lighting, high detail, realistic scene`;
   const encodedPrompt = encodeURIComponent(prompt);
-  const seed = deterministicSeed(title);
+  const seed = deterministicSeed(imagePrompt);
 
   // Public Pollinations endpoint, tuned for realistic photo style.
   return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1536&height=1024&nologo=true&seed=${seed}&model=flux`;
+}
+
+function buildUnsplashFallbackImageUrl(imagePrompt: string): string {
+  const query = encodeURIComponent(imagePrompt.split(" ").slice(0, 12).join(" "));
+  const sig = deterministicSeed(imagePrompt);
+  return `https://source.unsplash.com/featured/1536x1024/?${query}&sig=${sig}`;
 }
 
 function buildPicsumFallbackImageUrl(title: string): string {
@@ -151,7 +184,7 @@ function buildPicsumFallbackImageUrl(title: string): string {
 function deterministicSeed(input: string): number {
   let hash = 0;
   for (let i = 0; i < input.length; i += 1) {
-    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+    hash = (hash * 31 + (input.codePointAt(i) ?? 0)) >>> 0;
   }
   return hash || 1;
 }
