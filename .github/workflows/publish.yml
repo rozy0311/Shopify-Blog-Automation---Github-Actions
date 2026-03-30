@@ -69,6 +69,7 @@ jobs:
             echo "LLM_PROVIDER_ORDER=${{ vars.LLM_PROVIDER_ORDER || 'chatgpt_ui,gemini,github_models,openai' }}"
             echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'false' }}"
             echo "CHATGPT_UI_ENABLED=${{ vars.CHATGPT_UI_ENABLED || 'false' }}"
+            echo "CHATGPT_UI_REQUIRED=${{ vars.CHATGPT_UI_REQUIRED || 'true' }}"
             echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
             echo "CHATGPT_UI_MODEL_LABEL=${{ vars.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking' }}"
             echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
