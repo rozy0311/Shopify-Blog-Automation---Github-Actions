@@ -34,6 +34,7 @@ jobs:
           SHOPIFY_SHOP: ${{ vars.SHOPIFY_SHOP }}
           SHOPIFY_STORE_DOMAIN: ${{ vars.SHOPIFY_SHOP }}
           SHOPIFY_BLOG_ID: ${{ vars.SHOPIFY_BLOG_ID }}
+          BLOG_HANDLE: ${{ vars.BLOG_HANDLE }}
           SHOPIFY_API_VERSION: ${{ vars.SHOPIFY_API_VERSION || '2025-01' }}
           SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
           BACKFILL_LIMIT: ${{ github.event.inputs.limit || '100' }}
