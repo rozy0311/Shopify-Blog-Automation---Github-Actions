@@ -39,6 +39,14 @@ export async function callLLM(
   model: string,
   userPrompt: string = JSON_ONLY_MESSAGE,
 ): Promise<LlmPayload> {
+  return callStructuredLLM<LlmPayload>(systemPrompt, model, userPrompt);
+}
+
+export async function callStructuredLLM<T extends object>(
+  systemPrompt: string,
+  model: string,
+  userPrompt: string = JSON_ONLY_MESSAGE,
+): Promise<T> {
   const providers = resolveProviderOrder();
   if (!providerOrderLogged) {
     providerOrderLogged = true;
@@ -51,12 +59,12 @@ export async function callLLM(
       const resolvedModel = resolveModelForProvider(provider, model);
       const attempt = async (prompt: string) => {
         if (provider === "gemini") {
-          return await callGemini(systemPrompt, prompt, resolvedModel);
+          return await callGemini(systemPrompt, prompt, resolvedModel) as T;
         }
         if (provider === "chatgpt_ui") {
-          return await callChatgptUi(systemPrompt, prompt, resolvedModel);
+          return await callChatgptUi(systemPrompt, prompt, resolvedModel) as T;
         }
-        return await callOpenAICompatible(provider, systemPrompt, prompt, resolvedModel);
+        return await callOpenAICompatible(provider, systemPrompt, prompt, resolvedModel) as T;
       };
 
       try {
@@ -271,7 +279,8 @@ function resolveModelForProvider(provider: Provider, fallbackModel: string): str
 }
 
 async function callChatgptUi(systemPrompt: string, userPrompt: string, model: string): Promise<LlmPayload> {
-  const enabled = (process.env.CHATGPT_UI_ENABLED || "").toLowerCase() === "true";
+  const enabled = (process.env.CHATGPT_UI_ENABLED || "").trim().toLowerCase() === "true";
+  const strict = (process.env.CHATGPT_UI_REQUIRED || "").trim().toLowerCase() === "true";
   if (!enabled) {
     throw new Error("CHATGPT_UI disabled");
   }
@@ -333,6 +342,9 @@ async function callChatgptUi(systemPrompt: string, userPrompt: string, model: st
   }
 
   // Compatibility fallback: run through OpenAI API when no Playwright bridge is configured.
+  if (strict) {
+    throw new Error("CHATGPT_UI required but bridge is missing");
+  }
   if (process.env.OPENAI_API_KEY) {
     console.warn("chatgpt_ui bridge missing, falling back to OpenAI API provider path");
     return callOpenAICompatible("openai", systemPrompt, userPrompt, model);
@@ -344,6 +356,7 @@ async function callChatgptUi(systemPrompt: string, userPrompt: string, model: st
 function shouldFallback(provider: Provider, error: Error): boolean {
   const message = error.message.toLowerCase();
   const status = (error as OpenAIError).status;
+  if (message.includes("required but bridge is missing")) return false;
   if (message.includes("missing")) return true;
   if (message.includes("disabled") || message.includes("bridge")) return provider !== "openai";
   if (status && [401, 403, 429].includes(status)) return true;
