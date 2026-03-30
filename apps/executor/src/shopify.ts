@@ -54,7 +54,7 @@ export async function publishArticle(
   const blog = await withRetry(() => getBlogByHandle(blogHandle));
   const rawImageSrc = Array.isArray(data.images) ? data.images[0]?.src?.trim() : undefined;
   const imageSrc = await resolvePublishableImageSrc(rawImageSrc, data.title);
-  const image = imageSrc ? { src: imageSrc } : undefined;
+  const image = imageSrc ? await buildShopifyImageAttachment(imageSrc, data.title) : undefined;
 
   if (!image) {
     console.warn(`[SHOPIFY] No publishable featured image for: ${data.title}`);
@@ -69,6 +69,44 @@ export async function publishArticle(
       image,
     }),
   );
+}
+
+async function buildShopifyImageAttachment(imageSrc: string, title: string) {
+  const timeoutMs = 20000;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(imageSrc, {
+      method: "GET",
+      redirect: "follow",
+      signal: controller.signal,
+    });
+
+    if (!response.ok || !isImageContentType(response.headers.get("content-type"))) {
+      return { src: imageSrc, alt: title };
+    }
+
+    const contentLength = Number(response.headers.get("content-length") || "0");
+    if (Number.isFinite(contentLength) && contentLength > 12 * 1024 * 1024) {
+      return { src: imageSrc, alt: title };
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const bytes = Buffer.from(arrayBuffer);
+    if (!bytes.length || bytes.length > 12 * 1024 * 1024) {
+      return { src: imageSrc, alt: title };
+    }
+
+    return {
+      attachment: bytes.toString("base64"),
+      alt: title,
+    };
+  } catch {
+    return { src: imageSrc, alt: title };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function resolvePublishableImageSrc(rawImageSrc: string | undefined, title: string): Promise<string | undefined> {
