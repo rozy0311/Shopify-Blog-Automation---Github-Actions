@@ -187,7 +187,11 @@ jobs:
             echo "SHEETS_ENABLED=false" >> $GITHUB_ENV
           fi
       - name: Build executor
-        run: npm run --workspace apps/executor build
+        env:
+          NODE_OPTIONS: --max-old-space-size=1024
+        run: |
+          rm -rf apps/executor/dist
+          npm run --workspace apps/executor build
       - name: Check local heartbeat
         run: |
           set -euo pipefail
