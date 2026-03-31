@@ -191,8 +191,9 @@ async function processQueueRow(
 ) {
   const data = await generateWithQualityRetry(row, context, precomputed);
 
-  // Inject inline images post-quality-gate (LLM can't produce real image URLs)
-  data.html = injectInlineImages(data.html || "", data.title || "");
+  // Generate LLM-directed image prompts, then inject into HTML
+  const inlineBriefs = await generateInlineImageBriefs(data.html || "", data.title || "", context.model);
+  data.html = injectInlineImages(data.html || "", inlineBriefs);
 
   const preview = await writePreview({
     url_blog_crawl: row.url_blog_crawl,
@@ -313,35 +314,89 @@ function buildCorrectionPrompt(
 
 const TARGET_INLINE_IMAGES = 3;
 
+function escapeHtmlAttr(s: string): string {
+  return s.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+function escapeHtml(s: string): string {
+  return s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
 /**
- * Inject inline images into article HTML using Pollinations AI image generation.
- * Inserts images after the first N `<h2>` sections for natural editorial flow.
+ * Use the LLM to generate specific, contextual image prompts for each inline
+ * image placement. Falls back to keyword-based prompts on failure.
  */
-function injectInlineImages(html: string, title: string): string {
-  // Skip if html is very short or already has enough images
-  const existingImgs = (html.match(/<img\b[^>]*>/gi) || []).length;
-  if (existingImgs >= TARGET_INLINE_IMAGES) return html;
-
-  const needed = TARGET_INLINE_IMAGES - existingImgs;
-
-  // Extract section headings for contextual image prompts
+async function generateInlineImageBriefs(
+  html: string,
+  title: string,
+  model: string,
+): Promise<Array<{ prompt: string; alt: string }>> {
   const headingMatches = [...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)];
   const headings = headingMatches
     .map((m) => m[1].replaceAll(/<[^>]+>/g, "").trim())
     .filter((h) => h.length > 2);
 
-  // Build image prompts from article title + section headings
-  const prompts: string[] = [];
-  for (let i = 0; i < needed; i++) {
-    const sectionHint = headings[i + 1] || headings[i] || ""; // skip first heading (usually title)
-    const prompt = sectionHint
-      ? `${title} - ${sectionHint}, realistic editorial photo, natural light`
-      : `${title}, realistic editorial photo, natural light`;
-    prompts.push(prompt);
+  const sections = headings.slice(1, TARGET_INLINE_IMAGES + 1); // skip first (intro)
+  if (sections.length === 0) sections.push(title);
+
+  const count = Math.min(TARGET_INLINE_IMAGES, sections.length);
+
+  const systemPrompt = [
+    "You are a senior visual editor for realistic editorial photography.",
+    `Return a JSON array of exactly ${count} objects: [{"prompt": "...", "alt": "..."}].`,
+    "Each prompt: concrete, specific to the section topic, 15-30 words describing a real photograph.",
+    "Style direction: realistic documentary/editorial photo, soft natural light, shallow depth-of-field, muted earth tones.",
+    "NEVER include text overlays, logos, watermarks, or fantasy/artistic elements in the prompt.",
+    "Each alt: 80-140 characters, literal visual description of what the image shows. No marketing language.",
+    "Return JSON only. No markdown, no code fences, no commentary.",
+  ].join(" ");
+
+  const userPrompt = [
+    `ARTICLE TITLE: ${title}`,
+    "",
+    "SECTIONS NEEDING IMAGES:",
+    ...sections.map((s, i) => `${i + 1}. ${s}`),
+    "",
+    `Generate ${count} realistic photo descriptions.`,
+  ].join("\n");
+
+  try {
+    const briefs = await withRetry(() =>
+      callStructuredLLM<Array<{ prompt: string; alt: string }>>(systemPrompt, model, userPrompt),
+    );
+    if (Array.isArray(briefs) && briefs.length > 0) {
+      console.log(`[IMAGE_BRIEF] LLM generated ${briefs.length} image prompts`);
+      return briefs.map((b) => ({
+        prompt: (b.prompt || "").trim(),
+        alt: (b.alt || "").trim().slice(0, 140),
+      }));
+    }
+  } catch (err) {
+    console.warn("[IMAGE_BRIEF] LLM fallback:", err instanceof Error ? err.message : err);
   }
 
+  // Fallback: keyword-based prompts
+  return sections.map((section) => ({
+    prompt: `${section}, realistic editorial photography, natural soft light, shallow depth-of-field`,
+    alt: `${section} — editorial photograph`.slice(0, 140),
+  }));
+}
+
+/**
+ * Inject inline images into article HTML using Pollinations AI image generation.
+ * Accepts pre-generated image briefs (from LLM) for contextual, high-quality prompts.
+ */
+function injectInlineImages(
+  html: string,
+  briefs: Array<{ prompt: string; alt: string }>,
+): string {
+  const existingImgs = (html.match(/<img\b[^>]*>/gi) || []).length;
+  if (existingImgs >= TARGET_INLINE_IMAGES) return html;
+
+  const needed = Math.min(TARGET_INLINE_IMAGES - existingImgs, briefs.length);
+  if (needed <= 0) return html;
+
   // Find insertion points: after closing </p> of each <h2> section
-  let injected = 0;
   const h2Positions: number[] = [];
   const h2Regex = /<\/h2>\s*<p\b[^>]*>[\s\S]*?<\/p>/gi;
   let match: RegExpExecArray | null;
@@ -349,32 +404,41 @@ function injectInlineImages(html: string, title: string): string {
     h2Positions.push(match.index + match[0].length);
   }
 
-  // Insert images at positions (reverse order to preserve indices)
-  const insertions = h2Positions.slice(1, needed + 1); // skip first h2 (usually intro)
+  // Skip first h2 (usually intro)
+  const insertions = h2Positions.slice(1, needed + 1);
   if (insertions.length === 0 && h2Positions.length > 0) {
     insertions.push(h2Positions[0]);
   }
 
+  // Build specs in forward order (brief[i] matches insertion[i]),
+  // then apply in reverse to preserve string positions
+  const specs: Array<{ pos: number; brief: { prompt: string; alt: string } }> = [];
+  for (let i = 0; i < insertions.length && i < needed; i++) {
+    specs.push({ pos: insertions[i], brief: briefs[i] });
+  }
+
   let result = html;
-  for (let i = insertions.length - 1; i >= 0 && injected < needed; i--) {
-    const pos = insertions[i];
-    const prompt = encodeURIComponent(prompts[injected] || title);
-    const altText = prompts[injected]?.replace(/, realistic editorial photo.*$/, "") || title;
-    const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${prompt}?width=800&height=450&nologo=true" alt="${altText}" loading="lazy" width="800" height="450"><figcaption>${altText}</figcaption></figure>\n`;
+  let injected = 0;
+  for (let i = specs.length - 1; i >= 0; i--) {
+    const { pos, brief } = specs[i];
+    const encodedPrompt = encodeURIComponent(brief.prompt);
+    const safeAlt = escapeHtmlAttr(brief.alt);
+    const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=450&nologo=true" alt="${safeAlt}" loading="lazy" width="800" height="450"><figcaption>${escapeHtml(brief.alt)}</figcaption></figure>\n`;
     result = result.slice(0, pos) + imgTag + result.slice(pos);
     injected++;
   }
 
-  // If we still need more images, append at end before closing
-  while (injected < needed) {
-    const prompt = encodeURIComponent(prompts[injected] || title);
-    const altText = prompts[injected]?.replace(/, realistic editorial photo.*$/, "") || title;
-    const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${prompt}?width=800&height=450&nologo=true" alt="${altText}" loading="lazy" width="800" height="450"><figcaption>${altText}</figcaption></figure>\n`;
+  // Append remaining if insertion positions insufficient
+  for (let i = injected; i < needed; i++) {
+    const brief = briefs[i];
+    const encodedPrompt = encodeURIComponent(brief.prompt);
+    const safeAlt = escapeHtmlAttr(brief.alt);
+    const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=450&nologo=true" alt="${safeAlt}" loading="lazy" width="800" height="450"><figcaption>${escapeHtml(brief.alt)}</figcaption></figure>\n`;
     result += imgTag;
     injected++;
   }
 
-  console.log(`[IMAGE_INJECT] Injected ${injected} inline images via Pollinations`);
+  console.log(`[IMAGE_INJECT] Injected ${injected} inline images via Pollinations (LLM-directed)`);
   return result;
 }
 

@@ -126,18 +126,27 @@ export async function updateBackfill(urlBlogCrawl: string, publishedUrl: string)
     range,
   });
   const rows = (data.values ?? []) as string[][];
-  const rowIndex = rows.findIndex((row) => (row?.[0] || "").trim() === urlBlogCrawl);
-  if (rowIndex < 0) {
+  // Find ALL rows matching this URL (handles duplicate rows in the sheet)
+  const matchingIndices = rows
+    .map((row, index) => ({ row, index }))
+    .filter(({ row }) => (row?.[0] || "").trim() === urlBlogCrawl)
+    .map(({ index }) => index);
+  if (matchingIndices.length === 0) {
     throw new Error(`Row not found for backfill: ${urlBlogCrawl}`);
   }
   const sheetName = range.split("!")[0] || "Sheet1";
-  const targetRange = `${sheetName}!B${rowIndex + 1}:B${rowIndex + 1}`;
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: requireEnv("SHEETS_ID"),
-    range: targetRange,
-    valueInputOption: "RAW",
-    requestBody: { values: [[publishedUrl]] },
-  });
+  for (const rowIndex of matchingIndices) {
+    const targetRange = `${sheetName}!B${rowIndex + 1}:B${rowIndex + 1}`;
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: requireEnv("SHEETS_ID"),
+      range: targetRange,
+      valueInputOption: "RAW",
+      requestBody: { values: [[publishedUrl]] },
+    });
+  }
+  if (matchingIndices.length > 1) {
+    console.log(`[BACKFILL] Updated ${matchingIndices.length} duplicate rows for: ${urlBlogCrawl}`);
+  }
 }
 
 function hydrateConfig(map: Record<string, string>): Record<string, string> {
@@ -240,9 +249,23 @@ function normalizeQueueRows(rows: QueueRow[], limit: number): QueueRow[] {
   const startAtRaw = Number(process.env.START_AT || "1");
   const startIndex = Number.isFinite(startAtRaw) && startAtRaw > 0 ? Math.floor(startAtRaw) - 1 : 0;
 
-  return rows
-    .filter((row) => row.url_blog_crawl && !row.url_blog_shopify)
-    .slice(startIndex, startIndex + limit);
+  // Deduplicate: same URL appearing on multiple rows should only be processed once
+  const seen = new Set<string>();
+  const deduped = rows.filter((row) => {
+    if (!row.url_blog_crawl || row.url_blog_shopify) return false;
+    const key = row.url_blog_crawl.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  const total = rows.filter((r) => r.url_blog_crawl && !r.url_blog_shopify).length;
+  const skipped = total - deduped.length;
+  if (skipped > 0) {
+    console.log(`[QUEUE] Deduplicated ${skipped} duplicate URL(s) from queue`);
+  }
+
+  return deduped.slice(startIndex, startIndex + limit);
 }
 
 function parseEnvText(text: string): Record<string, string> {
