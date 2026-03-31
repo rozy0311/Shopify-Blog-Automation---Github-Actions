@@ -29,6 +29,12 @@ scripts/setup_self_hosted_runner_ubuntu.sh
 scripts/set_chatgpt_ui_repo_config.ps1
 ```
 
+4. Live monitor script (wait for runner online, trigger smoke run, track result):
+
+```powershell
+scripts/monitor_self_hosted_smoke.ps1
+```
+
 ## 1) Provision a dedicated runner VM
 
 1. Create a Windows Server VM (Windows Server 2022/2025), 4 vCPU, 8 GB RAM minimum.
@@ -71,13 +77,7 @@ sudo apt-get install -y curl git jq unzip ca-certificates xvfb
 Set repo variable `CHATGPT_UI_RUNNER_LABELS_JSON` to:
 
 ```json
-["self-hosted","linux","chatgpt-ui"]
-
-For Windows runner use:
-
-```json
 ["self-hosted","windows","chatgpt-ui"]
-```
 ```
 
 You can set it with GitHub CLI:
@@ -122,6 +122,12 @@ Example via CLI:
 
 ```powershell
 Get-Content .chatgpt-storageState.json.b64.txt -Raw | gh secret set CHATGPT_UI_STORAGE_STATE_B64 --repo rozy0311/Shopify-Blog-Automation---Github-Actions
+```
+
+Or run the helper script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/set_chatgpt_ui_repo_config.ps1
 ```
 
 ## 7) Smoke test end-to-end
