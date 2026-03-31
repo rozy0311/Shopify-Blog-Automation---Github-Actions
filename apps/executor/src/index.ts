@@ -72,6 +72,8 @@ const REQUIRED_SECTION_IDS = [
 
 const BANNED_CTA_PHRASES = ["shop now", "buy", "add to cart", "limited time"];
 
+const MAX_QUALITY_RETRIES = Number(process.env.MAX_QUALITY_RETRIES || "2");
+
 type ImageBrief = {
   prompt: string;
   alt: string;
@@ -174,10 +176,7 @@ async function processQueueRow(
   context: ExecutorContext,
   precomputed: BatchGenerationResult | null,
 ) {
-  const rawData = await getDraftForRow(row, context, precomputed);
-  const data = stripYearTokens(rawData);
-  validateNoYears(data);
-  validateDraftQuality(data);
+  const data = await generateWithQualityRetry(row, context, precomputed);
 
   const preview = await writePreview({
     url_blog_crawl: row.url_blog_crawl,
@@ -212,6 +211,78 @@ function handleQueueRowError(error: unknown, row: QueueRow, summary: Summary, st
     throw new Error(message);
   }
 }
+
+async function generateWithQualityRetry(
+  row: QueueRow,
+  context: ExecutorContext,
+  precomputed: BatchGenerationResult | null,
+): Promise<Awaited<ReturnType<typeof callLLM>>> {
+  // First attempt uses precomputed batch or normal LLM call
+  const rawData = await getDraftForRow(row, context, precomputed);
+  const data = stripYearTokens(rawData);
+  validateNoYears(data);
+
+  let lastData = data;
+  let lastError: string | undefined;
+
+  try {
+    validateDraftQuality(lastData);
+    return lastData;
+  } catch (error) {
+    lastError = error instanceof Error ? error.message : String(error);
+    console.warn(`[QUALITY_GUARD] FAIL attempt 1/${MAX_QUALITY_RETRIES + 1}: ${lastError}`);
+  }
+
+  // Retry with feedback — always a fresh LLM call (not precomputed)
+  for (let attempt = 2; attempt <= MAX_QUALITY_RETRIES + 1; attempt++) {
+    const correctionPrompt = buildCorrectionPrompt(context, row.url_blog_crawl, lastData, lastError as string);
+    const retryRaw = await withRetry(() => callLLM(correctionPrompt, context.model));
+    const retryData = stripYearTokens(retryRaw);
+    validateNoYears(retryData);
+    lastData = retryData;
+
+    try {
+      validateDraftQuality(lastData);
+      console.log(`[QUALITY_GUARD] PASS on retry attempt ${attempt}/${MAX_QUALITY_RETRIES + 1}`);
+      return lastData;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+      console.warn(`[QUALITY_GUARD] FAIL attempt ${attempt}/${MAX_QUALITY_RETRIES + 1}: ${lastError}`);
+    }
+  }
+
+  // All retries exhausted — throw the last quality gate error
+  throw new Error(lastError as string);
+}
+
+function buildCorrectionPrompt(
+  context: ExecutorContext,
+  url: string,
+  previousData: Awaited<ReturnType<typeof callLLM>>,
+  qualityError: string,
+): string {
+  const base = context.buildSystemPrompt(url);
+  const feedback = [
+    "\n\n--- CORRECTION REQUIRED ---",
+    `Your previous output was REJECTED by quality validation: ${qualityError}`,
+    "",
+    "CRITICAL: You MUST fix this issue. Key reminders:",
+    "- Every H2 section needs an id attribute with exact kebab-case: <h2 id=\"key-conditions\">, <h2 id=\"background\">, <h2 id=\"framework\">, <h2 id=\"troubleshooting\">, <h2 id=\"expert-tips\">, <h2 id=\"faq\">, <h2 id=\"key-terms\">, <h2 id=\"sources\">",
+    "- Include ≥3 inline <img> tags in html body with meaningful alt text",
+    "- Include images[0] with non-empty src and alt for featured image",
+    "- Include ≥5 external <a href=\"https://...\"> links with rel=\"nofollow noopener\"",
+    "- Include ≥2 <blockquote> with expert name + title",
+    "- Word count must be 1800-2500",
+    "- FAQ section: 5-7 <h3> questions under #faq",
+    "- Key terms: 5-8 terms under #key-terms using <dfn> or <dt>/<dd>",
+    "",
+    `Previous title was: ${previousData.title}`,
+    "Generate a COMPLETE corrected article. Return JSON only.",
+  ].join("\n");
+
+  return base + feedback;
+}
+
 function stripYearTokens(data: Awaited<ReturnType<typeof callLLM>>) {
   const sanitize = (value: string | undefined) => {
     if (!value) return value;
