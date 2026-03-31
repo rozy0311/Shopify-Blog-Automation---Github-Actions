@@ -72,7 +72,7 @@ const REQUIRED_SECTION_IDS = [
 
 const BANNED_CTA_PHRASES = ["shop now", "buy", "add to cart", "limited time"];
 
-const MAX_QUALITY_RETRIES = Number(process.env.MAX_QUALITY_RETRIES || "2");
+const MAX_QUALITY_RETRIES = Number(process.env.MAX_QUALITY_RETRIES || "4");
 
 type ImageBrief = {
   prompt: string;
@@ -262,25 +262,27 @@ function buildCorrectionPrompt(
   context: ExecutorContext,
   url: string,
   previousData: Awaited<ReturnType<typeof callLLM>>,
-  qualityError: string,
+  qualityErrors: string,
 ): string {
   const base = context.buildSystemPrompt(url);
   const feedback = [
     "\n\n--- CORRECTION REQUIRED ---",
-    `Your previous output was REJECTED by quality validation: ${qualityError}`,
+    `Your previous output was REJECTED by quality validation with these errors:`,
+    qualityErrors,
     "",
-    "CRITICAL: You MUST fix this issue. Key reminders:",
-    "- Every H2 section needs an id attribute with exact kebab-case: <h2 id=\"key-conditions\">, <h2 id=\"background\">, <h2 id=\"framework\">, <h2 id=\"troubleshooting\">, <h2 id=\"expert-tips\">, <h2 id=\"faq\">, <h2 id=\"key-terms\">, <h2 id=\"sources\">",
-    "- Include ≥3 inline <img> tags in html body with meaningful alt text",
-    "- Include images[0] with non-empty src and alt for featured image",
-    "- Include ≥5 external <a href=\"https://...\"> links with rel=\"nofollow noopener\"",
-    "- Include ≥2 <blockquote> with expert name + title",
-    "- Word count must be 1800-2500",
-    "- FAQ section: 5-7 <h3> questions under #faq",
-    "- Key terms: 5-8 terms under #key-terms using <dfn> or <dt>/<dd>",
+    "CRITICAL: You MUST fix ALL of these issues simultaneously. Requirements checklist:",
+    "1. Every H2 section needs an id attribute with exact kebab-case: <h2 id=\"key-conditions\">, <h2 id=\"background\">, <h2 id=\"framework\">, <h2 id=\"troubleshooting\">, <h2 id=\"expert-tips\">, <h2 id=\"faq\">, <h2 id=\"key-terms\">, <h2 id=\"sources\">",
+    "2. Include ≥5 external <a href=\"https://...\"> links with rel=\"nofollow noopener\">",
+    "3. Include ≥3 links to authoritative .gov, .edu, or peer-reviewed journal domains",
+    "4. Include ≥2 <blockquote> with expert name + title",
+    "5. Word count must be 1800-2500 (count ALL words in html body)",
+    "6. FAQ section: 5-7 <h3> questions under <h2 id=\"faq\">",
+    "7. Key terms: 5-8 terms under <h2 id=\"key-terms\"> using <dfn> or <dt>/<dd>",
+    "8. seo_title ≤ 60 chars, meta_desc ≤ 160 chars",
+    "9. No banned CTA phrases: 'buy now', 'shop now', 'order today', 'limited time offer', 'click here to buy', 'add to cart'",
     "",
     `Previous title was: ${previousData.title}`,
-    "Generate a COMPLETE corrected article. Return JSON only.",
+    "Generate a COMPLETE corrected article that passes ALL checks. Return JSON only.",
   ].join("\n");
 
   return base + feedback;
@@ -371,22 +373,37 @@ function stripYearTokens(data: Awaited<ReturnType<typeof callLLM>>) {
   };
 }
 
-function validateDraftQuality(data: Awaited<ReturnType<typeof callLLM>>) {
+function collectDraftQualityErrors(data: Awaited<ReturnType<typeof callLLM>>): string[] {
   const html = data.html || "";
   const htmlLower = html.toLowerCase();
+  const errors: string[] = [];
+  const checks = [
+    () => checkTitleAndMetaLengths(data),
+    () => checkStructureRequirements(html),
+    () => checkLinkRequirements(html),
+    () => checkAuthoritativeSources(html),
+    () => checkLengthAndQuoteRequirements(html),
+    () => checkFaqSection(html),
+    () => checkKeyTermsSection(html),
+    () => checkBannedCtas(htmlLower),
+  ];
+  for (const check of checks) {
+    try {
+      check();
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+  return errors;
+}
 
-  checkTitleAndMetaLengths(data);
-  checkStructureRequirements(html);
-  checkLinkRequirements(html);
-  checkAuthoritativeSources(html);
-  // Image checks removed from quality gate — inline images are injected
-  // post-validation via injectInlineImages(); featured image is handled
-  // by buildImageBrief() + publishArticle().
-  checkLengthAndQuoteRequirements(html);
-  checkFaqSection(html);
-  checkKeyTermsSection(html);
-  checkBannedCtas(htmlLower);
+function validateDraftQuality(data: Awaited<ReturnType<typeof callLLM>>) {
+  const errors = collectDraftQualityErrors(data);
+  if (errors.length > 0) {
+    throw new Error(errors.join(" | "));
+  }
 
+  const html = data.html || "";
   // Log pass summary for observability
   const textOnly = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const wc = textOnly ? textOnly.split(" ").length : 0;
