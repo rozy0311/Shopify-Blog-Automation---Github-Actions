@@ -178,6 +178,9 @@ async function processQueueRow(
 ) {
   const data = await generateWithQualityRetry(row, context, precomputed);
 
+  // Inject inline images post-quality-gate (LLM can't produce real image URLs)
+  data.html = injectInlineImages(data.html || "", data.title || "");
+
   const preview = await writePreview({
     url_blog_crawl: row.url_blog_crawl,
     blogHandle: context.blogHandle,
@@ -283,6 +286,73 @@ function buildCorrectionPrompt(
   return base + feedback;
 }
 
+const TARGET_INLINE_IMAGES = 3;
+
+/**
+ * Inject inline images into article HTML using Pollinations AI image generation.
+ * Inserts images after the first N `<h2>` sections for natural editorial flow.
+ */
+function injectInlineImages(html: string, title: string): string {
+  // Skip if html is very short or already has enough images
+  const existingImgs = (html.match(/<img\b[^>]*>/gi) || []).length;
+  if (existingImgs >= TARGET_INLINE_IMAGES) return html;
+
+  const needed = TARGET_INLINE_IMAGES - existingImgs;
+
+  // Extract section headings for contextual image prompts
+  const headingMatches = [...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)];
+  const headings = headingMatches
+    .map((m) => m[1].replaceAll(/<[^>]+>/g, "").trim())
+    .filter((h) => h.length > 2);
+
+  // Build image prompts from article title + section headings
+  const prompts: string[] = [];
+  for (let i = 0; i < needed; i++) {
+    const sectionHint = headings[i + 1] || headings[i] || ""; // skip first heading (usually title)
+    const prompt = sectionHint
+      ? `${title} - ${sectionHint}, realistic editorial photo, natural light`
+      : `${title}, realistic editorial photo, natural light`;
+    prompts.push(prompt);
+  }
+
+  // Find insertion points: after closing </p> of each <h2> section
+  let injected = 0;
+  const h2Positions: number[] = [];
+  const h2Regex = /<\/h2>\s*<p\b[^>]*>[\s\S]*?<\/p>/gi;
+  let match: RegExpExecArray | null;
+  while ((match = h2Regex.exec(html)) !== null) {
+    h2Positions.push(match.index + match[0].length);
+  }
+
+  // Insert images at positions (reverse order to preserve indices)
+  const insertions = h2Positions.slice(1, needed + 1); // skip first h2 (usually intro)
+  if (insertions.length === 0 && h2Positions.length > 0) {
+    insertions.push(h2Positions[0]);
+  }
+
+  let result = html;
+  for (let i = insertions.length - 1; i >= 0 && injected < needed; i--) {
+    const pos = insertions[i];
+    const prompt = encodeURIComponent(prompts[injected] || title);
+    const altText = prompts[injected]?.replace(/, realistic editorial photo.*$/, "") || title;
+    const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${prompt}?width=800&height=450&nologo=true" alt="${altText}" loading="lazy" width="800" height="450"><figcaption>${altText}</figcaption></figure>\n`;
+    result = result.slice(0, pos) + imgTag + result.slice(pos);
+    injected++;
+  }
+
+  // If we still need more images, append at end before closing
+  while (injected < needed) {
+    const prompt = encodeURIComponent(prompts[injected] || title);
+    const altText = prompts[injected]?.replace(/, realistic editorial photo.*$/, "") || title;
+    const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${prompt}?width=800&height=450&nologo=true" alt="${altText}" loading="lazy" width="800" height="450"><figcaption>${altText}</figcaption></figure>\n`;
+    result += imgTag;
+    injected++;
+  }
+
+  console.log(`[IMAGE_INJECT] Injected ${injected} inline images via Pollinations`);
+  return result;
+}
+
 function stripYearTokens(data: Awaited<ReturnType<typeof callLLM>>) {
   const sanitize = (value: string | undefined) => {
     if (!value) return value;
@@ -309,12 +379,13 @@ function validateDraftQuality(data: Awaited<ReturnType<typeof callLLM>>) {
   checkStructureRequirements(html);
   checkLinkRequirements(html);
   checkAuthoritativeSources(html);
-  checkInlineImageRequirements(html);
+  // Image checks removed from quality gate — inline images are injected
+  // post-validation via injectInlineImages(); featured image is handled
+  // by buildImageBrief() + publishArticle().
   checkLengthAndQuoteRequirements(html);
   checkFaqSection(html);
   checkKeyTermsSection(html);
   checkBannedCtas(htmlLower);
-  checkFeaturedImageRequirement(data);
 
   // Log pass summary for observability
   const textOnly = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
