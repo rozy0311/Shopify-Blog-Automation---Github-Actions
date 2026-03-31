@@ -157,7 +157,12 @@ jobs:
 
       - name: Install Playwright Chromium (ChatGPT UI)
         if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
-        run: npx playwright install --with-deps chromium
+        shell: bash
+        run: |
+          # Fix broken apt_pkg on some self-hosted runners
+          sudo apt-get update -y 2>/dev/null || true
+          sudo apt-get install -y python3-apt 2>/dev/null || true
+          npx playwright install --with-deps chromium
       - name: Google creds -> file (for Sheets ADC)
         shell: bash
         env:
