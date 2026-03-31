@@ -159,10 +159,16 @@ jobs:
         if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
         shell: bash
         run: |
-          # Fix broken apt_pkg on some self-hosted runners
-          sudo apt-get update -y 2>/dev/null || true
-          sudo apt-get install -y python3-apt 2>/dev/null || true
-          npx playwright install --with-deps chromium
+          # Install Chromium system deps directly (bypass broken python3-apt on some runners)
+          sudo DEBIAN_FRONTEND=noninteractive /usr/bin/python3 -c "
+          import subprocess, sys
+          subprocess.check_call(['/usr/bin/apt-get', 'update', '-y'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+          " 2>/dev/null || sudo apt-get update -y 2>/dev/null || true
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+            libxkbcommon0 libxdamage1 libgbm1 libpango-1.0-0 libcairo2 \
+            libasound2 libxrandr2 libxcomposite1 libxfixes3 2>/dev/null || true
+          npx playwright install chromium
       - name: Google creds -> file (for Sheets ADC)
         shell: bash
         env:
