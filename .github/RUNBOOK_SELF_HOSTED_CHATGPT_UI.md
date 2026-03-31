@@ -47,6 +47,12 @@ scripts/reprocess_failed_backlog.ps1
 scripts/autopilot_windows_recovery.ps1
 ```
 
+7. Register secondary Linux runner on existing host (same machine):
+
+```bash
+scripts/register_secondary_runner_linux.sh
+```
+
 ## 1) Provision a dedicated runner VM
 
 1. Create a Windows Server VM (Windows Server 2022/2025), 4 vCPU, 8 GB RAM minimum.
@@ -194,6 +200,13 @@ This does:
 1. Wait for self-hosted Windows runner online+idle.
 2. Trigger one smoke run and require `success` and `processed >= 1`.
 3. Reprocess old failed items sequentially by offset.
+
+If your available self-hosted machine is Linux (for example label `hetzner`), use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/set_chatgpt_ui_repo_config.ps1 -RunnerLabelsJson '["self-hosted","linux","hetzner"]' -SkipSecret
+powershell -ExecutionPolicy Bypass -File scripts/autopilot_windows_recovery.ps1 -RunnerOs Linux -ExpectedLabel hetzner -WaitRunnerMinutes 120 -BacklogStartAt 1 -BacklogItems 20
+```
 
 ## 11) Recovery playbook
 

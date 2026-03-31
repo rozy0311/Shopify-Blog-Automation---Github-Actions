@@ -7,6 +7,7 @@ param(
     [int]$BacklogStartAt = 1,
     [int]$BacklogItems = 20,
     [int]$PollSeconds = 10,
+    [string]$RunnerOs = "windows",
     [string]$ExpectedLabel = "chatgpt-ui"
 )
 
@@ -24,10 +25,10 @@ function Wait-RunnerOnline {
     while ((Get-Date) -lt $deadline) {
         $runners = Get-Runners
         $matching = @($runners | Where-Object {
-                $_.os -eq "windows" -and $_.status -eq "online" -and $_.busy -eq $false -and ($_.labels | Where-Object { $_.name -eq $ExpectedLabel })
+                $_.os -eq $RunnerOs -and $_.status -eq "online" -and $_.busy -eq $false -and ($_.labels | Where-Object { $_.name -eq $ExpectedLabel })
             })
 
-        Write-Host ("Runners total={0}, matching windows/{1} online+idle={2}" -f $runners.Count, $ExpectedLabel, $matching.Count)
+        Write-Host ("Runners total={0}, matching {1}/{2} online+idle={3}" -f $runners.Count, $RunnerOs, $ExpectedLabel, $matching.Count)
         if ($matching.Count -gt 0) {
             Write-Host ("Runner ready: {0}" -f $matching[0].name)
             return $true
@@ -82,9 +83,9 @@ function Get-SummaryFromLog([long]$RunId) {
     }
 }
 
-Write-Host "=== Phase 1: Wait Windows runner ==="
+Write-Host ("=== Phase 1: Wait {0} runner ===" -f $RunnerOs)
 if (-not (Wait-RunnerOnline)) {
-    throw "No matching Windows self-hosted runner became available within timeout."
+    throw "No matching $RunnerOs self-hosted runner became available within timeout."
 }
 
 Write-Host "=== Phase 2: Smoke run ==="
