@@ -73,7 +73,7 @@ function isStrictChatgptRequired() {
 }
 
 function parseBatchSize() {
-  const batchSize = Number(process.env.BATCH_SIZE || "30");
+  const batchSize = Number(process.env.MAX_ITEMS || process.env.BATCH_SIZE || "30");
   return Number.isFinite(batchSize) && batchSize > 0 ? batchSize : 30;
 }
 

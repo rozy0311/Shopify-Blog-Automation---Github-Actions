@@ -237,9 +237,12 @@ function parseDelimitedQueue(text: string): QueueRow[] {
 }
 
 function normalizeQueueRows(rows: QueueRow[], limit: number): QueueRow[] {
+  const startAtRaw = Number(process.env.START_AT || "1");
+  const startIndex = Number.isFinite(startAtRaw) && startAtRaw > 0 ? Math.floor(startAtRaw) - 1 : 0;
+
   return rows
     .filter((row) => row.url_blog_crawl && !row.url_blog_shopify)
-    .slice(0, limit);
+    .slice(startIndex, startIndex + limit);
 }
 
 function parseEnvText(text: string): Record<string, string> {
