@@ -196,7 +196,15 @@ jobs:
               run: |
                   set -euo pipefail
                   # Read queue length from discover output
+                  if [ ! -f out/discover-queue.json ]; then
+                    echo "No discover queue file found — nothing to publish."
+                    exit 0
+                  fi
                   total=$(node -e "const q=require('./out/discover-queue.json'); console.log(q.length)")
+                  if [ "$total" -eq 0 ]; then
+                    echo "Discover queue is empty — nothing to publish."
+                    exit 0
+                  fi
                   echo "Publishing $total discovered topics..."
                   i=0
                   while [ $i -lt $total ]; do

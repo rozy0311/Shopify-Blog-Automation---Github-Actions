@@ -353,6 +353,8 @@ async function main() {
 
   if (allIdeas.length === 0) {
     console.warn("[DISCOVER] No valid niche ideas generated");
+    // Write empty queue so downstream steps don't crash on missing file
+    await writeDiscoverQueue([]);
     await saveRotationState(state);
     return;
   }
