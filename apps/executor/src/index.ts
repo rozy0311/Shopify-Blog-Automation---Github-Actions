@@ -244,6 +244,15 @@ function validateDraftQuality(data: Awaited<ReturnType<typeof callLLM>>) {
   checkKeyTermsSection(html);
   checkBannedCtas(htmlLower);
   checkFeaturedImageRequirement(data);
+
+  // Log pass summary for observability
+  const textOnly = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const wc = textOnly ? textOnly.split(" ").length : 0;
+  const h2 = (html.match(/<h2\b[^>]*>/gi) || []).length;
+  const links = (html.match(/<a\b[^>]*href\s*=\s*"https?:\/\//gi) || []).length;
+  const imgs = (html.match(/<img\b[^>]*>/gi) || []).length;
+  const bq = (html.match(/<blockquote\b[^>]*>/gi) || []).length;
+  console.log(`[QUALITY_GUARD] PASS — title:${(data.title || "").length}c h2:${h2} links:${links} imgs:${imgs} words:${wc} bq:${bq}`);
 }
 
 function checkStructureRequirements(html: string) {

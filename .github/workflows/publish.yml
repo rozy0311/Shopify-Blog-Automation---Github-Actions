@@ -1,5 +1,5 @@
 name: Shopify Blog Executor
-run-name: Shopify Blog Executor (${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }})
+run-name: Shopify Blog Executor (${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.mode) || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish') || 'review' }})
 
 on:
   workflow_dispatch:
@@ -94,13 +94,13 @@ jobs:
             echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
             echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
-            echo "MODE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }}"
+            echo "MODE=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.mode) || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish') || 'review' }}"
             echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
           } >> "$GITHUB_ENV"
       - name: Export batch window
         run: |
-          echo "START_AT=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.start_at != '' && github.event.inputs.start_at || vars.START_AT || '1' }}" >> "$GITHUB_ENV"
-          echo "MAX_ITEMS=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.max_items != '' && github.event.inputs.max_items || vars.MAX_ITEMS || '1' }}" >> "$GITHUB_ENV"
+          echo "START_AT=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.start_at) || vars.START_AT || '1' }}" >> "$GITHUB_ENV"
+          echo "MAX_ITEMS=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.max_items) || vars.MAX_ITEMS || '1' }}" >> "$GITHUB_ENV"
       - name: Inject secrets
         run: |
           {
