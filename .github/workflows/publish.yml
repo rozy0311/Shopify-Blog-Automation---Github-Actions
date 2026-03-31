@@ -159,10 +159,16 @@ jobs:
         if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
         shell: bash
         run: |
-          # Rename cnf-update-db — it uses apt_pkg which breaks with setup-python's Python
+          # 1) Hide cnf-update-db (uses apt_pkg which breaks with setup-python)
           sudo mv /usr/lib/cnf-update-db /usr/lib/cnf-update-db.bak 2>/dev/null || true
+          # 2) Tell needrestart to list-only (don't restart services — it kills the runner!)
+          sudo mkdir -p /etc/needrestart/conf.d
+          echo '$nrconf{restart} = "l";' | sudo tee /etc/needrestart/conf.d/no-restart.conf >/dev/null 2>/dev/null || true
+          # 3) Install Playwright + Chromium with system deps
           npx playwright install --with-deps chromium
+          # 4) Restore
           sudo mv /usr/lib/cnf-update-db.bak /usr/lib/cnf-update-db 2>/dev/null || true
+          sudo rm -f /etc/needrestart/conf.d/no-restart.conf 2>/dev/null || true
       - name: Google creds -> file (for Sheets ADC)
         shell: bash
         env:
