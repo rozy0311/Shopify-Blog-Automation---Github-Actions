@@ -41,6 +41,12 @@ scripts/monitor_self_hosted_smoke.ps1
 scripts/reprocess_failed_backlog.ps1
 ```
 
+6. One-command autopilot recovery (wait runner -> smoke -> backlog):
+
+```powershell
+scripts/autopilot_windows_recovery.ps1
+```
+
 ## 1) Provision a dedicated runner VM
 
 1. Create a Windows Server VM (Windows Server 2022/2025), 4 vCPU, 8 GB RAM minimum.
@@ -175,7 +181,21 @@ Notes:
 2. It reads `SUMMARY` from logs to aggregate `processed` and `failed` counts.
 3. It stops early if ChatGPT UI auth blocker appears again.
 
-## 10) Recovery playbook
+## 10) One-command autopilot mode
+
+If you want a single command for full recovery flow:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/autopilot_windows_recovery.ps1 -WaitRunnerMinutes 120 -BacklogStartAt 1 -BacklogItems 20
+```
+
+This does:
+
+1. Wait for self-hosted Windows runner online+idle.
+2. Trigger one smoke run and require `success` and `processed >= 1`.
+3. Reprocess old failed items sequentially by offset.
+
+## 11) Recovery playbook
 
 1. If preflight fails with dedicated runner error:
 - Re-check `CHATGPT_UI_RUNNER_LABELS_JSON` value and runner labels.
@@ -188,7 +208,7 @@ Notes:
 - Move to bridge mode (`CHATGPT_UI_BRIDGE_URL`) from a trusted browser environment.
 - Keep strict mode enabled so fallback does not hide auth failures.
 
-## 11) Security guardrails
+## 12) Security guardrails
 
 1. Never commit storage state files.
 2. Rotate ChatGPT session state periodically.
