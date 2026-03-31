@@ -527,7 +527,7 @@ async function callOpenAICompatible(
       body: JSON.stringify({
         model,
         temperature: 0.3,
-        max_tokens: 2200,
+        max_tokens: 12000,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt },
@@ -619,7 +619,7 @@ async function callGemini(systemPrompt: string, userPrompt: string, model: strin
             ],
             generationConfig: {
               temperature: 0.3,
-              maxOutputTokens: 2200,
+              maxOutputTokens: 12000,
               response_mime_type: "application/json",
             },
           }),
