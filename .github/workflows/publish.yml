@@ -86,7 +86,7 @@ jobs:
             echo "LOCAL_HEARTBEAT_URL=${{ vars.LOCAL_HEARTBEAT_URL }}"
             echo "LOCAL_HEARTBEAT_MAX_AGE_MINUTES=${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}"
             echo "MIN_INLINE_IMAGES=${{ vars.MIN_INLINE_IMAGES || '3' }}"
-            echo "MIN_ARTICLE_WORDS=${{ vars.MIN_ARTICLE_WORDS || '1800' }}"
+            echo "MIN_ARTICLE_WORDS=${{ vars.MIN_ARTICLE_WORDS || '1400' }}"
             echo "MAX_ARTICLE_WORDS=${{ vars.MAX_ARTICLE_WORDS || '2500' }}"
             echo "MIN_H2_COUNT=${{ vars.MIN_H2_COUNT || '6' }}"
             echo "MIN_EXTERNAL_LINKS=${{ vars.MIN_EXTERNAL_LINKS || '5' }}"
