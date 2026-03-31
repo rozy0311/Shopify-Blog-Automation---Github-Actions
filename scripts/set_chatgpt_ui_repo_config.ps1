@@ -6,14 +6,31 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$PSNativeCommandUseErrorActionPreference = $false
 
 function Set-RepoVariable {
   param(
     [Parameter(Mandatory = $true)][string]$Name,
-    [Parameter(Mandatory = $true)][string]$Value
+    [AllowEmptyString()][string]$Value
   )
 
-  gh variable set $Name --repo $Repo --body $Value | Out-Null
+  if ($Value -eq "") {
+    gh variable delete $Name --repo $Repo 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+      Write-Host "Cleared variable: $Name"
+    }
+    else {
+      Write-Host "Variable not present (treated as cleared): $Name"
+    }
+    return
+  }
+  else {
+    $Value | gh variable set $Name --repo $Repo | Out-Null
+  }
+
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to set variable: $Name"
+  }
   Write-Host "Set variable: $Name=$Value"
 }
 
@@ -27,14 +44,18 @@ Set-RepoVariable -Name "CHATGPT_UI_STRICT_MODEL" -Value "true"
 Set-RepoVariable -Name "CHATGPT_UI_BASE_URL" -Value "https://chatgpt.com/"
 Set-RepoVariable -Name "CHATGPT_UI_NODE_SCRIPT" -Value "ui-automation/scripts/chatgpt_ui.mjs"
 Set-RepoVariable -Name "CHATGPT_UI_HEADLESS" -Value "true"
-Set-RepoVariable -Name "CHATGPT_UI_BRIDGE_URL" -Value ""
+# Keep bridge unset for direct UI mode. If this variable exists and must be cleared,
+# remove it manually in repository settings to avoid CLI 404 noise.
 
 if (-not $SkipSecret) {
   if (-not (Test-Path $StorageStateB64File)) {
     throw "Storage state file not found: $StorageStateB64File"
   }
 
-  gh secret set CHATGPT_UI_STORAGE_STATE_B64 --repo $Repo < $StorageStateB64File
+  Get-Content -Path $StorageStateB64File -Raw | gh secret set CHATGPT_UI_STORAGE_STATE_B64 --repo $Repo
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to set secret: CHATGPT_UI_STORAGE_STATE_B64"
+  }
   Write-Host "Set secret: CHATGPT_UI_STORAGE_STATE_B64 from $StorageStateB64File"
 }
 
