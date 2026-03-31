@@ -159,14 +159,10 @@ jobs:
         if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
         shell: bash
         run: |
-          # Download Chromium browser binary (no system deps - avoids apt_pkg issue)
-          npx playwright install chromium
-          # Install system deps with clean env (unset setup-python overrides that break apt_pkg)
-          sudo env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            DEBIAN_FRONTEND=noninteractive \
-            npx playwright install-deps chromium 2>&1 || {
-              echo "::warning::playwright install-deps failed; Chromium may still work if deps are already installed"
-            }
+          # Disable cnf-update-db hook — it uses apt_pkg which breaks with setup-python's Python
+          echo 'APT::Update::Post-Invoke-Success {""};' | sudo tee /etc/apt/apt.conf.d/99-disable-cnf > /dev/null
+          npx playwright install --with-deps chromium
+          sudo rm -f /etc/apt/apt.conf.d/99-disable-cnf
       - name: Google creds -> file (for Sheets ADC)
         shell: bash
         env:
