@@ -13,7 +13,7 @@ $env:GH_PAGER = "cat"
 
 function Wait-Run([long]$RunId) {
     while ($true) {
-        $state = gh run view $RunId --repo $Repo --json status,conclusion | ConvertFrom-Json
+        $state = gh run view $RunId -R $Repo --json "status,conclusion" | ConvertFrom-Json
         if ($state.status -eq "completed") {
             return $state
         }
@@ -30,14 +30,14 @@ for ($i = 0; $i -lt $Items; $i++) {
     $reason = "reprocess-failed-offset-$offset"
 
     Write-Host "Dispatching item offset=$offset"
-    gh workflow run $Workflow --repo $Repo --ref $Branch -f mode=review -f start_at=$offset -f max_items=1 -f reason=$reason | Out-Null
+    gh workflow run $Workflow -R $Repo --ref $Branch -f mode=review -f start_at=$offset -f max_items=1 -f reason=$reason | Out-Null
     Start-Sleep -Seconds 4
 
-    $run = (gh run list --repo $Repo --workflow $Workflow --branch $Branch --limit 1 --json databaseId,url | ConvertFrom-Json)[0]
+    $run = (gh run list -R $Repo --workflow $Workflow --branch $Branch --limit 1 --json "databaseId,url" | ConvertFrom-Json)[0]
     $runId = [int64]$run.databaseId
     $state = Wait-Run -RunId $runId
 
-    $log = gh run view $runId --repo $Repo --log
+    $log = gh run view $runId -R $Repo --log
     $summaryLine = ($log | Select-String -Pattern "SUMMARY" -CaseSensitive:$false | Select-Object -Last 1).Line
     $errorLine = ($log | Select-String -Pattern "Failed for|Executor crashed|Not authenticated|Strict model selection failed" -CaseSensitive:$false | Select-Object -Last 1).Line
 
