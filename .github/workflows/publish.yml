@@ -129,10 +129,18 @@ jobs:
           bridge="${CHATGPT_UI_BRIDGE_URL:-}"
           storage="${CHATGPT_UI_STORAGE_STATE_B64:-}"
           strict="${CHATGPT_UI_REQUIRED:-false}"
+          runner_labels="${CHATGPT_UI_RUNNER_LABELS_JSON:-}"
 
           if [ -z "$bridge" ] && [ -z "$storage" ]; then
             echo "ERROR: CHATGPT_UI is enabled but neither CHATGPT_UI_BRIDGE_URL nor CHATGPT_UI_STORAGE_STATE_B64 is configured."
             echo "Set a bridge URL/token OR set storage-state secret for direct UI automation."
+            exit 1
+          fi
+
+          # Direct UI mode on hosted runners is frequently blocked by anti-bot checks.
+          if [ -z "$bridge" ] && [ -z "$runner_labels" ]; then
+            echo "ERROR: Direct ChatGPT UI mode requires a dedicated self-hosted runner."
+            echo "Set vars.CHATGPT_UI_RUNNER_LABELS_JSON (for example: [\"self-hosted\",\"linux\",\"chatgpt-ui\"]) or configure CHATGPT_UI_BRIDGE_URL."
             exit 1
           fi
 
