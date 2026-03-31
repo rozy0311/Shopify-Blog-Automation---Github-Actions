@@ -51,6 +51,93 @@ export async function createArticle(blogId: string, payload: any) {
   return response.json();
 }
 
+export async function listArticles(blogId: string, limit = 250): Promise<Array<{ id: number; title: string; handle: string; body_html: string; published_at: string | null }>> {
+  const shop = process.env.SHOPIFY_SHOP;
+  const token = process.env.SHOPIFY_TOKEN;
+  if (!shop || !token) throw new Error("Missing Shopify env vars");
+
+  const articles: Array<{ id: number; title: string; handle: string; body_html: string; published_at: string | null }> = [];
+  let sinceId = 0;
+
+  while (true) {
+    const url = new URL(`https://${shop}.myshopify.com/admin/api/2023-10/blogs/${blogId}/articles.json`);
+    url.searchParams.set("limit", String(Math.min(limit - articles.length, 250)));
+    url.searchParams.set("fields", "id,title,handle,body_html,published_at");
+    if (sinceId > 0) url.searchParams.set("since_id", String(sinceId));
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        "X-Shopify-Access-Token": token,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Shopify GET articles ${response.status}: ${text}`);
+    }
+
+    const json = await response.json() as { articles: Array<{ id: number; title: string; handle: string; body_html: string; published_at: string | null }> };
+    const page = json.articles || [];
+    if (page.length === 0) break;
+
+    articles.push(...page);
+    sinceId = page[page.length - 1].id;
+
+    if (articles.length >= limit || page.length < 250) break;
+  }
+
+  return articles;
+}
+
+export async function getArticle(blogId: string, articleId: number) {
+  const shop = process.env.SHOPIFY_SHOP;
+  const token = process.env.SHOPIFY_TOKEN;
+  if (!shop || !token) throw new Error("Missing Shopify env vars");
+
+  const response = await fetch(
+    `https://${shop}.myshopify.com/admin/api/2023-10/blogs/${blogId}/articles/${articleId}.json`,
+    {
+      headers: {
+        "X-Shopify-Access-Token": token,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Shopify GET article ${response.status}: ${text}`);
+  }
+
+  return response.json();
+}
+
+export async function updateArticle(blogId: string, articleId: number, payload: Record<string, unknown>) {
+  const shop = process.env.SHOPIFY_SHOP;
+  const token = process.env.SHOPIFY_TOKEN;
+  if (!shop || !token) throw new Error("Missing Shopify env vars");
+
+  const response = await fetch(
+    `https://${shop}.myshopify.com/admin/api/2023-10/blogs/${blogId}/articles/${articleId}.json`,
+    {
+      method: "PUT",
+      headers: {
+        "X-Shopify-Access-Token": token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ article: payload }),
+    },
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Shopify PUT article ${response.status}: ${text}`);
+  }
+
+  return response.json();
+}
+
 export async function publishArticle(
   blogHandle: string,
   author: string,

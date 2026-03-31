@@ -8,7 +8,10 @@
     "dry": "MODE=review node dist/index.js",
     "publish": "MODE=publish node dist/index.js",
     "autorun:dry": "MODE=review node dist/autorun.js",
-    "autorun:publish": "MODE=publish node dist/autorun.js"
+    "autorun:publish": "MODE=publish node dist/autorun.js",
+    "discover": "node dist/discover.js",
+    "fix-articles": "node dist/fix-articles.js",
+    "fix-articles:dry": "FIX_DRY_RUN=true node dist/fix-articles.js"
   },
   "dependencies": {
     "@opentelemetry/exporter-trace-otlp-proto": "^0.203.0",

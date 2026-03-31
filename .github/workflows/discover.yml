@@ -1,0 +1,218 @@
+name: Discover Niche Topics
+run-name: "Discover Niche Topics (${{ github.event.inputs.mode || 'discover' }})"
+
+on:
+    workflow_dispatch:
+        inputs:
+            mode:
+                description: "discover = generate topics only, publish = discover + publish articles"
+                required: false
+                default: discover
+                type: choice
+                options:
+                    - discover
+                    - publish
+            products_per_run:
+                description: "Number of products to pick per run"
+                required: false
+                default: "25"
+                type: string
+            ideas_per_product:
+                description: "LLM ideas to generate per product"
+                required: false
+                default: "8"
+                type: string
+            pick_per_product:
+                description: "Best ideas to keep per product"
+                required: false
+                default: "2"
+                type: string
+            reason:
+                description: "Why are you running this?"
+                required: false
+                default: Manual dispatch
+                type: string
+    schedule:
+        - cron: "0 6 * * *" # daily 6:00 UTC
+
+concurrency:
+    group: discover
+    cancel-in-progress: false
+
+jobs:
+    discover:
+        runs-on: ${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON != '' && fromJSON(vars.CHATGPT_UI_RUNNER_LABELS_JSON) || 'ubuntu-latest' }}
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: npm
+
+            - name: Export configuration
+              run: |
+                  {
+                    echo "STORE_URL=${{ vars.STORE_URL || 'https://therike.com' }}"
+                    echo "DISCOVER_COLLECTION=${{ vars.DISCOVER_COLLECTION || 'trending' }}"
+                    echo "DISCOVER_PRODUCTS_PER_RUN=${{ github.event.inputs.products_per_run || vars.DISCOVER_PRODUCTS_PER_RUN || '25' }}"
+                    echo "DISCOVER_IDEAS_PER_PRODUCT=${{ github.event.inputs.ideas_per_product || vars.DISCOVER_IDEAS_PER_PRODUCT || '8' }}"
+                    echo "DISCOVER_PICK_PER_PRODUCT=${{ github.event.inputs.pick_per_product || vars.DISCOVER_PICK_PER_PRODUCT || '2' }}"
+                    echo "DISCOVER_QUEUE_FILE=out/discover-queue.json"
+                    echo "DISCOVER_STATE_FILE=out/discover-state.json"
+                    echo "DISCOVER_WRITE_SHEETS=${{ vars.DISCOVER_WRITE_SHEETS || 'true' }}"
+                    echo "SHEETS_ID=${{ vars.SHEETS_ID }}"
+                    echo "SHEETS_RANGE=${{ vars.SHEETS_RANGE }}"
+                    echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
+                    echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}"
+                    echo "LLM_PROVIDER_ORDER=chatgpt_ui"
+                    echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}"
+                    echo "GH_MODELS_API_BASE=${{ vars.GH_MODELS_API_BASE || 'https://models.github.ai/inference' }}"
+                    echo "GH_MODELS_MODEL=${{ vars.GH_MODELS_MODEL }}"
+                    echo "CHATGPT_UI_ENABLED=true"
+                    echo "CHATGPT_UI_REQUIRED=true"
+                    echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
+                    echo "CHATGPT_UI_MODEL_LABEL=${{ vars.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking' }}"
+                    echo "CHATGPT_UI_STRICT_MODEL=${{ vars.CHATGPT_UI_STRICT_MODEL || 'true' }}"
+                    echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
+                    echo "CHATGPT_UI_NODE_SCRIPT=${{ vars.CHATGPT_UI_NODE_SCRIPT || 'ui-automation/scripts/chatgpt_ui.mjs' }}"
+                    echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
+                    echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
+                    echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
+                  } >> "$GITHUB_ENV"
+
+            - name: Inject secrets
+              run: |
+                  {
+                    echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+                    echo "GH_MODELS_API_KEY=${{ secrets.GH_MODELS_API_KEY }}"
+                    echo "GITHUB_MODELS_API_KEY=${{ secrets.GITHUB_MODELS_API_KEY }}"
+                    echo "CHATGPT_UI_BRIDGE_TOKEN=${{ secrets.CHATGPT_UI_BRIDGE_TOKEN }}"
+                    echo "CHATGPT_UI_STORAGE_STATE_B64=${{ secrets.CHATGPT_UI_STORAGE_STATE_B64 }}"
+                    echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
+                    echo "GOOGLE_AI_STUDIO_API_KEY=${{ secrets.GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "FALLBACK_GEMINI_API_KEY=${{ secrets.FALLBACK_GEMINI_API_KEY }}"
+                    echo "FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FALLBACK_GEMINI_API_KEY }}"
+                    echo "SECOND_FALLBACK_GEMINI_API_KEY=${{ secrets.SECOND_FALLBACK_GEMINI_API_KEY }}"
+                    echo "SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "THIRD_FALLBACK_GEMINI_API_KEY=${{ secrets.THIRD_FALLBACK_GEMINI_API_KEY }}"
+                    echo "THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "FOURTH_FALLBACK_GEMINI_API_KEY=${{ secrets.FOURTH_FALLBACK_GEMINI_API_KEY }}"
+                    echo "FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "FIFTH_FALLBACK_GEMINI_API_KEY=${{ secrets.FIFTH_FALLBACK_GEMINI_API_KEY }}"
+                    echo "FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "SIXTH_FALLBACK_GEMINI_API_KEY=${{ secrets.SIXTH_FALLBACK_GEMINI_API_KEY }}"
+                    echo "SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                  } >> "$GITHUB_ENV"
+
+            - name: Google creds -> file
+              shell: bash
+              env:
+                  GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+              run: |
+                  if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+                    echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > $RUNNER_TEMP/google-credentials.json
+                    echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/google-credentials.json" >> $GITHUB_ENV
+                  else
+                    echo "SHEETS_ENABLED=false" >> $GITHUB_ENV
+                  fi
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Preflight ChatGPT UI auth readiness
+              if: env.CHATGPT_UI_ENABLED == 'true'
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  bridge="${CHATGPT_UI_BRIDGE_URL:-}"
+                  storage="${CHATGPT_UI_STORAGE_STATE_B64:-}"
+                  strict="${CHATGPT_UI_REQUIRED:-false}"
+                  runner_labels="${CHATGPT_UI_RUNNER_LABELS_JSON:-}"
+
+                  if [ -z "$bridge" ] && [ -z "$storage" ]; then
+                    echo "ERROR: CHATGPT_UI is enabled but neither CHATGPT_UI_BRIDGE_URL nor CHATGPT_UI_STORAGE_STATE_B64 is configured."
+                    echo "Set a bridge URL/token OR set storage-state secret for direct UI automation."
+                    exit 1
+                  fi
+
+                  if [ -z "$bridge" ] && [ -z "$runner_labels" ]; then
+                    echo "ERROR: Direct ChatGPT UI mode requires a dedicated self-hosted runner."
+                    echo "Set vars.CHATGPT_UI_RUNNER_LABELS_JSON or configure CHATGPT_UI_BRIDGE_URL."
+                    exit 1
+                  fi
+
+                  if [ "$strict" = "true" ] && [ -z "$bridge" ] && [ -z "$storage" ]; then
+                    echo "ERROR: CHATGPT_UI_REQUIRED=true requires bridge or storage-state secret."
+                    exit 1
+                  fi
+
+            - name: Install Playwright Chromium (ChatGPT UI)
+              if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
+              continue-on-error: true
+              shell: bash
+              run: |
+                  if npx playwright install --dry-run chromium 2>&1 | grep -q "already installed"; then
+                    echo "Chromium already installed, skipping"
+                    exit 0
+                  fi
+                  sudo mv /usr/lib/cnf-update-db /usr/lib/cnf-update-db.bak 2>/dev/null || true
+                  sudo mkdir -p /etc/needrestart/conf.d
+                  echo '$nrconf{restart} = "l";' | sudo tee /etc/needrestart/conf.d/no-restart.conf >/dev/null 2>/dev/null || true
+                  npx playwright install --with-deps chromium
+                  sudo mv /usr/lib/cnf-update-db.bak /usr/lib/cnf-update-db 2>/dev/null || true
+                  sudo rm -f /etc/needrestart/conf.d/no-restart.conf 2>/dev/null || true
+
+            - name: Build executor
+              env:
+                  NODE_OPTIONS: --max-old-space-size=1024
+              run: |
+                  rm -rf apps/executor/dist
+                  npm run --workspace apps/executor build
+
+            - name: Run discover
+              run: node apps/executor/dist/discover.js
+
+            - name: Run publish from discovered topics
+              if: github.event.inputs.mode == 'publish'
+              env:
+                  DISCOVER_MODE: "true"
+                  QUEUE_FILE: out/discover-queue.json
+                  MODE: publish
+                  SHOPIFY_SHOP: ${{ vars.SHOPIFY_SHOP }}
+                  SHOPIFY_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+                  BLOG_HANDLE: ${{ vars.BLOG_HANDLE || 'agritourism' }}
+                  AUTHOR: ${{ vars.AUTHOR || 'The Rike' }}
+                  CONFIG_RANGE: ${{ vars.CONFIG_RANGE }}
+                  WF_ENABLED: "true"
+                  ALLOW_PUBLISH: "human_enabled"
+                  MAX_ITEMS: "50"
+                  START_AT: "1"
+                  MIN_INLINE_IMAGES: ${{ vars.MIN_INLINE_IMAGES || '3' }}
+                  MIN_ARTICLE_WORDS: ${{ vars.MIN_ARTICLE_WORDS || '1400' }}
+                  MAX_ARTICLE_WORDS: ${{ vars.MAX_ARTICLE_WORDS || '2500' }}
+              run: |
+                  set -euo pipefail
+                  # Read queue length from discover output
+                  total=$(node -e "const q=require('./out/discover-queue.json'); console.log(q.length)")
+                  echo "Publishing $total discovered topics..."
+                  i=0
+                  while [ $i -lt $total ]; do
+                    export START_AT=$((i + 1))
+                    export MAX_ITEMS=1
+                    echo "Publishing item $((i+1))/$total"
+                    node apps/executor/dist/index.js || true
+                    i=$((i+1))
+                  done
+
+            - name: Upload artifacts
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: discover-artifacts-${{ github.run_id }}
+                  if-no-files-found: ignore
+                  retention-days: 7
+                  path: |
+                      out/**
+                      apps/executor/out/**

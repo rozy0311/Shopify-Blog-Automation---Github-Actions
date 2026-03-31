@@ -139,7 +139,9 @@ function parseBatchSize() {
 function createContext(config: Record<string, unknown>): ExecutorContext {
   const mode = resolveMode();
   const ctrlPrompt = asString(config.LLM_CONTROL_PROMPT, "");
-  if (ctrlPrompt.length < 50 || !ctrlPrompt.includes("{{URL_BLOG}}")) {
+  const isDiscoverMode = process.env.DISCOVER_MODE === "true";
+
+  if (!isDiscoverMode && (ctrlPrompt.length < 50 || !ctrlPrompt.includes("{{URL_BLOG}}"))) {
     throw new Error("Invalid LLM_CONTROL_PROMPT");
   }
 
@@ -154,8 +156,34 @@ function createContext(config: Record<string, unknown>): ExecutorContext {
     author,
     model,
     useBatch,
-    buildSystemPrompt: (url: string) => `${ctrlPrompt.replaceAll("{{URL_BLOG}}", url)}\n\n${RULES_SUFFIX}`,
+    buildSystemPrompt: (urlOrTopic: string) => {
+      if (urlOrTopic.startsWith("topic://")) {
+        const topic = urlOrTopic.slice("topic://".length);
+        return buildTopicSystemPrompt(topic);
+      }
+      return `${ctrlPrompt.replaceAll("{{URL_BLOG}}", urlOrTopic)}\n\n${RULES_SUFFIX}`;
+    },
   };
+}
+
+function buildTopicSystemPrompt(topic: string): string {
+  return [
+    "You are a senior botanical wellness editor for The Rike (therike.com), a premium organic herbal products store.",
+    `Write a comprehensive, authoritative blog article about: "${topic}".`,
+    "",
+    "CONTEXT: The Rike specializes in organic herbal teas, seeds, superfoods, and traditional remedies.",
+    "The blog (Agritourism) covers wellness, sustainable agriculture, herbal medicine, and mindful living.",
+    "",
+    "WRITING APPROACH:",
+    "- Write from deep expertise in herbalism, botany, and wellness.",
+    "- Include real scientific names, traditional uses, and modern research.",
+    "- Reference authoritative sources (.gov, .edu, PubMed, USDA, WHO).",
+    "- Use concrete examples, sensory descriptions, and practical growing tips.",
+    "- Address the reader as a mindful wellness enthusiast or home grower.",
+    "- Do NOT mention any product prices, store URLs, or commercial offers.",
+    "",
+    RULES_SUFFIX,
+  ].join("\n");
 }
 
 async function maybeGenerateBatch(context: ExecutorContext, queue: QueueRow[]): Promise<BatchGenerationResult | null> {

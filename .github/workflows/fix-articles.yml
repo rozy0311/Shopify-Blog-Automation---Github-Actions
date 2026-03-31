@@ -1,0 +1,124 @@
+name: Fix Old Articles
+run-name: "Fix Old Articles (${{ github.event.inputs.fix_limit || '10' }} articles, ${{ github.event.inputs.dry_run == 'true' && 'dry-run' || 'live' }})"
+
+on:
+    workflow_dispatch:
+        inputs:
+            fix_limit:
+                description: "Max articles to fix"
+                required: false
+                default: "10"
+                type: string
+            dry_run:
+                description: "Scan only, do not update Shopify"
+                required: false
+                default: "true"
+                type: choice
+                options:
+                    - "true"
+                    - "false"
+            blog_handle:
+                description: "Blog handle"
+                required: false
+                default: agritourism
+                type: string
+            reason:
+                description: "Why are you running this?"
+                required: false
+                default: Manual dispatch
+                type: string
+
+concurrency:
+    group: fix-articles
+    cancel-in-progress: false
+
+jobs:
+    fix:
+        runs-on: ${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON != '' && fromJSON(vars.CHATGPT_UI_RUNNER_LABELS_JSON) || 'ubuntu-latest' }}
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: npm
+
+            - name: Export configuration
+              run: |
+                  {
+                    echo "SHOPIFY_SHOP=${{ vars.SHOPIFY_SHOP }}"
+                    echo "BLOG_HANDLE=${{ github.event.inputs.blog_handle || vars.BLOG_HANDLE || 'agritourism' }}"
+                    echo "FIX_LIMIT=${{ github.event.inputs.fix_limit || '10' }}"
+                    echo "FIX_DRY_RUN=${{ github.event.inputs.dry_run || 'true' }}"
+                    echo "MAX_FIX_RETRIES=${{ vars.MAX_FIX_RETRIES || '3' }}"
+                    echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}"
+                    echo "LLM_PROVIDER_ORDER=${{ vars.LLM_PROVIDER_ORDER || 'chatgpt_ui,gemini,github_models,openai' }}"
+                    echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}"
+                    echo "GH_MODELS_API_BASE=${{ vars.GH_MODELS_API_BASE || 'https://models.github.ai/inference' }}"
+                    echo "GH_MODELS_MODEL=${{ vars.GH_MODELS_MODEL }}"
+                    echo "CHATGPT_UI_ENABLED=${{ vars.CHATGPT_UI_ENABLED || 'false' }}"
+                    echo "CHATGPT_UI_REQUIRED=${{ vars.CHATGPT_UI_REQUIRED || 'false' }}"
+                    echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
+                    echo "CHATGPT_UI_MODEL_LABEL=${{ vars.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking' }}"
+                    echo "CHATGPT_UI_STRICT_MODEL=${{ vars.CHATGPT_UI_STRICT_MODEL || 'true' }}"
+                    echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
+                    echo "CHATGPT_UI_NODE_SCRIPT=${{ vars.CHATGPT_UI_NODE_SCRIPT || 'ui-automation/scripts/chatgpt_ui.mjs' }}"
+                    echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
+                    echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
+                    echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
+                    echo "MIN_ARTICLE_WORDS=${{ vars.MIN_ARTICLE_WORDS || '1400' }}"
+                    echo "MAX_ARTICLE_WORDS=${{ vars.MAX_ARTICLE_WORDS || '2500' }}"
+                    echo "MIN_H2_COUNT=${{ vars.MIN_H2_COUNT || '6' }}"
+                    echo "MIN_EXTERNAL_LINKS=${{ vars.MIN_EXTERNAL_LINKS || '5' }}"
+                    echo "MIN_BLOCKQUOTES=${{ vars.MIN_BLOCKQUOTES || '2' }}"
+                  } >> "$GITHUB_ENV"
+
+            - name: Inject secrets
+              run: |
+                  {
+                    echo "SHOPIFY_TOKEN=${{ secrets.SHOPIFY_ACCESS_TOKEN }}"
+                    echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+                    echo "GH_MODELS_API_KEY=${{ secrets.GH_MODELS_API_KEY }}"
+                    echo "GITHUB_MODELS_API_KEY=${{ secrets.GITHUB_MODELS_API_KEY }}"
+                    echo "CHATGPT_UI_BRIDGE_TOKEN=${{ secrets.CHATGPT_UI_BRIDGE_TOKEN }}"
+                    echo "CHATGPT_UI_STORAGE_STATE_B64=${{ secrets.CHATGPT_UI_STORAGE_STATE_B64 }}"
+                    echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
+                    echo "GOOGLE_AI_STUDIO_API_KEY=${{ secrets.GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "FALLBACK_GEMINI_API_KEY=${{ secrets.FALLBACK_GEMINI_API_KEY }}"
+                    echo "FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FALLBACK_GEMINI_API_KEY }}"
+                    echo "SECOND_FALLBACK_GEMINI_API_KEY=${{ secrets.SECOND_FALLBACK_GEMINI_API_KEY }}"
+                    echo "SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.SECOND_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "THIRD_FALLBACK_GEMINI_API_KEY=${{ secrets.THIRD_FALLBACK_GEMINI_API_KEY }}"
+                    echo "THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.THIRD_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "FOURTH_FALLBACK_GEMINI_API_KEY=${{ secrets.FOURTH_FALLBACK_GEMINI_API_KEY }}"
+                    echo "FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FOURTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "FIFTH_FALLBACK_GEMINI_API_KEY=${{ secrets.FIFTH_FALLBACK_GEMINI_API_KEY }}"
+                    echo "FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.FIFTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                    echo "SIXTH_FALLBACK_GEMINI_API_KEY=${{ secrets.SIXTH_FALLBACK_GEMINI_API_KEY }}"
+                    echo "SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY=${{ secrets.SIXTH_FALLBACK_GOOGLE_AI_STUDIO_API_KEY }}"
+                  } >> "$GITHUB_ENV"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build executor
+              env:
+                  NODE_OPTIONS: --max-old-space-size=1024
+              run: |
+                  rm -rf apps/executor/dist
+                  npm run --workspace apps/executor build
+
+            - name: Run fix-articles
+              run: node apps/executor/dist/fix-articles.js
+
+            - name: Upload report
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: fix-articles-report-${{ github.run_id }}
+                  if-no-files-found: ignore
+                  retention-days: 14
+                  path: |
+                      out/fix-articles-report.json
+                      apps/executor/out/**
