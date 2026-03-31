@@ -134,8 +134,7 @@ async function processQueue(
         continue;
       }
 
-      const imageBrief = await buildImageBrief(row.url_blog_crawl, data, context);
-      const article = await publishArticle(context.blogHandle, context.author, data, imageBrief);
+      const article = await publishArticle(context.blogHandle, context.author, data);
       const handle = article?.article?.handle;
       if (!handle) throw new Error("Shopify response missing article handle");
       const shop = process.env.SHOPIFY_SHOP;
