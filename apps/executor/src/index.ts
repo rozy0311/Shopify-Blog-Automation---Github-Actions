@@ -26,12 +26,12 @@ type ExecutorContext = {
 };
 
 const RULES_SUFFIX = [
+  "WORD COUNT IS THE #1 PRIORITY: You MUST write 1400-2500 words of text content in the html field. Each H2 section MUST have 150-300 words. Short articles WILL BE REJECTED. Count your words carefully.",
   "Rules: Return JSON only {title, seo_title, meta_desc, html, images:[{src,alt}]}.",
   "TITLE: ≤70 chars, primary keyword in first 10 chars. SEO_TITLE: ≤60 chars. META_DESC: ≤155 chars.",
   "HTML must be Shopify-safe. STRICT NO YEARS: never output any 4-digit year (19xx/20xx).",
   "STRUCTURE: Include these H2 sections with exact kebab-case ids: key-conditions, background, framework, troubleshooting, expert-tips, faq, key-terms, sources. Minimum 6 H2 tags.",
   "DIRECT ANSWER: First 50-70 words must directly answer the query. Primary keyword within first 120 characters.",
-  "WORD BUDGET: 1800-2500 words total.",
   "CITATIONS: ≥5 external links to authoritative sources (.gov/.edu/journals). Every <a> must use absolute HTTPS and rel=\"nofollow noopener\".",
   "EXPERT QUOTES: ≥2 <blockquote> tags with real expert name + title + organization.",
   "STATISTICS: ≥3 quantified stats with named sources.",
@@ -40,11 +40,12 @@ const RULES_SUFFIX = [
   "IMAGES: ≥3 inline <img> inside html body, each with meaningful alt text (80-140 chars, literal description, no marketing). 1 featured image in images[0] with non-empty src and alt.",
   "BANNED: no sales CTAs (shop now/buy/add to cart/limited time), no clickbait, no keyword stuffing.",
   "VOICE: cozy-authority tone — practical, warm, sensory micro-moments. Avoid generic filler and repeated intro templates.",
-  "Every claim/stat/quote MUST reference a fetched source. No-fetch-no-claim."
+  "Every claim/stat/quote MUST reference a fetched source. No-fetch-no-claim.",
+  "FINAL REMINDER: The article MUST be 1400-2500 words. Write detailed, expansive paragraphs. Do NOT be concise."
 ].join(" ");
 
 const MIN_INLINE_IMAGES = Number(process.env.MIN_INLINE_IMAGES || "3");
-const MIN_ARTICLE_WORDS = Number(process.env.MIN_ARTICLE_WORDS || "1800");
+const MIN_ARTICLE_WORDS = Number(process.env.MIN_ARTICLE_WORDS || "1400");
 const MAX_ARTICLE_WORDS = Number(process.env.MAX_ARTICLE_WORDS || "2500");
 const MIN_H2_COUNT = Number(process.env.MIN_H2_COUNT || "6");
 const MIN_EXTERNAL_LINKS = Number(process.env.MIN_EXTERNAL_LINKS || "5");
@@ -58,6 +59,18 @@ const MIN_KEY_TERMS = Number(process.env.MIN_KEY_TERMS || "5");
 const MIN_AUTHORITATIVE_LINKS = Number(process.env.MIN_AUTHORITATIVE_LINKS || "3");
 
 const AUTHORITATIVE_DOMAINS = [".gov", ".edu", "ncbi.nlm.nih", "sciencedirect", "nature.com", "wiley.com", "springer.com", "pubmed"];
+
+function countWords(html: string): number {
+  const textOnly = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return textOnly ? textOnly.split(" ").length : 0;
+}
+
+const INITIAL_USER_PROMPT = [
+  `CRITICAL: Your html field MUST contain at least ${Number(process.env.MIN_ARTICLE_WORDS || "1400")} words of text content.`,
+  "Write comprehensive paragraphs (4-6 sentences each) for EVERY H2 section.",
+  "Each section should have 150-300 words with concrete details, examples, and analysis.",
+  "Return only a single minified JSON object. No markdown, no code fences, no commentary.",
+].join(" ");
 
 const REQUIRED_SECTION_IDS = [
   "key-conditions",
@@ -239,7 +252,15 @@ async function generateWithQualityRetry(
   // Retry with feedback — always a fresh LLM call (not precomputed)
   for (let attempt = 2; attempt <= MAX_QUALITY_RETRIES + 1; attempt++) {
     const correctionPrompt = buildCorrectionPrompt(context, row.url_blog_crawl, lastData, lastError as string);
-    const retryRaw = await withRetry(() => callLLM(correctionPrompt, context.model));
+    const currentWordCount = countWords(lastData.html || "");
+    const correctionUserPrompt = [
+      `URGENT: Your previous article was only ${currentWordCount} words. The MINIMUM is ${MIN_ARTICLE_WORDS} words.`,
+      `You MUST write at least ${MIN_ARTICLE_WORDS} words of text content in the html field.`,
+      "Write MUCH longer paragraphs (4-6 sentences each). Each H2 section needs 150-300 words.",
+      "Expand with more concrete details, real-world examples, expert insights, and practical advice.",
+      "Return only a single minified JSON object. No markdown, no code fences, no commentary.",
+    ].join(" ");
+    const retryRaw = await withRetry(() => callLLM(correctionPrompt, context.model, correctionUserPrompt));
     const retryData = stripYearTokens(retryRaw);
     validateNoYears(retryData);
     lastData = retryData;
@@ -265,24 +286,26 @@ function buildCorrectionPrompt(
   qualityErrors: string,
 ): string {
   const base = context.buildSystemPrompt(url);
+  const prevWordCount = countWords(previousData.html || "");
   const feedback = [
     "\n\n--- CORRECTION REQUIRED ---",
-    `Your previous output was REJECTED by quality validation with these errors:`,
-    qualityErrors,
+    `Your previous output was REJECTED. Errors: ${qualityErrors}`,
     "",
-    "CRITICAL: You MUST fix ALL of these issues simultaneously. Requirements checklist:",
-    "1. Every H2 section needs an id attribute with exact kebab-case: <h2 id=\"key-conditions\">, <h2 id=\"background\">, <h2 id=\"framework\">, <h2 id=\"troubleshooting\">, <h2 id=\"expert-tips\">, <h2 id=\"faq\">, <h2 id=\"key-terms\">, <h2 id=\"sources\">",
-    "2. Include ≥5 external <a href=\"https://...\"> links with rel=\"nofollow noopener\">",
-    "3. Include ≥3 links to authoritative .gov, .edu, or peer-reviewed journal domains",
-    "4. Include ≥2 <blockquote> with expert name + title",
-    "5. Word count must be 1800-2500 (count ALL words in html body)",
-    "6. FAQ section: 5-7 <h3> questions under <h2 id=\"faq\">",
-    "7. Key terms: 5-8 terms under <h2 id=\"key-terms\"> using <dfn> or <dt>/<dd>",
-    "8. seo_title ≤ 60 chars, meta_desc ≤ 160 chars",
-    "9. No banned CTA phrases: 'buy now', 'shop now', 'order today', 'limited time offer', 'click here to buy', 'add to cart'",
+    `*** WORD COUNT IS THE #1 ISSUE: Your previous article was only ${prevWordCount} words. MINIMUM is ${MIN_ARTICLE_WORDS} words. ***`,
+    `You MUST write at least ${MIN_ARTICLE_WORDS} words. Write 150-300 words per H2 section. Use detailed paragraphs with 4-6 sentences each.`,
     "",
-    `Previous title was: ${previousData.title}`,
-    "Generate a COMPLETE corrected article that passes ALL checks. Return JSON only.",
+    "Fix ALL issues simultaneously:",
+    "1. WORD COUNT: Write at least " + MIN_ARTICLE_WORDS + " words total in the html body. This is NON-NEGOTIABLE.",
+    "2. H2 sections with exact ids: key-conditions, background, framework, troubleshooting, expert-tips, faq, key-terms, sources",
+    "3. ≥5 external links with rel=\"nofollow noopener\", ≥3 to .gov/.edu/journals",
+    "4. ≥2 <blockquote> with expert name + title",
+    "5. FAQ: 5-7 <h3> questions under <h2 id=\"faq\">",
+    "6. Key terms: 5-8 under <h2 id=\"key-terms\"> using <dfn> or <dt>/<dd>",
+    "7. seo_title ≤ 60 chars, meta_desc ≤ 160 chars",
+    "8. No banned CTAs (buy now/shop now/order today/limited time/add to cart)",
+    "",
+    `Previous title: ${previousData.title}`,
+    "Generate a COMPLETE, LONG, DETAILED article. Return JSON only.",
   ].join("\n");
 
   return base + feedback;
@@ -554,7 +577,7 @@ async function getDraftForRow(
 ): Promise<Awaited<ReturnType<typeof callLLM>>> {
   const systemPrompt = context.buildSystemPrompt(row.url_blog_crawl);
   if (!precomputed) {
-    return withRetry(() => callLLM(systemPrompt, context.model));
+    return withRetry(() => callLLM(systemPrompt, context.model, INITIAL_USER_PROMPT));
   }
   const precomputedError = precomputed.errors[row.url_blog_crawl];
   if (precomputedError) {
