@@ -80,6 +80,7 @@ jobs:
                     echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
                     echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
                     echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
+                    echo "CHATGPT_UI_RUNNER_LABELS_JSON=${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON || '' }}"
                   } >> "$GITHUB_ENV"
 
             - name: Inject secrets
