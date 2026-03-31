@@ -159,10 +159,10 @@ jobs:
         if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
         shell: bash
         run: |
-          # Disable cnf-update-db hook — it uses apt_pkg which breaks with setup-python's Python
-          echo 'APT::Update::Post-Invoke-Success {""};' | sudo tee /etc/apt/apt.conf.d/99-disable-cnf > /dev/null
+          # Rename cnf-update-db — it uses apt_pkg which breaks with setup-python's Python
+          sudo mv /usr/lib/cnf-update-db /usr/lib/cnf-update-db.bak 2>/dev/null || true
           npx playwright install --with-deps chromium
-          sudo rm -f /etc/apt/apt.conf.d/99-disable-cnf
+          sudo mv /usr/lib/cnf-update-db.bak /usr/lib/cnf-update-db 2>/dev/null || true
       - name: Google creds -> file (for Sheets ADC)
         shell: bash
         env:
