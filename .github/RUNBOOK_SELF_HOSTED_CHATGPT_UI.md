@@ -11,13 +11,19 @@ This runbook configures direct ChatGPT UI automation on a dedicated self-hosted 
 
 ## Quick scripts in this repo
 
-1. Ubuntu runner setup script:
+1. Windows runner setup script (recommended for your setup):
+
+```powershell
+scripts/setup_self_hosted_runner_windows.ps1
+```
+
+2. Ubuntu runner setup script (optional):
 
 ```bash
 scripts/setup_self_hosted_runner_ubuntu.sh
 ```
 
-2. Repo variable/secret setup script (run from Windows PowerShell):
+3. Repo variable/secret setup script (run from Windows PowerShell):
 
 ```powershell
 scripts/set_chatgpt_ui_repo_config.ps1
@@ -25,60 +31,62 @@ scripts/set_chatgpt_ui_repo_config.ps1
 
 ## 1) Provision a dedicated runner VM
 
-1. Create a Linux VM (Ubuntu 22.04 or 24.04), 4 vCPU, 8 GB RAM minimum.
+1. Create a Windows Server VM (Windows Server 2022/2025), 4 vCPU, 8 GB RAM minimum.
 2. Use a static outbound IP or stable NAT.
 3. Keep this runner dedicated to ChatGPT UI tasks only.
-4. Install base packages:
+4. Install prerequisites:
+
+```powershell
+winget install Git.Git
+winget install OpenJS.NodeJS.LTS
+winget install GitHub.cli
+```
+
+5. Run one-shot setup:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/setup_self_hosted_runner_windows.ps1
+```
+
+Alternative Linux flow (if needed):
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y curl git jq unzip ca-certificates xvfb
 ```
 
-## 2) Install Node and Playwright dependencies
-
-1. Install Node 20:
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-node -v
-npm -v
-```
-
-2. In your checked out repo path, install dependencies:
-
-```bash
-npm ci
-npx playwright install --with-deps chromium
-```
-
-## 3) Register self-hosted runner with labels
+## 2) Register self-hosted runner with labels
 
 1. In GitHub repository settings, create a self-hosted runner for this repo.
 2. Add labels exactly as below:
 
 - self-hosted
-- linux
+- windows
 - chatgpt-ui
 
 3. Confirm runner is online and idle.
 
-## 4) Set repository variable for runs-on routing
+## 3) Set repository variable for runs-on routing
 
 Set repo variable `CHATGPT_UI_RUNNER_LABELS_JSON` to:
 
 ```json
 ["self-hosted","linux","chatgpt-ui"]
+
+For Windows runner use:
+
+```json
+["self-hosted","windows","chatgpt-ui"]
+```
 ```
 
 You can set it with GitHub CLI:
 
 ```bash
-gh variable set CHATGPT_UI_RUNNER_LABELS_JSON --repo rozy0311/Shopify-Blog-Automation---Github-Actions --body '["self-hosted","linux","chatgpt-ui"]'
+gh variable set CHATGPT_UI_RUNNER_LABELS_JSON --repo rozy0311/Shopify-Blog-Automation---Github-Actions --body '["self-hosted","windows","chatgpt-ui"]'
 ```
 
-## 5) Configure required ChatGPT UI variables
+## 4) Configure required ChatGPT UI variables
 
 Set these repository variables:
 
@@ -91,32 +99,32 @@ Set these repository variables:
 7. `CHATGPT_UI_HEADLESS=true`
 8. Keep `CHATGPT_UI_BRIDGE_URL` empty when using direct UI mode.
 
-## 6) Bootstrap authenticated ChatGPT session on the runner
+## 5) Bootstrap authenticated ChatGPT session on the runner
 
 Do this directly on the self-hosted runner machine (not on GitHub-hosted runner):
 
 1. Open a temporary desktop session (local GUI, RDP, VNC, or X11-forwarded browser).
 2. In repo root, run:
 
-```bash
+```powershell
 node ui-automation/scripts/chatgpt_persistent_bootstrap.mjs
 ```
 
 3. Complete login and any challenge in browser.
 4. Wait until script saves `.chatgpt-storageState.json` and `.chatgpt-storageState.json.b64.txt`.
 
-## 7) Upload storage state as repository secret
+## 6) Upload storage state as repository secret
 
 1. Copy content of `.chatgpt-storageState.json.b64.txt`.
 2. Set GitHub secret `CHATGPT_UI_STORAGE_STATE_B64`.
 
 Example via CLI:
 
-```bash
-gh secret set CHATGPT_UI_STORAGE_STATE_B64 --repo rozy0311/Shopify-Blog-Automation---Github-Actions < .chatgpt-storageState.json.b64.txt
+```powershell
+Get-Content .chatgpt-storageState.json.b64.txt -Raw | gh secret set CHATGPT_UI_STORAGE_STATE_B64 --repo rozy0311/Shopify-Blog-Automation---Github-Actions
 ```
 
-## 8) Smoke test end-to-end
+## 7) Smoke test end-to-end
 
 Trigger one review item:
 
@@ -134,14 +142,14 @@ Pass criteria:
 3. No `Not authenticated (no chat textbox)` error.
 4. Summary shows `processed >= 1` and no strict ChatGPT UI crash.
 
-## 9) Operating checklist (daily)
+## 8) Operating checklist (daily)
 
 1. Runner online and idle before schedule window.
 2. `CHATGPT_UI_STORAGE_STATE_B64` age less than 7 days.
 3. Last run artifact has no `out/chatgpt-ui-debug` auth error report.
 4. If title becomes `Just a moment...`, refresh login state (repeat step 6 and 7).
 
-## 10) Recovery playbook
+## 9) Recovery playbook
 
 1. If preflight fails with dedicated runner error:
 - Re-check `CHATGPT_UI_RUNNER_LABELS_JSON` value and runner labels.
@@ -154,7 +162,7 @@ Pass criteria:
 - Move to bridge mode (`CHATGPT_UI_BRIDGE_URL`) from a trusted browser environment.
 - Keep strict mode enabled so fallback does not hide auth failures.
 
-## 11) Security guardrails
+## 10) Security guardrails
 
 1. Never commit storage state files.
 2. Rotate ChatGPT session state periodically.

@@ -1,37 +1,37 @@
 param(
-  [string]$Repo = "rozy0311/Shopify-Blog-Automation---Github-Actions",
-  [string]$RunnerLabelsJson = '["self-hosted","linux","chatgpt-ui"]',
-  [string]$StorageStateB64File = ".chatgpt-storageState.json.b64.txt",
-  [switch]$SkipSecret
+    [string]$Repo = "rozy0311/Shopify-Blog-Automation---Github-Actions",
+    [string]$RunnerLabelsJson = '["self-hosted","windows","chatgpt-ui"]',
+    [string]$StorageStateB64File = ".chatgpt-storageState.json.b64.txt",
+    [switch]$SkipSecret
 )
 
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $false
 
 function Set-RepoVariable {
-  param(
-    [Parameter(Mandatory = $true)][string]$Name,
-    [AllowEmptyString()][string]$Value
-  )
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [AllowEmptyString()][string]$Value
+    )
 
-  if ($Value -eq "") {
-    gh variable delete $Name --repo $Repo 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-      Write-Host "Cleared variable: $Name"
+    if ($Value -eq "") {
+        gh variable delete $Name --repo $Repo 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "Cleared variable: $Name"
+        }
+        else {
+            Write-Host "Variable not present (treated as cleared): $Name"
+        }
+        return
     }
     else {
-      Write-Host "Variable not present (treated as cleared): $Name"
+        $Value | gh variable set $Name --repo $Repo | Out-Null
     }
-    return
-  }
-  else {
-    $Value | gh variable set $Name --repo $Repo | Out-Null
-  }
 
-  if ($LASTEXITCODE -ne 0) {
-    throw "Failed to set variable: $Name"
-  }
-  Write-Host "Set variable: $Name=$Value"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to set variable: $Name"
+    }
+    Write-Host "Set variable: $Name=$Value"
 }
 
 Write-Host "Configuring ChatGPT UI repository variables for $Repo"
@@ -48,15 +48,15 @@ Set-RepoVariable -Name "CHATGPT_UI_HEADLESS" -Value "true"
 # remove it manually in repository settings to avoid CLI 404 noise.
 
 if (-not $SkipSecret) {
-  if (-not (Test-Path $StorageStateB64File)) {
-    throw "Storage state file not found: $StorageStateB64File"
-  }
+    if (-not (Test-Path $StorageStateB64File)) {
+        throw "Storage state file not found: $StorageStateB64File"
+    }
 
-  Get-Content -Path $StorageStateB64File -Raw | gh secret set CHATGPT_UI_STORAGE_STATE_B64 --repo $Repo
-  if ($LASTEXITCODE -ne 0) {
-    throw "Failed to set secret: CHATGPT_UI_STORAGE_STATE_B64"
-  }
-  Write-Host "Set secret: CHATGPT_UI_STORAGE_STATE_B64 from $StorageStateB64File"
+    Get-Content -Path $StorageStateB64File -Raw | gh secret set CHATGPT_UI_STORAGE_STATE_B64 --repo $Repo
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to set secret: CHATGPT_UI_STORAGE_STATE_B64"
+    }
+    Write-Host "Set secret: CHATGPT_UI_STORAGE_STATE_B64 from $StorageStateB64File"
 }
 
 Write-Host "Done. You can trigger smoke test:"
