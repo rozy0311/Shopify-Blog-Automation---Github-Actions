@@ -9,6 +9,20 @@ This runbook configures direct ChatGPT UI automation on a dedicated self-hosted 
 3. Strict mode stays enabled (`CHATGPT_UI_REQUIRED=true`).
 4. One review run processes at least 1 item with `processed > 0`.
 
+## Quick scripts in this repo
+
+1. Ubuntu runner setup script:
+
+```bash
+scripts/setup_self_hosted_runner_ubuntu.sh
+```
+
+2. Repo variable/secret setup script (run from Windows PowerShell):
+
+```powershell
+scripts/set_chatgpt_ui_repo_config.ps1
+```
+
 ## 1) Provision a dedicated runner VM
 
 1. Create a Linux VM (Ubuntu 22.04 or 24.04), 4 vCPU, 8 GB RAM minimum.
