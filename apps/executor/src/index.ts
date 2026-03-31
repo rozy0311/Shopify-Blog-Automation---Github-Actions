@@ -2,7 +2,7 @@ import "./tracing.js";
 import fs from "fs-extra";
 import "dotenv/config";
 import { readConfig, readQueue, updateBackfill } from "./sheets.js";
-import { callLLM, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
+import { callLLM, callStructuredLLM, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
 import { publishArticle } from "./shopify.js";
 import { withRetry } from "./batch.js";
 import { writePreview } from "./preview.js";
@@ -26,7 +26,12 @@ type ExecutorContext = {
 };
 
 const RULES_SUFFIX =
-  "Rules: Return JSON only {title, seo_title, meta_desc, html, images:[{src,alt}]}; HTML Shopify-safe; NO YEARS; up to 4 images.";
+  "Rules: Return JSON only {title, seo_title, meta_desc, html, images:[{src,alt}]}; HTML Shopify-safe; NO YEARS; up to 4 images; avoid generic filler; include concrete, practical specifics tied to the source URL context; avoid repeated intro templates and vague motivational language.";
+
+type ImageBrief = {
+  prompt: string;
+  alt: string;
+};
 
 function resolveMode() {
   const explicit = process.env.MODE?.toLowerCase();
@@ -44,6 +49,7 @@ async function main() {
   const config = await readConfig();
   const queue = await readQueue(parseBatchSize());
   const summary: Summary = { attempted: queue.length, processed: 0, failed: 0, errors: [] };
+  const strictChatgpt = isStrictChatgptRequired();
 
   if (!queue.length) {
     await writeSummary(summary);
@@ -53,8 +59,17 @@ async function main() {
 
   const context = createContext(config);
   const precomputed = await maybeGenerateBatch(context, queue);
-  await processQueue(queue, context, summary, precomputed);
-  await writeSummary(summary);
+  try {
+    await processQueue(queue, context, summary, precomputed, strictChatgpt);
+  } finally {
+    await writeSummary(summary);
+  }
+}
+
+function isStrictChatgptRequired() {
+  const required = (process.env.CHATGPT_UI_REQUIRED || "").trim().toLowerCase() === "true";
+  const order = (process.env.LLM_PROVIDER_ORDER || "").toLowerCase();
+  return required && order.includes("chatgpt_ui");
 }
 
 function parseBatchSize() {
@@ -98,6 +113,7 @@ async function processQueue(
   context: ExecutorContext,
   summary: Summary,
   precomputed: BatchGenerationResult | null,
+  strictChatgpt: boolean,
 ) {
   for (const row of queue) {
     try {
@@ -118,7 +134,8 @@ async function processQueue(
         continue;
       }
 
-      const article = await publishArticle(context.blogHandle, context.author, data);
+      const imageBrief = await buildImageBrief(row.url_blog_crawl, data, context);
+      const article = await publishArticle(context.blogHandle, context.author, data, imageBrief);
       const handle = article?.article?.handle;
       if (!handle) throw new Error("Shopify response missing article handle");
       const shop = process.env.SHOPIFY_SHOP;
@@ -133,6 +150,9 @@ async function processQueue(
       summary.failed += 1;
       summary.errors.push({ url: row.url_blog_crawl, error: message });
       console.error(`Failed for ${row.url_blog_crawl}:`, message);
+      if (strictChatgpt && message.toLowerCase().includes("chatgpt_ui required")) {
+        throw new Error(message);
+      }
     }
   }
 }
@@ -173,6 +193,44 @@ async function getDraftForRow(
     throw new Error("Batch output missing for row");
   }
   return draft;
+}
+
+async function buildImageBrief(
+  sourceUrl: string,
+  data: Awaited<ReturnType<typeof callLLM>>,
+  context: ExecutorContext,
+): Promise<ImageBrief | undefined> {
+  const plainHtml = (data.html || "")
+    .replaceAll(/<[^>]+>/g, " ")
+    .replaceAll(/\s{2,}/g, " ")
+    .trim()
+    .slice(0, 1200);
+
+  const systemPrompt = [
+    "You are a senior visual editor for realistic editorial photography.",
+    "Return JSON only with schema: {\"prompt\": string, \"alt\": string}.",
+    "Prompt must be concrete, non-generic, and visually grounded in the article context.",
+    "Style: realistic documentary photo, natural light, no text overlay, no logos, no fantasy art.",
+  ].join(" ");
+
+  const userPrompt = [
+    `SOURCE_URL: ${sourceUrl}`,
+    `TITLE: ${data.title}`,
+    `SEO_TITLE: ${data.seo_title || ""}`,
+    `SUMMARY_TEXT: ${plainHtml}`,
+    "Create one realistic hero-image prompt and one concise descriptive alt text.",
+  ].join("\n");
+
+  try {
+    const brief = await withRetry(() => callStructuredLLM<ImageBrief>(systemPrompt, context.model, userPrompt));
+    if (!brief?.prompt?.trim() || !brief?.alt?.trim()) return undefined;
+    return {
+      prompt: brief.prompt.trim(),
+      alt: brief.alt.trim(),
+    };
+  } catch {
+    return undefined;
+  }
 }
 
 function asString(value: unknown, fallback: string): string {
