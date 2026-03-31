@@ -1,5 +1,5 @@
 name: Shopify Blog Executor
-run-name: Shopify Blog Executor (${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }})
+run-name: Shopify Blog Executor (${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.mode) || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish') || 'review' }})
 
 on:
   workflow_dispatch:
@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON != '' && fromJSON(vars.CHATGPT_UI_RUNNER_LABELS_JSON) || 'ubuntu-latest' }}
     permissions:
       contents: read
     steps:
@@ -69,8 +69,14 @@ jobs:
             echo "LLM_PROVIDER_ORDER=${{ vars.LLM_PROVIDER_ORDER || 'chatgpt_ui,gemini,github_models,openai' }}"
             echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'false' }}"
             echo "CHATGPT_UI_ENABLED=${{ vars.CHATGPT_UI_ENABLED || 'false' }}"
+            echo "CHATGPT_UI_REQUIRED=${{ vars.CHATGPT_UI_REQUIRED || 'true' }}"
             echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
             echo "CHATGPT_UI_MODEL_LABEL=${{ vars.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking' }}"
+            echo "CHATGPT_UI_STRICT_MODEL=${{ vars.CHATGPT_UI_STRICT_MODEL || 'true' }}"
+            echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
+            echo "CHATGPT_UI_NODE_SCRIPT=${{ vars.CHATGPT_UI_NODE_SCRIPT || 'ui-automation/scripts/chatgpt_ui.mjs' }}"
+            echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
+            echo "CHATGPT_UI_RUNNER_LABELS_JSON=${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON || '' }}"
             echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
             echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
             echo "CONFIG_FILE=${{ vars.CONFIG_FILE }}"
@@ -79,16 +85,22 @@ jobs:
             echo "LOCAL_HEARTBEAT_FILE=${{ vars.LOCAL_HEARTBEAT_FILE || 'local_heartbeat.json' }}"
             echo "LOCAL_HEARTBEAT_URL=${{ vars.LOCAL_HEARTBEAT_URL }}"
             echo "LOCAL_HEARTBEAT_MAX_AGE_MINUTES=${{ vars.LOCAL_HEARTBEAT_MAX_AGE_MINUTES || '15' }}"
+            echo "MIN_INLINE_IMAGES=${{ vars.MIN_INLINE_IMAGES || '3' }}"
+            echo "MIN_ARTICLE_WORDS=${{ vars.MIN_ARTICLE_WORDS || '1800' }}"
+            echo "MAX_ARTICLE_WORDS=${{ vars.MAX_ARTICLE_WORDS || '2500' }}"
+            echo "MIN_H2_COUNT=${{ vars.MIN_H2_COUNT || '6' }}"
+            echo "MIN_EXTERNAL_LINKS=${{ vars.MIN_EXTERNAL_LINKS || '5' }}"
+            echo "MIN_BLOCKQUOTES=${{ vars.MIN_BLOCKQUOTES || '2' }}"
             echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
             echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
-            echo "MODE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode != '' && github.event.inputs.mode || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish' || 'review') }}"
+            echo "MODE=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.mode) || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish') || 'review' }}"
             echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
           } >> "$GITHUB_ENV"
       - name: Export batch window
         run: |
-          echo "START_AT=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.start_at != '' && github.event.inputs.start_at || vars.START_AT || '1' }}" >> "$GITHUB_ENV"
-          echo "MAX_ITEMS=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.max_items != '' && github.event.inputs.max_items || vars.MAX_ITEMS || '1' }}" >> "$GITHUB_ENV"
+          echo "START_AT=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.start_at) || vars.START_AT || '1' }}" >> "$GITHUB_ENV"
+          echo "MAX_ITEMS=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.max_items) || vars.MAX_ITEMS || '1' }}" >> "$GITHUB_ENV"
       - name: Inject secrets
         run: |
           {
@@ -97,6 +109,7 @@ jobs:
             echo "GH_MODELS_API_KEY=${{ secrets.GH_MODELS_API_KEY }}"
             echo "GITHUB_MODELS_API_KEY=${{ secrets.GITHUB_MODELS_API_KEY }}"
             echo "CHATGPT_UI_BRIDGE_TOKEN=${{ secrets.CHATGPT_UI_BRIDGE_TOKEN }}"
+            echo "CHATGPT_UI_STORAGE_STATE_B64=${{ secrets.CHATGPT_UI_STORAGE_STATE_B64 }}"
             echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
             echo "GOOGLE_AI_STUDIO_API_KEY=${{ secrets.GOOGLE_AI_STUDIO_API_KEY }}"
             echo "FALLBACK_GEMINI_API_KEY=${{ secrets.FALLBACK_GEMINI_API_KEY }}"
@@ -114,6 +127,52 @@ jobs:
           } >> "$GITHUB_ENV"
       - name: Install dependencies
         run: npm ci
+      - name: Preflight ChatGPT UI auth readiness
+        if: env.CHATGPT_UI_ENABLED == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          bridge="${CHATGPT_UI_BRIDGE_URL:-}"
+          storage="${CHATGPT_UI_STORAGE_STATE_B64:-}"
+          strict="${CHATGPT_UI_REQUIRED:-false}"
+          runner_labels="${CHATGPT_UI_RUNNER_LABELS_JSON:-}"
+
+          if [ -z "$bridge" ] && [ -z "$storage" ]; then
+            echo "ERROR: CHATGPT_UI is enabled but neither CHATGPT_UI_BRIDGE_URL nor CHATGPT_UI_STORAGE_STATE_B64 is configured."
+            echo "Set a bridge URL/token OR set storage-state secret for direct UI automation."
+            exit 1
+          fi
+
+          # Direct UI mode on hosted runners is frequently blocked by anti-bot checks.
+          if [ -z "$bridge" ] && [ -z "$runner_labels" ]; then
+            echo "ERROR: Direct ChatGPT UI mode requires a dedicated self-hosted runner."
+            echo "Set vars.CHATGPT_UI_RUNNER_LABELS_JSON (for example: [\"self-hosted\",\"linux\",\"chatgpt-ui\"]) or configure CHATGPT_UI_BRIDGE_URL."
+            exit 1
+          fi
+
+          if [ "$strict" = "true" ] && [ -z "$bridge" ] && [ -z "$storage" ]; then
+            echo "ERROR: CHATGPT_UI_REQUIRED=true requires bridge or storage-state secret."
+            exit 1
+          fi
+
+      - name: Install Playwright Chromium (ChatGPT UI)
+        if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
+        continue-on-error: true
+        shell: bash
+        run: |
+          # Skip if Chromium is already installed
+          if npx playwright install --dry-run chromium 2>&1 | grep -q "already installed"; then
+            echo "Chromium already installed, skipping"
+            exit 0
+          fi
+          # Hide cnf-update-db (uses apt_pkg which breaks with setup-python)
+          sudo mv /usr/lib/cnf-update-db /usr/lib/cnf-update-db.bak 2>/dev/null || true
+          # Tell needrestart to list-only (don't restart services)
+          sudo mkdir -p /etc/needrestart/conf.d
+          echo '$nrconf{restart} = "l";' | sudo tee /etc/needrestart/conf.d/no-restart.conf >/dev/null 2>/dev/null || true
+          npx playwright install --with-deps chromium
+          sudo mv /usr/lib/cnf-update-db.bak /usr/lib/cnf-update-db 2>/dev/null || true
+          sudo rm -f /etc/needrestart/conf.d/no-restart.conf 2>/dev/null || true
       - name: Google creds -> file (for Sheets ADC)
         shell: bash
         env:
@@ -128,7 +187,11 @@ jobs:
             echo "SHEETS_ENABLED=false" >> $GITHUB_ENV
           fi
       - name: Build executor
-        run: npm run --workspace apps/executor build
+        env:
+          NODE_OPTIONS: --max-old-space-size=1024
+        run: |
+          rm -rf apps/executor/dist
+          npm run --workspace apps/executor build
       - name: Check local heartbeat
         run: |
           set -euo pipefail
