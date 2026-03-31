@@ -35,6 +35,12 @@ scripts/set_chatgpt_ui_repo_config.ps1
 scripts/monitor_self_hosted_smoke.ps1
 ```
 
+5. Failed backlog reprocess script (re-run old failed items by offset):
+
+```powershell
+scripts/reprocess_failed_backlog.ps1
+```
+
 ## 1) Provision a dedicated runner VM
 
 1. Create a Windows Server VM (Windows Server 2022/2025), 4 vCPU, 8 GB RAM minimum.
@@ -155,7 +161,21 @@ Pass criteria:
 3. Last run artifact has no `out/chatgpt-ui-debug` auth error report.
 4. If title becomes `Just a moment...`, refresh login state (repeat step 6 and 7).
 
-## 9) Recovery playbook
+## 9) Reprocess old failed articles
+
+After runner is healthy and smoke test passes, re-run old failed queue items in order:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/reprocess_failed_backlog.ps1 -StartAt 1 -Items 20
+```
+
+Notes:
+
+1. Script dispatches one workflow run per item (`max_items=1`) and increases `start_at` each loop.
+2. It reads `SUMMARY` from logs to aggregate `processed` and `failed` counts.
+3. It stops early if ChatGPT UI auth blocker appears again.
+
+## 10) Recovery playbook
 
 1. If preflight fails with dedicated runner error:
 - Re-check `CHATGPT_UI_RUNNER_LABELS_JSON` value and runner labels.
@@ -168,7 +188,7 @@ Pass criteria:
 - Move to bridge mode (`CHATGPT_UI_BRIDGE_URL`) from a trusted browser environment.
 - Keep strict mode enabled so fallback does not hide auth failures.
 
-## 10) Security guardrails
+## 11) Security guardrails
 
 1. Never commit storage state files.
 2. Rotate ChatGPT session state periodically.
