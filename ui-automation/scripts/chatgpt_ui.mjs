@@ -21,6 +21,55 @@ function writeErr(message) {
   process.stderr.write(`${String(message || '').trim()}\n`);
 }
 
+function ensureDir(dirPath) {
+  if (!dirPath) return '';
+  try {
+    fs.mkdirSync(dirPath, { recursive: true });
+    return dirPath;
+  } catch {
+    return '';
+  }
+}
+
+async function writeDebugArtifacts(page, details) {
+  const baseDir = String(process.env.CHATGPT_UI_DEBUG_DIR || 'out/chatgpt-ui-debug').trim();
+  if (!baseDir) return '';
+  const dir = ensureDir(baseDir);
+  if (!dir) return '';
+
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const prefix = path.join(dir, `chatgpt-ui-${stamp}`);
+  const reportPath = `${prefix}.json`;
+  const htmlPath = `${prefix}.html`;
+  const screenshotPath = `${prefix}.png`;
+
+  const report = {
+    ...details,
+    capturedAt: new Date().toISOString(),
+  };
+
+  try {
+    if (page) {
+      report.url = report.url || page.url();
+      report.title = report.title || (await page.title().catch(() => ''));
+      const html = await page.content().catch(() => '');
+      if (html) {
+        fs.writeFileSync(htmlPath, html, 'utf8');
+        report.htmlPath = htmlPath;
+      }
+      await page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => {});
+      if (fs.existsSync(screenshotPath)) {
+        report.screenshotPath = screenshotPath;
+      }
+    }
+  } catch {
+    // Ignore debug capture failures.
+  }
+
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
+  return reportPath;
+}
+
 function toBool(value, defaultValue = false) {
   const raw = String(value || '').trim().toLowerCase();
   if (!raw) return defaultValue;
@@ -227,20 +276,35 @@ async function main() {
 
   let resolvedStorageStatePath = '';
   let cleanupPath = '';
+  let storageStateSource = 'none';
+  let storageCookieCount = 0;
+  let storageOriginCount = 0;
 
   if (storageStatePath && fs.existsSync(storageStatePath)) {
     resolvedStorageStatePath = storageStatePath;
+    storageStateSource = 'path';
+    try {
+      const parsed = JSON.parse(fs.readFileSync(storageStatePath, 'utf8'));
+      const normalized = normalizeStorageState(parsed);
+      storageCookieCount = normalized.cookies.length;
+      storageOriginCount = normalized.origins.length;
+    } catch {
+      // Keep counters at zero.
+    }
   } else if (storageStateB64) {
     try {
       const decoded = decodeStorageStatePayload(storageStateB64);
       const parsed = JSON.parse(decoded);
       const normalized = normalizeStorageState(parsed);
+      storageStateSource = 'base64';
+      storageCookieCount = normalized.cookies.length;
+      storageOriginCount = normalized.origins.length;
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chatgpt-state-'));
       cleanupPath = tmpDir;
       resolvedStorageStatePath = path.join(tmpDir, 'storageState.json');
       fs.writeFileSync(resolvedStorageStatePath, JSON.stringify(normalized), 'utf8');
     } catch (error) {
-      writeErr(`CHATGPT_UI storage state parse failed: ${String(error?.message || error || 'unknown parse error')}`);
+      throw new Error(`CHATGPT_UI storage state parse failed: ${String(error?.message || error || 'unknown parse error')}`);
     }
   }
 
@@ -275,7 +339,24 @@ async function main() {
     try {
       await textbox.waitFor({ state: 'visible', timeout: 30000 });
     } catch {
-      writeErr('Not authenticated (no chat textbox). Provide CHATGPT_UI_STORAGE_STATE_B64.');
+      const reportPath = await writeDebugArtifacts(page, {
+        reason: 'no-chat-textbox',
+        storageStateSource,
+        storageCookieCount,
+        storageOriginCount,
+        modelLabel,
+        strictModel,
+        baseUrl,
+      });
+      const storageHint =
+        storageStateSource === 'none'
+          ? 'No storage state loaded.'
+          : `Storage loaded from ${storageStateSource} (cookies=${storageCookieCount}, origins=${storageOriginCount}).`;
+      const url = page.url();
+      const title = await page.title().catch(() => '');
+      writeErr(
+        `Not authenticated (no chat textbox). ${storageHint} Current page: ${url || '(unknown)'}${title ? ` | title=${title}` : ''}.${reportPath ? ` Debug report: ${reportPath}` : ''}`,
+      );
       process.exit(10);
     }
 
