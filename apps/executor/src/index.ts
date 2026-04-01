@@ -33,11 +33,16 @@ const RULES_SUFFIX = [
   "STRUCTURE: Include these H2 sections with exact kebab-case ids: key-conditions, background, framework, troubleshooting, expert-tips, faq, key-terms, sources. Minimum 6 H2 tags.",
   "DIRECT ANSWER: First 50-70 words must directly answer the query. Primary keyword within first 120 characters.",
   "CITATIONS: ≥5 external links to authoritative sources (.gov/.edu/journals). Every <a> must use absolute HTTPS and rel=\"nofollow noopener\".",
+  "SOURCES DEPTH: In the #sources section, include 8-12 source links total when possible, each with organization/site name and why it supports the claim.",
+  "EVIDENCE TOKENS: Include claim registry markers in the article body for key evidence, e.g. [EVID:STAT_1], [EVID:QUOTE_1]. Minimum: 3 stat tokens and 2 quote tokens.",
   "EXPERT QUOTES: ≥2 <blockquote> tags with real expert name + title + organization.",
   "STATISTICS: ≥3 quantified stats with named sources.",
   "FAQ SECTION: 5-7 <h3> questions under the #faq section, each answer 50-80 words.",
   "KEY TERMS: 5-8 terms defined under the #key-terms section, each wrapped in <dfn> or <dt>/<dd>.",
-  "IMAGES: ≥3 inline <img> inside html body, each with meaningful alt text (80-140 chars, literal description, no marketing). 1 featured image in images[0] with non-empty src and alt.",
+  "IMAGES HARD RULE: Exactly 3 inline <img> inside html body, each with meaningful alt text (80-140 chars, literal description, no marketing).",
+  "FEATURED IMAGE HARD RULE: Exactly 1 featured image in images[0] with non-empty src and alt. Do not return multiple featured images.",
+  "IMAGE PROMPT RULES: photorealistic, 50mm lens, f/2.8, ISO 200, 1/125s, natural window light, shallow depth of field, high resolution, ultra-detailed.",
+  "IMAGE BANS: no people, no hands, no faces, no logos, no text, no watermarks.",
   "BANNED: no sales CTAs (shop now/buy/add to cart/limited time), no clickbait, no keyword stuffing.",
   "VOICE: cozy-authority tone — practical, warm, sensory micro-moments. Avoid generic filler and repeated intro templates.",
   "Every claim/stat/quote MUST reference a fetched source. No-fetch-no-claim.",
@@ -57,6 +62,9 @@ const MIN_FAQ_QUESTIONS = Number(process.env.MIN_FAQ_QUESTIONS || "5");
 const MAX_FAQ_QUESTIONS = Number(process.env.MAX_FAQ_QUESTIONS || "7");
 const MIN_KEY_TERMS = Number(process.env.MIN_KEY_TERMS || "5");
 const MIN_AUTHORITATIVE_LINKS = Number(process.env.MIN_AUTHORITATIVE_LINKS || "3");
+const TARGET_FEATURED_IMAGES = 1;
+const MIN_EVID_STAT_TOKENS = Number(process.env.MIN_EVID_STAT_TOKENS || "3");
+const MIN_EVID_QUOTE_TOKENS = Number(process.env.MIN_EVID_QUOTE_TOKENS || "2");
 
 const AUTHORITATIVE_DOMAINS = [".gov", ".edu", "ncbi.nlm.nih", "sciencedirect", "nature.com", "wiley.com", "springer.com", "pubmed"];
 
@@ -218,6 +226,7 @@ async function processQueueRow(
   precomputed: BatchGenerationResult | null,
 ) {
   const data = await generateWithQualityRetry(row, context, precomputed);
+  data.images = normalizeFeaturedImages(data.images);
 
   // Generate LLM-directed image prompts, then inject into HTML
   const inlineBriefs = await generateInlineImageBriefs(data.html || "", data.title || "", context.model);
@@ -332,6 +341,9 @@ function buildCorrectionPrompt(
     "6. Key terms: 5-8 under <h2 id=\"key-terms\"> using <dfn> or <dt>/<dd>",
     "7. seo_title ≤ 60 chars, meta_desc ≤ 160 chars",
     "8. No banned CTAs (buy now/shop now/order today/limited time/add to cart)",
+    "9. Images hard rule: exactly 3 inline images in html body and exactly 1 featured image in images[0]",
+    "10. Add evidence markers: >=3 [EVID:STAT_n] and >=2 [EVID:QUOTE_n]",
+    "11. Strengthen #sources with authoritative links (.gov/.edu/journal) and clear relevance",
     "",
     `Previous title: ${previousData.title}`,
     "Generate a COMPLETE, LONG, DETAILED article. Return JSON only.",
@@ -341,6 +353,47 @@ function buildCorrectionPrompt(
 }
 
 const TARGET_INLINE_IMAGES = 3;
+
+function normalizeFeaturedImages(images: Array<{ src: string; alt?: string }> | undefined) {
+  if (!Array.isArray(images) || images.length === 0) return [];
+  const first = images[0];
+  return [
+    {
+      src: (first?.src || "").trim(),
+      alt: (first?.alt || "").trim(),
+    },
+  ];
+}
+
+function normalizeInlineBriefs(
+  briefs: Array<{ prompt: string; alt: string }>,
+  fallbackSections: string[],
+): Array<{ prompt: string; alt: string }> {
+  const base = briefs
+    .map((b) => ({
+      prompt: (b.prompt || "").trim(),
+      alt: (b.alt || "").trim().slice(0, 140),
+    }))
+    .filter((b) => b.prompt.length > 0 && b.alt.length > 0)
+    .slice(0, TARGET_INLINE_IMAGES);
+
+  let i = 0;
+  while (base.length < TARGET_INLINE_IMAGES) {
+    const section = fallbackSections[i % fallbackSections.length] || "article section";
+    base.push({
+      prompt: `${section}, realistic editorial photography, natural soft light, shallow depth-of-field`,
+      alt: `${section} - editorial photograph`.slice(0, 140),
+    });
+    i++;
+  }
+  return base;
+}
+
+function stripInlineImageTags(html: string): string {
+  return html
+    .replace(/<figure\b[^>]*>[\s\S]*?<img\b[^>]*>[\s\S]*?<\/figure>/gi, "")
+    .replace(/<img\b[^>]*>/gi, "");
+}
 
 function escapeHtmlAttr(s: string): string {
   return s.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -364,10 +417,13 @@ async function generateInlineImageBriefs(
     .map((m) => m[1].replaceAll(/<[^>]+>/g, "").trim())
     .filter((h) => h.length > 2);
 
-  const sections = headings.slice(1, TARGET_INLINE_IMAGES + 1); // skip first (intro)
-  if (sections.length === 0) sections.push(title);
+  const sections = headings.slice(1); // skip first (intro)
+  const targetSections = sections.length > 0 ? [...sections] : [title];
+  while (targetSections.length < TARGET_INLINE_IMAGES) {
+    targetSections.push(targetSections[targetSections.length - 1] || title);
+  }
 
-  const count = Math.min(TARGET_INLINE_IMAGES, sections.length);
+  const count = TARGET_INLINE_IMAGES;
 
   const systemPrompt = [
     "You are a senior visual editor for realistic editorial photography.",
@@ -383,7 +439,7 @@ async function generateInlineImageBriefs(
     `ARTICLE TITLE: ${title}`,
     "",
     "SECTIONS NEEDING IMAGES:",
-    ...sections.map((s, i) => `${i + 1}. ${s}`),
+    ...targetSections.slice(0, TARGET_INLINE_IMAGES).map((s, i) => `${i + 1}. ${s}`),
     "",
     `Generate ${count} realistic photo descriptions.`,
   ].join("\n");
@@ -393,21 +449,16 @@ async function generateInlineImageBriefs(
       callStructuredLLM<Array<{ prompt: string; alt: string }>>(systemPrompt, model, userPrompt),
     );
     if (Array.isArray(briefs) && briefs.length > 0) {
-      console.log(`[IMAGE_BRIEF] LLM generated ${briefs.length} image prompts`);
-      return briefs.map((b) => ({
-        prompt: (b.prompt || "").trim(),
-        alt: (b.alt || "").trim().slice(0, 140),
-      }));
+      const normalized = normalizeInlineBriefs(briefs, targetSections);
+      console.log(`[IMAGE_BRIEF] LLM generated ${briefs.length} prompts, normalized to ${normalized.length}`);
+      return normalized;
     }
   } catch (err) {
     console.warn("[IMAGE_BRIEF] LLM fallback:", err instanceof Error ? err.message : err);
   }
 
   // Fallback: keyword-based prompts
-  return sections.map((section) => ({
-    prompt: `${section}, realistic editorial photography, natural soft light, shallow depth-of-field`,
-    alt: `${section} — editorial photograph`.slice(0, 140),
-  }));
+  return normalizeInlineBriefs([], targetSections);
 }
 
 /**
@@ -418,17 +469,15 @@ function injectInlineImages(
   html: string,
   briefs: Array<{ prompt: string; alt: string }>,
 ): string {
-  const existingImgs = (html.match(/<img\b[^>]*>/gi) || []).length;
-  if (existingImgs >= TARGET_INLINE_IMAGES) return html;
-
-  const needed = Math.min(TARGET_INLINE_IMAGES - existingImgs, briefs.length);
-  if (needed <= 0) return html;
+  const cleanedHtml = stripInlineImageTags(html);
+  const normalizedBriefs = normalizeInlineBriefs(briefs, ["article section"]);
+  const needed = TARGET_INLINE_IMAGES;
 
   // Find insertion points: after closing </p> of each <h2> section
   const h2Positions: number[] = [];
   const h2Regex = /<\/h2>\s*<p\b[^>]*>[\s\S]*?<\/p>/gi;
   let match: RegExpExecArray | null;
-  while ((match = h2Regex.exec(html)) !== null) {
+  while ((match = h2Regex.exec(cleanedHtml)) !== null) {
     h2Positions.push(match.index + match[0].length);
   }
 
@@ -442,10 +491,10 @@ function injectInlineImages(
   // then apply in reverse to preserve string positions
   const specs: Array<{ pos: number; brief: { prompt: string; alt: string } }> = [];
   for (let i = 0; i < insertions.length && i < needed; i++) {
-    specs.push({ pos: insertions[i], brief: briefs[i] });
+    specs.push({ pos: insertions[i], brief: normalizedBriefs[i] });
   }
 
-  let result = html;
+  let result = cleanedHtml;
   let injected = 0;
   for (let i = specs.length - 1; i >= 0; i--) {
     const { pos, brief } = specs[i];
@@ -458,7 +507,7 @@ function injectInlineImages(
 
   // Append remaining if insertion positions insufficient
   for (let i = injected; i < needed; i++) {
-    const brief = briefs[i];
+    const brief = normalizedBriefs[i];
     const encodedPrompt = encodeURIComponent(brief.prompt);
     const safeAlt = escapeHtmlAttr(brief.alt);
     const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=450&nologo=true" alt="${safeAlt}" loading="lazy" width="800" height="450"><figcaption>${escapeHtml(brief.alt)}</figcaption></figure>\n`;
@@ -466,7 +515,7 @@ function injectInlineImages(
     injected++;
   }
 
-  console.log(`[IMAGE_INJECT] Injected ${injected} inline images via Pollinations (LLM-directed)`);
+  console.log(`[IMAGE_INJECT] Enforced ${injected}/${TARGET_INLINE_IMAGES} inline images via Pollinations (LLM-directed)`);
   return result;
 }
 
@@ -496,7 +545,11 @@ function collectDraftQualityErrors(data: Awaited<ReturnType<typeof callLLM>>): s
     () => checkTitleAndMetaLengths(data),
     () => checkStructureRequirements(html),
     () => checkLinkRequirements(html),
+    () => checkSourcesSectionRequirements(html),
+    () => checkEvidenceRegistryTokens(html),
     () => checkAuthoritativeSources(html),
+    () => checkInlineImageRequirements(html),
+    () => checkFeaturedImageRequirement(data),
     () => checkLengthAndQuoteRequirements(html),
     () => checkFaqSection(html),
     () => checkKeyTermsSection(html),
@@ -561,13 +614,35 @@ function checkLinkRequirements(html: string) {
 
 function checkInlineImageRequirements(html: string) {
   const imgTags = html.match(/<img\b[^>]*>/gi) || [];
-  if (imgTags.length < MIN_INLINE_IMAGES) {
-    throw new Error(`QUALITY_GUARD: inline images too low (${imgTags.length}/${MIN_INLINE_IMAGES})`);
+  if (imgTags.length !== TARGET_INLINE_IMAGES) {
+    throw new Error(`QUALITY_GUARD: inline images must be exactly ${TARGET_INLINE_IMAGES} (got ${imgTags.length})`);
   }
 
   const missingAlt = imgTags.filter((tag) => !/\balt\s*=\s*"[^"\n]*\S[^"\n]*"/i.test(tag));
   if (missingAlt.length > 0) {
     throw new Error(`QUALITY_GUARD: inline image alt missing (${missingAlt.length})`);
+  }
+}
+
+function checkSourcesSectionRequirements(html: string) {
+  const sourcesMatch = html.match(/<h2\b[^>]*id\s*=\s*"sources"[^>]*>[\s\S]*?(?=<h2\b|$)/i);
+  if (!sourcesMatch) {
+    throw new Error("QUALITY_GUARD: missing #sources section body");
+  }
+  const sourceLinks = (sourcesMatch[0].match(/<a\b[^>]*href\s*=\s*"https:\/\//gi) || []).length;
+  if (sourceLinks < MIN_EXTERNAL_LINKS) {
+    throw new Error(`QUALITY_GUARD: #sources links too low (${sourceLinks}/${MIN_EXTERNAL_LINKS})`);
+  }
+}
+
+function checkEvidenceRegistryTokens(html: string) {
+  const statTokens = (html.match(/\[EVID:STAT_\d+\]/g) || []).length;
+  const quoteTokens = (html.match(/\[EVID:QUOTE_\d+\]/g) || []).length;
+  if (statTokens < MIN_EVID_STAT_TOKENS) {
+    throw new Error(`QUALITY_GUARD: stat evidence tokens too low (${statTokens}/${MIN_EVID_STAT_TOKENS})`);
+  }
+  if (quoteTokens < MIN_EVID_QUOTE_TOKENS) {
+    throw new Error(`QUALITY_GUARD: quote evidence tokens too low (${quoteTokens}/${MIN_EVID_QUOTE_TOKENS})`);
   }
 }
 
@@ -654,6 +729,10 @@ function checkBannedCtas(htmlLower: string) {
 }
 
 function checkFeaturedImageRequirement(data: Awaited<ReturnType<typeof callLLM>>) {
+  const imageCount = Array.isArray(data.images) ? data.images.length : 0;
+  if (imageCount !== TARGET_FEATURED_IMAGES) {
+    throw new Error(`QUALITY_GUARD: featured images must be exactly ${TARGET_FEATURED_IMAGES} (got ${imageCount})`);
+  }
   const featured = Array.isArray(data.images) ? data.images[0] : undefined;
   const featuredSrc = featured?.src?.trim();
   const featuredAlt = featured?.alt?.trim();
