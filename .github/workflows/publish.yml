@@ -125,6 +125,9 @@ jobs:
             echo "CHATGPT_UI_ENABLED=false"
             echo "CHATGPT_UI_REQUIRED=false"
             echo "LLM_CONTROL_PROMPT=Write a comprehensive article for {{URL_BLOG}} and return JSON only"
+            echo "TITLE_MAX_LENGTH=100"
+            echo "MIN_EVID_STAT_TOKENS=2"
+            echo "MIN_EVID_QUOTE_TOKENS=1"
           } >> "$GITHUB_ENV"
           echo "Manual topic queue prepared: $MANUAL_TOPIC"
       - name: Inject secrets
