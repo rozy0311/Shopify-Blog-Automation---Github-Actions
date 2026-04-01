@@ -395,6 +395,31 @@ function stripInlineImageTags(html: string): string {
     .replace(/<img\b[^>]*>/gi, "");
 }
 
+function extractExistingInlineImageTags(html: string): string[] {
+  const results: string[] = [];
+  const seen = new Set<string>();
+
+  const figureMatches = html.match(/<figure\b[^>]*>[\s\S]*?<img\b[^>]*>[\s\S]*?<\/figure>/gi) || [];
+  for (const tag of figureMatches) {
+    const trimmed = tag.trim();
+    if (trimmed && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      results.push(trimmed);
+    }
+  }
+
+  const imgMatches = html.match(/<img\b[^>]*>/gi) || [];
+  for (const tag of imgMatches) {
+    const trimmed = tag.trim();
+    if (trimmed && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      results.push(`<figure>${trimmed}</figure>`);
+    }
+  }
+
+  return results;
+}
+
 function escapeHtmlAttr(s: string): string {
   return s.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
@@ -469,53 +494,76 @@ function injectInlineImages(
   html: string,
   briefs: Array<{ prompt: string; alt: string }>,
 ): string {
+  const preferExisting = (process.env.PREFER_EXISTING_INLINE_IMAGES || "true").toLowerCase() !== "false";
+  const existingInline = preferExisting ? extractExistingInlineImageTags(html).slice(0, TARGET_INLINE_IMAGES) : [];
   const cleanedHtml = stripInlineImageTags(html);
   const normalizedBriefs = normalizeInlineBriefs(briefs, ["article section"]);
   const needed = TARGET_INLINE_IMAGES;
 
-  // Find insertion points: after closing </p> of each <h2> section
-  const h2Positions: number[] = [];
-  const h2Regex = /<\/h2>\s*<p\b[^>]*>[\s\S]*?<\/p>/gi;
-  let match: RegExpExecArray | null;
-  while ((match = h2Regex.exec(cleanedHtml)) !== null) {
-    h2Positions.push(match.index + match[0].length);
+  const imageTags: string[] = [];
+  for (const tag of existingInline) {
+    imageTags.push(tag);
   }
 
-  // Skip first h2 (usually intro)
-  const insertions = h2Positions.slice(1, needed + 1);
-  if (insertions.length === 0 && h2Positions.length > 0) {
-    insertions.push(h2Positions[0]);
-  }
-
-  // Build specs in forward order (brief[i] matches insertion[i]),
-  // then apply in reverse to preserve string positions
-  const specs: Array<{ pos: number; brief: { prompt: string; alt: string } }> = [];
-  for (let i = 0; i < insertions.length && i < needed; i++) {
-    specs.push({ pos: insertions[i], brief: normalizedBriefs[i] });
-  }
-
-  let result = cleanedHtml;
-  let injected = 0;
-  for (let i = specs.length - 1; i >= 0; i--) {
-    const { pos, brief } = specs[i];
-    const encodedPrompt = encodeURIComponent(brief.prompt);
-    const safeAlt = escapeHtmlAttr(brief.alt);
-    const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=450&nologo=true" alt="${safeAlt}" loading="lazy" width="800" height="450"><figcaption>${escapeHtml(brief.alt)}</figcaption></figure>\n`;
-    result = result.slice(0, pos) + imgTag + result.slice(pos);
-    injected++;
-  }
-
-  // Append remaining if insertion positions insufficient
-  for (let i = injected; i < needed; i++) {
+  for (let i = imageTags.length; i < needed; i++) {
     const brief = normalizedBriefs[i];
     const encodedPrompt = encodeURIComponent(brief.prompt);
     const safeAlt = escapeHtmlAttr(brief.alt);
-    const imgTag = `\n<figure><img src="https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=450&nologo=true" alt="${safeAlt}" loading="lazy" width="800" height="450"><figcaption>${escapeHtml(brief.alt)}</figcaption></figure>\n`;
-    result += imgTag;
-    injected++;
+    imageTags.push(
+      `<figure><img src="https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=450&nologo=true" alt="${safeAlt}" loading="lazy" width="800" height="450"><figcaption>${escapeHtml(brief.alt)}</figcaption></figure>`,
+    );
   }
 
-  console.log(`[IMAGE_INJECT] Enforced ${injected}/${TARGET_INLINE_IMAGES} inline images via Pollinations (LLM-directed)`);
+  // Prefer natural interleaving after paragraph closes at ~22%, ~52%, ~80% of article depth.
+  const parts = cleanedHtml.split(/(<\/p>)/i);
+  const paragraphCloseIndexes: number[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    if (/^<\/p>$/i.test(parts[i])) paragraphCloseIndexes.push(i);
+  }
+
+  if (paragraphCloseIndexes.length === 0) {
+    const result = `${cleanedHtml}\n${imageTags.join("\n")}\n`;
+    console.log(
+      `[IMAGE_INJECT] Enforced ${imageTags.length}/${TARGET_INLINE_IMAGES} inline images (existing=${existingInline.length}, fallback=${Math.max(0, imageTags.length - existingInline.length)})`,
+    );
+    return result;
+  }
+
+  const targetInsertions = [0.22, 0.52, 0.8].map((ratio) =>
+    paragraphCloseIndexes[
+      Math.min(paragraphCloseIndexes.length - 1, Math.floor(paragraphCloseIndexes.length * ratio))
+    ],
+  );
+
+  const uniqueInsertions: number[] = [];
+  for (const insertion of targetInsertions) {
+    if (!uniqueInsertions.includes(insertion)) uniqueInsertions.push(insertion);
+  }
+
+  let backfill = paragraphCloseIndexes.length - 1;
+  while (uniqueInsertions.length < needed && backfill >= 0) {
+    const candidate = paragraphCloseIndexes[backfill];
+    if (!uniqueInsertions.includes(candidate)) uniqueInsertions.push(candidate);
+    backfill--;
+  }
+
+  const insertionMap = new Map<number, string>();
+  for (let i = 0; i < needed && i < uniqueInsertions.length; i++) {
+    insertionMap.set(uniqueInsertions[i], `\n${imageTags[i]}\n`);
+  }
+
+  const rebuilt: string[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    rebuilt.push(parts[i]);
+    if (insertionMap.has(i)) {
+      rebuilt.push(insertionMap.get(i) as string);
+    }
+  }
+
+  const result = rebuilt.join("");
+  console.log(
+    `[IMAGE_INJECT] Enforced ${imageTags.length}/${TARGET_INLINE_IMAGES} inline images (existing=${existingInline.length}, fallback=${Math.max(0, imageTags.length - existingInline.length)})`,
+  );
   return result;
 }
 

@@ -81,6 +81,7 @@ jobs:
             echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
             echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
             echo "CHATGPT_UI_RUNNER_LABELS_JSON=${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON || '' }}"
+            echo "PREFER_EXISTING_INLINE_IMAGES=${{ vars.PREFER_EXISTING_INLINE_IMAGES || 'true' }}"
           } >> "$GITHUB_ENV"
 
       - name: Inject secrets
@@ -193,6 +194,7 @@ jobs:
           MIN_INLINE_IMAGES: ${{ vars.MIN_INLINE_IMAGES || '3' }}
           MIN_ARTICLE_WORDS: ${{ vars.MIN_ARTICLE_WORDS || '1400' }}
           MAX_ARTICLE_WORDS: ${{ vars.MAX_ARTICLE_WORDS || '2500' }}
+          PREFER_EXISTING_INLINE_IMAGES: ${{ vars.PREFER_EXISTING_INLINE_IMAGES || 'true' }}
         run: |
           set -euo pipefail
           # Read queue length from discover output

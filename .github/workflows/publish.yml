@@ -91,6 +91,7 @@ jobs:
             echo "MIN_H2_COUNT=${{ vars.MIN_H2_COUNT || '6' }}"
             echo "MIN_EXTERNAL_LINKS=${{ vars.MIN_EXTERNAL_LINKS || '5' }}"
             echo "MIN_BLOCKQUOTES=${{ vars.MIN_BLOCKQUOTES || '2' }}"
+            echo "PREFER_EXISTING_INLINE_IMAGES=${{ vars.PREFER_EXISTING_INLINE_IMAGES || 'true' }}"
             echo "DAILY_PUBLISH_CAP=${{ vars.DAILY_PUBLISH_CAP || '50' }}"
             echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
             echo "WF_ENABLED=${{ vars.WF_ENABLED }}"
