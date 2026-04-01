@@ -1,70 +1,70 @@
 name: Refresh ChatGPT UI Session (Runner IP)
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 
 permissions:
-    contents: read
+  contents: read
 
 jobs:
-    refresh:
-        runs-on: ${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON != '' && fromJSON(vars.CHATGPT_UI_RUNNER_LABELS_JSON) || 'ubuntu-latest' }}
-        timeout-minutes: 25
+  refresh:
+    runs-on: ${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON != '' && fromJSON(vars.CHATGPT_UI_RUNNER_LABELS_JSON) || 'ubuntu-latest' }}
+    timeout-minutes: 25
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Setup Node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-            - name: Export config
-              shell: bash
-              run: |
-                  {
-                    echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
-                  } >> "$GITHUB_ENV"
+      - name: Export config
+        shell: bash
+        run: |
+          {
+            echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
+          } >> "$GITHUB_ENV"
 
-            - name: Inject secret
-              shell: bash
-              run: |
-                  {
-                    echo "CHATGPT_UI_STORAGE_STATE_B64=${{ secrets.CHATGPT_UI_STORAGE_STATE_B64 }}"
-                  } >> "$GITHUB_ENV"
+      - name: Inject secret
+        shell: bash
+        run: |
+          {
+            echo "CHATGPT_UI_STORAGE_STATE_B64=${{ secrets.CHATGPT_UI_STORAGE_STATE_B64 }}"
+          } >> "$GITHUB_ENV"
 
-            - name: Install deps
-              run: npm ci
+      - name: Install deps
+        run: npm ci
 
-            - name: Install Playwright Chromium
-              shell: bash
-              run: |
-                  if npx playwright install --dry-run chromium 2>&1 | grep -q "already installed"; then
-                    echo "Chromium already installed, skipping"
-                    exit 0
-                  fi
-                  sudo mv /usr/lib/cnf-update-db /usr/lib/cnf-update-db.bak 2>/dev/null || true
-                  sudo mkdir -p /etc/needrestart/conf.d
-                  echo '$nrconf{restart} = "l";' | sudo tee /etc/needrestart/conf.d/no-restart.conf >/dev/null 2>/dev/null || true
-                  npx playwright install --with-deps chromium
+      - name: Install Playwright Chromium
+        shell: bash
+        run: |
+          if npx playwright install --dry-run chromium 2>&1 | grep -q "already installed"; then
+            echo "Chromium already installed, skipping"
+            exit 0
+          fi
+          sudo mv /usr/lib/cnf-update-db /usr/lib/cnf-update-db.bak 2>/dev/null || true
+          sudo mkdir -p /etc/needrestart/conf.d
+          echo '$nrconf{restart} = "l";' | sudo tee /etc/needrestart/conf.d/no-restart.conf >/dev/null 2>/dev/null || true
+          npx playwright install --with-deps chromium
 
-            - name: Refresh storage state on runner IP
-              shell: bash
-              run: |
-                  xvfb-run -a node ui-automation/scripts/chatgpt_refresh_storage_state.mjs
+      - name: Refresh storage state on runner IP
+        shell: bash
+        run: |
+          xvfb-run -a node ui-automation/scripts/chatgpt_refresh_storage_state.mjs
 
-            - name: Debug refreshed files
-              shell: bash
-              run: |
-                ls -la .chatgpt-storageState.runner.json* || true
+      - name: Debug refreshed files
+        shell: bash
+        run: |
+          ls -la .chatgpt-storageState.runner.json* || true
 
-            - name: Upload refreshed storage artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: chatgpt-refresh-storage
-                  if-no-files-found: error
-                  include-hidden-files: true
-                  path: |
-                      .chatgpt-storageState.runner.json
-                      .chatgpt-storageState.runner.json.b64.txt
+      - name: Upload refreshed storage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chatgpt-refresh-storage
+          if-no-files-found: error
+          include-hidden-files: true
+          path: |
+            .chatgpt-storageState.runner.json
+            .chatgpt-storageState.runner.json.b64.txt
