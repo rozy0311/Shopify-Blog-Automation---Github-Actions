@@ -27,11 +27,6 @@ on:
         required: false
         default: Manual dispatch
         type: string
-      manual_topic:
-        description: "Optional: force one publish topic (bypass Sheets queue)"
-        required: false
-        default: ""
-        type: string
   schedule:
     - cron: "*/10 * * * *" # every 10 minutes (UTC)
 
@@ -101,35 +96,11 @@ jobs:
             echo "ALLOW_PUBLISH=${{ vars.ALLOW_PUBLISH }}"
             echo "MODE=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.mode) || (vars.WF_ENABLED == 'true' && vars.ALLOW_PUBLISH == 'human_enabled' && 'publish') || 'review' }}"
             echo "DISPATCH_REASON=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.reason || format('auto run {0}', github.run_id) }}"
-            echo "MANUAL_TOPIC=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.manual_topic || '' }}"
           } >> "$GITHUB_ENV"
       - name: Export batch window
         run: |
           echo "START_AT=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.start_at) || vars.START_AT || '1' }}" >> "$GITHUB_ENV"
           echo "MAX_ITEMS=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.max_items) || vars.MAX_ITEMS || '1' }}" >> "$GITHUB_ENV"
-
-      - name: Prepare manual topic queue (optional)
-        if: env.MANUAL_TOPIC != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p out
-          node -e "const fs=require('fs'); const t=(process.env.MANUAL_TOPIC||'').trim(); if(!t){process.exit(0)}; const payload=[{url_blog_crawl:'topic://'+t,url_blog_shopify:''}]; fs.writeFileSync('out/manual-queue.json', JSON.stringify(payload, null, 2));"
-          {
-            echo "QUEUE_FILE=out/manual-queue.json"
-            echo "LOCAL_ONLY=true"
-            echo "SHEETS_ENABLED=false"
-            echo "START_AT=1"
-            echo "MAX_ITEMS=1"
-            echo "LLM_PROVIDER_ORDER=openai,github_models,gemini"
-            echo "CHATGPT_UI_ENABLED=false"
-            echo "CHATGPT_UI_REQUIRED=false"
-            echo "LLM_CONTROL_PROMPT=Write a comprehensive article for {{URL_BLOG}} and return JSON only"
-            echo "TITLE_MAX_LENGTH=100"
-            echo "MIN_EVID_STAT_TOKENS=2"
-            echo "MIN_EVID_QUOTE_TOKENS=1"
-          } >> "$GITHUB_ENV"
-          echo "Manual topic queue prepared: $MANUAL_TOPIC"
       - name: Inject secrets
         run: |
           {
