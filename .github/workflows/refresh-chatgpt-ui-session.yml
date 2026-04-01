@@ -54,11 +54,17 @@ jobs:
               run: |
                   xvfb-run -a node ui-automation/scripts/chatgpt_refresh_storage_state.mjs
 
+            - name: Debug refreshed files
+              shell: bash
+              run: |
+                ls -la .chatgpt-storageState.runner.json* || true
+
             - name: Upload refreshed storage artifact
               uses: actions/upload-artifact@v4
               with:
                   name: chatgpt-refresh-storage
                   if-no-files-found: error
+                include-hidden-files: true
                   path: |
                       .chatgpt-storageState.runner.json
                       .chatgpt-storageState.runner.json.b64.txt
