@@ -298,7 +298,7 @@ jobs:
             };
 
             main().catch((error) => fail(error instanceof Error ? error.message : String(error)));
-NODE
+            NODE
           }
 
           total=${MAX_ITEMS:-1}
