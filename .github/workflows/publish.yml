@@ -124,6 +124,7 @@ jobs:
             echo "LLM_PROVIDER_ORDER=openai,github_models,gemini"
             echo "CHATGPT_UI_ENABLED=false"
             echo "CHATGPT_UI_REQUIRED=false"
+            echo "LLM_CONTROL_PROMPT=Write a comprehensive article for {{URL_BLOG}} and return JSON only"
           } >> "$GITHUB_ENV"
           echo "Manual topic queue prepared: $MANUAL_TOPIC"
       - name: Inject secrets
