@@ -64,7 +64,7 @@ jobs:
               with:
                   name: chatgpt-refresh-storage
                   if-no-files-found: error
-                include-hidden-files: true
+                  include-hidden-files: true
                   path: |
                       .chatgpt-storageState.runner.json
                       .chatgpt-storageState.runner.json.b64.txt
