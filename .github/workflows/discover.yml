@@ -194,6 +194,7 @@ jobs:
           ALLOW_PUBLISH: "human_enabled"
           MAX_ITEMS: "50"
           START_AT: "1"
+          DISCOVER_PUBLISH_MAX_ITEMS: ${{ vars.DISCOVER_PUBLISH_MAX_ITEMS || '1' }}
           MIN_INLINE_IMAGES: ${{ vars.MIN_INLINE_IMAGES || '3' }}
           MIN_ARTICLE_WORDS: ${{ vars.MIN_ARTICLE_WORDS || '1400' }}
           MAX_ARTICLE_WORDS: ${{ vars.MAX_ARTICLE_WORDS || '2500' }}
@@ -210,7 +211,13 @@ jobs:
             echo "Discover queue is empty — nothing to publish."
             exit 0
           fi
-          echo "Publishing $total discovered topics..."
+          cap=${DISCOVER_PUBLISH_MAX_ITEMS:-1}
+          if ! [[ "$cap" =~ ^[0-9]+$ ]]; then cap=1; fi
+          if [ "$cap" -lt 1 ]; then cap=1; fi
+          if [ "$total" -gt "$cap" ]; then
+            total=$cap
+          fi
+          echo "Publishing $total discovered topics (cap=${cap})..."
           i=0
           while [ $i -lt $total ]; do
             export START_AT=$((i + 1))
