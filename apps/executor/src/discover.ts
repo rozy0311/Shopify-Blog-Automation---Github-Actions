@@ -57,6 +57,36 @@ interface NicheIdea {
   intentReason?: string;
 }
 
+function dedupeProductsByCommonName(products: Product[]): Product[] {
+  const seen = new Set<string>();
+  const output: Product[] = [];
+  for (const product of products) {
+    const key = product.commonName.toLowerCase().trim();
+    if (!key) continue;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    output.push(product);
+  }
+  return output;
+}
+
+function hashString(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+function computeDynamicRotationStart(total: number): number {
+  if (total <= 0) return 0;
+  const runId = String(process.env.GITHUB_RUN_ID || "").trim();
+  const runAttempt = String(process.env.GITHUB_RUN_ATTEMPT || "").trim();
+  const hourKey = new Date().toISOString().slice(0, 13); // UTC hour bucket
+  const seed = `${hourKey}|${runId}|${runAttempt}|${COLLECTION_HANDLE}`;
+  return hashString(seed) % total;
+}
+
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -447,11 +477,29 @@ async function main() {
     return;
   }
 
+  const uniqueProducts = dedupeProductsByCommonName(products);
+  if (uniqueProducts.length === 0) {
+    console.error("[DISCOVER] No unique products after dedupe, aborting");
+    process.exitCode = 1;
+    return;
+  }
+
+  if (uniqueProducts.length !== products.length) {
+    console.log(`[DISCOVER] Product dedupe by commonName: ${products.length} -> ${uniqueProducts.length}`);
+  }
+
   // 2. Load rotation state
   const state = await loadRotationState();
 
+  // In CI runs, rotation file is often ephemeral. Seed a run-specific start offset
+  // when there is no persistent history to avoid repeatedly picking the first products.
+  if (state.lastIndex === 0 && (!Array.isArray(state.publishedTopics) || state.publishedTopics.length === 0)) {
+    state.lastIndex = computeDynamicRotationStart(uniqueProducts.length);
+    console.log(`[DISCOVER] Rotation cold-start offset: ${state.lastIndex}/${uniqueProducts.length}`);
+  }
+
   // 3. Pick next products from rotation
-  const picked = pickNextProducts(products, state, PRODUCTS_PER_RUN);
+  const picked = pickNextProducts(uniqueProducts, state, PRODUCTS_PER_RUN);
   console.log(`[DISCOVER] Selected products: ${picked.map((p) => p.commonName).join(", ")}`);
 
   // 4. Generate niche ideas for each product
