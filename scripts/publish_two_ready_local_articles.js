@@ -12,11 +12,12 @@ const apiBase = `https://${shop}.myshopify.com/admin/api/2023-10`;
 
 const blogHandle = "sustainable-living";
 const author = "The Rike";
-
-const folders = [
-  "bitter-melon-cool-season-strategies-in-mild-coastal-areas-zones-8-9",
-  "bitter-melon-troubleshooting-yellow-leaves-blossom-drop-and-bitter-off-flavors",
-];
+const contentRoot = path.join("pplx-ui-batch", "out", "content");
+const publishCount = Number(process.env.PUBLISH_READY_COUNT || "2");
+const manualFolders = (process.env.PUBLISH_READY_FOLDERS || "")
+  .split(",")
+  .map((v) => v.trim())
+  .filter(Boolean);
 
 async function jfetch(url, opt = {}) {
   const response = await fetch(url, {
@@ -45,6 +46,57 @@ function readArticle(dir) {
   const i = raw.indexOf("<article");
   const html = i >= 0 ? raw.slice(i).trim() : raw.trim();
   return { title, html };
+}
+
+function productKeyFromFolder(folderName) {
+  const clean = folderName.replace(/^\d+-/, "");
+  const parts = clean.split("-").filter(Boolean);
+  return parts.slice(0, 2).join("-") || clean;
+}
+
+function hasRequiredFiles(dir) {
+  const hasArticle = fs.existsSync(path.join(dir, "article.md")) || fs.existsSync(path.join(dir, "article.clipboard.txt"));
+  const hasInline = fs.existsSync(path.join(dir, "inline-1.png"));
+  return hasArticle && hasInline;
+}
+
+function selectFolders() {
+  if (manualFolders.length > 0) {
+    return manualFolders.slice(0, Math.max(1, publishCount));
+  }
+
+  if (!fs.existsSync(contentRoot)) {
+    return [];
+  }
+
+  const all = fs
+    .readdirSync(contentRoot, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+    .filter((name) => hasRequiredFiles(path.join(contentRoot, name)))
+    .sort((a, b) => {
+      const at = fs.statSync(path.join(contentRoot, a)).mtimeMs;
+      const bt = fs.statSync(path.join(contentRoot, b)).mtimeMs;
+      return bt - at;
+    });
+
+  const chosen = [];
+  const seen = new Set();
+
+  for (const name of all) {
+    const key = productKeyFromFolder(name);
+    if (seen.has(key)) continue;
+    chosen.push(name);
+    seen.add(key);
+    if (chosen.length >= Math.max(1, publishCount)) break;
+  }
+
+  for (const name of all) {
+    if (chosen.length >= Math.max(1, publishCount)) break;
+    if (!chosen.includes(name)) chosen.push(name);
+  }
+
+  return chosen;
 }
 
 function stripInlineImages(html) {
@@ -79,6 +131,11 @@ function interleaveByParagraph(html, imageTags) {
 async function main() {
   if (!shop || !token) throw new Error("Missing SHOPIFY_SHOP or SHOPIFY_TOKEN");
 
+  const folders = selectFolders();
+  if (folders.length === 0) {
+    throw new Error("No ready content folders found (need article + inline-1.png)");
+  }
+
   const blogs = await jfetch(`${apiBase}/blogs.json`);
   const blog = (blogs.blogs || []).find((b) => b.handle === blogHandle) || blogs.blogs?.[0];
   if (!blog) throw new Error("No blog found");
@@ -90,7 +147,7 @@ async function main() {
   const results = [];
 
   for (const folder of folders) {
-    const dir = path.join("pplx-ui-batch", "out", "content", folder);
+    const dir = path.join(contentRoot, folder);
     const { title, html } = readArticle(dir);
 
     const created = await jfetch(`${apiBase}/blogs/${blog.id}/articles.json`, {
