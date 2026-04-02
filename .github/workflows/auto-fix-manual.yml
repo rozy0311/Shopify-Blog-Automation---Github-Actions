@@ -9,7 +9,7 @@ on:
                 default: ""
 
 concurrency:
-    group: auto-fix-manual
+    group: chatgpt-ui-account
     cancel-in-progress: false
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
         permissions:
             contents: write
         env:
-            CHATGPT_UI_ENABLED: "false"
+            CHATGPT_UI_ENABLED: "true"
             CHATGPT_UI_REQUIRED: "false"
             SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
             SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
@@ -109,19 +109,19 @@ jobs:
 
             - name: Verify vision review enabled
               run: |
-                                    if [ "${VISION_REVIEW:-0}" = "1" ] \
-                                        && [ -z "${VISION_API_KEY:-}" ] \
-                                        && [ -z "${GOOGLE_AI_STUDIO_API_KEY:-}" ] \
-                                        && [ -z "${GEMINI_API_KEY:-}" ] \
-                                        && [ -z "${FALLBACK_GEMINI_API_KEY:-}" ] \
-                                        && [ -z "${SECOND_FALLBACK_GEMINI_API_KEY:-}" ] \
-                                        && [ -z "${THIRD_FALLBACK_GEMINI_API_KEY:-}" ] \
-                                        && [ -z "${FOURTH_FALLBACK_GEMINI_API_KEY:-}" ] \
-                                        && [ -z "${FIFTH_FALLBACK_GEMINI_API_KEY:-}" ] \
-                                        && [ -z "${SIXTH_FALLBACK_GEMINI_API_KEY:-}" ]; then
-                                            echo "Missing VISION_API_KEY or any GEMINI API key; vision review is required."
-                                            exit 1
-                                    fi
+                  if [ "${VISION_REVIEW:-0}" = "1" ] \
+                      && [ -z "${VISION_API_KEY:-}" ] \
+                      && [ -z "${GOOGLE_AI_STUDIO_API_KEY:-}" ] \
+                      && [ -z "${GEMINI_API_KEY:-}" ] \
+                      && [ -z "${FALLBACK_GEMINI_API_KEY:-}" ] \
+                      && [ -z "${SECOND_FALLBACK_GEMINI_API_KEY:-}" ] \
+                      && [ -z "${THIRD_FALLBACK_GEMINI_API_KEY:-}" ] \
+                      && [ -z "${FOURTH_FALLBACK_GEMINI_API_KEY:-}" ] \
+                      && [ -z "${FIFTH_FALLBACK_GEMINI_API_KEY:-}" ] \
+                      && [ -z "${SIXTH_FALLBACK_GEMINI_API_KEY:-}" ]; then
+                          echo "Missing VISION_API_KEY or any GEMINI API key; vision review is required."
+                          exit 1
+                  fi
 
             - name: Check if queue needs refresh
               id: queue_check

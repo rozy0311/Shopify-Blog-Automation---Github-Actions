@@ -21,7 +21,7 @@ on:
                 default: false
 
 concurrency:
-    group: auto-fix-sequential-${{ github.ref }}
+    group: chatgpt-ui-account
     cancel-in-progress: false
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
         permissions:
             contents: write
         env:
-            CHATGPT_UI_ENABLED: "false"
+            CHATGPT_UI_ENABLED: "true"
             CHATGPT_UI_REQUIRED: "false"
             SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
             SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_SHOP }}
