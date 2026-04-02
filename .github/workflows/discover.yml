@@ -1,5 +1,5 @@
 name: Discover Niche Topics
-run-name: "Discover Niche Topics (${{ github.event.inputs.mode || 'discover' }})"
+run-name: "Discover Niche Topics (${{ github.event_name == 'schedule' && 'publish' || github.event.inputs.mode || 'discover' }})"
 
 on:
   workflow_dispatch:
@@ -182,7 +182,7 @@ jobs:
         run: node apps/executor/dist/discover.js
 
       - name: Run publish from discovered topics
-        if: github.event.inputs.mode == 'publish'
+        if: github.event_name == 'schedule' || github.event.inputs.mode == 'publish'
         env:
           DISCOVER_MODE: "true"
           QUEUE_FILE: out/discover-queue.json
