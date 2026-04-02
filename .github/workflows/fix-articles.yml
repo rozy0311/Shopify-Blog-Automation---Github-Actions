@@ -20,7 +20,7 @@ on:
             blog_handle:
                 description: "Blog handle"
                 required: false
-                default: agritourism
+                default: ""
                 type: string
             reason:
                 description: "Why are you running this?"
@@ -48,7 +48,7 @@ jobs:
               run: |
                   {
                     echo "SHOPIFY_SHOP=${{ vars.SHOPIFY_SHOP }}"
-                    echo "BLOG_HANDLE=${{ github.event.inputs.blog_handle || vars.BLOG_HANDLE || 'agritourism' }}"
+                    echo "BLOG_HANDLE=${{ github.event.inputs.blog_handle || vars.BLOG_HANDLE || 'agritourism-adventures-exploring-farm-based-tourism' }}"
                     echo "FIX_LIMIT=${{ github.event.inputs.fix_limit || '10' }}"
                     echo "FIX_DRY_RUN=${{ github.event.inputs.dry_run || 'true' }}"
                     echo "MAX_FIX_RETRIES=${{ vars.MAX_FIX_RETRIES || '3' }}"
