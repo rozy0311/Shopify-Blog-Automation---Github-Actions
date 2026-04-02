@@ -470,6 +470,12 @@ async function runNodeScript(args: {
 }
 
 function shouldFallback(provider: Provider, error: Error): boolean {
+  const strictChatgptRequired = (process.env.CHATGPT_UI_REQUIRED || "").trim().toLowerCase() === "true";
+  if (provider === "chatgpt_ui" && strictChatgptRequired) {
+    // Blog text generation is strict: do not fall back to other providers.
+    return false;
+  }
+
   const message = error.message.toLowerCase();
   const status = (error as OpenAIError).status;
   if (message.includes("required but bridge is missing")) return false;
