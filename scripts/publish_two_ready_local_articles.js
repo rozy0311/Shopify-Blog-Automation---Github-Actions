@@ -49,6 +49,13 @@ function readArticle(dir) {
   return { title, html };
 }
 
+function normalizeTitle(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function countWordsFromHtml(html) {
   return String(html || "")
     .replace(/<[^>]+>/g, " ")
@@ -161,11 +168,30 @@ async function main() {
   const mainTheme = (themes.themes || []).find((t) => t.role === "main") || themes.themes?.[0];
   if (!mainTheme) throw new Error("No main theme");
 
+  const existing = await jfetch(`${apiBase}/blogs/${blog.id}/articles.json?limit=250&fields=id,title,handle,published_at`);
+  const existingByTitle = new Map(
+    (existing.articles || []).map((a) => [normalizeTitle(a.title), a]),
+  );
+
   const results = [];
 
   for (const folder of folders) {
     const dir = path.join(contentRoot, folder);
     const { title, html } = readArticle(dir);
+    const normalizedTitle = normalizeTitle(title);
+
+    const duplicate = existingByTitle.get(normalizedTitle);
+    if (duplicate) {
+      results.push({
+        skipped: true,
+        reason: "duplicate_title",
+        id: duplicate.id,
+        title: duplicate.title,
+        published_at: duplicate.published_at,
+        url: `https://${shop}.myshopify.com/blogs/${blog.handle}/${duplicate.handle}`,
+      });
+      continue;
+    }
 
     const created = await jfetch(`${apiBase}/blogs/${blog.id}/articles.json`, {
       method: "POST",
@@ -205,6 +231,13 @@ async function main() {
       imgCount: count,
       published_at: verify.article.published_at,
       url: `https://${shop}.myshopify.com/blogs/${blog.handle}/${verify.article.handle}`,
+    });
+
+    existingByTitle.set(normalizedTitle, {
+      id: verify.article.id,
+      title: verify.article.title,
+      handle: verify.article.handle,
+      published_at: verify.article.published_at,
     });
   }
 

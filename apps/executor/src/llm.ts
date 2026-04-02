@@ -290,8 +290,11 @@ async function callChatgptUi(systemPrompt: string, userPrompt: string, model: st
   const bridgeToken = (process.env.CHATGPT_UI_BRIDGE_TOKEN || "").trim();
   const modelLabel = (process.env.CHATGPT_UI_MODEL_LABEL || "5.4 Thinking").trim();
 
+  console.log(`[LLM] chatgpt_ui requested model label: ${modelLabel} (strict=${strict ? "true" : "false"})`);
+
   // Preferred mode: call a remote/local Playwright bridge that controls ChatGPT UI.
   if (bridgeUrl) {
+    console.log(`[LLM] chatgpt_ui execution mode: bridge (model=${model || ""})`);
     const timeoutMs = Number(process.env.CHATGPT_UI_TIMEOUT_MS || process.env.OPENAI_TIMEOUT_MS || "180000");
     const controller = new AbortController();
     const timeout = setTimeout(
@@ -384,6 +387,8 @@ async function callChatgptUiLocal(
   const prompt = systemPrompt ? `${systemPrompt}\n\n${userPrompt}` : userPrompt;
   const strictModelRaw = (process.env.CHATGPT_UI_STRICT_MODEL || "true").trim().toLowerCase();
   const strictModel = strictModelRaw === "1" || strictModelRaw === "true";
+
+  console.log(`[LLM] chatgpt_ui execution mode: local-ui (modelLabel=${modelLabel}, strictModel=${strictModel ? "true" : "false"})`);
 
   const output = await runNodeScript({
     scriptPath,

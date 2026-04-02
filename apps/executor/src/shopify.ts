@@ -145,6 +145,12 @@ export async function publishArticle(
   imageBrief?: ImageBrief,
 ) {
   const blog = await withRetry(() => getBlogByHandle(blogHandle));
+  const duplicate = await findDuplicateArticleByTitle(blog.id, data.title);
+  if (duplicate) {
+    console.warn(`[SHOPIFY] Duplicate title detected, reusing existing article: ${duplicate.title} (${duplicate.id})`);
+    return { article: duplicate, duplicate: true as const };
+  }
+
   const rawImageSrc = Array.isArray(data.images) ? data.images[0]?.src?.trim() : undefined;
   const candidates = await resolvePublishableImageCandidates(rawImageSrc, data.title, imageBrief);
 
@@ -170,6 +176,29 @@ export async function publishArticle(
       image,
     }),
   );
+}
+
+async function findDuplicateArticleByTitle(
+  blogId: string,
+  title: string,
+): Promise<{ id: number; title: string; handle: string; body_html: string; published_at: string | null } | null> {
+  const normalizedTarget = normalizeTitle(title);
+  if (!normalizedTarget) return null;
+
+  const existing = await withRetry(() => listArticles(blogId, 250));
+  for (const article of existing) {
+    if (normalizeTitle(article.title) === normalizedTarget) {
+      return article;
+    }
+  }
+  return null;
+}
+
+function normalizeTitle(value: string): string {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 async function buildShopifyImageAttachment(imageSrc: string, title: string): Promise<{ attachment: string; alt: string } | undefined> {
