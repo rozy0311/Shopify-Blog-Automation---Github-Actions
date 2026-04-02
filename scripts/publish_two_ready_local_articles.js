@@ -14,6 +14,7 @@ const blogHandle = "sustainable-living";
 const author = "The Rike";
 const contentRoot = path.join("pplx-ui-batch", "out", "content");
 const publishCount = Number(process.env.PUBLISH_READY_COUNT || "2");
+const minWords = Number(process.env.PUBLISH_READY_MIN_WORDS || "900");
 const manualFolders = (process.env.PUBLISH_READY_FOLDERS || "")
   .split(",")
   .map((v) => v.trim())
@@ -48,6 +49,15 @@ function readArticle(dir) {
   return { title, html };
 }
 
+function countWordsFromHtml(html) {
+  return String(html || "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean).length;
+}
+
 function productKeyFromFolder(folderName) {
   const clean = folderName.replace(/^\d+-/, "");
   const parts = clean.split("-").filter(Boolean);
@@ -57,7 +67,14 @@ function productKeyFromFolder(folderName) {
 function hasRequiredFiles(dir) {
   const hasArticle = fs.existsSync(path.join(dir, "article.md")) || fs.existsSync(path.join(dir, "article.clipboard.txt"));
   const hasInline = fs.existsSync(path.join(dir, "inline-1.png"));
-  return hasArticle && hasInline;
+  if (!hasArticle || !hasInline) return false;
+
+  try {
+    const { html } = readArticle(dir);
+    return countWordsFromHtml(html) >= minWords;
+  } catch {
+    return false;
+  }
 }
 
 function selectFolders() {
