@@ -83,6 +83,7 @@ jobs:
             echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
             echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
             echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
+            echo "CHATGPT_UI_TIMEOUT_SECONDS=${{ vars.CHATGPT_UI_TIMEOUT_SECONDS || '120' }}"
             echo "CHATGPT_UI_RUNNER_LABELS_JSON=${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON || '' }}"
             echo "PREFER_EXISTING_INLINE_IMAGES=${{ vars.PREFER_EXISTING_INLINE_IMAGES || 'true' }}"
           } >> "$GITHUB_ENV"
@@ -177,6 +178,7 @@ jobs:
           npm run --workspace apps/executor build
 
       - name: Run discover
+        timeout-minutes: 12
         run: node apps/executor/dist/discover.js
 
       - name: Run publish from discovered topics
