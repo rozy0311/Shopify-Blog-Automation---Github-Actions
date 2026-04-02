@@ -13,13 +13,19 @@ const MAX_PAGES = 10;
 
 /** Characters that signal a shopping listing rather than a niche idea. */
 const BANNED_KEYWORDS = [
-  "packs", "bags", "satchets", "sachets", "supply", "supplies",
+  "pack", "packs", "bag", "bags", "satchet", "satchets", "sachet", "sachets", "satches", "supply", "supplies",
   "buy", "shop", "order", "discount", "coupon", "free shipping",
   "add to cart", "limited time", "on sale",
 ];
 
-const MIN_NICHE_CHARS = 85;
-const MAX_NICHE_CHARS = 95;
+const MIN_NICHE_CHARS = Number(process.env.DISCOVER_MIN_NICHE_CHARS || "52");
+const MAX_NICHE_CHARS = Number(process.env.DISCOVER_MAX_NICHE_CHARS || "89");
+const MIN_COMBINED_SCORE = Number(process.env.DISCOVER_MIN_COMBINED_SCORE || "15");
+
+const HIGH_INTENT_HINTS = [
+  "how to", "best", "vs", "for beginners", "benefits", "guide", "tips", "problems", "troubleshooting",
+  "recipe", "grow", "growing", "care", "when to", "why",
+];
 
 const ROTATION_STATE_FILE = process.env.DISCOVER_STATE_FILE || "out/discover-state.json";
 const DISCOVER_QUEUE_FILE = process.env.DISCOVER_QUEUE_FILE || "out/discover-queue.json";
@@ -46,6 +52,86 @@ interface NicheIdea {
   product: string;
   topic: string;
   chars: number;
+  searchScore: number;
+  engagementScore: number;
+  intentReason?: string;
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function hasBannedKeyword(lowerTopic: string): string | null {
+  for (const banned of BANNED_KEYWORDS) {
+    const pattern = new RegExp(`\\b${escapeRegex(banned.toLowerCase())}\\b`, "i");
+    if (pattern.test(lowerTopic)) return banned;
+  }
+  return null;
+}
+
+function extractProductTokens(productName: string): string[] {
+  return productName
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((token) => token.length >= 4);
+}
+
+function topicMentionsProduct(topic: string, productName: string): boolean {
+  const lowerTopic = topic.toLowerCase();
+  const lowerProduct = productName.toLowerCase();
+  if (lowerTopic.includes(lowerProduct)) return true;
+
+  const tokens = extractProductTokens(productName);
+  return tokens.some((token) => new RegExp(`\\b${escapeRegex(token)}\\b`, "i").test(lowerTopic));
+}
+
+function countIntentHints(topic: string): number {
+  const lowerTopic = topic.toLowerCase();
+  let count = 0;
+  for (const hint of HIGH_INTENT_HINTS) {
+    if (lowerTopic.includes(hint)) count += 1;
+  }
+  return count;
+}
+
+function rankIdea(idea: NicheIdea): number {
+  const combined = idea.searchScore + idea.engagementScore;
+  const intentBonus = Math.min(2, countIntentHints(idea.topic));
+  return combined + intentBonus;
+}
+
+function selectTopIdeas(ideas: NicheIdea[], pickCount: number): NicheIdea[] {
+  return [...ideas]
+    .sort((a, b) => rankIdea(b) - rankIdea(a) || a.topic.length - b.topic.length)
+    .slice(0, Math.max(0, pickCount));
+}
+
+function interleaveIdeasByProduct(ideas: NicheIdea[]): NicheIdea[] {
+  const buckets = new Map<string, NicheIdea[]>();
+  const productOrder: string[] = [];
+
+  for (const idea of ideas) {
+    if (!buckets.has(idea.product)) {
+      buckets.set(idea.product, []);
+      productOrder.push(idea.product);
+    }
+    buckets.get(idea.product)!.push(idea);
+  }
+
+  const output: NicheIdea[] = [];
+  let added = true;
+  while (added) {
+    added = false;
+    for (const product of productOrder) {
+      const queue = buckets.get(product);
+      if (queue && queue.length) {
+        output.push(queue.shift()!);
+        added = true;
+      }
+    }
+  }
+
+  return output;
 }
 
 /* ─── scrape products from Shopify public JSON API ─── */
@@ -169,13 +255,13 @@ export async function generateNicheIdeas(
 ): Promise<NicheIdea[]> {
   const systemPrompt = [
     "You are a senior SEO content strategist specializing in organic herbal products, gardening, and wellness.",
-    `Generate exactly ${count} micro niche blog topic ideas for the product: "${product.commonName}".`,
+      `Generate exactly ${count} nano niche blog topic ideas for the product: "${product.commonName}".`,
     "",
     "CONSTRAINTS (STRICT):",
-    `- Each topic MUST be ${MIN_NICHE_CHARS}-${MAX_NICHE_CHARS} characters long (count carefully).`,
+      `- Each topic MUST be ${MIN_NICHE_CHARS}-${MAX_NICHE_CHARS} characters long (count carefully, never exceed ${MAX_NICHE_CHARS}).`,
     "- English only.",
     `- NEVER use these shopping/commercial words: ${BANNED_KEYWORDS.join(", ")}`,
-    "- Use the common product name (not brand names or Vietnamese names).",
+      "- Use the common product name naturally in each topic (not brand names or Vietnamese names).",
     "- Focus on HIGH SEARCH VOLUME, HIGH ENGAGEMENT angles:",
     "  * Specific audiences (e.g. 'pho lovers', 'balcony growers', 'first-time tea drinkers')",
     "  * Practical how-to (growing, brewing, cooking, preserving)",
@@ -183,10 +269,12 @@ export async function generateNicheIdeas(
     "  * Cultural significance and traditional uses",
     "  * Comparison or 'vs' topics",
     "  * Seasonal or regional relevance",
-    "- Each idea should target a DIFFERENT angle — no duplicates.",
+    "- Each idea should target a different angle and avoid semantic overlap.",
+      "- Prioritize topics people actively search and discuss right now.",
     "",
-    `Return a JSON array of exactly ${count} objects: [{"topic": "...", "chars": N}]`,
+      `Return a JSON array of exactly ${count} objects: [{"topic": "...", "chars": N, "searchScore": 1-10, "engagementScore": 1-10, "intentReason": "..."}]`,
     "Where chars is the exact character count of the topic string.",
+      "searchScore and engagementScore must reflect realistic popularity and user intent strength.",
     "Return JSON only. No markdown, no code fences.",
   ].join("\n");
 
@@ -194,11 +282,16 @@ export async function generateNicheIdeas(
     `Product common name: ${product.commonName}`,
     `Full product title: ${product.title}`,
     "",
-    `Generate ${count} unique micro niche ideas. Each MUST be ${MIN_NICHE_CHARS}-${MAX_NICHE_CHARS} characters.`,
+      `Generate ${count} unique nano niche ideas. Each MUST be ${MIN_NICHE_CHARS}-${MAX_NICHE_CHARS} characters.`,
+      "Each topic should read like a high-intent search query users genuinely care about.",
   ].join("\n");
 
   const raw = await withRetry(() =>
-    callStructuredLLM<Array<{ topic: string; chars: number }>>(systemPrompt, model, userPrompt),
+      callStructuredLLM<Array<{ topic: string; chars: number; searchScore?: number; engagementScore?: number; intentReason?: string }>>(
+        systemPrompt,
+        model,
+        userPrompt,
+      ),
   );
 
   if (!Array.isArray(raw)) return [];
@@ -209,6 +302,9 @@ export async function generateNicheIdeas(
       product: product.commonName,
       topic: item.topic.trim(),
       chars: item.topic.trim().length,
+        searchScore: Math.max(1, Math.min(10, Number(item.searchScore || 1))),
+        engagementScore: Math.max(1, Math.min(10, Number(item.engagementScore || 1))),
+        intentReason: typeof item.intentReason === "string" ? item.intentReason.trim() : "",
     }));
 }
 
@@ -216,6 +312,7 @@ export async function generateNicheIdeas(
 
 export function filterNicheIdeas(ideas: NicheIdea[], existingTopics: string[]): NicheIdea[] {
   const existingLower = new Set(existingTopics.map((t) => t.toLowerCase()));
+  const acceptedLower = new Set<string>();
 
   return ideas.filter((idea) => {
     const topic = idea.topic;
@@ -228,11 +325,23 @@ export function filterNicheIdeas(ideas: NicheIdea[], existingTopics: string[]): 
     }
 
     // Banned keywords
-    for (const banned of BANNED_KEYWORDS) {
-      if (lower.includes(banned)) {
-        console.log(`[DISCOVER] REJECT (banned="${banned}"): ${topic}`);
-        return false;
-      }
+    const banned = hasBannedKeyword(lower);
+    if (banned) {
+      console.log(`[DISCOVER] REJECT (banned="${banned}"): ${topic}`);
+      return false;
+    }
+
+    // Product focus check
+    if (!topicMentionsProduct(topic, idea.product)) {
+      console.log(`[DISCOVER] REJECT (missing product term): ${topic}`);
+      return false;
+    }
+
+    // Search + engagement threshold
+    const combinedScore = idea.searchScore + idea.engagementScore;
+    if (combinedScore < MIN_COMBINED_SCORE) {
+      console.log(`[DISCOVER] REJECT (low score=${combinedScore}): ${topic}`);
+      return false;
     }
 
     // English-only check (reject if >30% non-ASCII chars)
@@ -248,6 +357,14 @@ export function filterNicheIdeas(ideas: NicheIdea[], existingTopics: string[]): 
       return false;
     }
 
+    // Dedup inside current generation batch
+    if (acceptedLower.has(lower)) {
+      console.log(`[DISCOVER] REJECT (duplicate-in-run): ${topic}`);
+      return false;
+    }
+
+    acceptedLower.add(lower);
+
     return true;
   });
 }
@@ -261,6 +378,9 @@ async function writeDiscoverQueue(ideas: NicheIdea[]): Promise<string> {
     url_blog_shopify: "",
     product: idea.product,
     chars: idea.chars,
+    search_score: idea.searchScore,
+    engagement_score: idea.engagementScore,
+    intent_reason: idea.intentReason || "",
   }));
   await fs.writeJSON(path.resolve(DISCOVER_QUEUE_FILE), queue, { spaces: 2 });
   console.log(`[DISCOVER] Wrote ${queue.length} topics to ${DISCOVER_QUEUE_FILE}`);
@@ -344,7 +464,7 @@ async function main() {
       console.log(`[DISCOVER] ${product.commonName}: ${raw.length} generated, ${filtered.length} passed filters`);
 
       // Pick top N ideas per product
-      const selected = filtered.slice(0, PICK_PER_PRODUCT);
+      const selected = selectTopIdeas(filtered, PICK_PER_PRODUCT);
       allIdeas.push(...selected);
     } catch (err) {
       console.error(`[DISCOVER] Failed for ${product.commonName}:`, err instanceof Error ? err.message : err);
@@ -360,16 +480,17 @@ async function main() {
   }
 
   // 5. Write queue file
-  const queuePath = await writeDiscoverQueue(allIdeas);
+  const interleavedIdeas = interleaveIdeasByProduct(allIdeas);
+  const queuePath = await writeDiscoverQueue(interleavedIdeas);
   console.log(`[DISCOVER] Queue file: ${queuePath}`);
 
   // 6. Optionally append to Google Sheets
   if (writeToSheets) {
-    await appendToSheetsQueue(allIdeas);
+    await appendToSheetsQueue(interleavedIdeas);
   }
 
   // 7. Update rotation state
-  state.publishedTopics.push(...allIdeas.map((i) => i.topic));
+  state.publishedTopics.push(...interleavedIdeas.map((i) => i.topic));
   // Keep only last 500 topics to prevent unbounded growth
   if (state.publishedTopics.length > 500) {
     state.publishedTopics = state.publishedTopics.slice(-500);
@@ -378,9 +499,9 @@ async function main() {
   await saveRotationState(state);
 
   // 8. Summary
-  console.log(`[DISCOVER] ✓ Generated ${allIdeas.length} topics from ${picked.length} products`);
-  for (const idea of allIdeas) {
-    console.log(`  - [${idea.chars}c] ${idea.product}: ${idea.topic}`);
+  console.log(`[DISCOVER] ✓ Generated ${interleavedIdeas.length} topics from ${picked.length} products`);
+  for (const idea of interleavedIdeas) {
+    console.log(`  - [${idea.chars}c | search=${idea.searchScore} | engage=${idea.engagementScore}] ${idea.product}: ${idea.topic}`);
   }
 }
 
