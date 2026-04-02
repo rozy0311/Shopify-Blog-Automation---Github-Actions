@@ -29,7 +29,7 @@ on:
                 type: string
 
 concurrency:
-    group: fix-articles
+  group: chatgpt-ui-account
     cancel-in-progress: false
 
 jobs:

@@ -36,7 +36,7 @@ on:
     - cron: "0 6 * * *" # daily 6:00 UTC
 
 concurrency:
-  group: discover
+  group: chatgpt-ui-account
   cancel-in-progress: false
 
 jobs:

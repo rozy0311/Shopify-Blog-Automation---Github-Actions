@@ -31,7 +31,7 @@ on:
     - cron: "17,47 * * * *" # every 30 minutes, staggered to reduce burst/rate-limit risk
 
 concurrency:
-  group: executor
+  group: chatgpt-ui-account
   cancel-in-progress: false
 
 jobs:
