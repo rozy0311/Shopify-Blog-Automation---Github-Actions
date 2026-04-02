@@ -207,6 +207,38 @@ async function waitForAssistantText(page, responseTimeoutSeconds) {
   return previous;
 }
 
+async function waitForAssistantImages(page, responseTimeoutSeconds) {
+  const deadline = Date.now() + responseTimeoutSeconds * 1000;
+  let last = [];
+
+  while (Date.now() < deadline) {
+    try {
+      const assistant = assistantLocator(page);
+      if (await assistant.count()) {
+        const urls = await assistant.evaluate((node) => {
+          const images = Array.from(node.querySelectorAll('img'));
+          const values = images
+            .map((img) => img.currentSrc || img.getAttribute('src') || '')
+            .map((src) => String(src || '').trim())
+            .filter((src) => src && !src.startsWith('data:'));
+          return Array.from(new Set(values));
+        }).catch(() => []);
+
+        if (Array.isArray(urls) && urls.length > 0) {
+          last = urls;
+          return urls;
+        }
+      }
+    } catch {
+      // Ignore transient UI errors and keep polling.
+    }
+
+    await page.waitForTimeout(900);
+  }
+
+  return last;
+}
+
 async function enforceModelSelection(page, modelLabel, strictModel) {
   if (!modelLabel) return;
 
@@ -262,6 +294,7 @@ async function main() {
 
   const baseUrl = sanitizeBaseUrl(process.env.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/');
   const modelLabel = String(process.env.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking').trim();
+  const mode = String(process.env.CHATGPT_UI_MODE || 'text').trim().toLowerCase();
   const strictModel = toBool(process.env.CHATGPT_UI_STRICT_MODEL, true);
   const headless = toBool(process.env.CHATGPT_UI_HEADLESS, true);
   const useChromeChannel = toBool(process.env.CHATGPT_UI_USE_CHROME_CHANNEL, false);
@@ -385,13 +418,21 @@ async function main() {
       }
     }
 
-    const output = String((await waitForAssistantText(page, responseTimeoutSeconds)) || '').trim();
-    if (!output) {
-      writeErr('Empty assistant response');
-      process.exit(12);
+    if (mode === 'image') {
+      const images = await waitForAssistantImages(page, responseTimeoutSeconds);
+      if (!Array.isArray(images) || images.length === 0) {
+        writeErr('No image URL found in assistant response');
+        process.exit(13);
+      }
+      process.stdout.write(JSON.stringify({ images }));
+    } else {
+      const output = String((await waitForAssistantText(page, responseTimeoutSeconds)) || '').trim();
+      if (!output) {
+        writeErr('Empty assistant response');
+        process.exit(12);
+      }
+      process.stdout.write(output);
     }
-
-    process.stdout.write(output);
   } finally {
     try {
       if (context) await context.close();

@@ -1,6 +1,8 @@
 import "./tracing.js";
 import fs from "fs-extra";
 import "dotenv/config";
+import path from "node:path";
+import { spawn } from "node:child_process";
 import { readConfig, readQueue, updateBackfill } from "./sheets.js";
 import { callLLM, callStructuredLLM, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
 import { publishArticle } from "./shopify.js";
@@ -98,6 +100,10 @@ const MAX_QUALITY_RETRIES = Number(process.env.MAX_QUALITY_RETRIES || "4");
 type ImageBrief = {
   prompt: string;
   alt: string;
+};
+
+type ChatgptUiImageResult = {
+  images?: string[];
 };
 
 function resolveMode() {
@@ -230,7 +236,17 @@ async function processQueueRow(
 
   // Generate LLM-directed image prompts, then inject into HTML
   const inlineBriefs = await generateInlineImageBriefs(data.html || "", data.title || "", context.model);
-  data.html = injectInlineImages(data.html || "", inlineBriefs);
+  const directUiImageUrls = await generateInlineImagesViaChatgptUi(inlineBriefs, data.title || "");
+  data.html = injectInlineImages(data.html || "", inlineBriefs, directUiImageUrls);
+
+  if (directUiImageUrls.length > 0) {
+    data.images = [
+      {
+        src: directUiImageUrls[0],
+        alt: (inlineBriefs[0]?.alt || data.title || "featured image").trim(),
+      },
+    ];
+  }
 
   const preview = await writePreview({
     url_blog_crawl: row.url_blog_crawl,
@@ -493,6 +509,7 @@ async function generateInlineImageBriefs(
 function injectInlineImages(
   html: string,
   briefs: Array<{ prompt: string; alt: string }>,
+  directUiImageUrls: string[] = [],
 ): string {
   const preferExisting = (process.env.PREFER_EXISTING_INLINE_IMAGES || "true").toLowerCase() !== "false";
   const existingInline = preferExisting ? extractExistingInlineImageTags(html).slice(0, TARGET_INLINE_IMAGES) : [];
@@ -503,6 +520,16 @@ function injectInlineImages(
   const imageTags: string[] = [];
   for (const tag of existingInline) {
     imageTags.push(tag);
+  }
+
+  for (let i = imageTags.length; i < needed && i < directUiImageUrls.length; i++) {
+    const brief = normalizedBriefs[i];
+    const src = String(directUiImageUrls[i] || "").trim();
+    if (!src) continue;
+    const safeAlt = escapeHtmlAttr(brief.alt);
+    imageTags.push(
+      `<figure><img src="${escapeHtmlAttr(src)}" alt="${safeAlt}" loading="lazy" width="800" height="450"><figcaption>${escapeHtml(brief.alt)}</figcaption></figure>`,
+    );
   }
 
   for (let i = imageTags.length; i < needed; i++) {
@@ -565,6 +592,116 @@ function injectInlineImages(
     `[IMAGE_INJECT] Enforced ${imageTags.length}/${TARGET_INLINE_IMAGES} inline images (existing=${existingInline.length}, fallback=${Math.max(0, imageTags.length - existingInline.length)})`,
   );
   return result;
+}
+
+async function generateInlineImagesViaChatgptUi(
+  briefs: Array<{ prompt: string; alt: string }>,
+  title: string,
+): Promise<string[]> {
+  const enabled = (process.env.CHATGPT_UI_IMAGE_DIRECT || "false").trim().toLowerCase() === "true";
+  if (!enabled) return [];
+
+  const scriptPath = (
+    process.env.CHATGPT_UI_NODE_SCRIPT ||
+    path.join("ui-automation", "scripts", "chatgpt_ui.mjs")
+  ).trim();
+
+  if (!scriptPath || !(await fs.pathExists(scriptPath))) {
+    console.warn(`[IMAGE_UI] Missing ChatGPT UI script at ${scriptPath}`);
+    return [];
+  }
+
+  const urls: string[] = [];
+  for (const [index, brief] of briefs.slice(0, TARGET_INLINE_IMAGES).entries()) {
+    const prompt = [
+      `Create one photorealistic editorial image for this blog section titled: \"${title}\".`,
+      `Scene brief: ${brief.prompt}`,
+      "No text, no logos, no watermark, no people faces.",
+      "Return image only.",
+    ].join("\n");
+
+    try {
+      const result = await runChatgptUiImage(scriptPath, prompt);
+      const candidate = result.images?.find((url) => /^https?:\/\//i.test(String(url || "")));
+      if (candidate) {
+        urls.push(candidate);
+        console.log(`[IMAGE_UI] Generated image ${index + 1}/${TARGET_INLINE_IMAGES}`);
+      }
+    } catch (error) {
+      console.warn(`[IMAGE_UI] Failed image ${index + 1}:`, error instanceof Error ? error.message : error);
+    }
+  }
+
+  return urls.slice(0, TARGET_INLINE_IMAGES);
+}
+
+async function runChatgptUiImage(scriptPath: string, prompt: string): Promise<ChatgptUiImageResult> {
+  const timeoutMsRaw = Number(process.env.CHATGPT_UI_IMAGE_TIMEOUT_MS || process.env.CHATGPT_UI_TIMEOUT_MS || "240000");
+  const timeoutMs = Number.isFinite(timeoutMsRaw) ? Math.max(60000, Math.min(900000, timeoutMsRaw)) : 240000;
+
+  return await new Promise((resolve, reject) => {
+    const child = spawn("node", [scriptPath], {
+      env: {
+        ...process.env,
+        CHATGPT_UI_MODE: "image",
+      },
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      child.kill("SIGTERM");
+      reject(new Error("chatgpt_ui image request timed out"));
+    }, timeoutMs);
+
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      stdout += String(chunk || "");
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += String(chunk || "");
+    });
+
+    child.on("error", (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    });
+
+    child.on("close", (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+
+      if (code !== 0) {
+        const message = stderr.trim() || `chatgpt_ui image failed (exit ${code ?? -1})`;
+        reject(new Error(message));
+        return;
+      }
+
+      const text = stdout.trim();
+      if (!text) {
+        reject(new Error("chatgpt_ui image returned empty output"));
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(text) as ChatgptUiImageResult);
+      } catch {
+        reject(new Error(`chatgpt_ui image returned non-JSON: ${text.slice(0, 240)}`));
+      }
+    });
+
+    child.stdin.write(prompt);
+    child.stdin.end();
+  });
 }
 
 function stripYearTokens(data: Awaited<ReturnType<typeof callLLM>>) {
