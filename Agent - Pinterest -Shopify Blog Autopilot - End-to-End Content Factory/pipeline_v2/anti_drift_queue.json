@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-01T23:40:56.637576",
-  "updated_at": "2026-04-02T01:41:59.512033",
+  "updated_at": "2026-04-02T03:13:39.156341",
   "items": [
     {
       "id": "690524029246",
@@ -570,11 +570,11 @@
     {
       "id": "690323751230",
       "title": "Lavender Benefits: Uses, Dosage, Side Effects & In",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-01T23:40:56.636955"
+      "updated_at": "2026-04-02T03:13:39.155720"
     },
     {
       "id": "690323718462",
