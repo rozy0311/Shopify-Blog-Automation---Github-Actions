@@ -234,9 +234,15 @@ async function processQueueRow(
   const data = await generateWithQualityRetry(row, context, precomputed);
   data.images = normalizeFeaturedImages(data.images);
 
+  const preferExisting = (process.env.PREFER_EXISTING_INLINE_IMAGES || "true").toLowerCase() !== "false";
+  const existingInline = preferExisting ? extractExistingInlineImageTags(data.html || "") : [];
+  const hasEnoughExistingInline = existingInline.length >= TARGET_INLINE_IMAGES;
+
   // Generate LLM-directed image prompts, then inject into HTML
   const inlineBriefs = await generateInlineImageBriefs(data.html || "", data.title || "", context.model);
-  const directUiImageUrls = await generateInlineImagesViaChatgptUi(inlineBriefs, data.title || "");
+  const directUiImageUrls = hasEnoughExistingInline
+    ? []
+    : await generateInlineImagesViaChatgptUi(inlineBriefs, data.title || "");
   data.html = injectInlineImages(data.html || "", inlineBriefs, directUiImageUrls);
 
   if (directUiImageUrls.length > 0) {
@@ -246,6 +252,16 @@ async function processQueueRow(
         alt: (inlineBriefs[0]?.alt || data.title || "featured image").trim(),
       },
     ];
+  } else if ((!Array.isArray(data.images) || !data.images[0]?.src?.trim()) && existingInline.length > 0) {
+    const firstSrc = extractFirstImageSrc(existingInline[0]);
+    if (firstSrc) {
+      data.images = [
+        {
+          src: firstSrc,
+          alt: (inlineBriefs[0]?.alt || data.title || "featured image").trim(),
+        },
+      ];
+    }
   }
 
   const preview = await writePreview({
@@ -409,6 +425,11 @@ function stripInlineImageTags(html: string): string {
   return html
     .replace(/<figure\b[^>]*>[\s\S]*?<img\b[^>]*>[\s\S]*?<\/figure>/gi, "")
     .replace(/<img\b[^>]*>/gi, "");
+}
+
+function extractFirstImageSrc(tagOrHtml: string): string | undefined {
+  const m = String(tagOrHtml || "").match(/<img\b[^>]*\bsrc\s*=\s*"([^"]+)"/i);
+  return m?.[1]?.trim();
 }
 
 function extractExistingInlineImageTags(html: string): string[] {
