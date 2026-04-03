@@ -644,6 +644,23 @@ def _clean_llm_output(content: str) -> str:
     content = re.sub(r"<meta[^>]*>", "", content, flags=re.IGNORECASE)
     content = re.sub(r"<title>.*?</title>", "", content, flags=re.IGNORECASE)
 
+    # Convert leaked markdown emphasis to HTML so storefront never shows raw asterisks.
+    content = re.sub(
+        r"\*\*\*\s*([^*][\s\S]*?)\s*\*\*\*",
+        r"<strong>\1</strong>",
+        content,
+    )
+    content = re.sub(
+        r"\*\*\s*([^*][\s\S]*?)\s*\*\*",
+        r"<strong>\1</strong>",
+        content,
+    )
+    content = re.sub(
+        r"(^|[^*])\*\s*([^*][\s\S]*?)\s*\*(?!\*)",
+        r"\1<em>\2</em>",
+        content,
+    )
+
     return content.strip()
 
 

@@ -726,9 +726,18 @@ async function runChatgptUiImage(scriptPath: string, prompt: string): Promise<Ch
 }
 
 function stripYearTokens(data: Awaited<ReturnType<typeof callLLM>>) {
+  const normalizeInlineMarkdown = (value: string | undefined) => {
+    if (!value || !value.includes("*")) return value;
+    return value
+      .replace(/\*\*\*\s*([^*][\s\S]*?)\s*\*\*\*/g, "<strong>$1</strong>")
+      .replace(/\*\*\s*([^*][\s\S]*?)\s*\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[^*])\*\s*([^*][\s\S]*?)\s*\*(?!\*)/g, "$1<em>$2</em>");
+  };
+
   const sanitize = (value: string | undefined) => {
     if (!value) return value;
-    return value
+    const normalized = normalizeInlineMarkdown(value) || value;
+    return normalized
       .replaceAll(/\b(19|20)\d{2}\b/g, "")
       .replaceAll(/\s{2,}/g, " ")
       .trim();

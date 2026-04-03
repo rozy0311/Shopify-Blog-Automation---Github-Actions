@@ -165,8 +165,18 @@ function buildFixUserPrompt(title: string, qualityErrors: string[], wordCount: n
 }
 
 function stripYearTokens(data: { title?: string; seo_title?: string; meta_desc?: string; html?: string }) {
+  const normalizeInlineMarkdown = (v: string | undefined) => {
+    if (!v || !v.includes("*")) return v;
+    return v
+      .replace(/\*\*\*\s*([^*][\s\S]*?)\s*\*\*\*/g, "<strong>$1</strong>")
+      .replace(/\*\*\s*([^*][\s\S]*?)\s*\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[^*])\*\s*([^*][\s\S]*?)\s*\*(?!\*)/g, "$1<em>$2</em>");
+  };
+
   const sanitize = (v: string | undefined) =>
-    v ? v.replace(/\b(19|20)\d{2}\b/g, "").replace(/\s{2,}/g, " ").trim() : v;
+    v
+      ? (normalizeInlineMarkdown(v) || v).replace(/\b(19|20)\d{2}\b/g, "").replace(/\s{2,}/g, " ").trim()
+      : v;
   return {
     ...data,
     title: sanitize(data.title) || data.title,
