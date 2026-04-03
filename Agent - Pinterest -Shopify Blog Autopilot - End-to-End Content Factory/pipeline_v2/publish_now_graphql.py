@@ -5,6 +5,7 @@ Run from repo root with .env loaded. Usage:
   python pipeline_v2/publish_now_graphql.py 691791954238
 """
 import os
+import re
 import sys
 from datetime import datetime, timezone
 
@@ -54,6 +55,49 @@ def get_article(article_id: str):
         print("GET article failed: %s %s" % (r.status_code, r.text[:300]))
         return None
     return r.json().get("article")
+
+
+def _count_inline_images(body_html: str) -> int:
+    return len(re.findall(r"<img\\b", body_html or "", flags=re.IGNORECASE))
+
+
+def _has_markdown_artifacts(body_html: str) -> bool:
+    html = body_html or ""
+    return any([
+        re.search(r"\*\*\*[^*]+\*\*\*", html) is not None,
+        re.search(r"\*\*[^*]+\*\*", html) is not None,
+        re.search(r"(?<!\*)\*[^*]+\*(?!\*)", html) is not None,
+        "&#42;" in html,
+    ])
+
+
+def _featured_src(article: dict) -> str:
+    image = article.get("image") or {}
+    if isinstance(image, dict):
+        return (image.get("src") or "").strip()
+    return ""
+
+
+def _is_valid_featured_src(src: str) -> bool:
+    if not src:
+        return False
+    return src.startswith("https://") and "cdn.shopify.com" in src
+
+
+def _validate_pre_publish(article: dict) -> list[str]:
+    errors: list[str] = []
+    body_html = article.get("body_html") or ""
+    inline_images = _count_inline_images(body_html)
+    if inline_images < 3:
+        errors.append(f"INLINE_IMAGE_GUARD: expected >=3 inline images, got {inline_images}")
+    if _has_markdown_artifacts(body_html):
+        errors.append("MARKDOWN_GUARD: found markdown artifact tokens (*, **, ***) in body_html")
+
+    featured = _featured_src(article)
+    if not _is_valid_featured_src(featured):
+        errors.append("FEATURED_GUARD: featured image missing or non-Shopify CDN URL")
+
+    return errors
 
 def update_rest(article_id: str, published_at: str) -> bool:
     import requests
@@ -115,6 +159,13 @@ def main():
     if not article:
         print("Article not found. Check BLOG_ID=%s and article id." % BLOG_ID)
         sys.exit(1)
+
+    guard_errors = _validate_pre_publish(article)
+    if guard_errors:
+        print("[BLOCK] Pre-publish guard rejected article %s:" % article_id)
+        for err in guard_errors:
+            print(" - %s" % err)
+        sys.exit(2)
 
     existing_pub = article.get("published_at")
     print("Article: id=%s title=%s published_at=%s handle=%s" % (

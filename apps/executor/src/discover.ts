@@ -27,6 +27,23 @@ const HIGH_INTENT_HINTS = [
   "recipe", "grow", "growing", "care", "when to", "why",
 ];
 
+// Must stay inside the approved natural living / herbal / homestead editorial scope.
+const REQUIRED_DOMAIN_HINTS = [
+  "herb", "herbal", "tea", "tincture", "salve", "infused oil",
+  "natural", "zero-waste", "low-tox", "plastic-free",
+  "garden", "growing", "grow", "soil", "seed", "compost",
+  "kitchen", "ferment", "fermentation", "vinegar", "sourdough", "dehydrat",
+  "cleaning", "pantry", "homestead", "frugal", "seasonal", "remedies",
+  "diy", "homemade", "store-bought alternative",
+];
+
+// Off-domain or policy-risk terms that should never appear in topic selection.
+const DISALLOWED_TOPIC_TERMS = [
+  "app", "apps", "ai app", "chatgpt", "software", "tool", "platform",
+  "diagnose", "diagnosis", "medical", "disease", "cure", "treat", "treatment",
+  "crypto", "forex", "casino", "gambling",
+];
+
 const ROTATION_STATE_FILE = process.env.DISCOVER_STATE_FILE || "out/discover-state.json";
 const DISCOVER_QUEUE_FILE = process.env.DISCOVER_QUEUE_FILE || "out/discover-queue.json";
 const PRODUCTS_PER_RUN = Number(process.env.DISCOVER_PRODUCTS_PER_RUN || "5");
@@ -40,6 +57,18 @@ interface Product {
   title: string;
   handle: string;
   commonName: string;
+}
+
+function hasAnyHint(topicLower: string, hints: string[]): boolean {
+  return hints.some((hint) => topicLower.includes(hint));
+}
+
+function hasDisallowedTerm(topicLower: string): string | null {
+  for (const term of DISALLOWED_TOPIC_TERMS) {
+    const pattern = new RegExp(`\\b${escapeRegex(term.toLowerCase())}\\b`, "i");
+    if (pattern.test(topicLower)) return term;
+  }
+  return null;
 }
 
 interface RotationState {
@@ -290,6 +319,9 @@ export async function generateNicheIdeas(
     "CONSTRAINTS (STRICT):",
       `- Each topic MUST be ${MIN_NICHE_CHARS}-${MAX_NICHE_CHARS} characters long (count carefully, never exceed ${MAX_NICHE_CHARS}).`,
     "- English only.",
+    "- Do NOT output topic questions. No question mark and no Q&A phrasing.",
+    "- Do NOT output tech/software/app topics.",
+    "- Do NOT output medical diagnosis/treatment claims.",
     `- NEVER use these shopping/commercial words: ${BANNED_KEYWORDS.join(", ")}`,
       "- Use the common product name naturally in each topic (not brand names or Vietnamese names).",
     "- Focus on HIGH SEARCH VOLUME, HIGH ENGAGEMENT angles:",
@@ -361,9 +393,35 @@ export function filterNicheIdeas(ideas: NicheIdea[], existingTopics: string[]): 
       return false;
     }
 
+    // Off-domain / risky terms
+    const disallowed = hasDisallowedTerm(lower);
+    if (disallowed) {
+      console.log(`[DISCOVER] REJECT (off-domain="${disallowed}"): ${topic}`);
+      return false;
+    }
+
+    // No question-style topics; keep production-ready declarative intents only.
+    if (topic.includes("?") || /^(what|why|how|can|should|is|are)\b/i.test(topic.trim())) {
+      console.log(`[DISCOVER] REJECT (question-style): ${topic}`);
+      return false;
+    }
+
     // Product focus check
     if (!topicMentionsProduct(topic, idea.product)) {
       console.log(`[DISCOVER] REJECT (missing product term): ${topic}`);
+      return false;
+    }
+
+    // Product keyword should be early to align with "primary keyword first" editorial rule.
+    const productPos = lower.indexOf(idea.product.toLowerCase());
+    if (productPos > 18) {
+      console.log(`[DISCOVER] REJECT (product too late, idx=${productPos}): ${topic}`);
+      return false;
+    }
+
+    // Domain guardrail: must match at least one approved niche cluster hint.
+    if (!hasAnyHint(lower, REQUIRED_DOMAIN_HINTS)) {
+      console.log(`[DISCOVER] REJECT (outside niche clusters): ${topic}`);
       return false;
     }
 
