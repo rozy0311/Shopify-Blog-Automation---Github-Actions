@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-04T17:15:15.699202",
-  "updated_at": "2026-04-04T17:15:20.331470",
+  "updated_at": "2026-04-04T17:33:44.187112",
   "items": [
     {
       "id": "690524029246",
@@ -516,11 +516,11 @@
     {
       "id": "690324209982",
       "title": "33 Christmas Vase for Home Decor Ideas",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-04T17:15:15.681970"
+      "updated_at": "2026-04-04T17:33:44.186489"
     },
     {
       "id": "690324046142",
