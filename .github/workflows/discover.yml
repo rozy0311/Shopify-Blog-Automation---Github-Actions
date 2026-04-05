@@ -71,6 +71,7 @@ jobs:
             echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}"
             echo "LLM_PROVIDER_ORDER=${{ github.event_name == 'schedule' && 'chatgpt_ui' || 'chatgpt_ui,gemini,github_models,openai' }}"
             echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}"
+            echo "GEMINI_IMAGE_MODEL=${{ vars.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image' }}"
             echo "GH_MODELS_API_BASE=${{ vars.GH_MODELS_API_BASE || 'https://models.github.ai/inference' }}"
             echo "GH_MODELS_MODEL=${{ vars.GH_MODELS_MODEL }}"
             echo "CHATGPT_UI_ENABLED=${{ github.event_name == 'schedule' && 'true' || 'true' }}"
@@ -78,6 +79,8 @@ jobs:
             echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
             echo "CHATGPT_UI_MODEL_LABEL=${{ vars.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking' }}"
             echo "CHATGPT_UI_STRICT_MODEL=${{ vars.CHATGPT_UI_STRICT_MODEL || 'true' }}"
+            echo "CHATGPT_UI_IMAGE_MODEL_LABEL=${{ vars.CHATGPT_UI_IMAGE_MODEL_LABEL || '5.4' }}"
+            echo "CHATGPT_UI_IMAGE_STRICT_MODEL=${{ vars.CHATGPT_UI_IMAGE_STRICT_MODEL || 'false' }}"
             echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
             echo "CHATGPT_UI_NODE_SCRIPT=${{ vars.CHATGPT_UI_NODE_SCRIPT || 'ui-automation/scripts/chatgpt_ui.mjs' }}"
             echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
@@ -126,6 +129,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Restore discover state cache
+        uses: actions/cache/restore@v4
+        with:
+          path: out/discover-state.json
+          key: discover-state-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            discover-state-${{ github.ref_name }}-
 
       - name: Preflight ChatGPT UI auth readiness
         if: env.CHATGPT_UI_ENABLED == 'true'
@@ -180,6 +191,13 @@ jobs:
       - name: Run discover
         timeout-minutes: 12
         run: node apps/executor/dist/discover.js
+
+      - name: Save discover state cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: out/discover-state.json
+          key: discover-state-${{ github.ref_name }}-${{ github.run_id }}
 
       - name: Run publish from discovered topics
         if: github.event_name == 'schedule' || github.event.inputs.mode == 'publish'

@@ -1,0 +1,211 @@
+name: ChatGPT UI Auto Recovery
+run-name: ChatGPT UI Auto Recovery
+
+on:
+  workflow_run:
+    workflows:
+      - Shopify Blog Executor
+      - Discover Niche Topics
+      - Fix Old Articles
+      - Article Pre-Publish Review
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Target workflow run id to recover
+        required: true
+        type: string
+      branch:
+        description: Branch/ref for refresh dispatch
+        required: false
+        default: main
+        type: string
+
+permissions:
+  contents: read
+  actions: write
+  issues: write
+
+concurrency:
+  group: chatgpt-ui-auto-recovery-${{ github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && (github.event.workflow_run.conclusion == 'failure' || github.event.workflow_run.conclusion == 'timed_out' || github.event.workflow_run.conclusion == 'cancelled')) }}
+    steps:
+      - name: Resolve target run
+        id: resolve
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const isDispatch = context.eventName === 'workflow_dispatch';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            let run;
+            if (isDispatch) {
+              const inputRunId = String(core.getInput('run_id', { required: true })).trim();
+              const { data } = await github.rest.actions.getWorkflowRun({
+                owner,
+                repo,
+                run_id: Number(inputRunId),
+              });
+              run = data;
+            } else {
+              run = context.payload.workflow_run;
+            }
+
+            const conclusion = (run.conclusion || '').toLowerCase();
+            const runAttempt = Number(run.run_attempt || 1);
+            const workflowName = String(run.name || '');
+            const htmlUrl = String(run.html_url || '');
+            const dispatchBranch = String(core.getInput('branch') || '').trim();
+            const headBranch = String(dispatchBranch || run.head_branch || process.env.GITHUB_REF_NAME || 'main');
+
+            core.setOutput('run_id', String(run.id));
+            core.setOutput('workflow_name', workflowName);
+            core.setOutput('run_attempt', String(runAttempt));
+            core.setOutput('conclusion', conclusion);
+            core.setOutput('head_branch', headBranch);
+            core.setOutput('html_url', htmlUrl);
+
+      - name: Guard retry policy
+        id: guard
+        shell: bash
+        env:
+          WORKFLOW_NAME: ${{ steps.resolve.outputs.workflow_name }}
+          RUN_ATTEMPT: ${{ steps.resolve.outputs.run_attempt }}
+          CONCLUSION: ${{ steps.resolve.outputs.conclusion }}
+        run: |
+          set -euo pipefail
+          name_lower=$(echo "$WORKFLOW_NAME" | tr '[:upper:]' '[:lower:]')
+          attempt=${RUN_ATTEMPT:-1}
+
+          if [[ "$name_lower" == *"refresh chatgpt ui session"* ]]; then
+            echo "should_recover=false" >> "$GITHUB_OUTPUT"
+            echo "reason=Skip recovery for refresh workflow itself" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$attempt" -gt 2 ]; then
+            echo "should_recover=false" >> "$GITHUB_OUTPUT"
+            echo "reason=Run attempt already >2, skip to avoid loops" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "$CONCLUSION" != "failure" && "$CONCLUSION" != "timed_out" && "$CONCLUSION" != "cancelled" ]]; then
+            echo "should_recover=false" >> "$GITHUB_OUTPUT"
+            echo "reason=Conclusion is not recoverable" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "should_recover=true" >> "$GITHUB_OUTPUT"
+          echo "reason=Eligible for one-shot auto-recovery" >> "$GITHUB_OUTPUT"
+
+      - name: Analyze failed logs for ChatGPT UI/auth issues
+        if: steps.guard.outputs.should_recover == 'true'
+        id: detect
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.resolve.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > failed.log 2>&1 || gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log > failed.log 2>&1 || true
+
+          echo "---- failed log (tail) ----"
+          tail -n 120 failed.log || true
+          echo "---------------------------"
+
+          recoverable_pattern='cloudflare|captcha|verify you are human|chatgpt_ui local failed|chatgpt_ui local request timed out|chatgpt_ui image failed|CHATGPT_UI required|Missing CHATGPT_UI_BRIDGE_URL|CHATGPT_UI_STORAGE_STATE_B64|Direct ChatGPT UI mode requires a dedicated self-hosted runner|waiting for a runner to pick up this job|No runner matching|runner is busy|resource temporarily unavailable|rate limit|429|Not authenticated \(no chat textbox\)|no chat textbox|current page: https://chatgpt.com/auth/login|current page: https://chatgpt.com/auth|sign in|log in'
+
+          if grep -Eiq "$recoverable_pattern" failed.log; then
+            echo "recoverable=true" >> "$GITHUB_OUTPUT"
+            echo "match=Matched ChatGPT UI/auth/capacity failure signatures" >> "$GITHUB_OUTPUT"
+          else
+            echo "recoverable=false" >> "$GITHUB_OUTPUT"
+            echo "match=No known ChatGPT UI/auth/capacity signature found" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Dispatch refresh session workflow
+        if: steps.guard.outputs.should_recover == 'true' && steps.detect.outputs.recoverable == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = String(`${{ steps.resolve.outputs.head_branch }}` || 'main');
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner,
+              repo,
+              workflow_id: 'refresh-chatgpt-ui-session.yml',
+              ref,
+            });
+            core.info(`Dispatched refresh-chatgpt-ui-session.yml on ref=${ref}`);
+
+      - name: Rerun failed workflow run once
+        if: steps.guard.outputs.should_recover == 'true' && steps.detect.outputs.recoverable == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const runId = Number(`${{ steps.resolve.outputs.run_id }}`);
+
+            await github.request('POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun', {
+              owner,
+              repo,
+              run_id: runId,
+              enable_debug_logging: false,
+            });
+            core.info(`Requested rerun for run_id=${runId}`);
+
+      - name: Open incident when not recoverable
+        if: steps.guard.outputs.should_recover == 'true' && steps.detect.outputs.recoverable != 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const title = `[AUTO-RECOVERY] Manual check needed for run #${{ steps.resolve.outputs.run_id }}`;
+            const body = [
+              'Auto-recovery watchdog ran but did not detect a known ChatGPT UI/auth/capacity signature.',
+              '',
+              `- Workflow: ${{ steps.resolve.outputs.workflow_name }}`,
+              `- Conclusion: ${{ steps.resolve.outputs.conclusion }}`,
+              `- Run attempt: ${{ steps.resolve.outputs.run_attempt }}`,
+              `- URL: ${{ steps.resolve.outputs.html_url }}`,
+              `- Detector result: ${{ steps.detect.outputs.match }}`,
+            ].join('\n');
+
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title,
+              body,
+              labels: ['incident', 'chatgpt-ui', 'auto-recovery'],
+            });
+
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## ChatGPT UI Auto Recovery"
+            echo "- workflow: ${{ steps.resolve.outputs.workflow_name }}"
+            echo "- run_id: ${{ steps.resolve.outputs.run_id }}"
+            echo "- run_attempt: ${{ steps.resolve.outputs.run_attempt }}"
+            echo "- conclusion: ${{ steps.resolve.outputs.conclusion }}"
+            echo "- eligible: ${{ steps.guard.outputs.should_recover }}"
+            echo "- detector: ${{ steps.detect.outputs.recoverable || 'n/a' }}"
+            echo "- reason: ${{ steps.guard.outputs.reason }}"
+            echo "- match: ${{ steps.detect.outputs.match || 'n/a' }}"
+          } >> "$GITHUB_STEP_SUMMARY"

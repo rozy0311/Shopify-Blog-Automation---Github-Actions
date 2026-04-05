@@ -5,7 +5,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { readConfig, readQueue, updateBackfill } from "./sheets.js";
 import { callLLM, callStructuredLLM, generateBatch, type BatchGenerationResult, type BatchJobItem, validateNoYears } from "./llm.js";
-import { publishArticle } from "./shopify.js";
+import { generateHostedGeminiImages, publishArticle } from "./shopify-client.js";
 import { withRetry } from "./batch.js";
 import { writePreview } from "./preview.js";
 
@@ -243,12 +243,26 @@ async function processQueueRow(
   const directUiImageUrls = hasEnoughExistingInline
     ? []
     : await generateInlineImagesViaChatgptUi(inlineBriefs, data.title || "");
-  data.html = injectInlineImages(data.html || "", inlineBriefs, directUiImageUrls);
+  const geminiFallbackImageUrls = hasEnoughExistingInline || directUiImageUrls.length >= TARGET_INLINE_IMAGES
+    ? []
+    : await generateHostedGeminiImages(
+      inlineBriefs.slice(directUiImageUrls.length, TARGET_INLINE_IMAGES),
+      data.title || "",
+    );
+  const resolvedInlineImageUrls = [...directUiImageUrls, ...geminiFallbackImageUrls].slice(0, TARGET_INLINE_IMAGES);
+  data.html = injectInlineImages(data.html || "", inlineBriefs, resolvedInlineImageUrls);
+  const postInjectInline = extractExistingInlineImageTags(data.html || "");
 
-  if (directUiImageUrls.length > 0) {
+  if (!hasEnoughExistingInline && directUiImageUrls.length < TARGET_INLINE_IMAGES) {
+    console.warn(
+      `[IMAGE_UI] Partial/missing ChatGPT UI images (${directUiImageUrls.length}/${TARGET_INLINE_IMAGES}); Gemini hosted fallback filled ${geminiFallbackImageUrls.length}.`,
+    );
+  }
+
+  if (resolvedInlineImageUrls.length > 0) {
     data.images = [
       {
-        src: directUiImageUrls[0],
+        src: resolvedInlineImageUrls[0],
         alt: (inlineBriefs[0]?.alt || data.title || "featured image").trim(),
       },
     ];
@@ -262,6 +276,25 @@ async function processQueueRow(
         },
       ];
     }
+  } else if ((!Array.isArray(data.images) || !data.images[0]?.src?.trim()) && postInjectInline.length > 0) {
+    const firstSrc = extractFirstImageSrc(postInjectInline[0]);
+    if (firstSrc) {
+      data.images = [
+        {
+          src: firstSrc,
+          alt: (inlineBriefs[0]?.alt || data.title || "featured image").trim(),
+        },
+      ];
+      console.log("[IMAGE_UI] Featured image recovered from post-injection inline fallback");
+    }
+  }
+
+  if (postInjectInline.length < TARGET_INLINE_IMAGES) {
+    throw new Error(`Image pipeline exhausted before publish: only ${postInjectInline.length}/${TARGET_INLINE_IMAGES} inline images available`);
+  }
+
+  if (!Array.isArray(data.images) || !data.images[0]?.src?.trim()) {
+    throw new Error("Image pipeline exhausted before publish: missing featured image");
   }
 
   const preview = await writePreview({
@@ -553,15 +586,6 @@ function injectInlineImages(
     );
   }
 
-  for (let i = imageTags.length; i < needed; i++) {
-    const brief = normalizedBriefs[i];
-    const encodedPrompt = encodeURIComponent(brief.prompt);
-    const safeAlt = escapeHtmlAttr(brief.alt);
-    imageTags.push(
-      `<figure><img src="https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=450&nologo=true" alt="${safeAlt}" loading="lazy" width="800" height="450"><figcaption>${escapeHtml(brief.alt)}</figcaption></figure>`,
-    );
-  }
-
   // Prefer natural interleaving after paragraph closes at ~22%, ~52%, ~80% of article depth.
   const parts = cleanedHtml.split(/(<\/p>)/i);
   const paragraphCloseIndexes: number[] = [];
@@ -635,7 +659,7 @@ async function generateInlineImagesViaChatgptUi(
   const urls: string[] = [];
   for (const [index, brief] of briefs.slice(0, TARGET_INLINE_IMAGES).entries()) {
     const prompt = [
-      `Create one photorealistic editorial image for this blog section titled: \"${title}\".`,
+      `Create one photorealistic editorial image for this blog section titled: "${title}".`,
       `Scene brief: ${brief.prompt}`,
       "No text, no logos, no watermark, no people faces.",
       "Return image only.",
@@ -659,12 +683,16 @@ async function generateInlineImagesViaChatgptUi(
 async function runChatgptUiImage(scriptPath: string, prompt: string): Promise<ChatgptUiImageResult> {
   const timeoutMsRaw = Number(process.env.CHATGPT_UI_IMAGE_TIMEOUT_MS || process.env.CHATGPT_UI_TIMEOUT_MS || "240000");
   const timeoutMs = Number.isFinite(timeoutMsRaw) ? Math.max(60000, Math.min(900000, timeoutMsRaw)) : 240000;
+  const imageModelLabel = (process.env.CHATGPT_UI_IMAGE_MODEL_LABEL || process.env.CHATGPT_UI_MODEL_LABEL || "5.4").trim();
+  const imageStrictModel = (process.env.CHATGPT_UI_IMAGE_STRICT_MODEL || "false").trim().toLowerCase();
 
   return await new Promise((resolve, reject) => {
     const child = spawn("node", [scriptPath], {
       env: {
         ...process.env,
         CHATGPT_UI_MODE: "image",
+        CHATGPT_UI_MODEL_LABEL: imageModelLabel,
+        CHATGPT_UI_STRICT_MODEL: imageStrictModel,
       },
       stdio: ["pipe", "pipe", "pipe"],
     });
