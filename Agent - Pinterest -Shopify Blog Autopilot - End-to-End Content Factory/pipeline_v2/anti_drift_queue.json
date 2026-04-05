@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-05T08:41:35.906084",
-  "updated_at": "2026-04-05T09:20:38.276200",
+  "updated_at": "2026-04-05T09:56:38.323726",
   "items": [
     {
       "id": "690524029246",
@@ -417,11 +417,11 @@
     {
       "id": "690325029182",
       "title": "How to Build a Homemade Vermicomposter",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-05T08:41:35.905578"
+      "updated_at": "2026-04-05T09:56:38.323098"
     },
     {
       "id": "690324963646",
@@ -2200,11 +2200,11 @@
     {
       "id": "690315133246",
       "title": "Elderberry Benefits: Uses, Dosage, Side Effects &",
-      "status": "in_progress",
+      "status": "pending",
       "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-05T08:19:40.194174"
+      "updated_at": "2026-04-05T09:56:31.277786"
     },
     {
       "id": "690315100478",
