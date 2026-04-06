@@ -79,6 +79,7 @@ jobs:
             echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
             echo "CHATGPT_UI_NODE_SCRIPT=${{ vars.CHATGPT_UI_NODE_SCRIPT || 'ui-automation/scripts/chatgpt_ui.mjs' }}"
             echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
+            echo "CHATGPT_UI_STORAGE_STATE_PATH=$HOME/.chatgpt-storageState.runner.json"
             echo "CHATGPT_UI_RUNNER_LABELS_JSON=${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON || '' }}"
             echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
             echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
@@ -142,12 +143,18 @@ jobs:
           set -euo pipefail
           bridge="${CHATGPT_UI_BRIDGE_URL:-}"
           storage="${CHATGPT_UI_STORAGE_STATE_B64:-}"
+          storage_path="${CHATGPT_UI_STORAGE_STATE_PATH:-}"
           strict="${CHATGPT_UI_REQUIRED:-false}"
           runner_labels="${CHATGPT_UI_RUNNER_LABELS_JSON:-}"
+          has_storage_path="false"
 
-          if [ -z "$bridge" ] && [ -z "$storage" ]; then
-            echo "ERROR: CHATGPT_UI is enabled but neither CHATGPT_UI_BRIDGE_URL nor CHATGPT_UI_STORAGE_STATE_B64 is configured."
-            echo "Set a bridge URL/token OR set storage-state secret for direct UI automation."
+          if [ -n "$storage_path" ] && [ -f "$storage_path" ]; then
+            has_storage_path="true"
+          fi
+
+          if [ -z "$bridge" ] && [ -z "$storage" ] && [ "$has_storage_path" != "true" ]; then
+            echo "ERROR: CHATGPT_UI is enabled but neither bridge, persisted storage path, nor CHATGPT_UI_STORAGE_STATE_B64 is configured."
+            echo "Set a bridge URL/token OR provide a valid runner storage-state path/secret for direct UI automation."
             exit 1
           fi
 
@@ -158,8 +165,8 @@ jobs:
             exit 1
           fi
 
-          if [ "$strict" = "true" ] && [ -z "$bridge" ] && [ -z "$storage" ]; then
-            echo "ERROR: CHATGPT_UI_REQUIRED=true requires bridge or storage-state secret."
+          if [ "$strict" = "true" ] && [ -z "$bridge" ] && [ -z "$storage" ] && [ "$has_storage_path" != "true" ]; then
+            echo "ERROR: CHATGPT_UI_REQUIRED=true requires bridge, persisted storage path, or storage-state secret."
             exit 1
           fi
 
@@ -181,6 +188,35 @@ jobs:
           npx playwright install --with-deps chromium
           sudo mv /usr/lib/cnf-update-db.bak /usr/lib/cnf-update-db 2>/dev/null || true
           sudo rm -f /etc/needrestart/conf.d/no-restart.conf 2>/dev/null || true
+
+      - name: Prepare ChatGPT UI runner state
+        if: env.CHATGPT_UI_ENABLED == 'true' && env.CHATGPT_UI_BRIDGE_URL == ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          state_path="${CHATGPT_UI_STORAGE_STATE_PATH:-$HOME/.chatgpt-storageState.runner.json}"
+          mkdir -p "$(dirname "$state_path")"
+
+          probe() {
+            printf '' | CHATGPT_UI_PROBE_ONLY=true CHATGPT_UI_RESPONSE_TIMEOUT_SECONDS=45 CHATGPT_UI_STORAGE_STATE_PATH="$state_path" node "$CHATGPT_UI_NODE_SCRIPT" >/tmp/chatgpt-ui-probe.json
+          }
+
+          if [ -f "$state_path" ]; then
+            echo "Found persisted runner storage state: $state_path"
+            if probe; then
+              echo "Runner storage state probe passed"
+              exit 0
+            fi
+            echo "Persisted runner storage state probe failed; attempting refresh from secret"
+          fi
+
+          if [ -z "${CHATGPT_UI_STORAGE_STATE_B64:-}" ]; then
+            echo "ERROR: Missing CHATGPT_UI_STORAGE_STATE_B64 and persisted runner storage state is unavailable or invalid."
+            exit 1
+          fi
+
+          xvfb-run -a env CHATGPT_UI_STORAGE_STATE_OUT="$state_path" node ui-automation/scripts/chatgpt_refresh_storage_state.mjs
+          probe
       - name: Google creds -> file (for Sheets ADC)
         shell: bash
         env:

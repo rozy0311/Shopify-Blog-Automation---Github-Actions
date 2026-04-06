@@ -29,6 +29,7 @@ jobs:
         run: |
           {
             echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
+            echo "CHATGPT_UI_STORAGE_STATE_PATH=$HOME/.chatgpt-storageState.runner.json"
           } >> "$GITHUB_ENV"
 
       - name: Inject secret
@@ -56,7 +57,14 @@ jobs:
       - name: Refresh storage state on runner IP
         shell: bash
         run: |
-          xvfb-run -a node ui-automation/scripts/chatgpt_refresh_storage_state.mjs
+          mkdir -p "$(dirname "$CHATGPT_UI_STORAGE_STATE_PATH")"
+          xvfb-run -a env CHATGPT_UI_STORAGE_STATE_OUT="$CHATGPT_UI_STORAGE_STATE_PATH" node ui-automation/scripts/chatgpt_refresh_storage_state.mjs
+
+      - name: Sync refreshed storage artifact files
+        shell: bash
+        run: |
+          cp "$CHATGPT_UI_STORAGE_STATE_PATH" .chatgpt-storageState.runner.json
+          cp "$CHATGPT_UI_STORAGE_STATE_PATH.b64.txt" .chatgpt-storageState.runner.json.b64.txt
 
       - name: Debug refreshed files
         shell: bash

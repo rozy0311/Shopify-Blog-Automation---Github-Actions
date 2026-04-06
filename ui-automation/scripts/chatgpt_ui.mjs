@@ -286,8 +286,9 @@ async function enforceModelSelection(page, modelLabel, strictModel) {
 }
 
 async function main() {
+  const probeOnly = toBool(process.env.CHATGPT_UI_PROBE_ONLY, false);
   const prompt = String((await readStdin()) || '').trim();
-  if (!prompt) {
+  if (!probeOnly && !prompt) {
     writeErr('No prompt on stdin');
     process.exit(2);
   }
@@ -394,6 +395,12 @@ async function main() {
     }
 
     await enforceModelSelection(page, modelLabel, strictModel);
+
+    if (probeOnly) {
+      const title = await page.title().catch(() => '');
+      process.stdout.write(JSON.stringify({ ok: true, mode: 'probe', url: page.url(), title, modelLabel }));
+      return;
+    }
 
     const tag = String((await textbox.evaluate((el) => el?.tagName || '').catch(() => '')) || '').toLowerCase();
     if (tag === 'textarea') {

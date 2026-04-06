@@ -6,9 +6,10 @@ type RetryOptions = {
   maxAttempts?: number;
   baseDelayMs?: number;
   maxDelayMs?: number;
+  shouldRetry?: (error: unknown) => boolean;
 };
 
-const DEFAULT_OPTIONS: Required<RetryOptions> = {
+const DEFAULT_OPTIONS: Pick<Required<RetryOptions>, "maxAttempts" | "baseDelayMs" | "maxDelayMs"> = {
   maxAttempts: 6,
   baseDelayMs: 2000,
   maxDelayMs: 60000,
@@ -17,7 +18,7 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
 const MAX_JITTER_MS = 250;
 
 export async function withRetry<T>(task: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
-  const { maxAttempts, baseDelayMs, maxDelayMs } = { ...DEFAULT_OPTIONS, ...options };
+  const { maxAttempts, baseDelayMs, maxDelayMs, shouldRetry } = { ...DEFAULT_OPTIONS, ...options };
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -25,6 +26,9 @@ export async function withRetry<T>(task: () => Promise<T>, options: RetryOptions
       return await task();
     } catch (error) {
       lastError = error;
+      if (shouldRetry && !shouldRetry(error)) {
+        throw error;
+      }
       if (attempt >= maxAttempts) break;
 
       const retryAfterMs = extractRetryAfterMs(error);

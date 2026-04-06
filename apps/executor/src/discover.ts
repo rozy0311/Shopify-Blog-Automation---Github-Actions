@@ -86,6 +86,40 @@ interface NicheIdea {
   intentReason?: string;
 }
 
+function isFatalChatgptUiAuthError(error: unknown): boolean {
+  const message = String(error instanceof Error ? error.message : error || "").toLowerCase();
+  if (!message) return false;
+  return (
+    message.includes("not authenticated (no chat textbox)") ||
+    message.includes("title=just a moment") ||
+    message.includes("verify you are human") ||
+    message.includes("chatgpt.com/auth/login") ||
+    message.includes("chatgpt.com/auth")
+  );
+}
+
+const TOPIC_STOPWORDS = new Set([
+  "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "how", "in", "into", "is",
+  "it", "of", "on", "or", "that", "the", "their", "to", "vs", "what", "when", "where", "which", "with",
+]);
+
+function tokenizeForSignature(input: string): string[] {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]+/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length >= 3 && !TOPIC_STOPWORDS.has(token));
+}
+
+function normalizeTopicSignature(topic: string, productName: string): string {
+  const productTokens = new Set(tokenizeForSignature(productName));
+  const topicTokens = tokenizeForSignature(topic).filter((token) => !productTokens.has(token));
+  if (topicTokens.length === 0) {
+    return productName.trim().toLowerCase();
+  }
+  return topicTokens.sort().join(" ");
+}
+
 function dedupeProductsByCommonName(products: Product[]): Product[] {
   const seen = new Set<string>();
   const output: Product[] = [];
@@ -354,6 +388,7 @@ export async function generateNicheIdeas(
         model,
         userPrompt,
       ),
+    { shouldRetry: (error) => !isFatalChatgptUiAuthError(error) },
   );
 
   if (!Array.isArray(raw)) return [];
@@ -374,7 +409,9 @@ export async function generateNicheIdeas(
 
 export function filterNicheIdeas(ideas: NicheIdea[], existingTopics: string[]): NicheIdea[] {
   const existingLower = new Set(existingTopics.map((t) => t.toLowerCase()));
+  const existingSignature = new Set(existingTopics.map((t) => normalizeTopicSignature(t, "")).filter(Boolean));
   const acceptedLower = new Set<string>();
+  const acceptedSignature = new Set<string>();
 
   return ideas.filter((idea) => {
     const topic = idea.topic;
@@ -445,13 +482,25 @@ export function filterNicheIdeas(ideas: NicheIdea[], existingTopics: string[]): 
       return false;
     }
 
+    const signature = normalizeTopicSignature(topic, idea.product);
+    if (signature && existingSignature.has(signature)) {
+      console.log(`[DISCOVER] REJECT (duplicate-signature): ${topic}`);
+      return false;
+    }
+
     // Dedup inside current generation batch
     if (acceptedLower.has(lower)) {
       console.log(`[DISCOVER] REJECT (duplicate-in-run): ${topic}`);
       return false;
     }
 
+    if (signature && acceptedSignature.has(signature)) {
+      console.log(`[DISCOVER] REJECT (duplicate-signature-in-run): ${topic}`);
+      return false;
+    }
+
     acceptedLower.add(lower);
+    if (signature) acceptedSignature.add(signature);
 
     return true;
   });
@@ -574,6 +623,10 @@ async function main() {
       allIdeas.push(...selected);
     } catch (err) {
       console.error(`[DISCOVER] Failed for ${product.commonName}:`, err instanceof Error ? err.message : err);
+      if (isFatalChatgptUiAuthError(err)) {
+        console.error("[DISCOVER] Fatal ChatGPT UI auth/block detected; aborting remaining products so recovery can start.");
+        throw err;
+      }
     }
   }
 

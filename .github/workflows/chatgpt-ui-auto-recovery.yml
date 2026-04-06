@@ -133,6 +133,7 @@ jobs:
 
       - name: Dispatch refresh session workflow
         if: steps.guard.outputs.should_recover == 'true' && steps.detect.outputs.recoverable == 'true'
+        id: refresh
         uses: actions/github-script@v7
         with:
           github-token: ${{ github.token }}
@@ -140,17 +141,84 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const ref = String(`${{ steps.resolve.outputs.head_branch }}` || 'main');
+            const workflowId = 'refresh-chatgpt-ui-session.yml';
+            const dispatchedAfter = Date.now();
 
             await github.rest.actions.createWorkflowDispatch({
               owner,
               repo,
-              workflow_id: 'refresh-chatgpt-ui-session.yml',
+              workflow_id: workflowId,
               ref,
             });
             core.info(`Dispatched refresh-chatgpt-ui-session.yml on ref=${ref}`);
 
-      - name: Rerun failed workflow run once
+            let refreshRun = null;
+            for (let attempt = 0; attempt < 24; attempt += 1) {
+              await new Promise((resolve) => setTimeout(resolve, 5000));
+              const { data } = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: workflowId,
+                branch: ref,
+                event: 'workflow_dispatch',
+                per_page: 10,
+              });
+
+              refreshRun = (data.workflow_runs || []).find((run) => {
+                const createdAt = Date.parse(run.created_at || 0);
+                return Number.isFinite(createdAt) && createdAt >= dispatchedAfter - 10000;
+              }) || null;
+
+              if (refreshRun) break;
+            }
+
+            if (!refreshRun) {
+              core.setFailed('Failed to resolve dispatched refresh workflow run');
+              return;
+            }
+
+            core.setOutput('refresh_run_id', String(refreshRun.id));
+            core.setOutput('refresh_html_url', String(refreshRun.html_url || ''));
+
+      - name: Wait for refresh session workflow
         if: steps.guard.outputs.should_recover == 'true' && steps.detect.outputs.recoverable == 'true'
+        id: refresh_wait
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const runId = Number(`${{ steps.refresh.outputs.refresh_run_id }}`);
+
+            if (!Number.isFinite(runId) || runId <= 0) {
+              core.setFailed('Missing refresh workflow run id');
+              return;
+            }
+
+            for (let attempt = 0; attempt < 80; attempt += 1) {
+              const { data } = await github.rest.actions.getWorkflowRun({
+                owner,
+                repo,
+                run_id: runId,
+              });
+
+              core.info(`Refresh workflow status=${data.status} conclusion=${data.conclusion || ''}`);
+              if (data.status === 'completed') {
+                core.setOutput('refresh_conclusion', String(data.conclusion || ''));
+                if (data.conclusion !== 'success') {
+                  core.setFailed(`Refresh workflow completed with conclusion=${data.conclusion || 'unknown'}`);
+                }
+                return;
+              }
+
+              await new Promise((resolve) => setTimeout(resolve, 15000));
+            }
+
+            core.setFailed('Timed out waiting for refresh workflow to complete');
+
+      - name: Rerun failed workflow run once
+        if: steps.guard.outputs.should_recover == 'true' && steps.detect.outputs.recoverable == 'true' && steps.refresh_wait.conclusion == 'success'
         uses: actions/github-script@v7
         with:
           github-token: ${{ github.token }}
@@ -206,6 +274,8 @@ jobs:
             echo "- conclusion: ${{ steps.resolve.outputs.conclusion }}"
             echo "- eligible: ${{ steps.guard.outputs.should_recover }}"
             echo "- detector: ${{ steps.detect.outputs.recoverable || 'n/a' }}"
+            echo "- refresh_run_id: ${{ steps.refresh.outputs.refresh_run_id || 'n/a' }}"
+            echo "- refresh_conclusion: ${{ steps.refresh_wait.outputs.refresh_conclusion || 'n/a' }}"
             echo "- reason: ${{ steps.guard.outputs.reason }}"
             echo "- match: ${{ steps.detect.outputs.match || 'n/a' }}"
           } >> "$GITHUB_STEP_SUMMARY"
