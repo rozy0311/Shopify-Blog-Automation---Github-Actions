@@ -198,7 +198,7 @@ jobs:
           mkdir -p "$(dirname "$state_path")"
 
           probe() {
-            printf '' | CHATGPT_UI_PROBE_ONLY=true CHATGPT_UI_RESPONSE_TIMEOUT_SECONDS=45 CHATGPT_UI_STORAGE_STATE_PATH="$state_path" node "$CHATGPT_UI_NODE_SCRIPT" >/tmp/chatgpt-ui-probe.json
+            printf '' | xvfb-run -a env CHATGPT_UI_PROBE_ONLY=true CHATGPT_UI_HEADLESS=false CHATGPT_UI_RESPONSE_TIMEOUT_SECONDS=45 CHATGPT_UI_STORAGE_STATE_PATH="$state_path" node "$CHATGPT_UI_NODE_SCRIPT" >/tmp/chatgpt-ui-probe.json
           }
 
           if [ -f "$state_path" ]; then
@@ -288,7 +288,11 @@ jobs:
             export START_AT=$((start + i))
             export MAX_ITEMS=1
             echo "Running executor item $((i+1))/$total (START_AT=$START_AT, MAX_ITEMS=$MAX_ITEMS)"
-            node apps/executor/dist/index.js
+            if [ -z "${CHATGPT_UI_BRIDGE_URL:-}" ]; then
+              xvfb-run -a env CHATGPT_UI_HEADLESS=false node apps/executor/dist/index.js
+            else
+              node apps/executor/dist/index.js
+            fi
             i=$((i+1))
           done
       - name: Upload previews + summary

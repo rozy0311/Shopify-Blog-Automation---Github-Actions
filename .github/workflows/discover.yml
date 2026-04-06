@@ -197,7 +197,7 @@ jobs:
           mkdir -p "$(dirname "$state_path")"
 
           probe() {
-            printf '' | CHATGPT_UI_PROBE_ONLY=true CHATGPT_UI_RESPONSE_TIMEOUT_SECONDS=45 CHATGPT_UI_STORAGE_STATE_PATH="$state_path" node "$CHATGPT_UI_NODE_SCRIPT" >/tmp/chatgpt-ui-probe.json
+            printf '' | xvfb-run -a env CHATGPT_UI_PROBE_ONLY=true CHATGPT_UI_HEADLESS=false CHATGPT_UI_RESPONSE_TIMEOUT_SECONDS=45 CHATGPT_UI_STORAGE_STATE_PATH="$state_path" node "$CHATGPT_UI_NODE_SCRIPT" >/tmp/chatgpt-ui-probe.json
           }
 
           if [ -f "$state_path" ]; then
@@ -226,7 +226,13 @@ jobs:
 
       - name: Run discover
         timeout-minutes: 12
-        run: node apps/executor/dist/discover.js
+        run: |
+          set -euo pipefail
+          if [ -z "${CHATGPT_UI_BRIDGE_URL:-}" ]; then
+            xvfb-run -a env CHATGPT_UI_HEADLESS=false node apps/executor/dist/discover.js
+          else
+            node apps/executor/dist/discover.js
+          fi
 
       - name: Save discover state cache
         if: always()
@@ -279,7 +285,11 @@ jobs:
             export START_AT=$((i + 1))
             export MAX_ITEMS=1
             echo "Publishing item $((i+1))/$total"
-            node apps/executor/dist/index.js || true
+            if [ -z "${CHATGPT_UI_BRIDGE_URL:-}" ]; then
+              xvfb-run -a env CHATGPT_UI_HEADLESS=false node apps/executor/dist/index.js || true
+            else
+              node apps/executor/dist/index.js || true
+            fi
             i=$((i+1))
           done
 
