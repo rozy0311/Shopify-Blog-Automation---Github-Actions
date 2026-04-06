@@ -353,17 +353,13 @@ async function callChatgptUi(systemPrompt: string, userPrompt: string, model: st
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`CHATGPT_UI required but local UI failed: ${message}`);
     }
+    throw error instanceof Error ? error : new Error(String(error));
   }
 
   if (strict) {
     throw new Error("CHATGPT_UI required but bridge is missing");
   }
-  if (process.env.OPENAI_API_KEY) {
-    console.warn("chatgpt_ui bridge missing, falling back to OpenAI API provider path");
-    return callOpenAICompatible("openai", systemPrompt, userPrompt, model);
-  }
-
-  throw new Error("Missing CHATGPT_UI_BRIDGE_URL and OPENAI_API_KEY");
+  throw new Error("CHATGPT_UI unavailable");
 }
 
 async function callChatgptUiLocal(
@@ -481,6 +477,19 @@ function shouldFallback(provider: Provider, error: Error): boolean {
   if (message.includes("required but bridge is missing")) return false;
   if (message.includes("missing")) return true;
   if (message.includes("disabled") || message.includes("bridge")) return provider !== "openai";
+  if (
+    provider === "chatgpt_ui" && (
+      message.includes("strict model selection failed") ||
+      message.includes("not authenticated") ||
+      message.includes("no chat textbox") ||
+      message.includes("just a moment") ||
+      message.includes("verify you are human") ||
+      message.includes("chatgpt_ui unavailable") ||
+      message.includes("local ui failed")
+    )
+  ) {
+    return true;
+  }
   if (status && [401, 403, 429].includes(status)) return true;
   if (
     message.includes("quota") ||

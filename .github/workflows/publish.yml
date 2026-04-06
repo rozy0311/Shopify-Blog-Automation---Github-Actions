@@ -68,7 +68,7 @@ jobs:
             echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}"
             echo "GEMINI_IMAGE_MODEL=${{ vars.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image' }}"
             echo "LLM_PROVIDER_ORDER=${{ github.event_name == 'schedule' && 'chatgpt_ui' || vars.LLM_PROVIDER_ORDER || 'chatgpt_ui,gemini,github_models,openai' }}"
-            echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'false' }}"
+            echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'true' }}"
             echo "CHATGPT_UI_ENABLED=true"
             echo "CHATGPT_UI_REQUIRED=true"
             echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
