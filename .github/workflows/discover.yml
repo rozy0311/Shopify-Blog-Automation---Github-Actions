@@ -70,12 +70,12 @@ jobs:
             echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
             echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}"
             echo "DISABLE_OPENAI=true"
-            echo "LLM_PROVIDER_ORDER=chatgpt_ui,gemini"
+            echo "LLM_PROVIDER_ORDER=gemini"
             echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}"
             echo "GEMINI_IMAGE_MODEL=${{ vars.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image' }}"
             echo "GH_MODELS_API_BASE=${{ vars.GH_MODELS_API_BASE || 'https://models.github.ai/inference' }}"
             echo "GH_MODELS_MODEL=${{ vars.GH_MODELS_MODEL }}"
-            echo "CHATGPT_UI_ENABLED=${{ github.event_name == 'schedule' && 'true' || 'true' }}"
+            echo "CHATGPT_UI_ENABLED=false"
             echo "CHATGPT_UI_REQUIRED=${{ github.event_name == 'schedule' && 'false' || 'false' }}"
             echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
             echo "CHATGPT_UI_MODEL_LABEL=${{ vars.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking' }}"
@@ -229,7 +229,7 @@ jobs:
       - name: Run discover
         timeout-minutes: 12
         env:
-          LLM_PROVIDER_ORDER: "chatgpt_ui,gemini"
+          LLM_PROVIDER_ORDER: "gemini"
           DISABLE_OPENAI: "true"
           CHATGPT_UI_STRICT_MODEL: "false"
           CHATGPT_UI_TIMEOUT_MS: "45000"
@@ -237,11 +237,7 @@ jobs:
           OPENAI_TIMEOUT_MS: "45000"
         run: |
           set -euo pipefail
-          if [ -z "${CHATGPT_UI_BRIDGE_URL:-}" ]; then
-            xvfb-run -a env CHATGPT_UI_HEADLESS=false node apps/executor/dist/discover.js
-          else
-            node apps/executor/dist/discover.js
-          fi
+          node apps/executor/dist/discover.js
 
       - name: Save discover state cache
         if: always()
@@ -256,7 +252,9 @@ jobs:
           DISCOVER_MODE: "true"
           QUEUE_FILE: out/discover-queue.json
           MODE: publish
+          CHATGPT_UI_ENABLED: "true"
           CHATGPT_UI_REQUIRED: "true"
+          LLM_PROVIDER_ORDER: "chatgpt_ui"
           DISABLE_OPENAI: "true"
           SHOPIFY_SHOP: ${{ vars.SHOPIFY_SHOP }}
           SHOPIFY_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
