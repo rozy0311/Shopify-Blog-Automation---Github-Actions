@@ -1,7 +1,7 @@
 import "dotenv/config";
 import fs from "fs-extra";
 import { callLLM, validateNoYears } from "./llm.js";
-import { getBlogByHandle, listArticles, updateArticle } from "./shopify.js";
+import { getBlogByHandle, listArticles, updateArticle } from "./shopify-client.js";
 import { withRetry } from "./batch.js";
 
 /* ─── constants ─── */
