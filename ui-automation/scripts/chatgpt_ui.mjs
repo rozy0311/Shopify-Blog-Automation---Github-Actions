@@ -394,13 +394,13 @@ async function main() {
       process.exit(10);
     }
 
-    await enforceModelSelection(page, modelLabel, strictModel);
-
     if (probeOnly) {
       const title = await page.title().catch(() => '');
       process.stdout.write(JSON.stringify({ ok: true, mode: 'probe', url: page.url(), title, modelLabel }));
       return;
     }
+
+    await enforceModelSelection(page, modelLabel, strictModel);
 
     const tag = String((await textbox.evaluate((el) => el?.tagName || '').catch(() => '')) || '').toLowerCase();
     if (tag === 'textarea') {
