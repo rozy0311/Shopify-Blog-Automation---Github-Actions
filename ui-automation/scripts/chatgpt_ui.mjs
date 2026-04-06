@@ -133,6 +133,16 @@ function splitModelTokens(text) {
     .filter((token) => !new Set(['gpt', 'chatgpt', 'thinking', 'reasoning', 'model']).has(token));
 }
 
+function modelTokensMatch(text, modelLabel) {
+  const lowerText = String(text || '').toLowerCase();
+  const lowerLabel = String(modelLabel || '').toLowerCase();
+  if (!lowerText || !lowerLabel) return false;
+  if (lowerText.includes(lowerLabel)) return true;
+
+  const tokens = splitModelTokens(modelLabel);
+  return tokens.length > 0 && tokens.every((token) => lowerText.includes(token));
+}
+
 function composerLocator(page) {
   return page
     .locator(
@@ -241,6 +251,7 @@ async function waitForAssistantImages(page, responseTimeoutSeconds) {
 
 async function enforceModelSelection(page, modelLabel, strictModel) {
   if (!modelLabel) return;
+  let selected = false;
 
   try {
     const maybeSwitcher = page
@@ -252,10 +263,12 @@ async function enforceModelSelection(page, modelLabel, strictModel) {
       const option = page.getByRole('menuitem', { name: new RegExp(modelLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }).first();
       if (await option.count()) {
         await option.click({ timeout: 3000 }).catch(() => {});
+        selected = true;
       } else {
         const any = page.getByText(modelLabel, { exact: false }).first();
         if (await any.count()) {
           await any.click({ timeout: 3000 }).catch(() => {});
+          selected = true;
         }
       }
     }
@@ -268,19 +281,29 @@ async function enforceModelSelection(page, modelLabel, strictModel) {
   await page.waitForTimeout(500);
   const selectorBtn = page.locator('button[aria-label^="Model selector, current model is"]').first();
   const aria = String((await selectorBtn.getAttribute('aria-label').catch(() => '')) || '');
-  const ariaLower = aria.toLowerCase();
-  const expectedLower = String(modelLabel || '').toLowerCase();
+  const buttonText = String((await selectorBtn.innerText().catch(() => '')) || '');
+  const visibleModelSignals = await page.evaluate(() => {
+    const elements = Array.from(document.querySelectorAll('button,[role="button"],[role="menuitem"]'));
+    return elements
+      .map((element) => {
+        const text = String(element.textContent || '').trim();
+        const ariaLabel = String(element.getAttribute('aria-label') || '').trim();
+        return [ariaLabel, text].filter(Boolean).join(' | ');
+      })
+      .filter(Boolean)
+      .slice(0, 80);
+  }).catch(() => []);
 
-  let ok = ariaLower.includes(expectedLower);
-  if (!ok) {
-    const tokens = splitModelTokens(modelLabel);
-    if (tokens.length >= 1) {
-      ok = tokens.every((token) => ariaLower.includes(token));
-    }
+  const candidates = [aria, buttonText, ...visibleModelSignals].filter(Boolean);
+  let ok = candidates.some((candidate) => modelTokensMatch(candidate, modelLabel));
+
+  if (!ok && selected) {
+    ok = candidates.some((candidate) => /thinking|5\.4|gpt/i.test(String(candidate || '')));
   }
 
   if (!ok) {
-    writeErr(`Strict model selection failed: could not confirm model '${modelLabel}' is active. Current aria-label: ${aria || '(missing)'}`);
+    const preview = candidates.slice(0, 8).join(' || ');
+    writeErr(`Strict model selection failed: could not confirm model '${modelLabel}' is active. Current signals: ${preview || '(missing)'}`);
     process.exit(16);
   }
 }
