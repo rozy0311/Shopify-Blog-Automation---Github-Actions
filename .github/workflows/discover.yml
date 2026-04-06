@@ -78,7 +78,7 @@ jobs:
             echo "CHATGPT_UI_REQUIRED=${{ github.event_name == 'schedule' && 'true' || 'true' }}"
             echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
             echo "CHATGPT_UI_MODEL_LABEL=${{ vars.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking' }}"
-            echo "CHATGPT_UI_STRICT_MODEL=${{ vars.CHATGPT_UI_STRICT_MODEL || 'true' }}"
+            echo "CHATGPT_UI_STRICT_MODEL=${{ vars.CHATGPT_UI_STRICT_MODEL || 'false' }}"
             echo "CHATGPT_UI_IMAGE_MODEL_LABEL=${{ vars.CHATGPT_UI_IMAGE_MODEL_LABEL || '5.4' }}"
             echo "CHATGPT_UI_IMAGE_STRICT_MODEL=${{ vars.CHATGPT_UI_IMAGE_STRICT_MODEL || 'false' }}"
             echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
