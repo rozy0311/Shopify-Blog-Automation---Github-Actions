@@ -41,7 +41,7 @@ concurrency:
 
 jobs:
   discover:
-    runs-on: ${{ vars.DISCOVER_USE_SELF_HOSTED == 'true' && vars.CHATGPT_UI_RUNNER_LABELS_JSON != '' && fromJSON(vars.CHATGPT_UI_RUNNER_LABELS_JSON) || 'ubuntu-latest' }}
+    runs-on: ${{ vars.CHATGPT_UI_BRIDGE_URL == '' && vars.CHATGPT_UI_RUNNER_LABELS_JSON != '' && fromJSON(vars.CHATGPT_UI_RUNNER_LABELS_JSON) || 'ubuntu-latest' }}
     permissions:
       contents: read
     steps:
@@ -69,8 +69,8 @@ jobs:
             echo "SHEETS_RANGE=${{ vars.SHEETS_RANGE }}"
             echo "SHEETS_ENABLED=${{ vars.SHEETS_ENABLED || 'true' }}"
             echo "OPENAI_MODEL=${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}"
-            echo "DISABLE_OPENAI=${{ vars.DISABLE_OPENAI || 'true' }}"
-            echo "LLM_PROVIDER_ORDER=${{ github.event_name == 'schedule' && 'chatgpt_ui' || 'chatgpt_ui,gemini,github_models,openai' }}"
+            echo "DISABLE_OPENAI=true"
+            echo "LLM_PROVIDER_ORDER=chatgpt_ui,gemini"
             echo "GEMINI_MODEL=${{ vars.GEMINI_MODEL || 'gemini-2.0-flash' }}"
             echo "GEMINI_IMAGE_MODEL=${{ vars.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image' }}"
             echo "GH_MODELS_API_BASE=${{ vars.GH_MODELS_API_BASE || 'https://models.github.ai/inference' }}"
@@ -79,7 +79,7 @@ jobs:
             echo "CHATGPT_UI_REQUIRED=${{ github.event_name == 'schedule' && 'false' || 'false' }}"
             echo "CHATGPT_UI_MODEL=${{ vars.CHATGPT_UI_MODEL || '' }}"
             echo "CHATGPT_UI_MODEL_LABEL=${{ vars.CHATGPT_UI_MODEL_LABEL || '5.4 Thinking' }}"
-            echo "CHATGPT_UI_STRICT_MODEL=${{ vars.CHATGPT_UI_STRICT_MODEL || 'false' }}"
+            echo "CHATGPT_UI_STRICT_MODEL=false"
             echo "CHATGPT_UI_IMAGE_MODEL_LABEL=${{ vars.CHATGPT_UI_IMAGE_MODEL_LABEL || '5.4' }}"
             echo "CHATGPT_UI_IMAGE_STRICT_MODEL=${{ vars.CHATGPT_UI_IMAGE_STRICT_MODEL || 'false' }}"
             echo "CHATGPT_UI_BASE_URL=${{ vars.CHATGPT_UI_BASE_URL || 'https://chatgpt.com/' }}"
@@ -87,8 +87,9 @@ jobs:
             echo "CHATGPT_UI_HEADLESS=${{ vars.CHATGPT_UI_HEADLESS || 'true' }}"
             echo "CHATGPT_UI_STORAGE_STATE_PATH=$HOME/.chatgpt-storageState.runner.json"
             echo "CHATGPT_UI_BRIDGE_URL=${{ vars.CHATGPT_UI_BRIDGE_URL || '' }}"
-            echo "CHATGPT_UI_TIMEOUT_MS=${{ vars.CHATGPT_UI_TIMEOUT_MS || '180000' }}"
-            echo "CHATGPT_UI_TIMEOUT_SECONDS=${{ vars.CHATGPT_UI_TIMEOUT_SECONDS || '120' }}"
+            echo "CHATGPT_UI_TIMEOUT_MS=45000"
+            echo "CHATGPT_UI_TIMEOUT_SECONDS=45"
+            echo "OPENAI_TIMEOUT_MS=45000"
             echo "CHATGPT_UI_RUNNER_LABELS_JSON=${{ vars.CHATGPT_UI_RUNNER_LABELS_JSON || '' }}"
             echo "PREFER_EXISTING_INLINE_IMAGES=${{ vars.PREFER_EXISTING_INLINE_IMAGES || 'true' }}"
           } >> "$GITHUB_ENV"
@@ -227,6 +228,13 @@ jobs:
 
       - name: Run discover
         timeout-minutes: 12
+        env:
+          LLM_PROVIDER_ORDER: "chatgpt_ui,gemini"
+          DISABLE_OPENAI: "true"
+          CHATGPT_UI_STRICT_MODEL: "false"
+          CHATGPT_UI_TIMEOUT_MS: "45000"
+          CHATGPT_UI_TIMEOUT_SECONDS: "45"
+          OPENAI_TIMEOUT_MS: "45000"
         run: |
           set -euo pipefail
           if [ -z "${CHATGPT_UI_BRIDGE_URL:-}" ]; then
