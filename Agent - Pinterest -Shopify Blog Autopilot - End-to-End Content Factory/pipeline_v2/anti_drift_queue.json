@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-08T15:38:08.004118",
-  "updated_at": "2026-04-08T20:35:47.863200",
+  "updated_at": "2026-04-08T21:00:03.776098",
   "items": [
     {
       "id": "690524029246",
@@ -779,11 +779,11 @@
     {
       "id": "690308972862",
       "title": "Cranberries Benefits: Nutrition Facts, How to Use,",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-08T15:38:08.003165"
+      "updated_at": "2026-04-08T21:00:03.775499"
     },
     {
       "id": "690308874558",
