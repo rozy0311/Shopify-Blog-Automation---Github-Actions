@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-04-11T09:56:58.536346",
-  "updated_at": "2026-04-11T15:37:01.708924",
+  "created_at": "2026-04-11T15:53:34.265858",
+  "updated_at": "2026-04-11T15:53:38.959825",
   "items": [
     {
       "id": "690524029246",
@@ -230,7 +230,7 @@
       "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-10T23:40:02.406746"
+      "updated_at": "2026-04-11T15:53:38.959235"
     },
     {
       "id": "690348097854",
@@ -399,11 +399,11 @@
     {
       "id": "690325160254",
       "title": "36 Greenhouse Ideas",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-10T23:57:27.787895"
+      "updated_at": "2026-04-11T15:53:34.265553"
     },
     {
       "id": "690325127486",
@@ -417,11 +417,11 @@
     {
       "id": "690325029182",
       "title": "How to Build a Homemade Vermicomposter",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T00:52:41.175214"
+      "updated_at": "2026-04-11T15:53:34.265555"
     },
     {
       "id": "690324963646",
@@ -444,11 +444,11 @@
     {
       "id": "690324767038",
       "title": "Hairy Bittercress Benefits: Uses, Dosage, Side Eff",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T01:41:33.328846"
+      "updated_at": "2026-04-11T15:53:34.264803"
     },
     {
       "id": "690324701502",
@@ -763,27 +763,27 @@
       "title": "Black Garlic Benefits: Uses, Dosage, Side Effects ",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535598"
+      "updated_at": "2026-04-11T15:53:34.264963"
     },
     {
       "id": "690309038398",
       "title": "Marshmallow Benefits: Uses, Dosage, Side Effects &",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535603"
+      "updated_at": "2026-04-11T15:53:34.265023"
     },
     {
       "id": "690308972862",
       "title": "Cranberries Benefits: Nutrition Facts, How to Use,",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535606"
+      "updated_at": "2026-04-11T15:53:34.265026"
     },
     {
       "id": "690308874558",
@@ -799,18 +799,18 @@
       "title": "Blechnaceae Benefits: Uses, Dosage, Side Effects",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535614"
+      "updated_at": "2026-04-11T15:53:34.265034"
     },
     {
       "id": "690304942398",
       "title": "Boiled Bananas Benefits: Nutrition Facts, How to U",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535617"
+      "updated_at": "2026-04-11T15:53:34.265036"
     },
     {
       "id": "690296357182",
@@ -826,18 +826,18 @@
       "title": "Passionflower Tea for Evenings: Perfect Ratios, St",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535655"
+      "updated_at": "2026-04-11T15:53:34.265075"
     },
     {
       "id": "690295800126",
       "title": "Water Spinach Container Culture for Rainy Seasons ",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T03:11:28.764247"
+      "updated_at": "2026-04-11T15:53:34.265103"
     },
     {
       "id": "690295570750",
@@ -968,11 +968,11 @@
     {
       "id": "690292195646",
       "title": "Cold Stratification Guide: Maple, Magnolia, Sedum,",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-10T21:58:13.547051"
+      "updated_at": "2026-04-11T15:53:34.265171"
     },
     {
       "id": "690291769662",
@@ -1049,20 +1049,20 @@
     {
       "id": "690283544894",
       "title": "Glutinous Corn Storage: Freezing, Husk-On Holding,",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-10T22:19:04.614766"
+      "updated_at": "2026-04-11T15:53:34.265206"
     },
     {
       "id": "690283512126",
       "title": "Glutinous Corn Watering: Milky Stage Care for Best",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-10T22:39:33.344160"
+      "updated_at": "2026-04-11T15:53:34.265209"
     },
     {
       "id": "690283348286",
@@ -1337,11 +1337,11 @@
     {
       "id": "690328305982",
       "title": "Spilled Flower Pots: 22 Easy Ideas and Tips",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-10T22:58:58.064236"
+      "updated_at": "2026-04-11T15:53:34.265479"
     },
     {
       "id": "690327912766",
@@ -1364,11 +1364,11 @@
     {
       "id": "690327617854",
       "title": "Upcycled Light Bulb Ideas: 21 DIY Decor Projects f",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-10T23:19:17.084375"
+      "updated_at": "2026-04-11T15:53:34.265488"
     },
     {
       "id": "690327290174",
@@ -1503,7 +1503,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535351"
+      "updated_at": "2026-04-11T15:53:34.265512"
     },
     {
       "id": "690325717310",
@@ -1512,7 +1512,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535359"
+      "updated_at": "2026-04-11T15:53:34.265515"
     },
     {
       "id": "690325324094",
@@ -1530,7 +1530,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535389"
+      "updated_at": "2026-04-11T15:53:34.265544"
     },
     {
       "id": "690210963774",
@@ -1748,7 +1748,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536021"
+      "updated_at": "2026-04-11T15:53:34.265444"
     },
     {
       "id": "690211815742",
@@ -2177,7 +2177,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535537"
+      "updated_at": "2026-04-11T15:53:34.264864"
     },
     {
       "id": "690316935486",
@@ -2213,7 +2213,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535544"
+      "updated_at": "2026-04-11T15:53:34.264873"
     },
     {
       "id": "690315002174",
@@ -2222,7 +2222,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535549"
+      "updated_at": "2026-04-11T15:53:34.264877"
     },
     {
       "id": "690314772798",
@@ -2231,7 +2231,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535553"
+      "updated_at": "2026-04-11T15:53:34.264884"
     },
     {
       "id": "690314608958",
@@ -2240,7 +2240,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535557"
+      "updated_at": "2026-04-11T15:53:34.264895"
     },
     {
       "id": "690314477886",
@@ -2249,7 +2249,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535561"
+      "updated_at": "2026-04-11T15:53:34.264902"
     },
     {
       "id": "690314314046",
@@ -2258,7 +2258,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535565"
+      "updated_at": "2026-04-11T15:53:34.264910"
     },
     {
       "id": "690314117438",
@@ -2267,7 +2267,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535569"
+      "updated_at": "2026-04-11T15:53:34.264918"
     },
     {
       "id": "690314084670",
@@ -2276,7 +2276,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535573"
+      "updated_at": "2026-04-11T15:53:34.264925"
     },
     {
       "id": "690313920830",
@@ -2285,7 +2285,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535577"
+      "updated_at": "2026-04-11T15:53:34.264933"
     },
     {
       "id": "690313888062",
@@ -2294,7 +2294,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535582"
+      "updated_at": "2026-04-11T15:53:34.264940"
     },
     {
       "id": "690309267774",
@@ -2303,7 +2303,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535586"
+      "updated_at": "2026-04-11T15:53:34.264949"
     },
     {
       "id": "690309169470",
@@ -2312,7 +2312,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535590"
+      "updated_at": "2026-04-11T15:53:34.264956"
     },
     {
       "id": "690309136702",
@@ -2321,7 +2321,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535594"
+      "updated_at": "2026-04-11T15:53:34.264960"
     },
     {
       "id": "690308645182",
@@ -2330,7 +2330,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535610"
+      "updated_at": "2026-04-11T15:53:34.265031"
     },
     {
       "id": "690304123198",
@@ -2339,7 +2339,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535621"
+      "updated_at": "2026-04-11T15:53:34.265041"
     },
     {
       "id": "690296783166",
@@ -2348,7 +2348,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535625"
+      "updated_at": "2026-04-11T15:53:34.265045"
     },
     {
       "id": "690296750398",
@@ -2357,7 +2357,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535630"
+      "updated_at": "2026-04-11T15:53:34.265050"
     },
     {
       "id": "690296717630",
@@ -2366,7 +2366,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535634"
+      "updated_at": "2026-04-11T15:53:34.265054"
     },
     {
       "id": "690296684862",
@@ -2375,7 +2375,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535638"
+      "updated_at": "2026-04-11T15:53:34.265059"
     },
     {
       "id": "690296619326",
@@ -2384,7 +2384,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535643"
+      "updated_at": "2026-04-11T15:53:34.265063"
     },
     {
       "id": "690296521022",
@@ -2393,7 +2393,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535647"
+      "updated_at": "2026-04-11T15:53:34.265068"
     },
     {
       "id": "690296324414",
@@ -2402,7 +2402,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535651"
+      "updated_at": "2026-04-11T15:53:34.265073"
     },
     {
       "id": "690296226110",
@@ -2411,7 +2411,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535659"
+      "updated_at": "2026-04-11T15:53:34.265080"
     },
     {
       "id": "690296095038",
@@ -2420,7 +2420,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535663"
+      "updated_at": "2026-04-11T15:53:34.265085"
     },
     {
       "id": "690296062270",
@@ -2429,7 +2429,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535668"
+      "updated_at": "2026-04-11T15:53:34.265089"
     },
     {
       "id": "690296029502",
@@ -2438,7 +2438,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535672"
+      "updated_at": "2026-04-11T15:53:34.265094"
     },
     {
       "id": "690295898430",
@@ -2447,7 +2447,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535705"
+      "updated_at": "2026-04-11T15:53:34.265098"
     },
     {
       "id": "690295603518",
@@ -2456,7 +2456,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535721"
+      "updated_at": "2026-04-11T15:53:34.265108"
     },
     {
       "id": "690295439678",
@@ -2465,7 +2465,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535734"
+      "updated_at": "2026-04-11T15:53:34.265115"
     },
     {
       "id": "690293702974",
@@ -2474,7 +2474,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535739"
+      "updated_at": "2026-04-11T15:53:34.265119"
     },
     {
       "id": "690293604670",
@@ -2483,7 +2483,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535745"
+      "updated_at": "2026-04-11T15:53:34.265126"
     },
     {
       "id": "690293113150",
@@ -2492,7 +2492,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535750"
+      "updated_at": "2026-04-11T15:53:34.265131"
     },
     {
       "id": "690292851006",
@@ -2501,7 +2501,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535756"
+      "updated_at": "2026-04-11T15:53:34.265137"
     },
     {
       "id": "690292457790",
@@ -2510,7 +2510,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535760"
+      "updated_at": "2026-04-11T15:53:34.265142"
     },
     {
       "id": "690292326718",
@@ -2519,7 +2519,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535765"
+      "updated_at": "2026-04-11T15:53:34.265167"
     },
     {
       "id": "690291966270",
@@ -2528,7 +2528,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535771"
+      "updated_at": "2026-04-11T15:53:34.265176"
     },
     {
       "id": "690291704126",
@@ -2537,7 +2537,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535776"
+      "updated_at": "2026-04-11T15:53:34.265181"
     },
     {
       "id": "690291638590",
@@ -2546,7 +2546,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535780"
+      "updated_at": "2026-04-11T15:53:34.265186"
     },
     {
       "id": "690291573054",
@@ -2555,7 +2555,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535785"
+      "updated_at": "2026-04-11T15:53:34.265191"
     },
     {
       "id": "690283774270",
@@ -2564,7 +2564,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535791"
+      "updated_at": "2026-04-11T15:53:34.265197"
     },
     {
       "id": "690283643198",
@@ -2573,7 +2573,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535796"
+      "updated_at": "2026-04-11T15:53:34.265202"
     },
     {
       "id": "690283446590",
@@ -2582,7 +2582,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535805"
+      "updated_at": "2026-04-11T15:53:34.265214"
     },
     {
       "id": "690283118910",
@@ -2591,7 +2591,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535809"
+      "updated_at": "2026-04-11T15:53:34.265219"
     },
     {
       "id": "690211750206",
@@ -2600,7 +2600,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535814"
+      "updated_at": "2026-04-11T15:53:34.265224"
     },
     {
       "id": "682578575678",
@@ -2609,7 +2609,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535819"
+      "updated_at": "2026-04-11T15:53:34.265229"
     },
     {
       "id": "682446553406",
@@ -2618,7 +2618,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535823"
+      "updated_at": "2026-04-11T15:53:34.265234"
     },
     {
       "id": "682446324030",
@@ -2627,7 +2627,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535828"
+      "updated_at": "2026-04-11T15:53:34.265239"
     },
     {
       "id": "682437443902",
@@ -2636,7 +2636,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535832"
+      "updated_at": "2026-04-11T15:53:34.265244"
     },
     {
       "id": "682428006718",
@@ -2645,7 +2645,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535837"
+      "updated_at": "2026-04-11T15:53:34.265249"
     },
     {
       "id": "682423877950",
@@ -2654,7 +2654,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535842"
+      "updated_at": "2026-04-11T15:53:34.265254"
     },
     {
       "id": "682423419198",
@@ -2663,7 +2663,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535846"
+      "updated_at": "2026-04-11T15:53:34.265259"
     },
     {
       "id": "682378395966",
@@ -2672,7 +2672,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535851"
+      "updated_at": "2026-04-11T15:53:34.265264"
     },
     {
       "id": "692642021694",
@@ -2681,7 +2681,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535969"
+      "updated_at": "2026-04-11T15:53:34.265388"
     },
     {
       "id": "690770739518",
@@ -2690,7 +2690,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535973"
+      "updated_at": "2026-04-11T15:53:34.265393"
     },
     {
       "id": "690770608446",
@@ -2699,7 +2699,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535978"
+      "updated_at": "2026-04-11T15:53:34.265398"
     },
     {
       "id": "690523701566",
@@ -2708,7 +2708,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535982"
+      "updated_at": "2026-04-11T15:53:34.265403"
     },
     {
       "id": "690513346878",
@@ -2717,7 +2717,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535987"
+      "updated_at": "2026-04-11T15:53:34.265408"
     },
     {
       "id": "690513248574",
@@ -2726,7 +2726,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535992"
+      "updated_at": "2026-04-11T15:53:34.265413"
     },
     {
       "id": "690513215806",
@@ -2735,7 +2735,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535997"
+      "updated_at": "2026-04-11T15:53:34.265418"
     },
     {
       "id": "690499518782",
@@ -2744,7 +2744,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536001"
+      "updated_at": "2026-04-11T15:53:34.265423"
     },
     {
       "id": "690497552702",
@@ -2753,7 +2753,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536006"
+      "updated_at": "2026-04-11T15:53:34.265428"
     },
     {
       "id": "690497257790",
@@ -2762,7 +2762,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536011"
+      "updated_at": "2026-04-11T15:53:34.265432"
     },
     {
       "id": "690497126718",
@@ -2771,7 +2771,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536016"
+      "updated_at": "2026-04-11T15:53:34.265437"
     },
     {
       "id": "690329157950",
@@ -2780,7 +2780,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536025"
+      "updated_at": "2026-04-11T15:53:34.265449"
     },
     {
       "id": "690329059646",
@@ -2789,7 +2789,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536030"
+      "updated_at": "2026-04-11T15:53:34.265454"
     },
     {
       "id": "690328830270",
@@ -2798,7 +2798,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536035"
+      "updated_at": "2026-04-11T15:53:34.265459"
     },
     {
       "id": "690328764734",
@@ -2807,7 +2807,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536040"
+      "updated_at": "2026-04-11T15:53:34.265464"
     },
     {
       "id": "690328699198",
@@ -2816,7 +2816,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536045"
+      "updated_at": "2026-04-11T15:53:34.265469"
     },
     {
       "id": "690328600894",
@@ -2825,7 +2825,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536050"
+      "updated_at": "2026-04-11T15:53:34.265475"
     },
     {
       "id": "690328109374",
@@ -2834,7 +2834,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536057"
+      "updated_at": "2026-04-11T15:53:34.265484"
     },
     {
       "id": "690327585086",
@@ -2843,7 +2843,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.536065"
+      "updated_at": "2026-04-11T15:53:34.265493"
     },
     {
       "id": "690325586238",
@@ -2852,7 +2852,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535365"
+      "updated_at": "2026-04-11T15:53:34.265520"
     },
     {
       "id": "690325487934",
@@ -2861,7 +2861,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535370"
+      "updated_at": "2026-04-11T15:53:34.265526"
     },
     {
       "id": "690325455166",
@@ -2870,7 +2870,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535376"
+      "updated_at": "2026-04-11T15:53:34.265531"
     },
     {
       "id": "690325422398",
@@ -2879,7 +2879,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535381"
+      "updated_at": "2026-04-11T15:53:34.265536"
     },
     {
       "id": "690325356862",
@@ -2888,7 +2888,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535386"
+      "updated_at": "2026-04-11T15:53:34.265541"
     },
     {
       "id": "690325193022",
@@ -2897,7 +2897,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535394"
+      "updated_at": "2026-04-11T15:53:34.265550"
     },
     {
       "id": "690324930878",
@@ -2906,7 +2906,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535402"
+      "updated_at": "2026-04-11T15:53:34.265560"
     },
     {
       "id": "690324865342",
@@ -2915,7 +2915,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535407"
+      "updated_at": "2026-04-11T15:53:34.264793"
     },
     {
       "id": "690324603198",
@@ -2924,7 +2924,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535417"
+      "updated_at": "2026-04-11T15:53:34.264811"
     },
     {
       "id": "690324537662",
@@ -2933,7 +2933,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535423"
+      "updated_at": "2026-04-11T15:53:34.264817"
     },
     {
       "id": "690324177214",
@@ -2942,7 +2942,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535439"
+      "updated_at": "2026-04-11T15:53:34.264829"
     },
     {
       "id": "690324078910",
@@ -2951,7 +2951,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535444"
+      "updated_at": "2026-04-11T15:53:34.264834"
     },
     {
       "id": "690323783998",
@@ -2960,7 +2960,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535506"
+      "updated_at": "2026-04-11T15:53:34.264844"
     },
     {
       "id": "692681081150",
@@ -2978,7 +2978,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535959"
+      "updated_at": "2026-04-11T15:53:34.265378"
     },
     {
       "id": "692679606590",
@@ -2996,7 +2996,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535964"
+      "updated_at": "2026-04-11T15:53:34.265383"
     },
     {
       "id": "692679180606",
@@ -3167,7 +3167,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535938"
+      "updated_at": "2026-04-11T15:53:34.265356"
     },
     {
       "id": "692700021054",
@@ -3176,7 +3176,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535943"
+      "updated_at": "2026-04-11T15:53:34.265362"
     },
     {
       "id": "692699988286",
@@ -3185,7 +3185,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535949"
+      "updated_at": "2026-04-11T15:53:34.265367"
     },
     {
       "id": "692699857214",
@@ -3194,7 +3194,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535954"
+      "updated_at": "2026-04-11T15:53:34.265373"
     },
     {
       "id": "692954038590",
@@ -3203,7 +3203,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535927"
+      "updated_at": "2026-04-11T15:53:34.265345"
     },
     {
       "id": "692954005822",
@@ -3212,7 +3212,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535933"
+      "updated_at": "2026-04-11T15:53:34.265351"
     },
     {
       "id": "692971798846",
@@ -3221,7 +3221,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535911"
+      "updated_at": "2026-04-11T15:53:34.265327"
     },
     {
       "id": "692971766078",
@@ -3230,7 +3230,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535917"
+      "updated_at": "2026-04-11T15:53:34.265333"
     },
     {
       "id": "692971700542",
@@ -3239,7 +3239,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535922"
+      "updated_at": "2026-04-11T15:53:34.265339"
     },
     {
       "id": "692973863230",
@@ -3248,7 +3248,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535899"
+      "updated_at": "2026-04-11T15:53:34.265315"
     },
     {
       "id": "692973830462",
@@ -3257,7 +3257,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535905"
+      "updated_at": "2026-04-11T15:53:34.265321"
     },
     {
       "id": "692978024766",
@@ -3266,7 +3266,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535856"
+      "updated_at": "2026-04-11T15:53:34.265270"
     },
     {
       "id": "692977991998",
@@ -3275,7 +3275,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535862"
+      "updated_at": "2026-04-11T15:53:34.265275"
     },
     {
       "id": "692977959230",
@@ -3284,7 +3284,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535867"
+      "updated_at": "2026-04-11T15:53:34.265281"
     },
     {
       "id": "692977926462",
@@ -3293,7 +3293,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535872"
+      "updated_at": "2026-04-11T15:53:34.265287"
     },
     {
       "id": "692976845118",
@@ -3302,7 +3302,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535878"
+      "updated_at": "2026-04-11T15:53:34.265293"
     },
     {
       "id": "692976812350",
@@ -3311,7 +3311,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535883"
+      "updated_at": "2026-04-11T15:53:34.265299"
     },
     {
       "id": "692974420286",
@@ -3320,7 +3320,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535889"
+      "updated_at": "2026-04-11T15:53:34.265304"
     },
     {
       "id": "692974387518",
@@ -3329,7 +3329,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-11T09:56:58.535894"
+      "updated_at": "2026-04-11T15:53:34.265310"
     }
   ]
 }
