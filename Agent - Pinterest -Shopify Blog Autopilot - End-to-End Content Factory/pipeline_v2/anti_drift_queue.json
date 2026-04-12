@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-12T06:51:20.681659",
-  "updated_at": "2026-04-12T09:59:34.698309",
+  "updated_at": "2026-04-12T10:22:02.482264",
   "items": [
     {
       "id": "690524029246",
@@ -507,11 +507,11 @@
     {
       "id": "690324242750",
       "title": "DIY Snowflake Decor from Plastic Hangers",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-12T06:51:20.681270"
+      "updated_at": "2026-04-12T10:22:02.481678"
     },
     {
       "id": "690324209982",
