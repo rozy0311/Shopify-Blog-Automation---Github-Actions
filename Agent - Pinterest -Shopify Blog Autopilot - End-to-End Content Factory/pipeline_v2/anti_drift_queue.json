@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-18T11:56:46.638944",
-  "updated_at": "2026-04-18T17:20:25.981747",
+  "updated_at": "2026-04-18T17:55:00.052801",
   "items": [
     {
       "id": "690524029246",
@@ -806,11 +806,11 @@
     {
       "id": "690304942398",
       "title": "Boiled Bananas Benefits: Nutrition Facts, How to U",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-18T11:56:46.638424"
+      "updated_at": "2026-04-18T17:55:00.052228"
     },
     {
       "id": "690296357182",
