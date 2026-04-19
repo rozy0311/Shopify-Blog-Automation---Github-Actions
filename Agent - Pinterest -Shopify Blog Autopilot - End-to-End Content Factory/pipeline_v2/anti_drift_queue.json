@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-19T19:02:58.106509",
-  "updated_at": "2026-04-19T22:34:38.347386",
+  "updated_at": "2026-04-19T22:56:23.699911",
   "items": [
     {
       "id": "690524029246",
@@ -986,11 +986,11 @@
     {
       "id": "690291376446",
       "title": "Soil Mix Recipes: Leafy Greens vs Vines vs Flowers",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-19T19:02:58.105753"
+      "updated_at": "2026-04-19T22:56:23.699390"
     },
     {
       "id": "690289738046",
