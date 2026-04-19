@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-19T01:42:07.535276",
-  "updated_at": "2026-04-19T08:06:33.354343",
+  "updated_at": "2026-04-19T08:38:22.040993",
   "items": [
     {
       "id": "690524029246",
@@ -932,11 +932,11 @@
     {
       "id": "690293014846",
       "title": "Water Spinach Hydroponic Setup: Optimal Nutrient",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-19T01:42:07.534663"
+      "updated_at": "2026-04-19T08:38:22.040295"
     },
     {
       "id": "690292654398",
