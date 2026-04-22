@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "created_at": "2026-04-21T22:35:00.166251",
-  "updated_at": "2026-04-22T09:42:02.029671",
+  "created_at": "2026-04-22T10:37:54.676366",
+  "updated_at": "2026-04-22T10:38:01.863338",
   "items": [
     {
       "id": "690524029246",
@@ -230,7 +230,7 @@
       "attempts": 1,
       "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-21T13:06:19.993163"
+      "updated_at": "2026-04-22T10:38:01.862792"
     },
     {
       "id": "690348097854",
@@ -336,11 +336,11 @@
     {
       "id": "690332008766",
       "title": "Snake Plant Bloom: How to Make It Flower Indoors",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-04-22T08:57:23.174641"
+      "updated_at": "2026-04-22T10:37:55.278932"
     },
     {
       "id": "690331910462",
@@ -399,11 +399,11 @@
     {
       "id": "690325160254",
       "title": "36 Greenhouse Ideas",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T14:04:07.567358"
+      "updated_at": "2026-04-22T10:37:54.675951"
     },
     {
       "id": "690325127486",
@@ -417,11 +417,11 @@
     {
       "id": "690325029182",
       "title": "How to Build a Homemade Vermicomposter",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T14:54:52.930433"
+      "updated_at": "2026-04-22T10:37:54.675954"
     },
     {
       "id": "690324963646",
@@ -444,20 +444,20 @@
     {
       "id": "690324767038",
       "title": "Hairy Bittercress Benefits: Uses, Dosage, Side Eff",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T15:37:01.701735"
+      "updated_at": "2026-04-22T10:37:54.675974"
     },
     {
       "id": "690324701502",
       "title": "Chili Leaves Benefits: Nutrition Facts, How to Use",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T16:07:34.491488"
+      "updated_at": "2026-04-22T10:37:54.675977"
     },
     {
       "id": "690324570430",
@@ -480,20 +480,20 @@
     {
       "id": "690324472126",
       "title": "Walnut Leaves Benefits: Nutrition Facts, How to Us",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T16:41:21.199094"
+      "updated_at": "2026-04-22T10:37:54.675990"
     },
     {
       "id": "690324439358",
       "title": "Cabbage Leaves Benefits: Nutrition Facts, How to U",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T17:28:46.325651"
+      "updated_at": "2026-04-22T10:37:54.675992"
     },
     {
       "id": "690324275518",
@@ -507,47 +507,47 @@
     {
       "id": "690324242750",
       "title": "DIY Snowflake Decor from Plastic Hangers",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T18:03:15.793176"
+      "updated_at": "2026-04-22T10:37:54.676001"
     },
     {
       "id": "690324209982",
       "title": "33 Christmas Vase for Home Decor Ideas",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T18:43:33.119410"
+      "updated_at": "2026-04-22T10:37:54.676004"
     },
     {
       "id": "690324046142",
       "title": "How to Create Paw Print Christmas Tree Keepsake",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T19:33:41.829847"
+      "updated_at": "2026-04-22T10:37:54.676017"
     },
     {
       "id": "690324013374",
       "title": "22 Recycled Gnome Ideas",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T20:03:51.990313"
+      "updated_at": "2026-04-22T10:37:54.676019"
     },
     {
       "id": "690323915070",
       "title": "Clove Tea Benefits: Nutrition Facts, How to Use, a",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T20:37:00.024826"
+      "updated_at": "2026-04-22T10:37:54.676022"
     },
     {
       "id": "690323882302",
@@ -570,11 +570,11 @@
     {
       "id": "690323751230",
       "title": "Lavender Benefits: Uses, Dosage, Side Effects & In",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T21:02:28.374693"
+      "updated_at": "2026-04-22T10:37:54.676030"
     },
     {
       "id": "690323718462",
@@ -588,11 +588,11 @@
     {
       "id": "690323521854",
       "title": "Bitter Leaf Benefits: Uses, Dosage, Side Effects &",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T21:39:16.960843"
+      "updated_at": "2026-04-22T10:37:54.676032"
     },
     {
       "id": "690323390782",
@@ -617,11 +617,11 @@
     {
       "id": "690323194174",
       "title": "Hawthorn Benefits: Uses, Dosage, Side Effects & In",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:01:20.574951"
+      "updated_at": "2026-04-22T10:37:54.676043"
     },
     {
       "id": "690323128638",
@@ -772,18 +772,18 @@
       "title": "Marshmallow Benefits: Uses, Dosage, Side Effects &",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165926"
+      "updated_at": "2026-04-22T10:37:54.674875"
     },
     {
       "id": "690308972862",
       "title": "Cranberries Benefits: Nutrition Facts, How to Use,",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165929"
+      "updated_at": "2026-04-22T10:37:54.674877"
     },
     {
       "id": "690308874558",
@@ -799,18 +799,18 @@
       "title": "Blechnaceae Benefits: Uses, Dosage, Side Effects",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165937"
+      "updated_at": "2026-04-22T10:37:54.674895"
     },
     {
       "id": "690304942398",
       "title": "Boiled Bananas Benefits: Nutrition Facts, How to U",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165941"
+      "updated_at": "2026-04-22T10:37:54.674897"
     },
     {
       "id": "690296357182",
@@ -826,18 +826,18 @@
       "title": "Passionflower Tea for Evenings: Perfect Ratios, St",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165204"
+      "updated_at": "2026-04-22T10:37:54.674951"
     },
     {
       "id": "690295800126",
       "title": "Water Spinach Container Culture for Rainy Seasons ",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165233"
+      "updated_at": "2026-04-22T10:37:54.674991"
     },
     {
       "id": "690295570750",
@@ -860,11 +860,11 @@
     {
       "id": "690295472446",
       "title": "Bitter Melon Monsoon Drainage and Trellis Ideas fo",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T10:37:37.969819"
+      "updated_at": "2026-04-22T10:37:54.675007"
     },
     {
       "id": "690295406910",
@@ -905,11 +905,11 @@
     {
       "id": "690293670206",
       "title": "Globe Amaranth Bed Design: Color Blocks That Pop i",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T11:07:51.861588"
+      "updated_at": "2026-04-22T10:37:54.675027"
     },
     {
       "id": "690293637438",
@@ -932,11 +932,11 @@
     {
       "id": "690293014846",
       "title": "Water Spinach Hydroponic Setup: Optimal Nutrient",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T11:43:48.024741"
+      "updated_at": "2026-04-22T10:37:54.675045"
     },
     {
       "id": "690292654398",
@@ -968,11 +968,11 @@
     {
       "id": "690292195646",
       "title": "Cold Stratification Guide: Maple, Magnolia, Sedum,",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T12:35:22.813560"
+      "updated_at": "2026-04-22T10:37:54.675073"
     },
     {
       "id": "690291769662",
@@ -990,7 +990,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165305"
+      "updated_at": "2026-04-22T10:37:54.675094"
     },
     {
       "id": "690289738046",
@@ -1053,7 +1053,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165319"
+      "updated_at": "2026-04-22T10:37:54.675110"
     },
     {
       "id": "690283512126",
@@ -1062,7 +1062,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165322"
+      "updated_at": "2026-04-22T10:37:54.675116"
     },
     {
       "id": "690283348286",
@@ -1341,7 +1341,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165677"
+      "updated_at": "2026-04-22T10:37:54.675854"
     },
     {
       "id": "690327912766",
@@ -1368,7 +1368,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165686"
+      "updated_at": "2026-04-22T10:37:54.675862"
     },
     {
       "id": "690327290174",
@@ -1413,7 +1413,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165694"
+      "updated_at": "2026-04-22T10:37:54.675870"
     },
     {
       "id": "690326307134",
@@ -1422,7 +1422,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165698"
+      "updated_at": "2026-04-22T10:37:54.675873"
     },
     {
       "id": "690326274366",
@@ -1431,7 +1431,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165701"
+      "updated_at": "2026-04-22T10:37:54.675876"
     },
     {
       "id": "690326208830",
@@ -1440,7 +1440,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165705"
+      "updated_at": "2026-04-22T10:37:54.675882"
     },
     {
       "id": "690326176062",
@@ -1467,7 +1467,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165708"
+      "updated_at": "2026-04-22T10:37:54.675885"
     },
     {
       "id": "690325913918",
@@ -1494,7 +1494,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165712"
+      "updated_at": "2026-04-22T10:37:54.675888"
     },
     {
       "id": "690325782846",
@@ -1503,7 +1503,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165715"
+      "updated_at": "2026-04-22T10:37:54.675891"
     },
     {
       "id": "690325717310",
@@ -1512,7 +1512,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165719"
+      "updated_at": "2026-04-22T10:37:54.675901"
     },
     {
       "id": "690325324094",
@@ -1530,7 +1530,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165749"
+      "updated_at": "2026-04-22T10:37:54.675942"
     },
     {
       "id": "690210963774",
@@ -1625,11 +1625,11 @@
     {
       "id": "654526808382",
       "title": "The Art Industry’s Eco-Friendly Revolution",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-21T21:01:03.844451"
+      "updated_at": "2026-04-22T10:37:54.675564"
     },
     {
       "id": "654302839102",
@@ -1643,11 +1643,11 @@
     {
       "id": "652474024254",
       "title": "Transforming Urban Spaces through Gardening",
-      "status": "done",
-      "attempts": 1,
-      "last_error": null,
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-02-21T21:02:03.534587"
+      "updated_at": "2026-04-22T10:37:54.675583"
     },
     {
       "id": "690330698046",
@@ -1748,7 +1748,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165642"
+      "updated_at": "2026-04-22T10:37:54.675820"
     },
     {
       "id": "690211815742",
@@ -1835,21 +1835,21 @@
     },
     {
       "id": "690525045054",
-      "title": "Perennial Vegetables Harvest Forever: Plant Once, ",
+      "title": "Plant Once, Harvest Forever: 12 Perennial Vegetabl",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165554"
+      "updated_at": "2026-04-22T10:37:54.675722"
     },
     {
       "id": "690524881214",
-      "title": "Lasagna Garden No-Dig Bed: Cheap and Easy Soil Lay",
+      "title": "How to Build a Lasagna Garden Bed: No-Dig Layer Me",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165559"
+      "updated_at": "2026-04-22T10:37:54.675745"
     },
     {
       "id": "690524553534",
@@ -1865,9 +1865,9 @@
       "title": "DIY Sugar Scrub for Body: Gentle Exfoliation Recip",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165569"
+      "updated_at": "2026-04-22T10:37:54.675755"
     },
     {
       "id": "690497585470",
@@ -1889,21 +1889,21 @@
     },
     {
       "id": "690495783230",
-      "title": "Plant-Based Milks Homemade Guide: Easy Dairy-Free ",
+      "title": "Homemade Plant-Based Milks: Easy Dairy-Free Guide ",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165617"
+      "updated_at": "2026-04-22T10:37:54.675799"
     },
     {
       "id": "690495619390",
-      "title": "Herbal Tea Collection Build: Blend, Store, and Enj",
+      "title": "Build Your Herbal Tea Collection: How to Blend, St",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165621"
+      "updated_at": "2026-04-22T10:37:54.675805"
     },
     {
       "id": "690495586622",
@@ -1916,12 +1916,12 @@
     },
     {
       "id": "690495521086",
-      "title": "Herbal Simple Syrups: Drinks and Desserts Guide wi",
+      "title": "Homemade Herbal Simple Syrups: Recipes for Drinks,",
       "status": "pending",
       "attempts": 0,
-      "last_error": "REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165626"
+      "updated_at": "2026-04-22T10:37:54.675808"
     },
     {
       "id": "690331517246",
@@ -2177,7 +2177,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165834"
+      "updated_at": "2026-04-22T10:37:54.676078"
     },
     {
       "id": "690316935486",
@@ -2213,7 +2213,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165842"
+      "updated_at": "2026-04-22T10:37:54.676085"
     },
     {
       "id": "690315002174",
@@ -2222,7 +2222,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165847"
+      "updated_at": "2026-04-22T10:37:54.674812"
     },
     {
       "id": "690314772798",
@@ -2231,7 +2231,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165851"
+      "updated_at": "2026-04-22T10:37:54.674820"
     },
     {
       "id": "690314608958",
@@ -2240,7 +2240,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165856"
+      "updated_at": "2026-04-22T10:37:54.674825"
     },
     {
       "id": "690314477886",
@@ -2249,7 +2249,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165882"
+      "updated_at": "2026-04-22T10:37:54.674837"
     },
     {
       "id": "690314314046",
@@ -2258,7 +2258,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165887"
+      "updated_at": "2026-04-22T10:37:54.674841"
     },
     {
       "id": "690314117438",
@@ -2267,7 +2267,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165891"
+      "updated_at": "2026-04-22T10:37:54.674846"
     },
     {
       "id": "690314084670",
@@ -2276,7 +2276,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165896"
+      "updated_at": "2026-04-22T10:37:54.674851"
     },
     {
       "id": "690313920830",
@@ -2285,7 +2285,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165900"
+      "updated_at": "2026-04-22T10:37:54.674855"
     },
     {
       "id": "690313888062",
@@ -2294,7 +2294,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165905"
+      "updated_at": "2026-04-22T10:37:54.674859"
     },
     {
       "id": "690309267774",
@@ -2303,7 +2303,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165910"
+      "updated_at": "2026-04-22T10:37:54.674863"
     },
     {
       "id": "690309169470",
@@ -2312,7 +2312,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165914"
+      "updated_at": "2026-04-22T10:37:54.674868"
     },
     {
       "id": "690309136702",
@@ -2321,7 +2321,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165919"
+      "updated_at": "2026-04-22T10:37:54.674872"
     },
     {
       "id": "690308645182",
@@ -2330,7 +2330,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165934"
+      "updated_at": "2026-04-22T10:37:54.674881"
     },
     {
       "id": "690304123198",
@@ -2339,7 +2339,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165945"
+      "updated_at": "2026-04-22T10:37:54.674902"
     },
     {
       "id": "690296783166",
@@ -2348,7 +2348,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165950"
+      "updated_at": "2026-04-22T10:37:54.674906"
     },
     {
       "id": "690296750398",
@@ -2357,7 +2357,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165956"
+      "updated_at": "2026-04-22T10:37:54.674910"
     },
     {
       "id": "690296717630",
@@ -2366,7 +2366,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165960"
+      "updated_at": "2026-04-22T10:37:54.674914"
     },
     {
       "id": "690296684862",
@@ -2375,7 +2375,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165965"
+      "updated_at": "2026-04-22T10:37:54.674919"
     },
     {
       "id": "690296619326",
@@ -2384,7 +2384,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165176"
+      "updated_at": "2026-04-22T10:37:54.674923"
     },
     {
       "id": "690296521022",
@@ -2393,7 +2393,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165185"
+      "updated_at": "2026-04-22T10:37:54.674933"
     },
     {
       "id": "690296324414",
@@ -2402,7 +2402,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165192"
+      "updated_at": "2026-04-22T10:37:54.674948"
     },
     {
       "id": "690296226110",
@@ -2411,7 +2411,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165210"
+      "updated_at": "2026-04-22T10:37:54.674955"
     },
     {
       "id": "690296095038",
@@ -2420,7 +2420,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165215"
+      "updated_at": "2026-04-22T10:37:54.674959"
     },
     {
       "id": "690296062270",
@@ -2429,7 +2429,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165220"
+      "updated_at": "2026-04-22T10:37:54.674963"
     },
     {
       "id": "690296029502",
@@ -2438,7 +2438,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165225"
+      "updated_at": "2026-04-22T10:37:54.674968"
     },
     {
       "id": "690295898430",
@@ -2447,7 +2447,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165229"
+      "updated_at": "2026-04-22T10:37:54.674978"
     },
     {
       "id": "690295603518",
@@ -2456,7 +2456,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165238"
+      "updated_at": "2026-04-22T10:37:54.675001"
     },
     {
       "id": "690295439678",
@@ -2465,7 +2465,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165245"
+      "updated_at": "2026-04-22T10:37:54.675012"
     },
     {
       "id": "690293702974",
@@ -2474,7 +2474,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165250"
+      "updated_at": "2026-04-22T10:37:54.675023"
     },
     {
       "id": "690293604670",
@@ -2483,7 +2483,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165258"
+      "updated_at": "2026-04-22T10:37:54.675031"
     },
     {
       "id": "690293113150",
@@ -2492,7 +2492,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165263"
+      "updated_at": "2026-04-22T10:37:54.675036"
     },
     {
       "id": "690292851006",
@@ -2501,7 +2501,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165269"
+      "updated_at": "2026-04-22T10:37:54.675050"
     },
     {
       "id": "690292457790",
@@ -2510,7 +2510,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165274"
+      "updated_at": "2026-04-22T10:37:54.675054"
     },
     {
       "id": "690292326718",
@@ -2519,7 +2519,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165279"
+      "updated_at": "2026-04-22T10:37:54.675058"
     },
     {
       "id": "690291966270",
@@ -2528,7 +2528,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165287"
+      "updated_at": "2026-04-22T10:37:54.675078"
     },
     {
       "id": "690291704126",
@@ -2537,7 +2537,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165292"
+      "updated_at": "2026-04-22T10:37:54.675082"
     },
     {
       "id": "690291638590",
@@ -2546,7 +2546,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165297"
+      "updated_at": "2026-04-22T10:37:54.675087"
     },
     {
       "id": "690291573054",
@@ -2555,7 +2555,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165302"
+      "updated_at": "2026-04-22T10:37:54.675091"
     },
     {
       "id": "690283774270",
@@ -2564,7 +2564,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165310"
+      "updated_at": "2026-04-22T10:37:54.675098"
     },
     {
       "id": "690283643198",
@@ -2573,7 +2573,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165315"
+      "updated_at": "2026-04-22T10:37:54.675104"
     },
     {
       "id": "690283446590",
@@ -2582,7 +2582,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165327"
+      "updated_at": "2026-04-22T10:37:54.675125"
     },
     {
       "id": "690283118910",
@@ -2591,7 +2591,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165332"
+      "updated_at": "2026-04-22T10:37:54.675147"
     },
     {
       "id": "690211750206",
@@ -2600,7 +2600,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165337"
+      "updated_at": "2026-04-22T10:37:54.675166"
     },
     {
       "id": "682578575678",
@@ -2609,7 +2609,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165342"
+      "updated_at": "2026-04-22T10:37:54.675290"
     },
     {
       "id": "682446553406",
@@ -2618,7 +2618,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165347"
+      "updated_at": "2026-04-22T10:37:54.675336"
     },
     {
       "id": "682446324030",
@@ -2627,7 +2627,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165359"
+      "updated_at": "2026-04-22T10:37:54.675357"
     },
     {
       "id": "682437443902",
@@ -2636,7 +2636,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165364"
+      "updated_at": "2026-04-22T10:37:54.675386"
     },
     {
       "id": "682428006718",
@@ -2645,7 +2645,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165369"
+      "updated_at": "2026-04-22T10:37:54.675408"
     },
     {
       "id": "682423877950",
@@ -2654,7 +2654,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165375"
+      "updated_at": "2026-04-22T10:37:54.675459"
     },
     {
       "id": "682423419198",
@@ -2663,7 +2663,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165393"
+      "updated_at": "2026-04-22T10:37:54.675486"
     },
     {
       "id": "682378395966",
@@ -2672,7 +2672,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165398"
+      "updated_at": "2026-04-22T10:37:54.675503"
     },
     {
       "id": "692642021694",
@@ -2681,7 +2681,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165496"
+      "updated_at": "2026-04-22T10:37:54.675668"
     },
     {
       "id": "690770739518",
@@ -2690,7 +2690,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165532"
+      "updated_at": "2026-04-22T10:37:54.675702"
     },
     {
       "id": "690770608446",
@@ -2699,7 +2699,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165538"
+      "updated_at": "2026-04-22T10:37:54.675707"
     },
     {
       "id": "690523701566",
@@ -2708,7 +2708,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165564"
+      "updated_at": "2026-04-22T10:37:54.675751"
     },
     {
       "id": "690513346878",
@@ -2717,7 +2717,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165574"
+      "updated_at": "2026-04-22T10:37:54.675759"
     },
     {
       "id": "690513248574",
@@ -2726,7 +2726,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165579"
+      "updated_at": "2026-04-22T10:37:54.675764"
     },
     {
       "id": "690513215806",
@@ -2735,7 +2735,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165584"
+      "updated_at": "2026-04-22T10:37:54.675769"
     },
     {
       "id": "690499518782",
@@ -2744,7 +2744,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165590"
+      "updated_at": "2026-04-22T10:37:54.675773"
     },
     {
       "id": "690497552702",
@@ -2753,7 +2753,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165602"
+      "updated_at": "2026-04-22T10:37:54.675784"
     },
     {
       "id": "690497257790",
@@ -2762,7 +2762,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165607"
+      "updated_at": "2026-04-22T10:37:54.675788"
     },
     {
       "id": "690497126718",
@@ -2771,7 +2771,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165612"
+      "updated_at": "2026-04-22T10:37:54.675795"
     },
     {
       "id": "690329157950",
@@ -2780,7 +2780,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165647"
+      "updated_at": "2026-04-22T10:37:54.675825"
     },
     {
       "id": "690329059646",
@@ -2789,7 +2789,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165653"
+      "updated_at": "2026-04-22T10:37:54.675830"
     },
     {
       "id": "690328830270",
@@ -2798,7 +2798,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165658"
+      "updated_at": "2026-04-22T10:37:54.675835"
     },
     {
       "id": "690328764734",
@@ -2807,7 +2807,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165663"
+      "updated_at": "2026-04-22T10:37:54.675841"
     },
     {
       "id": "690328699198",
@@ -2816,7 +2816,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165668"
+      "updated_at": "2026-04-22T10:37:54.675846"
     },
     {
       "id": "690328600894",
@@ -2825,7 +2825,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165674"
+      "updated_at": "2026-04-22T10:37:54.675851"
     },
     {
       "id": "690328109374",
@@ -2834,7 +2834,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165682"
+      "updated_at": "2026-04-22T10:37:54.675859"
     },
     {
       "id": "690327585086",
@@ -2843,7 +2843,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165691"
+      "updated_at": "2026-04-22T10:37:54.675867"
     },
     {
       "id": "690325586238",
@@ -2852,7 +2852,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165724"
+      "updated_at": "2026-04-22T10:37:54.675919"
     },
     {
       "id": "690325487934",
@@ -2861,7 +2861,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165730"
+      "updated_at": "2026-04-22T10:37:54.675923"
     },
     {
       "id": "690325455166",
@@ -2870,7 +2870,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165735"
+      "updated_at": "2026-04-22T10:37:54.675928"
     },
     {
       "id": "690325422398",
@@ -2879,7 +2879,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165740"
+      "updated_at": "2026-04-22T10:37:54.675933"
     },
     {
       "id": "690325356862",
@@ -2888,7 +2888,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165746"
+      "updated_at": "2026-04-22T10:37:54.675938"
     },
     {
       "id": "690325193022",
@@ -2897,7 +2897,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165754"
+      "updated_at": "2026-04-22T10:37:54.675948"
     },
     {
       "id": "690324930878",
@@ -2906,7 +2906,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165763"
+      "updated_at": "2026-04-22T10:37:54.675959"
     },
     {
       "id": "690324865342",
@@ -2915,7 +2915,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165768"
+      "updated_at": "2026-04-22T10:37:54.675964"
     },
     {
       "id": "690324603198",
@@ -2924,7 +2924,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165776"
+      "updated_at": "2026-04-22T10:37:54.675982"
     },
     {
       "id": "690324537662",
@@ -2933,7 +2933,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165782"
+      "updated_at": "2026-04-22T10:37:54.675987"
     },
     {
       "id": "690324177214",
@@ -2942,7 +2942,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165793"
+      "updated_at": "2026-04-22T10:37:54.676009"
     },
     {
       "id": "690324078910",
@@ -2951,7 +2951,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165799"
+      "updated_at": "2026-04-22T10:37:54.676014"
     },
     {
       "id": "690323783998",
@@ -2960,7 +2960,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165808"
+      "updated_at": "2026-04-22T10:37:54.676027"
     },
     {
       "id": "692681081150",
@@ -2996,7 +2996,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165485"
+      "updated_at": "2026-04-22T10:37:54.675658"
     },
     {
       "id": "692679180606",
@@ -3167,7 +3167,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165474"
+      "updated_at": "2026-04-22T10:37:54.675648"
     },
     {
       "id": "692700021054",
@@ -3176,7 +3176,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165480"
+      "updated_at": "2026-04-22T10:37:54.675653"
     },
     {
       "id": "692699988286",
@@ -3203,7 +3203,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165462"
+      "updated_at": "2026-04-22T10:37:54.675637"
     },
     {
       "id": "692954005822",
@@ -3212,7 +3212,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165468"
+      "updated_at": "2026-04-22T10:37:54.675642"
     },
     {
       "id": "692971798846",
@@ -3239,7 +3239,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165457"
+      "updated_at": "2026-04-22T10:37:54.675632"
     },
     {
       "id": "692973863230",
@@ -3266,25 +3266,25 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165415"
+      "updated_at": "2026-04-22T10:37:54.675594"
     },
     {
       "id": "692977991998",
-      "title": "Survival Garden for Food and Medicine: Best Tips, ",
+      "title": "Survival Garden Basics: Grow Food and Medicine Whi",
       "status": "pending",
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165421"
+      "updated_at": "2026-04-22T10:37:54.675600"
     },
     {
       "id": "692977959230",
-      "title": "Soda Bottle Drip Feeder: Complete Guide + FAQs",
+      "title": "DIY Bottle Drip Irrigator: How to Water Plants on ",
       "status": "pending",
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165427"
+      "updated_at": "2026-04-22T10:37:54.675605"
     },
     {
       "id": "692977926462",
@@ -3293,7 +3293,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165433"
+      "updated_at": "2026-04-22T10:37:54.675610"
     },
     {
       "id": "692976845118",
@@ -3302,7 +3302,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165439"
+      "updated_at": "2026-04-22T10:37:54.675616"
     },
     {
       "id": "692976812350",
@@ -3320,7 +3320,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165445"
+      "updated_at": "2026-04-22T10:37:54.675621"
     },
     {
       "id": "692974387518",
@@ -3329,7 +3329,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165451"
+      "updated_at": "2026-04-22T10:37:54.675626"
     },
     {
       "id": "682446455102",
@@ -3338,7 +3338,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165353"
+      "updated_at": "2026-04-22T10:37:54.675341"
     },
     {
       "id": "682423746878",
@@ -3347,7 +3347,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165381"
+      "updated_at": "2026-04-22T10:37:54.675470"
     },
     {
       "id": "682423615806",
@@ -3356,7 +3356,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165387"
+      "updated_at": "2026-04-22T10:37:54.675482"
     },
     {
       "id": "655251603774",
@@ -3365,7 +3365,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165404"
+      "updated_at": "2026-04-22T10:37:54.675551"
     },
     {
       "id": "654096040254",
@@ -3374,25 +3374,25 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165409"
+      "updated_at": "2026-04-22T10:37:54.675572"
     },
     {
       "id": "692642054462",
-      "title": "Want to feed a family of 4 for just $50 a week? He",
+      "title": "How to Feed a Family of 4 for $50 a Week: Budget G",
       "status": "pending",
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165491"
+      "updated_at": "2026-04-22T10:37:54.675663"
     },
     {
       "id": "691791954238",
-      "title": "Growing Basil in Containers",
+      "title": "Growing Basil in Containers: The No-Fail Guide to ",
       "status": "pending",
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165503"
+      "updated_at": "2026-04-22T10:37:54.675673"
     },
     {
       "id": "691791003966",
@@ -3401,7 +3401,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165509"
+      "updated_at": "2026-04-22T10:37:54.675681"
     },
     {
       "id": "691731595582",
@@ -3410,7 +3410,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165515"
+      "updated_at": "2026-04-22T10:37:54.675686"
     },
     {
       "id": "691731530046",
@@ -3419,7 +3419,7 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165521"
+      "updated_at": "2026-04-22T10:37:54.675692"
     },
     {
       "id": "690770903358",
@@ -3428,25 +3428,25 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165527"
+      "updated_at": "2026-04-22T10:37:54.675697"
     },
     {
       "id": "690770411838",
-      "title": "Herbal Tea Blends Digestive Health: Soothing Recip",
+      "title": "Digestive Herbal Tea Blends: Soothing Recipes That",
       "status": "pending",
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165544"
+      "updated_at": "2026-04-22T10:37:54.675712"
     },
     {
       "id": "690770346302",
-      "title": "Cough Drops Homemade Honey and Herb: Easy Soothing",
+      "title": "Homemade Honey Herb Cough Drops: A Soothing Recipe",
       "status": "pending",
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165550"
+      "updated_at": "2026-04-22T10:37:54.675718"
     },
     {
       "id": "690498011454",
@@ -3455,16 +3455,763 @@
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165596"
+      "updated_at": "2026-04-22T10:37:54.675779"
     },
     {
       "id": "690495291710",
-      "title": "Vanilla Extract DIY: Simple Ingredients and Timing",
+      "title": "How to Make Vanilla Extract at Home: Simple 2-Ingr",
       "status": "pending",
       "attempts": 0,
       "last_error": "HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-21T22:35:00.165636"
+      "updated_at": "2026-04-22T10:37:54.675817"
+    },
+    {
+      "id": "690314576190",
+      "title": "Sweet Potatoes Benefits: Nutrition Facts, How to U",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674832"
+    },
+    {
+      "id": "690305892670",
+      "title": "DIY Fish Bowl Snowman",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674887"
+    },
+    {
+      "id": "690305433918",
+      "title": "Sunflower Seeds Benefits: Nutrition Facts, How to ",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674892"
+    },
+    {
+      "id": "690296553790",
+      "title": "Nu Voi Tea (Syzygium nervosum)",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674928"
+    },
+    {
+      "id": "690296488254",
+      "title": "Artichoke Leaf Tea: Brewing Guide, Taste Profile &",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674938"
+    },
+    {
+      "id": "690296455486",
+      "title": "Goji Berry Tea: Tart-Sweet Harmony, Add-Ins, and S",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674944"
+    },
+    {
+      "id": "690295996734",
+      "title": "Eclipta Alba (False Daisy) Tea: Brewing Steps & Sa",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674973"
+    },
+    {
+      "id": "690295865662",
+      "title": "Green Amaranth: Shoulder-Season Greens for Mild Co",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674983"
+    },
+    {
+      "id": "690295832894",
+      "title": "Water Spinach: Dry-Season Irrigation Hacks for Bal",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674988"
+    },
+    {
+      "id": "690295767358",
+      "title": "Bok Choy Cool-Weather Mini-Head Production for Sho",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.674996"
+    },
+    {
+      "id": "690295275838",
+      "title": "Goji Berry Tea Prep: Rehydration Times That Improv",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675018"
+    },
+    {
+      "id": "690293080382",
+      "title": "Water Spinach Troubleshooting: Pale Leaves, Slow G",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675042"
+    },
+    {
+      "id": "690292261182",
+      "title": "Bitter Melon Fertility Plan: Nitrogen Timing Witho",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675064"
+    },
+    {
+      "id": "690292228414",
+      "title": "Bitter Melon Pest ID: Aphids, Fruit Flies, and Saf",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675070"
+    },
+    {
+      "id": "690283381054",
+      "title": "Green Amaranth Intercropping: Shade Benefits for M",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675137"
+    },
+    {
+      "id": "690282955070",
+      "title": "Globe Amaranth: Cut-Flower Conditioning for Extend",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675155"
+    },
+    {
+      "id": "690282725694",
+      "title": "Jicama Day Length: Manipulating Light for Optimal ",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675161"
+    },
+    {
+      "id": "682731503934",
+      "title": "The Threat to Pollinators and Ecosystems",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675172"
+    },
+    {
+      "id": "682730717502",
+      "title": "Transformative Sustainable Living: Permaculture to",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675178"
+    },
+    {
+      "id": "682730422590",
+      "title": "Revolutionizing Land Management with AI Technology",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675183"
+    },
+    {
+      "id": "682730029374",
+      "title": "The Rise of Eco-Friendly Agritourism",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675189"
+    },
+    {
+      "id": "682729996606",
+      "title": "Challenges Faced by Smallholder Farmers",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675195"
+    },
+    {
+      "id": "682729931070",
+      "title": "Promoting harmony between humans and wildlife",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675200"
+    },
+    {
+      "id": "682729734462",
+      "title": "Blockchain Enhancing Transparency in Vegetarian Fo",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675206"
+    },
+    {
+      "id": "682729701694",
+      "title": "Blockchain: Boosting Consumer Confidence in Organi",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675211"
+    },
+    {
+      "id": "682729570622",
+      "title": "Utilizing AI in Water Resource Management",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675217"
+    },
+    {
+      "id": "682706829630",
+      "title": "Engaging Environmental Education Challenges",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675223"
+    },
+    {
+      "id": "682706698558",
+      "title": "Nature Deficit Disorder: Why Urban Adults Are Burn",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675228"
+    },
+    {
+      "id": "682706633022",
+      "title": "The Importance of Green Education",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675234"
+    },
+    {
+      "id": "682706239806",
+      "title": "Climate Action at Home: 12 High-Impact Habits That",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675240"
+    },
+    {
+      "id": "682706010430",
+      "title": "Environmental Impact of Conventional Agriculture",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675246"
+    },
+    {
+      "id": "682705715518",
+      "title": "Environmental Education: Why It Matters and How to",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675251"
+    },
+    {
+      "id": "682697982270",
+      "title": "Regenerative Farming vs Organic: What Small-Scale ",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675257"
+    },
+    {
+      "id": "682693886270",
+      "title": "The Value of Community in Farming",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675263"
+    },
+    {
+      "id": "682693525822",
+      "title": "The Importance of Environmental Education",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675268"
+    },
+    {
+      "id": "682651681086",
+      "title": "The Rise of Sustainable Farm Sightseeing",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675274"
+    },
+    {
+      "id": "682578673982",
+      "title": "Home Solar vs Community Solar: Which Actually Save",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675280"
+    },
+    {
+      "id": "682578641214",
+      "title": "Effective Water Conservation Strategies in Rural A",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675286"
+    },
+    {
+      "id": "682578444606",
+      "title": "The Rise of Recycled Plastic Bricks",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675296"
+    },
+    {
+      "id": "682562322750",
+      "title": "Hope in a Lawless City",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675302"
+    },
+    {
+      "id": "682558619966",
+      "title": "The Rise of Urban Rooftop Gardens",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675308"
+    },
+    {
+      "id": "682558488894",
+      "title": "Importance of Responsible Battery Recycling",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675313"
+    },
+    {
+      "id": "682510713150",
+      "title": "Modern Society’s Paradoxes",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675319"
+    },
+    {
+      "id": "682447372606",
+      "title": "The Significance of Wildlife Protection",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675325"
+    },
+    {
+      "id": "682447339838",
+      "title": "The Impact of Travel Experience",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675331"
+    },
+    {
+      "id": "682446422334",
+      "title": "Immersive Cultural Preservation Tours",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675347"
+    },
+    {
+      "id": "682446389566",
+      "title": "The Impact of Community Gardens",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675353"
+    },
+    {
+      "id": "682444390718",
+      "title": "The Sustainable Shift: Embracing the Green Revolut",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675363"
+    },
+    {
+      "id": "682444325182",
+      "title": "Independent Living: Reducing Dependency on Public ",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675369"
+    },
+    {
+      "id": "682442162494",
+      "title": "The Allure of Homesteading: Why Sustainable Living",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675375"
+    },
+    {
+      "id": "682441539902",
+      "title": "Ocean Diversity: A Reflection by Aaron Peirsol",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675381"
+    },
+    {
+      "id": "682428203326",
+      "title": "Sustainable, healthy built environments: a practic",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675392"
+    },
+    {
+      "id": "682428170558",
+      "title": "Rethinking City Life through Low-Emission Zones",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675397"
+    },
+    {
+      "id": "682428039486",
+      "title": "The Importance of Land Conservation",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675403"
+    },
+    {
+      "id": "682427941182",
+      "title": "Electric Scooter: A Modern Chivalrous Commute",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675414"
+    },
+    {
+      "id": "682427089214",
+      "title": "The Rise of Carbon Offsetting in Travel",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675420"
+    },
+    {
+      "id": "682426990910",
+      "title": "Benefits of Outdoor Nature Schools",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675426"
+    },
+    {
+      "id": "682426958142",
+      "title": "The Intersection of Sustainability and Finance",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675432"
+    },
+    {
+      "id": "682426630462",
+      "title": "The Shift Towards Compostable Living",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675438"
+    },
+    {
+      "id": "682426564926",
+      "title": "The Importance of Urban Rooftop Gardens",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675444"
+    },
+    {
+      "id": "682425090366",
+      "title": "Essential Survival Foods",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675454"
+    },
+    {
+      "id": "682423812414",
+      "title": "Exploring the Farm-to-Table Movement",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675465"
+    },
+    {
+      "id": "682423681342",
+      "title": "The Importance of Wildlife Corridors",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675476"
+    },
+    {
+      "id": "682379084094",
+      "title": "My Journey to a Sustainable Lifestyle",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675493"
+    },
+    {
+      "id": "682378953022",
+      "title": "Embracing Climate Action and Sustainability",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675499"
+    },
+    {
+      "id": "682378264894",
+      "title": "The Power of Sustainable Materials",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675509"
+    },
+    {
+      "id": "681276604734",
+      "title": "Inspiring Action Against Climate Change",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675515"
+    },
+    {
+      "id": "681032909118",
+      "title": "The Transformation of Land Restoration",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675521"
+    },
+    {
+      "id": "680988016958",
+      "title": "Transforming Trash into Treasure",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675527"
+    },
+    {
+      "id": "672668025150",
+      "title": "The Transformative Power of Sustainable Education",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675533"
+    },
+    {
+      "id": "672452116798",
+      "title": "Community Water-Saving Education Initiatives",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675540"
+    },
+    {
+      "id": "670047699262",
+      "title": "Exploring the Connection Between Smart Cities and",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675546"
+    },
+    {
+      "id": "652639240510",
+      "title": "Harmony in Concrete: Crafting Sustainable Cities T",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675578"
+    },
+    {
+      "id": "650235773246",
+      "title": "Embracing a Sustainable and Equitable Future",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675589"
+    },
+    {
+      "id": "690325750078",
+      "title": "Reasons to Grow Anise Hyssop",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675898"
+    },
+    {
+      "id": "690325684542",
+      "title": "22 Christmas Bathroom Decor Ideas",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675907"
+    },
+    {
+      "id": "690325619006",
+      "title": "27 Kitchen Decor for Christmas Ideas",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675914"
+    },
+    {
+      "id": "690324832574",
+      "title": "How to Use Ash in Gardening: Step-by-Step Guide + ",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675971"
+    },
+    {
+      "id": "690324406590",
+      "title": "How Sea Buckthorn Can Help Slow Down Aging",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.675999"
+    },
+    {
+      "id": "690323259710",
+      "title": "Pomegranate Peel Benefits: Nutrition Facts, How to",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.676040"
+    },
+    {
+      "id": "690322964798",
+      "title": "Celery Juice Benefits: Nutrition Facts, How to Use",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.676056"
+    },
+    {
+      "id": "690322342206",
+      "title": "Sesame Seeds Benefits: Nutrition Facts, How to Use",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.676066"
+    },
+    {
+      "id": "690320965950",
+      "title": "Banana Peels Benefits: Nutrition Facts, How to Use",
+      "status": "pending",
+      "attempts": 0,
+      "last_error": "HARD_FAIL_SCAN",
+      "shopify_url": null,
+      "updated_at": "2026-04-22T10:37:54.676073"
     }
   ]
 }
