@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-22T10:37:54.676366",
-  "updated_at": "2026-04-22T11:42:36.482215",
+  "updated_at": "2026-04-22T12:33:58.299281",
   "items": [
     {
       "id": "690524029246",
@@ -444,11 +444,11 @@
     {
       "id": "690324767038",
       "title": "Hairy Bittercress Benefits: Uses, Dosage, Side Eff",
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "last_error": "REQUEUED_HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-22T10:37:54.675974"
+      "updated_at": "2026-04-22T12:33:58.299274"
     },
     {
       "id": "690324701502",
@@ -761,11 +761,11 @@
     {
       "id": "690309071166",
       "title": "Black Garlic Benefits: Uses, Dosage, Side Effects ",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: REQUEUED_HARD_FAIL_SCAN",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-04-22T11:42:36.478819"
+      "updated_at": "2026-04-22T12:33:57.612809"
     },
     {
       "id": "690309038398",
