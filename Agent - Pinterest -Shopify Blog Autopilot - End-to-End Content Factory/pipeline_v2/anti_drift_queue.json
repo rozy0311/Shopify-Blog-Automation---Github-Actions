@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-22T20:38:53.041973",
-  "updated_at": "2026-04-23T01:01:42.319795",
+  "updated_at": "2026-04-23T02:05:23.188742",
   "items": [
     {
       "id": "690524029246",
@@ -491,9 +491,9 @@
       "title": "Cabbage Leaves Benefits: Nutrition Facts, How to U",
       "status": "in_progress",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
       "shopify_url": null,
-      "updated_at": "2026-04-22T23:36:39.653048"
+      "updated_at": "2026-04-23T02:05:23.188738"
     },
     {
       "id": "690324275518",
@@ -516,11 +516,11 @@
     {
       "id": "690324209982",
       "title": "33 Christmas Vase for Home Decor Ideas",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-04-23T01:01:42.316239"
+      "updated_at": "2026-04-23T02:05:22.143347"
     },
     {
       "id": "690324046142",
