@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-04-25T03:12:56.518780",
-  "updated_at": "2026-04-25T10:35:55.989935",
+  "updated_at": "2026-04-25T11:00:42.039923",
   "items": [
     {
       "id": "690524029246",
@@ -1062,11 +1062,11 @@
     {
       "id": "690283512126",
       "title": "Glutinous Corn Watering: Milky Stage Care for Best",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "last_error": "AUTO_RESET_STALE_IN_PROGRESS: HARD_FAIL_SCAN",
+      "last_error": "ALREADY_OK_BATCH",
       "shopify_url": null,
-      "updated_at": "2026-04-25T10:35:55.986367"
+      "updated_at": "2026-04-25T11:00:36.403322"
     },
     {
       "id": "690283348286",
@@ -1368,11 +1368,11 @@
     {
       "id": "690327617854",
       "title": "Upcycled Light Bulb Ideas: 21 DIY Decor Projects f",
-      "status": "pending",
-      "attempts": 0,
-      "last_error": "HARD_FAIL_SCAN",
+      "status": "done",
+      "attempts": 1,
+      "last_error": null,
       "shopify_url": null,
-      "updated_at": "2026-04-25T03:12:56.517474"
+      "updated_at": "2026-04-25T11:00:42.039378"
     },
     {
       "id": "690327290174",
